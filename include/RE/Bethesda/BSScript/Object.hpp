@@ -31,7 +31,7 @@ namespace RE
 			[[nodiscard]] constexpr bool IsInitialized() const noexcept { return static_cast<bool>(initialized); }
 			[[nodiscard]] constexpr bool IsValid() const noexcept { return static_cast<bool>(valid); }
 
-			[[nodiscard]] void* Resolve(std::uint32_t a_typeID) const;
+			[[nodiscard]] void* Resolve(VMTypeID a_typeID) const;
 
 			template <class T>
 			[[nodiscard]] T* Resolve() const
@@ -53,7 +53,7 @@ namespace RE
 				return func(this);
 			}
 
-			[[nodiscard]] std::size_t GetHandle() const
+			[[nodiscard]] VMHandle GetHandle() const
 			{
 				return handle;
 			}
@@ -71,7 +71,7 @@ namespace RE
 			BSTSmartPointer<ObjectTypeInfo> type;	 // 08
 			BSFixedString currentState;				 // 10
 			void* lockStructure;					 // 18
-			std::size_t handle;						 // 20
+			VMHandle handle;						 // 20
 			std::uint32_t refCountAndHandleLock;	 // 28
 			Variable variables[0];					 // 30
 		};

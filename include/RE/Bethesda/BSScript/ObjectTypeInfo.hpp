@@ -48,6 +48,7 @@ namespace RE
 			}
 
 			[[nodiscard]] bool Valid() const noexcept { return linkedValid == LinkValidState::kLinkedValid; }
+
 			struct UnlinkedNativeFunction
 			{
 			public:
@@ -65,7 +66,11 @@ namespace RE
 					kSetOnObject = 1 << 0
 				};
 
-				[[nodiscard]] BSFixedString GetUserFlag() const;
+				BSFixedString GetUserFlag() const
+				{
+					auto sanitizedType = data & ~kSetOnObject;
+					return *reinterpret_cast<BSFixedString*>(&sanitizedType);
+				}
 
 				// members
 				std::uintptr_t data; // 00
@@ -134,9 +139,20 @@ namespace RE
 				};
 				static_assert(sizeof(Func) == 0x8);
 
-				[[nodiscard]] constexpr std::uint32_t GetNumFuncs() const noexcept { return memberFunctionCount; }
-				Func* GetFuncIter();
-				[[nodiscard]] const Func* GetFuncIter() const;
+				[[nodiscard]] constexpr std::uint32_t GetNumFuncs() const noexcept
+				{
+					return memberFunctionCount;
+				}
+
+				Func* GetFuncIter()
+				{
+					return reinterpret_cast<Func*>((std::uintptr_t)this + memberFunctionOffset);
+				}
+
+				const Func* GetFuncIter() const
+				{
+					return reinterpret_cast<const Func*>((std::uintptr_t)this + memberFunctionOffset);
+				}
 
 				// members
 				BSFixedString name;						// 00
@@ -146,12 +162,30 @@ namespace RE
 			};
 			static_assert(sizeof(NamedStateInfo) == 0x10);
 
-			~ObjectTypeInfo();
+			~ObjectTypeInfo()
+			{
+				Dtor();
+			}
 
-			const char* GetName() const;
-			ObjectTypeInfo* GetParent();
-			const ObjectTypeInfo* GetParent() const;
-			virtual TypeInfo::RawType GetRawType() const override;
+			[[nodiscard]] const char* GetName() const
+			{
+				return name.c_str();
+			}
+
+			[[nodiscard]] ObjectTypeInfo* GetParent()
+			{
+				return parentTypeInfo.get();
+			}
+
+			[[nodiscard]] const ObjectTypeInfo* GetParent() const
+			{
+				return parentTypeInfo.get();
+			}
+
+			[[nodiscard]] TypeInfo::RawType GetRawType() const
+			{
+				return TypeInfo::RawType::kObject;
+			}
 
 			[[nodiscard]] constexpr bool IsLinked() const noexcept
 			{
@@ -164,41 +198,134 @@ namespace RE
 				}
 			}
 
-			UnlinkedNativeFunction* GetUnlinkedFunctionIter();
-			const UnlinkedNativeFunction* GetUnlinkedFunctionIter() const;
+			[[nodiscard]] UnlinkedNativeFunction* GetUnlinkedFunctionIter()
+			{
+				return reinterpret_cast<UnlinkedNativeFunction*>(data);
+			}
 
-			[[nodiscard]] constexpr std::uint32_t GetNumUserFlags() const noexcept { return userFlagCount; }
-			UserFlagInfo* GetUserFlagIter();
-			const UserFlagInfo* GetUserFlagIter() const;
+			[[nodiscard]] const UnlinkedNativeFunction* GetUnlinkedFunctionIter() const
+			{
+				return reinterpret_cast<const UnlinkedNativeFunction*>(data);
+			}
 
-			[[nodiscard]] constexpr std::uint32_t GetNumVariables() const noexcept { return variableCount; }
-			std::uint32_t GetTotalNumVariables() const;
-			VariableInfo* GetVariableIter();
-			const VariableInfo* GetVariableIter() const;
+			[[nodiscard]] constexpr std::uint32_t GetNumUserFlags() const noexcept
+			{
+				return userFlagCount;
+			}
 
-			[[nodiscard]] constexpr std::uint32_t GetNumInitalValues() const noexcept { return initialValueCount; }
-			InitialValueInfo* GetInitialValueIter();
-			const InitialValueInfo* GetInitialValueIter() const;
+			[[nodiscard]] UserFlagInfo* GetUserFlagIter()
+			{
+				return reinterpret_cast<UserFlagInfo*>(data);
+			}
 
-			[[nodiscard]] constexpr std::uint32_t GetNumProperties() const noexcept { return propertyCount; }
-			PropertyInfo* GetPropertyIter();
-			const PropertyInfo* GetPropertyIter() const;
+			[[nodiscard]] const UserFlagInfo* GetUserFlagIter() const
+			{
+				return reinterpret_cast<const UserFlagInfo*>(data);
+			}
 
-			[[nodiscard]] constexpr std::uint32_t GetNumGlobalFuncs() const noexcept { return staticFunctionCount; }
-			GlobalFuncInfo* GetGlobalFuncIter();
-			const GlobalFuncInfo* GetGlobalFuncIter() const;
+			[[nodiscard]] constexpr std::uint32_t GetNumVariables() const noexcept
+			{
+				return variableCount;
+			}
 
-			[[nodiscard]] constexpr std::uint32_t GetNumMemberFuncs() const noexcept { return emptyStateMemberFunctionCount; }
-			MemberFuncInfo* GetMemberFuncIter();
-			const MemberFuncInfo* GetMemberFuncIter() const;
+			[[nodiscard]] std::uint32_t GetTotalNumVariables() const;
 
-			[[nodiscard]] constexpr std::uint32_t GetNumNamedStates() const noexcept { return namedStateCount; }
-			NamedStateInfo* GetNamedStateIter();
-			const NamedStateInfo* GetNamedStateIter() const;
+			[[nodiscard]] VariableInfo* GetVariableIter()
+			{
+				return reinterpret_cast<VariableInfo*>(GetUserFlagIter() + GetNumUserFlags());
+			}
 
-			[[nodiscard]] const BSFixedString* GetInitialState() const;
-			std::uint32_t GetPropertyIndex(const BSFixedString& a_name) const;
-			[[nodiscard]] constexpr bool HasPropertyGroups() const;
+			[[nodiscard]] const VariableInfo* GetVariableIter() const
+			{
+				return reinterpret_cast<const VariableInfo*>(GetUserFlagIter() + GetNumUserFlags());
+			}
+
+			[[nodiscard]] constexpr std::uint32_t GetNumInitalValues() const noexcept
+			{
+				return initialValueCount;
+			}
+
+			[[nodiscard]] InitialValueInfo* GetInitialValueIter()
+			{
+				return reinterpret_cast<InitialValueInfo*>(GetVariableIter() + GetNumVariables());
+			}
+
+			[[nodiscard]] const InitialValueInfo* GetInitialValueIter() const
+			{
+				return reinterpret_cast<const InitialValueInfo*>(GetVariableIter() + GetNumVariables());
+			}
+
+			[[nodiscard]] constexpr std::uint32_t GetNumProperties() const noexcept
+			{
+				return propertyCount;
+			}
+
+			[[nodiscard]] PropertyInfo* GetPropertyIter()
+			{
+				return reinterpret_cast<PropertyInfo*>(GetInitialValueIter() + GetNumInitalValues());
+			}
+
+			[[nodiscard]] const PropertyInfo* GetPropertyIter() const
+			{
+				return reinterpret_cast<const PropertyInfo*>(GetInitialValueIter() + GetNumInitalValues());
+			}
+
+			[[nodiscard]] constexpr std::uint32_t GetNumGlobalFuncs() const noexcept
+			{
+				return staticFunctionCount;
+			}
+
+			[[nodiscard]] GlobalFuncInfo* GetGlobalFuncIter()
+			{
+				return reinterpret_cast<GlobalFuncInfo*>(GetPropertyIter() + GetNumProperties());
+			}
+
+			[[nodiscard]] const GlobalFuncInfo* GetGlobalFuncIter() const
+			{
+				return reinterpret_cast<const GlobalFuncInfo*>(GetPropertyIter() + GetNumProperties());
+			}
+
+			[[nodiscard]] constexpr std::uint32_t GetNumMemberFuncs() const noexcept
+			{
+				return emptyStateMemberFunctionCount;
+			}
+
+			[[nodiscard]] MemberFuncInfo* GetMemberFuncIter()
+			{
+				return reinterpret_cast<MemberFuncInfo*>(GetGlobalFuncIter() + GetNumGlobalFuncs());
+			}
+
+			[[nodiscard]] const MemberFuncInfo* GetMemberFuncIter() const
+			{
+				return reinterpret_cast<const MemberFuncInfo*>(GetGlobalFuncIter() + GetNumGlobalFuncs());
+			}
+
+			[[nodiscard]] constexpr std::uint32_t GetNumNamedStates() const noexcept
+			{
+				return namedStateCount;
+			}
+
+			[[nodiscard]] NamedStateInfo* GetNamedStateIter()
+			{
+				return reinterpret_cast<NamedStateInfo*>(GetMemberFuncIter() + GetNumMemberFuncs());
+			}
+
+			[[nodiscard]] const NamedStateInfo* GetNamedStateIter() const
+			{
+				return reinterpret_cast<const NamedStateInfo*>(GetMemberFuncIter() + GetNumMemberFuncs());
+			}
+
+			[[nodiscard]] BSFixedString GetInitialState() const
+			{
+				if (GetNumNamedStates() == 0) {
+					return {};
+				}
+
+				const auto* stateIter = GetNamedStateIter();
+				return stateIter[initialState].name;
+			}
+
+			[[nodiscard]] std::uint32_t GetPropertyIndex(const BSFixedString& a_name) const;
 
 			// members
 			BSFixedString name;											 // 10
@@ -221,7 +348,6 @@ namespace RE
 		private:
 			void Dtor();
 		};
-
 		static_assert(sizeof(ObjectTypeInfo) == 0x58);
 	}
 }

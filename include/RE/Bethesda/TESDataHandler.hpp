@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RE/Bethesda/BSExtraData.hpp"
 #include "RE/Bethesda/BSTEvent.hpp"
 #include "RE/Bethesda/BSTList.hpp"
 #include "RE/Bethesda/BSTSingleton.hpp"
@@ -10,11 +11,14 @@
 
 namespace RE
 {
-	class TESRegionDataManager;
-
 	struct BGSHotloadCompletedEvent;
-	struct TESObjectList;
-	struct TESRegionList;
+
+	class BGSObjectInstanceExtra;
+	class BGSPrimitive;
+	class NiPoint3;
+	class TESObjectList;
+	class TESRegionDataManager;
+	class TESRegionList;
 
 	class __declspec(novtable) NEW_REFR_DATA
 	{
@@ -66,7 +70,7 @@ namespace RE
 		struct RUNTIME_DATA
 		{
 #define RUNTIME_DATA_CONTENT                                \
-	BSTArray<std::uint32_t> releasedFormIDArray; /* 0FF0 */ \
+	BSTArray<RE::TESFormID> releasedFormIDArray; /* 0FF0 */ \
 	bool masterSave;							 /* 1008 */ \
 	bool blockSave;								 /* 1009 */ \
 	bool saveLoadGame;							 /* 100A */ \
@@ -92,44 +96,16 @@ namespace RE
 
 		inline static RE::TESFileCollection* VRcompiledFileCollection = nullptr; // used by FalloutVRESL to store pointer to VR version
 
-		[[nodiscard]] static TESDataHandler* GetSingleton(bool a_VRESL = true)
-		{
-			static REL::Relocation<TESDataHandler**> singleton{ REL::RelocationID(711558, 2688883) };
-			if (REL::Module::IsVR() && a_VRESL && !VRcompiledFileCollection) {
-				const auto VRhandle = REX::W32::GetModuleHandleW(L"falloutvresl");
-				if (VRhandle != NULL) {
-					const auto GetCompiledFileCollection = reinterpret_cast<const RE::TESFileCollection* (*)()>(REX::W32::GetProcAddress(VRhandle, "GetCompiledFileCollectionExtern"));
-					if (GetCompiledFileCollection != nullptr) {
-						TESDataHandler::VRcompiledFileCollection = const_cast<RE::TESFileCollection*>(GetCompiledFileCollection());
-					}
-				}
-			}
-			return *singleton;
-		}
+		[[nodiscard]] static TESDataHandler* GetSingleton(bool a_VRESL = true);
 
-		[[nodiscard]] bool AddFormToDataHandler(TESForm* a_form)
-		{
-			using func_t = decltype(&TESDataHandler::AddFormToDataHandler);
-			static REL::Relocation<func_t> func{ REL::RelocationID(350112, 2192271) };
-			return func(this, a_form);
-		}
+		[[nodiscard]] ObjectRefHandle CreateReferenceAtLocation(NEW_REFR_DATA& a_data);
 
-		[[nodiscard]] bool CheckModsLoaded(bool a_everModded)
-		{
-			using func_t = decltype(&TESDataHandler::CheckModsLoaded);
-			static REL::Relocation<func_t> func{ REL::RelocationID(1432894, 2192323) };
-			return func(this, a_everModded);
-		}
-
-		[[nodiscard]] ObjectRefHandle CreateReferenceAtLocation(NEW_REFR_DATA& a_data)
-		{
-			using func_t = decltype(&TESDataHandler::CreateReferenceAtLocation);
-			static REL::Relocation<func_t> func{ REL::RelocationID(500304, 500304) };
-			return func(this, a_data);
-		}
+		bool AddFormToDataHandler(TESForm* a_form);
+		[[nodiscard]] bool CheckModsLoaded(bool a_everModded) const;
+		[[nodiscard]] bool IsFormIDInUse(std::uint32_t a_formID) const;
 
 		template <class T>
-		[[nodiscard]] BSTArray<T*>& GetFormArray() noexcept //
+		[[nodiscard]] BSTArray<T*>& GetFormArray() //
 			requires(std::derived_from<T, TESForm> &&
 					 !std::is_pointer_v<T> &&
 					 !std::is_reference_v<T>)
@@ -139,7 +115,7 @@ namespace RE
 		}
 
 		template <class T>
-		[[nodiscard]] const BSTArray<T*>& GetFormArray() const noexcept //
+		[[nodiscard]] const BSTArray<T*>& GetFormArray() const //
 			requires(std::derived_from<T, TESForm> &&
 					 !std::is_pointer_v<T> &&
 					 !std::is_reference_v<T>)
@@ -148,48 +124,11 @@ namespace RE
 			return reinterpret_cast<const BSTArray<T*>&>(formArrays[std::to_underlying(T::FORMTYPE)]);
 		}
 
-		TESFormID LookupFormID(TESFormID a_rawFormID, std::string_view a_modName) const noexcept
-		{
-			auto file = LookupModByName(a_modName);
-			if (!file || file->compileIndex == 0xFF) {
-				return 0;
-			}
-
-			if (REL::Module::IsVR() && !VRcompiledFileCollection) {
-				// Use FalloutVR lookup logic, ignore light plugin index which doesn't exist in VR
-				return (a_rawFormID & 0xFFFFFF) | (file->compileIndex << 24);
-			}
-			else {
-				TESFormID formID = file->compileIndex << 24;
-				formID += file->smallFileCompileIndex << 12;
-				formID += a_rawFormID;
-				return formID;
-			}
-		}
-
-		TESForm* LookupForm(TESFormID a_rawFormID, std::string_view a_modName) const noexcept
-		{
-			auto file = LookupLoadedFile(a_modName);
-			if (!file.first) {
-				return nullptr;
-			}
-
-			TESFormID formID = 0;
-			if (file.second) {
-				formID = file.first->compileIndex << 24;
-				formID += (a_rawFormID & 0x00FFFFFF);
-			}
-			else {
-				formID = 0xFE000000;
-				formID += file.first->smallFileCompileIndex << 12;
-				formID += (a_rawFormID & 0x00000FFF);
-			}
-
-			return TESForm::GetFormByID(formID);
-		}
+		[[nodiscard]] TESFormID LookupFormID(TESFormID a_rawFormID, std::string_view a_modName) const;
+		[[nodiscard]] TESForm* LookupForm(TESFormID a_rawFormID, std::string_view a_modName) const;
 
 		template <class T>
-		T* LookupForm(TESFormID a_rawFormID, std::string_view a_modName) const noexcept
+		[[nodiscard]] T* LookupForm(TESFormID a_rawFormID, std::string_view a_modName) const
 		{
 			auto form = LookupForm(a_rawFormID, a_modName);
 			if (!form) {
@@ -199,121 +138,18 @@ namespace RE
 			return form->Is(T::FORMTYPE) ? form->As<T>() : nullptr;
 		}
 
-		const std::pair<TESFile*, bool> LookupLoadedFile(std::string_view a_fileName) const noexcept
-		{
-			if (auto fullFile = LookupLoadedModByName(a_fileName))
-				return { const_cast<TESFile*>(fullFile), true };
-			if (auto smallFile = LookupLoadedLightModByName(a_fileName))
-				return { const_cast<TESFile*>(smallFile), false };
-			return { nullptr, false };
-		}
+		[[nodiscard]] const std::pair<TESFile*, bool> LookupLoadedFile(std::string_view a_fileName) const;
 
-		const TESFile* LookupModByName(std::string_view a_modName) const noexcept
-		{
-			for (auto& file : files) {
-				if (a_modName.size() == strlen(file->filename) &&
-					_strnicmp(file->filename, a_modName.data(), a_modName.size()) == 0) {
-					return file;
-				}
-			}
-			return nullptr;
-		}
+		[[nodiscard]] const TESFile* LookupModByName(std::string_view a_modName) const;
+		[[nodiscard]] const TESFile* LookupLoadedModByName(std::string_view a_modName) const;
+		[[nodiscard]] const TESFile* LookupLoadedLightModByName(std::string_view a_modName) const;
 
-		std::optional<std::uint8_t> GetModIndex(std::string_view a_modName) const noexcept
-		{
-			auto mod = LookupModByName(a_modName);
-			return mod ? std::make_optional(mod->compileIndex) : std::nullopt;
-		}
+		[[nodiscard]] const TESFile* LookupLoadedModByIndex(std::uint8_t a_index) const;
+		[[nodiscard]] const TESFile* LookupLoadedLightModByIndex(std::uint16_t a_index) const;
 
-		const TESFile* LookupLoadedModByName(std::string_view a_modName) const noexcept
-		{
-			auto pCompiledFileCollection = GetCompiledFileCollection();
-			if (pCompiledFileCollection) {
-				for (auto& file : pCompiledFileCollection->files) {
-					if (a_modName.size() == strlen(file->filename) &&
-						_strnicmp(file->filename, a_modName.data(), a_modName.size()) == 0) {
-						return file;
-					}
-				}
-			}
-			else if (auto pLoadedMods = GetVRModData()) { // In VR so only have files loadedMods
-				for (uint32_t i = 0; i < pLoadedMods->loadedModCount; i++) {
-					auto& file = pLoadedMods->loadedMods[i];
-					if (a_modName.size() == strlen(file->filename) &&
-						_strnicmp(file->filename, a_modName.data(), a_modName.size()) == 0) {
-						return file;
-					}
-				}
-			}
-			return nullptr;
-		}
-
-		const TESFile* LookupLoadedModByIndex(std::uint8_t a_index) const noexcept
-		{
-			auto pCompiledFileCollection = GetCompiledFileCollection();
-			if (pCompiledFileCollection) {
-				for (auto& file : pCompiledFileCollection->files) {
-					if (file->compileIndex == a_index) {
-						return file;
-					}
-				}
-			}
-			else if (auto pLoadedMods = GetVRModData()) { // In VR so only have files loadedMods
-				for (uint32_t i = 0; i < pLoadedMods->loadedModCount; i++) {
-					auto& file = pLoadedMods->loadedMods[i];
-					if (file->compileIndex == a_index) {
-						return file;
-					}
-				}
-			}
-			return nullptr;
-		}
-
-		std::optional<std::uint8_t> GetLoadedModIndex(std::string_view a_modName) const noexcept
-		{
-			auto mod = LookupLoadedModByName(a_modName);
-			return mod ? std::make_optional(mod->compileIndex) : std::nullopt;
-		}
-
-		const TESFile* LookupLoadedLightModByName(std::string_view a_modName) const noexcept
-		{
-			auto pCompiledFileCollection = GetCompiledFileCollection();
-			if (pCompiledFileCollection) {
-				for (auto& smallFile : pCompiledFileCollection->smallFiles) {
-					if (a_modName.size() == strlen(smallFile->filename) &&
-						_strnicmp(smallFile->filename, a_modName.data(), a_modName.size()) == 0) {
-						return smallFile;
-					}
-				}
-			}
-			return nullptr;
-		}
-
-		const TESFile* LookupLoadedLightModByIndex(std::uint16_t a_index) const noexcept
-		{
-			auto pCompiledFileCollection = GetCompiledFileCollection();
-			if (pCompiledFileCollection) {
-				for (auto& smallFile : pCompiledFileCollection->smallFiles) {
-					if (smallFile->smallFileCompileIndex == a_index) {
-						return smallFile;
-					}
-				}
-			}
-			return nullptr;
-		}
-
-		std::optional<std::uint16_t> GetLoadedLightModIndex(std::string_view a_modName) const noexcept
-		{
-			auto mod = LookupLoadedLightModByName(a_modName);
-			return mod ? std::make_optional(mod->smallFileCompileIndex) : std::nullopt;
-		}
-
-		bool IsFormIDInUse(std::uint32_t a_formID)
-		{
-			using func_t = decltype(&TESDataHandler::IsFormIDInUse);
-			static REL::Relocation<func_t> func{ REL::RelocationID(1448838, 2192351) };
-			return func(this, a_formID);
-		}
+		[[nodiscard]] std::optional<std::uint8_t> GetModIndex(std::string_view a_modName) const;
+		[[nodiscard]] std::optional<std::uint8_t> GetLoadedModIndex(std::string_view a_modName) const;
+		[[nodiscard]] std::optional<std::uint16_t> GetLoadedLightModIndex(std::string_view a_modName) const;
 
 		[[nodiscard]] inline RUNTIME_DATA& GetRuntimeData() noexcept
 		{
@@ -340,6 +176,7 @@ namespace RE
 			}
 			return nullptr;
 		}
+
 		[[nodiscard]] inline TESFileCollection* GetCompiledFileCollection() noexcept
 		{
 			if FALLOUT_REL_CONSTEXPR (REL::Module::IsVR()) {

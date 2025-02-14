@@ -39,28 +39,6 @@ if(NOT ENABLE_FALLOUT_F4 AND NOT ENABLE_FALLOUT_NG AND NOT ENABLE_FALLOUT_VR)
 	message(FATAL_ERROR "At least one Fallout runtime must be supported by the CommonLibF4 build.")
 endif()
 
-# --- Add Sources ---
-
-file(
-	GLOB_RECURSE
-	SOURCES
-	CONFIGURE_DEPENDS
-		"${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
-		"${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
-		"${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-)
-
-list(
-	REMOVE_ITEM
-	SOURCES
-		"${CMAKE_CURRENT_SOURCE_DIR}/include/F4SE/Impl/PCH.hpp"
-)
-
-source_group(
-	TREE "${CMAKE_CURRENT_SOURCE_DIR}"
-	FILES "${SOURCES}"
-)
-
 # --- Add Dependencies ---
 
 find_package(mmio REQUIRED CONFIG)
@@ -85,6 +63,27 @@ endif()
 if(REX_OPTION_TOML)
 	find_package(toml11 REQUIRED CONFIG)
 endif()
+
+# --- Add Sources ---
+
+file(
+	GLOB_RECURSE
+	SOURCES
+	CONFIGURE_DEPENDS
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/*"
+		"${CMAKE_CURRENT_SOURCE_DIR}/src/*"
+)
+
+list(
+	REMOVE_ITEM
+	SOURCES
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/F4SE/Impl/PCH.hpp"
+)
+
+source_group(
+	TREE "${CMAKE_CURRENT_SOURCE_DIR}"
+	FILES "${SOURCES}"
+)
 
 # --- Include ---
 
@@ -113,26 +112,6 @@ target_precompile_headers(
 	"${PROJECT_NAME}"
 	PRIVATE
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/F4SE/Impl/PCH.hpp"
-)
-
-# --- Link ---
-
-target_link_libraries(
-	"${PROJECT_NAME}"
-	PUBLIC
-		advapi32.lib
-		bcrypt.lib
-		d3d11.lib
-		d3dcompiler.lib
-		dbghelp.lib
-		dxgi.lib
-		ole32.lib
-		version.lib
-		mmio::mmio
-		spdlog::spdlog
-		"$<$<BOOL:${F4SE_SUPPORT_XBYAK}>:xbyak::xbyak>"
-		"$<$<BOOL:${REX_OPTION_JSON}>:nlohmann_json::nlohmann_json>"
-		"$<$<BOOL:${REX_OPTION_TOML}>:toml11::toml11>"
 )
 
 # --- Compile ---
@@ -195,6 +174,26 @@ if(MSVC)
 			"$<$<CONFIG:RELEASE>:/O2;/GL;/Gw;/Oi;/Qpar>;/Zc:inline;/JMC-"
 	)
 endif()
+
+# --- Link ---
+
+target_link_libraries(
+	"${PROJECT_NAME}"
+	PUBLIC
+		advapi32.lib
+		bcrypt.lib
+		d3d11.lib
+		d3dcompiler.lib
+		dbghelp.lib
+		dxgi.lib
+		ole32.lib
+		version.lib
+		mmio::mmio
+		spdlog::spdlog
+		"$<$<BOOL:${F4SE_SUPPORT_XBYAK}>:xbyak::xbyak>"
+		"$<$<BOOL:${REX_OPTION_JSON}>:nlohmann_json::nlohmann_json>"
+		"$<$<BOOL:${REX_OPTION_TOML}>:toml11::toml11>"
+)
 
 # --- Install ---
 

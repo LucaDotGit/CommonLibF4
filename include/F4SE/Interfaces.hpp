@@ -68,8 +68,8 @@ namespace F4SE
 			bool(F4SEAPI* WriteRecordData)(const void*, std::uint32_t);
 			bool(F4SEAPI* GetNextRecordInfo)(std::uint32_t*, std::uint32_t*, std::uint32_t*);
 			std::uint32_t(F4SEAPI* ReadRecordData)(void*, std::uint32_t);
-			bool(F4SEAPI* ResolveHandle)(std::uint64_t, std::uint64_t*);
-			bool(F4SEAPI* ResolveFormID)(std::uint32_t, std::uint32_t*);
+			bool(F4SEAPI* ResolveHandle)(RE::VMHandle, RE::VMHandle*);
+			bool(F4SEAPI* ResolveFormID)(RE::TESFormID, RE::TESFormID*);
 		};
 
 		struct F4SEPapyrusInterface
@@ -237,7 +237,7 @@ namespace F4SE
 		};
 
 		using EventCallback = void F4SEAPI(const SerializationInterface* a_intfc);
-		using FormDeleteCallback = void F4SEAPI(std::uint64_t a_handle);
+		using FormDeleteCallback = void F4SEAPI(RE::VMHandle a_handle);
 
 		[[nodiscard]] std::uint32_t Version() const noexcept { return GetProxy().version; }
 
@@ -293,9 +293,9 @@ namespace F4SE
 			return ReadRecordData(std::addressof(a_buf), sizeof(T) * N);
 		}
 
-		[[nodiscard]] std::optional<std::uint64_t> ResolveHandle(std::uint64_t a_handle) const
+		[[nodiscard]] std::optional<RE::VMHandle> ResolveHandle(RE::VMHandle a_handle) const
 		{
-			std::uint64_t result{ 0 };
+			RE::VMHandle result{ 0 };
 			if (GetProxy().ResolveHandle(a_handle, std::addressof(result))) {
 				return result;
 			}
@@ -304,9 +304,9 @@ namespace F4SE
 			}
 		}
 
-		[[nodiscard]] std::optional<std::uint32_t> ResolveFormID(std::uint32_t a_formID) const
+		[[nodiscard]] std::optional<RE::TESFormID> ResolveFormID(RE::TESFormID a_formID) const
 		{
-			std::uint32_t result{ 0 };
+			RE::TESFormID result{ 0 };
 			if (GetProxy().ResolveFormID(a_formID, std::addressof(result))) {
 				return result;
 			}
@@ -331,7 +331,7 @@ namespace F4SE
 		};
 
 		using RegisterFunctions = bool F4SEAPI(RE::BSScript::IVirtualMachine* a_vm);
-		using RegistrantFunctor = void F4SEAPI(std::uint64_t a_handle, const char* a_scriptName, const char* a_callbackName, void* a_data);
+		using RegistrantFunctor = void F4SEAPI(RE::VMHandle a_handle, const char* a_scriptName, const char* a_callbackName, void* a_data);
 
 		[[nodiscard]] std::uint32_t Version() const noexcept { return GetProxy().interfaceVersion; }
 

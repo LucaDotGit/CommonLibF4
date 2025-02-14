@@ -1031,7 +1031,7 @@ namespace RE
 
 		const BSFixedString GetNoteProgram()
 		{
-			return type == NOTE_TYPE::kProgram ? programFile : BSFixedString{ ""sv };
+			return type == NOTE_TYPE::kProgram ? programFile : BSFixedString();
 		}
 
 		BGSTerminal* GetNoteTerminal()

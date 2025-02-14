@@ -37,14 +37,12 @@ namespace RE::BSScript
 		{
 			constexpr auto SIZE = N1 + 1 + N2 + 1;
 
-			char buffer[SIZE]{};
-			std::copy_n(a_lhs.data(), N1, buffer);
+			auto buffer = std::array<CharT, SIZE>{ '\0' };
+			std::copy_n(a_lhs.data(), N1, buffer.data());
 			buffer[N1] = '#';
+			std::copy_n(a_rhs.data(), N2, buffer.data() + N1 + 1);
 
-			std::copy_n(a_rhs.data(), N2, buffer + N1 + 1);
-			buffer[SIZE - 1] = '\0';
-
-			return stl::nttp::string<CharT, SIZE>{ buffer };
+			return stl::nttp::string<CharT, SIZE>{ buffer.data() };
 		}
 	}
 
@@ -54,10 +52,10 @@ namespace RE::BSScript
 	class structure_wrapper
 	{
 	private:
-		static constexpr stl::nttp::string _full = detail::make_structure_tag(Object, Structure);
+		static constexpr stl::nttp::string _NAME = detail::make_structure_tag(Object, Structure);
 
 	public:
-		static constexpr std::string_view name{ _full.data(), _full.length() };
+		static constexpr std::string_view NAME = std::string_view{ _NAME.data(), _NAME.size() - 1 };
 
 		structure_wrapper()
 		{
@@ -68,11 +66,9 @@ namespace RE::BSScript
 			const auto game = GameVM::GetSingleton();
 			const auto vm = game ? game->GetVM() : nullptr;
 			if (!vm ||
-				!vm->CreateStruct(name, _proxy) ||
+				!vm->CreateStruct(BSFixedString(NAME), _proxy) ||
 				!_proxy) {
-				F4SE::log::error(
-					FMT_STRING("failed to create structure of type \"{}\""),
-					name);
+				F4SE::log::error("failed to create structure of type \"{}\""sv, NAME);
 				assert(false);
 			}
 		}
@@ -85,7 +81,15 @@ namespace RE::BSScript
 		explicit structure_wrapper(BSTSmartPointer<Struct> a_proxy) noexcept :
 			_proxy(std::move(a_proxy))
 		{
-			assert(_proxy && _proxy->type && _proxy->type->name == name);
+			if (!_proxy || !_proxy->type) {
+				F4SE::log::error("failed to create structure of type \"{}\""sv, NAME);
+				assert(false);
+			}
+
+			if (_proxy->type->name != NAME) {
+				F4SE::log::error("structure type mismatch, expected \"{}\" but got \"{}\""sv, NAME, _proxy->type->name);
+				assert(false);
+			}
 		}
 
 		structure_wrapper(std::initializer_list<std::pair<std::string_view, Variable>> a_list)
@@ -97,11 +101,9 @@ namespace RE::BSScript
 			const auto game = GameVM::GetSingleton();
 			const auto vm = game ? game->GetVM() : nullptr;
 			if (!vm ||
-				!vm->CreateStruct(name, _proxy) ||
+				!vm->CreateStruct(BSFixedString(NAME), _proxy) ||
 				!_proxy) {
-				F4SE::log::error(
-					FMT_STRING("failed to create structure of type \"{}\""),
-					name);
+				F4SE::log::error("failed to create structure of type \"{}\""sv, NAME);
 				assert(false);
 			}
 
@@ -110,7 +112,8 @@ namespace RE::BSScript
 			}
 		}
 
-		operator bool() const noexcept { return _proxy != nullptr; }
+		[[nodiscard]] operator bool() const noexcept { return _proxy != nullptr; }
+		[[nodiscard]] bool IsNull() const noexcept { return _proxy == nullptr; }
 
 		template <class T>
 		std::optional<T> find(std::string_view a_name, bool a_quiet = false) const
@@ -120,14 +123,11 @@ namespace RE::BSScript
 			}
 
 			const auto& mappings = _proxy->type->varNameIndexMap;
-			const auto it = mappings.find(a_name);
+			const auto it = mappings.find(BSFixedString(a_name));
 
 			if (it == mappings.end()) {
 				if (!a_quiet) {
-					F4SE::log::warn(
-						FMT_STRING("failed to find var \"{}\" on structure \"{}\""),
-						a_name,
-						name);
+					F4SE::log::warn("failed to find var \"{}\" on structure \"{}\""sv, a_name, NAME);
 				}
 				return std::nullopt;
 			}
@@ -148,13 +148,10 @@ namespace RE::BSScript
 			}
 
 			auto& mappings = _proxy->type->varNameIndexMap;
-			const auto it = mappings.find(a_name);
+			const auto it = mappings.find(BSFixedString(a_name));
 
 			if (it == mappings.end()) {
-				F4SE::log::warn(
-					FMT_STRING("failed to find var \"{}\" on structure \"{}\""),
-					a_name,
-					name);
+				F4SE::log::warn("failed to find var \"{}\" on structure \"{}\""sv, a_name, NAME);
 				return false;
 			}
 
@@ -398,19 +395,19 @@ namespace RE::BSScript
 	}
 
 	template <detail::object T>
-	[[nodiscard]] constexpr std::uint32_t GetVMTypeID() noexcept
+	[[nodiscard]] constexpr VMTypeID GetVMTypeID() noexcept
 	{
-		return static_cast<std::uint32_t>(T::FORMTYPE);
+		return static_cast<VMTypeID>(T::FORMTYPE);
 	}
 
 	template <detail::eobject T>
-	[[nodiscard]] constexpr std::uint32_t GetVMTypeID() noexcept
+	[[nodiscard]] constexpr VMTypeID GetVMTypeID() noexcept
 	{
-		return static_cast<std::uint32_t>(T::FORMTYPE);
+		return static_cast<VMTypeID>(T::FORMTYPE);
 	}
 
 	template <detail::cobject T>
-	[[nodiscard]] constexpr std::uint32_t GetVMTypeID() noexcept
+	[[nodiscard]] constexpr VMTypeID GetVMTypeID() noexcept
 	{
 		return GetVMTypeID<TESObjectREFR>();
 	}
@@ -473,9 +470,10 @@ namespace RE::BSScript
 	template <detail::vmobject T>
 	[[nodiscard]] std::optional<TypeInfo> GetTypeInfo()
 	{
+		static const auto baseObjectName = BSFixedString{ "ScriptObject"sv };
+
 		const auto game = GameVM::GetSingleton();
 		const auto vm = game ? game->GetVM() : nullptr;
-		static const BSFixedString baseObjectName{ "ScriptObject" };
 		BSTSmartPointer<ObjectTypeInfo> typeInfo;
 		if (!vm ||
 			!vm->GetScriptObjectType(baseObjectName, typeInfo) ||
@@ -546,10 +544,10 @@ namespace RE::BSScript
 		if constexpr (detail::is_structure_wrapper_v<T>) {
 			BSTSmartPointer<StructTypeInfo> typeInfo;
 			if (!vm ||
-				!vm->GetScriptStructType(T::name, typeInfo) ||
+				!vm->GetScriptStructType(BSFixedString(T::NAME), typeInfo) ||
 				!typeInfo) {
+				F4SE::log::error("failed to get type info for structure \"{}\""sv, T::NAME);
 				assert(false);
-				F4SE::log::error("failed to get type info for structure"sv);
 				return std::nullopt;
 			}
 			else {
@@ -600,7 +598,7 @@ namespace RE::BSScript
 				GetVMTypeID<T>(),
 				const_cast<const void*>(
 					static_cast<const volatile void*>(a_val)));
-			if (handle == handles.EmptyHandle()) {
+			if (handle == GameScript::HandlePolicy::EMPTY_HANDLE) {
 				return false;
 			}
 
@@ -696,7 +694,12 @@ namespace RE::BSScript
 	void PackVariable(Variable& a_var, T&& a_val) //
 		requires(detail::string<std::remove_reference_t<T>>)
 	{
-		a_var = BSFixedString(std::forward<T>(a_val));
+		if constexpr (std::is_same_v<std::remove_cvref_t<T>, BSFixedString>) {
+			a_var = std::forward<T>(a_val);
+		}
+		else {
+			a_var = BSFixedStringCS(std::forward<T>(a_val));
+		}
 	}
 
 	template <detail::signed_integral T>
@@ -742,12 +745,12 @@ namespace RE::BSScript
 			BSTSmartPointer<Array> out;
 			if (!typeInfo ||
 				!vm ||
-				!vm->CreateArray(*typeInfo, static_cast<std::uint32_t>(size), out) ||
+				!vm->CreateArray(*typeInfo, static_cast<VMTypeID>(size), out) ||
 				!out) {
 				return false;
 			}
 
-			std::uint32_t i = 0;
+			auto i = 0ui32;
 			for (auto&& elem : std::forward<T>(a_val)) {
 				detail::PackVariable(out->elements[i++], static_cast<reference_type>(elem));
 			}
@@ -1125,7 +1128,7 @@ namespace RE::BSScript
 		decltype(auto) DispatchHelper(
 			Variable& a_self,
 			Internal::VirtualMachine& a_vm,
-			std::uint32_t a_stackID,
+			VMStackID a_stackID,
 			const StackFrame& a_stackFrame,
 			Stack& a_stack,
 			const std::function<F>& a_callback,
@@ -1217,7 +1220,7 @@ namespace RE::BSScript
 		template <class Fn>
 		NativeFunction(std::string_view a_object, std::string_view a_function, Fn a_func, bool a_isLatent) //
 			requires(detail::invocable_r<Fn, R, S, Args...> ||
-						detail::invocable_r<Fn, R, IVirtualMachine&, std::uint32_t, S, Args...>)
+						detail::invocable_r<Fn, R, IVirtualMachine&, VMTypeID, S, Args...>)
 			:
 			super(a_object, a_function, sizeof...(Args), detail::static_tag<S>, a_isLatent),
 			_stub(std::move(a_func))
@@ -1231,7 +1234,7 @@ namespace RE::BSScript
 		// override (NF_util::NativeFunctionBase)
 		bool HasStub() const override { return static_cast<bool>(_stub); } // 15
 
-		bool MarshallAndDispatch(Variable& a_self, Internal::VirtualMachine& a_vm, std::uint32_t a_stackID, Variable& a_retVal, const StackFrame& a_stackFrame) const override // 16
+		bool MarshallAndDispatch(Variable& a_self, Internal::VirtualMachine& a_vm, VMStackID a_stackID, Variable& a_retVal, const StackFrame& a_stackFrame) const override // 16
 		{
 			a_retVal = nullptr;
 
@@ -1283,9 +1286,9 @@ namespace RE::BSScript
 		class R,
 		class S,
 		class... Args>
-	NativeFunction(std::string_view, std::string_view, R (*)(IVirtualMachine&, std::uint32_t, S, Args...), bool)
+	NativeFunction(std::string_view, std::string_view, R (*)(IVirtualMachine&, VMTypeID, S, Args...), bool)
 		-> NativeFunction<
-			R(IVirtualMachine&, std::uint32_t, S, Args...),
+			R(IVirtualMachine&, VMTypeID, S, Args...),
 			true,
 			R,
 			S,
@@ -1306,7 +1309,7 @@ namespace RE::BSScript
 				std::move(a_func),
 				a_isLatent));
 		if (!success) {
-			F4SE::log::warn("failed to register method \"{}\" on object \"{}\"", a_function, a_object);
+			F4SE::log::warn("failed to register method \"{}\" on object \"{}\""sv, a_function, a_object);
 		}
 
 		if (success && a_taskletCallable) {
@@ -1410,7 +1413,7 @@ namespace RE::BSScript
 		inline BSTThreadScrapFunction<bool(BSScrapArray<Variable>&)> CreateThreadScrapFunction(FunctionArgsBase& a_args)
 		{
 			using func_t = decltype(&detail::CreateThreadScrapFunction);
-			REL::Relocation<func_t> func{ REL::ID(69733) };
+			static REL::Relocation<func_t> func{ REL::ID(69733) };
 			return func(a_args);
 		}
 	}

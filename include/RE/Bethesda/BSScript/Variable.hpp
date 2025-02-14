@@ -113,19 +113,18 @@ namespace RE
 
 			Variable& operator=(stl::owner<Variable*> a_variable)
 			{
-				assert(a_variable != nullptr);
-				assert(a_variable->varType.GetRawType() != RawType::kVar);
-
 				reset();
 				value.v = a_variable;
 				varType = RawType::kVar;
+
+				assert(is<Variable>());
 				return *this;
 			}
 
 			Variable& operator=(BSTSmartPointer<Struct> a_struct);
 			Variable& operator=(BSTSmartPointer<Array> a_array);
 
-			operator bool() const noexcept { return !is<std::nullptr_t>(); }
+			[[nodiscard]] operator bool() const noexcept { return !is<std::nullptr_t>(); }
 
 			F4_HEAP_REDEFINE_NEW(Variable);
 
@@ -193,7 +192,7 @@ namespace RE
 				return varType.IsArray();
 			}
 
-			TypeInfo GetType() const
+			[[nodiscard]] TypeInfo GetType() const
 			{
 				return varType;
 			}

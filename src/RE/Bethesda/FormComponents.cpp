@@ -220,12 +220,11 @@ namespace RE
 		free(oldData);
 	}
 
-	std::optional<std::string_view> TESFullName::GetFullName(const TESForm* a_form, bool a_strict)
+	std::optional<BGSLocalizedString> TESFullName::GetFullName(const TESForm* a_form, bool a_strict)
 	{
 		const auto* nameForm = a_form->As<TESFullName>();
 		if (nameForm) {
-			const auto* name = nameForm->GetFullName();
-			return name ? name : ""sv;
+			return nameForm->fullName;
 		}
 
 		if (a_strict) {

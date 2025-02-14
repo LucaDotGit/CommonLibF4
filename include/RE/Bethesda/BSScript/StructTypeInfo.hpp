@@ -56,7 +56,8 @@ namespace RE
 				return name.c_str();
 			}
 
-			virtual TypeInfo::RawType GetRawType() const override;
+			// override (IComplexType)
+			virtual TypeInfo::RawType GetRawType() const override { return TypeInfo::RawType::kStruct; } // 01
 
 			// members
 			BSFixedString name;										  // 10

@@ -140,7 +140,7 @@ namespace RE
 			const TESForm* a_obj,
 			const char* a_error,
 			BSScript::IVirtualMachine* a_vm,
-			std::uint32_t a_stackID,
+			VMStackID a_stackID,
 			BSScript::ErrorLogger::Severity a_severity = BSScript::ErrorLogger::Severity::kError)
 		{
 			using func_t = decltype(&LogFormError);
@@ -230,27 +230,29 @@ namespace RE
 			inline static constexpr auto RTTI{ RTTI::GameScript__HandlePolicy };
 			inline static constexpr auto VTABLE{ VTABLE::GameScript__HandlePolicy };
 
-			// override (BSScript::IObjectHandlePolicy)
-			bool HandleIsType(std::uint32_t a_type, std::size_t a_handle) const override;			   // 01
-			bool GetHandleType(std::size_t a_handle, std::uint32_t& a_type) const override;			   // 02
-			bool IsHandleLoaded(std::size_t a_handle) const override;								   // 03
-			bool IsHandleObjectAvailable(std::size_t a_handle) const override;						   // 04
-			bool ShouldAttemptToCleanHandle(std::size_t a_handle) const override;					   // 05
-			std::size_t EmptyHandle() const override { return 0xFFFF00000000; }						   // 06
-			std::size_t GetHandleForObject(std::uint32_t a_type, const void* a_object) const override; // 07
-			bool HasParent(std::size_t a_childHandle) const override;								   // 08
-			std::size_t GetParentHandle(std::size_t a_childHandle) const override;					   // 09
-			std::size_t GetHandleScriptsMovedFrom(std::size_t a_newHandle) const override;			   // 0A
-			std::size_t GetSaveRemappedHandle(std::size_t a_saveHandle) const override;				   // 0B
-			void* GetObjectForHandle(std::uint32_t a_type, std::size_t a_handle) const override;	   // 0C
-			void PersistHandle(std::size_t a_handle) override;										   // 0D
-			void ReleaseHandle(std::size_t a_handle) override;										   // 0E
-			void ConvertHandleToString(std::size_t a_handle, BSFixedString& a_string) const override;  // 0F
+			inline static constexpr auto EMPTY_HANDLE = static_cast<VMHandle>(0xFFFF00000000);
 
-			[[nodiscard]] static std::uint64_t GetHandleForInventoryID(std::uint16_t a_uniqueID, std::uint32_t a_containerFormID) noexcept
+			// override (BSScript::IObjectHandlePolicy)
+			bool HandleIsType(VMTypeID a_type, VMHandle a_handle) const override;				   // 01
+			bool GetHandleType(VMHandle a_handle, VMTypeID& a_typeID) const override;			   // 02
+			bool IsHandleLoaded(VMHandle a_handle) const override;								   // 03
+			bool IsHandleObjectAvailable(VMHandle a_handle) const override;						   // 04
+			bool ShouldAttemptToCleanHandle(VMHandle a_handle) const override;					   // 05
+			VMHandle EmptyHandle() const override { return EMPTY_HANDLE; }						   // 06
+			VMHandle GetHandleForObject(VMTypeID a_type, const void* a_object) const override;	   // 07
+			bool HasParent(VMHandle a_childHandle) const override;								   // 08
+			VMHandle GetParentHandle(VMHandle a_childHandle) const override;					   // 09
+			VMHandle GetHandleScriptsMovedFrom(VMHandle a_newHandle) const override;			   // 0A
+			VMHandle GetSaveRemappedHandle(VMHandle a_saveHandle) const override;				   // 0B
+			void* GetObjectForHandle(VMTypeID a_type, VMHandle a_handle) const override;		   // 0C
+			void PersistHandle(VMHandle a_handle) override;										   // 0D
+			void ReleaseHandle(VMHandle a_handle) override;										   // 0E
+			void ConvertHandleToString(VMHandle a_handle, BSFixedString& a_string) const override; // 0F
+
+			[[nodiscard]] static VMHandle GetHandleForInventoryID(std::uint16_t a_uniqueID, std::uint32_t a_containerFormID) noexcept
 			{
-				return static_cast<std::uint64_t>(static_cast<std::uint32_t>(a_containerFormID)) |
-					   (static_cast<std::uint64_t>(a_uniqueID) << 32ull) |
+				return static_cast<VMHandle>(static_cast<std::uint32_t>(a_containerFormID)) |
+					   (static_cast<VMHandle>(a_uniqueID) << 32ull) |
 					   (1ull << (32ull + 16ull));
 			}
 
@@ -261,7 +263,7 @@ namespace RE
 				return func(this);
 			}
 
-			void GetInventoryObjFromHandle(std::uint64_t a_cobj, TESObjectREFR*& a_container, std::uint16_t& a_uniqueID, TESObjectREFR*& a_inWorldREFR)
+			void GetInventoryObjFromHandle(VMHandle a_cobj, TESObjectREFR*& a_container, std::uint16_t& a_uniqueID, TESObjectREFR*& a_inWorldREFR)
 			{
 				using func_t = decltype(&HandlePolicy::GetInventoryObjFromHandle);
 				static REL::Relocation<func_t> func{ REL::RelocationID(66597, 2249989) };
@@ -277,8 +279,8 @@ namespace RE
 
 			// members
 			mutable BSSpinLock persistLock;							 // 08
-			BSTHashMap<std::size_t, std::uint32_t> persistRefCount;	 // 10
-			BSTHashMap<std::size_t, bool> queuedPromotes;			 // 40
+			BSTHashMap<VMHandle, std::uint32_t> persistRefCount;	 // 10
+			BSTHashMap<VMHandle, bool> queuedPromotes;				 // 40
 			mutable BSSpinLock remapLock;							 // 70
 			BSTHashMap<std::uint32_t, std::uint32_t> changedFormIDs; // 78
 		};
@@ -301,21 +303,21 @@ namespace RE
 			static_assert(sizeof(QueuedObject) == 0x18);
 
 			// override (BSScript::ObjectBindPolicy)
-			void EnsureBaseDataLoaded(std::size_t a_objHandle) override;																																															  // 01
-			void ObjectNoLongerNeeded(std::size_t a_objHandle) override;																																															  // 02
-			void AddBoundInfoImpl(std::size_t a_objHandle) override;																																																  // 03
-			void ClearBoundInfoImpl(std::size_t a_objHandle) override;																																																  // 04
-			void ClearDiskLoadedBoundInfoImpl(std::size_t a_objHandle) override;																																													  // 05
-			void ClearAllBoundInfoImpl() override;																																																					  // 06
-			void PostBindObject(std::size_t a_objHandle) override;																																																	  // 07
-			std::uint32_t GetExtraInfoSize(std::size_t) const override { return 0; }																																												  // 08
-			void WriteExtraInfo(std::size_t, const BSScript::IHandleReaderWriter&, BSStorage&) const override { return; }																																			  // 09
-			void ReadExtraInfo(std::size_t a_objHandle, std::uint16_t a_handleVersion, const BSScript::IHandleReaderWriter& a_handleReaderWriter, const BSStorage& a_storage) override;																				  // 0A
-			bool IsIgnoringClear() const override;																																																					  // 0B
-			void ResolveProperties(std::size_t a_objTarget, const BSTSmartPointer<BSScript::Object>& a_object, const BSTSmartPointer<BSScript::BoundScript>& a_boundScript, bool a_postSaveConstOnly) override;														  // 0D
-			void ResolveProperties(std::size_t a_objTarget, const BSTSmartPointer<BSScript::Object>& a_object, const BSScript::MergedBoundScript& a_boundScript, bool a_postSaveConstOnly) override;																  // 0C
-			void ConvertProperties(std::size_t a_objTarget, const BSTSmartPointer<BSScript::BoundScript>& a_boundScript, bool a_constOnly, BSTScrapHashMap<BSFixedString, BSScript::Variable>& a_properties, std::uint32_t& a_nonConvertedProperties) const override; // 0F
-			void ConvertProperties(std::size_t a_objTarget, const BSScript::MergedBoundScript& a_mergedScript, bool a_constOnly, BSTScrapHashMap<BSFixedString, BSScript::Variable>& a_properties, std::uint32_t& a_nonConvertedProperties) const override;			  // 0E
+			void EnsureBaseDataLoaded(VMHandle a_objHandle) override;																																															   // 01
+			void ObjectNoLongerNeeded(VMHandle a_objHandle) override;																																															   // 02
+			void AddBoundInfoImpl(VMHandle a_objHandle) override;																																																   // 03
+			void ClearBoundInfoImpl(VMHandle a_objHandle) override;																																																   // 04
+			void ClearDiskLoadedBoundInfoImpl(VMHandle a_objHandle) override;																																													   // 05
+			void ClearAllBoundInfoImpl() override;																																																				   // 06
+			void PostBindObject(VMHandle a_objHandle) override;																																																	   // 07
+			std::uint32_t GetExtraInfoSize(VMHandle) const override { return 0; }																																												   // 08
+			void WriteExtraInfo(VMHandle, const BSScript::IHandleReaderWriter&, BSStorage&) const override { return; }																																			   // 09
+			void ReadExtraInfo(VMHandle a_objHandle, std::uint16_t a_handleVersion, const BSScript::IHandleReaderWriter& a_handleReaderWriter, const BSStorage& a_storage) override;																			   // 0A
+			bool IsIgnoringClear() const override;																																																				   // 0B
+			void ResolveProperties(VMHandle a_objTarget, const BSTSmartPointer<BSScript::Object>& a_object, const BSTSmartPointer<BSScript::BoundScript>& a_boundScript, bool a_postSaveConstOnly) override;													   // 0D
+			void ResolveProperties(VMHandle a_objTarget, const BSTSmartPointer<BSScript::Object>& a_object, const BSScript::MergedBoundScript& a_boundScript, bool a_postSaveConstOnly) override;																   // 0C
+			void ConvertProperties(VMHandle a_objTarget, const BSTSmartPointer<BSScript::BoundScript>& a_boundScript, bool a_constOnly, BSTScrapHashMap<BSFixedString, BSScript::Variable>& a_properties, std::uint32_t& a_nonConvertedProperties) const override; // 0F
+			void ConvertProperties(VMHandle a_objTarget, const BSScript::MergedBoundScript& a_mergedScript, bool a_constOnly, BSTScrapHashMap<BSFixedString, BSScript::Variable>& a_properties, std::uint32_t& a_nonConvertedProperties) const override;		   // 0E
 
 			void EndSaveLoad()
 			{
@@ -325,13 +327,13 @@ namespace RE
 			}
 
 			// members
-			mutable BSSpinLock queueLock;											  // 50
-			bool resolveCalled;														  // 58
-			bool ignoringClear;														  // 59
-			bool initialLoadDone;													  // 5A
-			BSTHashMap<std::size_t, BSTSmallSharedArray<QueuedObject>> queuedObjects; // 60
-			BSTArray<std::size_t> queuedAliases;									  // 90
-			BSTSet<std::size_t> initiallyLoadedObjects;								  // A8
+			mutable BSSpinLock queueLock;										   // 50
+			bool resolveCalled;													   // 58
+			bool ignoringClear;													   // 59
+			bool initialLoadDone;												   // 5A
+			BSTHashMap<VMHandle, BSTSmallSharedArray<QueuedObject>> queuedObjects; // 60
+			BSTArray<VMHandle> queuedAliases;									   // 90
+			BSTSet<VMHandle> initiallyLoadedObjects;							   // A8
 		};
 		static_assert(sizeof(ObjectBindPolicy) == 0xD8);
 
@@ -443,19 +445,19 @@ namespace RE
 			inline static constexpr auto VTABLE{ VTABLE::GameScript__Profiler };
 
 			// override (BSScript::IProfilePolicy)
-			void StackFramePushQueued(std::uint32_t a_stackID, std::uint32_t a_frameNumber, const BSTSmartPointer<BSScript::Internal::IFuncCallQuery>& a_funcCallQuery) override;																 // 01
-			void StackFramePushed(std::uint32_t a_stackID, std::uint32_t a_frameNumber, const BSScript::Variable& a_self, const BSFixedString& a_scriptName, const BSFixedString& a_stateName, const BSFixedString& a_functionName) override;	 // 02
-			void StackFramePopQueued(std::uint32_t a_stackID, std::uint32_t a_frameNumber, const BSScript::Variable& a_self, const BSFixedString& a_scriptName, const BSFixedString& a_stateName, const BSFixedString& a_functionName) override; // 03
-			void StackFramePopped(std::uint32_t a_stackID, std::uint32_t a_frameNumber, const BSScript::Variable& a_self, const BSFixedString& a_scriptName, const BSFixedString& a_stateName, const BSFixedString& a_functionName) override;	 // 04
+			void StackFramePushQueued(VMStackID a_stackID, std::uint32_t a_frameNumber, const BSTSmartPointer<BSScript::Internal::IFuncCallQuery>& a_funcCallQuery) override;																 // 01
+			void StackFramePushed(VMStackID a_stackID, std::uint32_t a_frameNumber, const BSScript::Variable& a_self, const BSFixedString& a_scriptName, const BSFixedString& a_stateName, const BSFixedString& a_functionName) override;	 // 02
+			void StackFramePopQueued(VMStackID a_stackID, std::uint32_t a_frameNumber, const BSScript::Variable& a_self, const BSFixedString& a_scriptName, const BSFixedString& a_stateName, const BSFixedString& a_functionName) override; // 03
+			void StackFramePopped(VMStackID a_stackID, std::uint32_t a_frameNumber, const BSScript::Variable& a_self, const BSFixedString& a_scriptName, const BSFixedString& a_stateName, const BSFixedString& a_functionName) override;	 // 04
 
 			// members
-			mutable BSSpinLock dataLock;									  // 008
-			BSLog* globalProfilingLog;										  // 010
-			BSTHashMap<std::uint32_t, BSLog*> watchedStacks;				  // 018
-			BSTHashMap<BSFixedString, BSLog*> watchedScripts;				  // 048
-			BSTHashMap<std::size_t, BSLog*> watchedObjects;					  // 078
-			BSTArray<BSTTuple<BSFixedString, std::size_t>> watchedStackRoots; // 0A8
-			BSTimer timer;													  // 0C0
+			mutable BSSpinLock dataLock;								   // 008
+			BSLog* globalProfilingLog;									   // 010
+			BSTHashMap<std::uint32_t, BSLog*> watchedStacks;			   // 018
+			BSTHashMap<BSFixedString, BSLog*> watchedScripts;			   // 048
+			BSTHashMap<VMHandle, BSLog*> watchedObjects;				   // 078
+			BSTArray<BSTTuple<BSFixedString, VMHandle>> watchedStackRoots; // 0A8
+			BSTimer timer;												   // 0C0
 		};
 		static_assert(sizeof(Profiler) == 0x100);
 
@@ -513,7 +515,7 @@ namespace RE
 		}
 
 		void SendEventToObjectAndRelated(
-			std::size_t a_object,
+			VMHandle a_object,
 			const BSFixedString& a_eventName,
 			const BSTThreadScrapFunction<bool(BSScrapArray<BSScript::Variable>&)>& a_args,
 			const BSTThreadScrapFunction<bool(const BSTSmartPointer<BSScript::Object>&)>& a_filter,
@@ -661,13 +663,13 @@ namespace RE
 			inline static constexpr auto VTABLE{ VTABLE::GameScript__CombatEventHandler };
 
 			// members
-			BSTSmartPointer<BSScript::IVirtualMachine> vm;																   // 20
-			mutable BSSpinLock hitLock;																					   // 28
-			BSTHashMap<std::uint64_t, BSTSmartPointer<Internal::HitRegistrationList>> hitEvents;						   // 30
-			mutable BSSpinLock magicEffectApplyLock;																	   // 60
-			BSTHashMap<std::uint64_t, BSTSmartPointer<Internal::MagicEffectApplyRegistrationList>> magicEffectApplyEvents; // 68
-			mutable BSSpinLock radiationDamageLock;																		   // 98
-			BSTHashMap<std::uint64_t, BSTSmartPointer<Internal::RadiationDamageRegistrationList>> radiationDamageEvents;   // A0
+			BSTSmartPointer<BSScript::IVirtualMachine> vm;															  // 20
+			mutable BSSpinLock hitLock;																				  // 28
+			BSTHashMap<VMHandle, BSTSmartPointer<Internal::HitRegistrationList>> hitEvents;							  // 30
+			mutable BSSpinLock magicEffectApplyLock;																  // 60
+			BSTHashMap<VMHandle, BSTSmartPointer<Internal::MagicEffectApplyRegistrationList>> magicEffectApplyEvents; // 68
+			mutable BSSpinLock radiationDamageLock;																	  // 98
+			BSTHashMap<VMHandle, BSTSmartPointer<Internal::RadiationDamageRegistrationList>> radiationDamageEvents;	  // A0
 		};
 		static_assert(sizeof(CombatEventHandler) == 0xD0);
 
@@ -676,7 +678,7 @@ namespace RE
 		public:
 			RefrOrInventoryObj() = default;
 
-			explicit RefrOrInventoryObj(std::uint64_t a_cobj)
+			explicit RefrOrInventoryObj(VMHandle a_cobj)
 			{
 				const auto vm = GameVM::GetSingleton();
 				vm->handlePolicy.GetInventoryObjFromHandle(a_cobj, _container, _uniqueID, _ref);
@@ -708,11 +710,11 @@ namespace RE
 			inline static constexpr auto RTTI{ RTTI::GameScript__BaseHandleReaderWriter };
 			inline static constexpr auto VTABLE{ VTABLE::GameScript__BaseHandleReaderWriter };
 
-			~BaseHandleReaderWriter() override;														 // 00
-			virtual std::uint16_t GetHandleVersion() const override;								 // 142D8E390
-			virtual bool WriteHandle(BSStorage& storage, std::uint64_t) const override;				 // 142D8E398
-			virtual bool ReadHandle(BSStorage const& storage, std::uint64_t&) const override;		 // 142D8E3A0
-			virtual bool ReadHandleNoRemap(BSStorage const& storage, std::uint64_t&) const override; // 142D8E3A8
+			~BaseHandleReaderWriter() override;													// 00
+			virtual std::uint16_t GetHandleVersion() const override;							// 142D8E390
+			virtual bool WriteHandle(BSStorage& storage, VMHandle) const override;				// 142D8E398
+			virtual bool ReadHandle(BSStorage const& storage, VMHandle&) const override;		// 142D8E3A0
+			virtual bool ReadHandleNoRemap(BSStorage const& storage, VMHandle&) const override; // 142D8E3A8
 
 			virtual bool WriteFormID(BSStorage& storage, std::uint32_t) const = 0;		 // 142D8E3B0
 			virtual bool ReadFormID(const BSStorage& storage, std::uint32_t&) const = 0; // 142D8E3B8

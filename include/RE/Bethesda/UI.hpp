@@ -78,10 +78,10 @@ namespace RE
 			return *singleton;
 		}
 
-		[[nodiscard]] Scaleform::Ptr<IMenu> GetMenu(const BSFixedString& a_name) const
+		[[nodiscard]] Scaleform::Ptr<IMenu> GetMenu(std::string_view a_name) const
 		{
-			BSAutoReadLock l{ GetMenuMapRWLock() };
-			const auto it = menuMap.find(a_name);
+			auto lock = BSAutoReadLock{ GetMenuMapRWLock() };
+			const auto it = menuMap.find(BSFixedString(a_name));
 			return it != menuMap.end() ? it->second.menu : nullptr;
 		}
 
@@ -93,9 +93,9 @@ namespace RE
 			return Scaleform::Ptr{ static_cast<T*>(ptr.get()) };
 		}
 
-		[[nodiscard]] bool GetMenuOpen(const BSFixedString& a_name) const
+		[[nodiscard]] bool GetMenuOpen(std::string_view a_name) const
 		{
-			const auto menu = GetMenu(a_name);
+			const auto menu = GetMenu(BSFixedString(a_name));
 			return menu ? menu->OnStack() : false;
 		}
 

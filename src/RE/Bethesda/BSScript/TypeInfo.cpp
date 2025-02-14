@@ -1,8 +1,6 @@
-
 #include "RE/Bethesda/BSScript/TypeInfo.hpp"
+
 #include "RE/Bethesda/BSScript/IComplexType.hpp"
-#include "RE/Bethesda/BSScript/ObjectTypeInfo.hpp"
-#include "RE/Bethesda/BSScript/StructTypeInfo.hpp"
 
 namespace RE::BSScript
 {
@@ -14,31 +12,14 @@ namespace RE::BSScript
 				reinterpret_cast<IComplexType*>(
 					reinterpret_cast<std::uintptr_t>(data.complexTypeInfo) &
 					~static_cast<std::uintptr_t>(1));
-			uint32_t rtype = (uint32_t)complex->GetRawType();
+			auto rtype = static_cast<uint32_t>(complex->GetRawType());
 			if (IsArray()) {
 				rtype += 10;
 			}
-			return (RawType)rtype;
+			return static_cast<RawType>(rtype);
 		}
 		else {
 			return *data.rawType;
 		}
 	}
-
-	IComplexType* TypeInfo::GetComplexType() const
-	{
-		return IsComplex() ? reinterpret_cast<IComplexType*>(
-								 reinterpret_cast<std::uintptr_t>(data.complexTypeInfo) &
-								 ~static_cast<std::uintptr_t>(1))
-						   : nullptr;
-	}
-	ObjectTypeInfo* TypeInfo::GetObjectTypeInfo() const
-	{
-		return IsObject() || IsObjectArray() ? reinterpret_cast<ObjectTypeInfo*>(GetComplexType()) : nullptr;
-	}
-	StructTypeInfo* TypeInfo::GetStructTypeInfo() const
-	{
-		return IsStruct() || IsStructArray() ? reinterpret_cast<StructTypeInfo*>(GetComplexType()) : nullptr;
-	}
-
 }

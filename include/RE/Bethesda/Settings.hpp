@@ -358,7 +358,7 @@ namespace RE
 
 		[[nodiscard]] Setting* GetSetting(std::string_view a_name)
 		{
-			auto it = settings.find(a_name);
+			auto it = settings.find(BSFixedString(a_name));
 			return it != settings.end() ? it->second : nullptr;
 		}
 	};

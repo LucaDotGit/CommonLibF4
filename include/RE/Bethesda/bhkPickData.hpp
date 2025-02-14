@@ -81,6 +81,8 @@ namespace RE
 			return func(this);
 		}
 
+		F4_HEAP_REDEFINE_NEW(bhkPickData);
+
 		// members
 		std::uint64_t field_0;
 		std::uint16_t field_8;
@@ -99,7 +101,6 @@ namespace RE
 		__int16 field_DC;
 		char field_DE;
 		char field_DF;
-		F4_HEAP_REDEFINE_NEW(bhkPickData);
 	};
 	static_assert(sizeof(bhkPickData) == 0xE0);
 };

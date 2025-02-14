@@ -10,14 +10,13 @@ namespace RE::BSScript
 	Variable& Variable::operator=(BSTSmartPointer<Object> a_object)
 	{
 		reset();
-		if (a_object) {
-			value.o = std::move(a_object);
-			varType = value.o->type.get();
-		}
-		else {
-			assert(false);
+
+		if (!a_object) {
+			return *this;
 		}
 
+		value.o = std::move(a_object);
+		varType = value.o->type.get();
 		assert(is<Object>());
 		return *this;
 	}
@@ -25,14 +24,13 @@ namespace RE::BSScript
 	Variable& Variable::operator=(BSTSmartPointer<Struct> a_struct)
 	{
 		reset();
-		if (a_struct) {
-			value.t = std::move(a_struct);
-			varType = value.t->type.get();
-		}
-		else {
-			assert(false);
+
+		if (!a_struct) {
+			return *this;
 		}
 
+		value.t = std::move(a_struct);
+		varType = value.t->type.get();
 		assert(is<Struct>());
 		return *this;
 	}
@@ -40,15 +38,14 @@ namespace RE::BSScript
 	Variable& Variable::operator=(BSTSmartPointer<Array> a_array)
 	{
 		reset();
-		if (a_array) {
-			value.a = std::move(a_array);
-			varType = value.a->elementType;
-			varType.SetArray(true);
-		}
-		else {
-			assert(false);
+
+		if (!a_array) {
+			return *this;
 		}
 
+		value.a = std::move(a_array);
+		varType = value.a->elementType;
+		varType.SetArray(true);
 		assert(is<Array>());
 		return *this;
 	}
@@ -88,7 +85,7 @@ namespace RE::BSScript
 			case RawType::kBool:
 				break;
 			default:
-				assert(false); // unhandled type
+				assert(false);
 				break;
 		}
 
@@ -139,11 +136,10 @@ namespace RE::BSScript
 				value.b = a_rhs.value.b;
 				break;
 			default:
-				assert(false); // unhandled type
+				assert(false);
 				break;
 		}
 
 		varType = a_rhs.varType;
 	}
-
 }

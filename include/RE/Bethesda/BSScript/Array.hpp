@@ -24,7 +24,7 @@ namespace RE
 			: public BSIntrusiveRefCounted // 00
 		{
 		private:
-			// Array * Ctor(const TypeInfo *type_info, std::uint32_t initial_size = 0);
+			// Array* Ctor(const TypeInfo* type_info, std::uint32_t initial_size = 0);
 
 		public:
 			using value_type = Variable;
@@ -39,7 +39,7 @@ namespace RE
 			using reverse_iterator = std::reverse_iterator<iterator>;
 			using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-			// Array(const TypeInfo *type_info, std::uint32_t initial_size = 0);
+			// Array(const TypeInfo* type_info, std::uint32_t initial_size = 0);
 			~Array();
 
 			[[nodiscard]] reference operator[](size_type a_pos);

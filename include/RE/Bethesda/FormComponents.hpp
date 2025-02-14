@@ -1526,7 +1526,7 @@ namespace RE
 			return *sparseFullNameMap;
 		}
 
-		[[nodiscard]] static std::optional<std::string_view> GetFullName(const TESForm* a_form, bool a_strict = false);
+		[[nodiscard]] static std::optional<BGSLocalizedString> GetFullName(const TESForm* a_form, bool a_strict = false);
 		static bool SetFullName(TESForm* a_form, std::string_view a_fullName);
 
 		// members
@@ -1997,6 +1997,20 @@ namespace RE
 		inline static constexpr auto RTTI{ RTTI::TESProduceForm };
 		inline static constexpr auto VTABLE{ VTABLE::TESProduceForm };
 
+		struct SEASON
+		{
+			enum SEASONS : std::uint32_t
+			{
+				kNone = static_cast<std::underlying_type_t<SEASONS>>(-1),
+				kSpring = 0,
+				kSummer,
+				kFall,
+				kWinter,
+
+				kTotal,
+			};
+		};
+
 		~TESProduceForm() override; // 00
 
 		// override (BaseFormComponent)
@@ -2008,9 +2022,9 @@ namespace RE
 		void CopyComponent(BaseFormComponent*) override;		   // 06
 
 		// members
-		BGSSoundDescriptorForm* harvestSound; // 08
-		TESBoundObject* produceItem;		  // 10
-		std::int8_t produceChance[4];		  // 18
+		BGSSoundDescriptorForm* harvestSound;	   // 08
+		TESBoundObject* produceItem;			   // 10
+		std::int8_t produceChance[SEASON::kTotal]; // 18
 	};
 	static_assert(sizeof(TESProduceForm) == 0x20);
 
@@ -2089,7 +2103,7 @@ namespace RE
 	};
 	static_assert(sizeof(TESReactionForm) == 0x20);
 
-	struct __declspec(novtable) TESRegionList
+	class __declspec(novtable) TESRegionList
 		: public BSSimpleList<TESRegion*>
 	{
 	public:

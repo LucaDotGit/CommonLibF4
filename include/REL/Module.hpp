@@ -109,12 +109,10 @@ namespace REL
 		void load_segments();
 		void load_version();
 
-		inline static constexpr auto ENVIRONMENT = L"F4SE_RUNTIME"sv;
+		static constexpr auto ENVIRONMENT = L"F4SE_RUNTIME"sv;
 
 		static constexpr std::array<std::wstring_view, 2> RUNTIMES{ { L"Fallout4VR.exe",
 			L"Fallout4.exe" } };
-
-		void clear();
 
 		static constexpr std::array SEGMENTS{
 			".text"sv,

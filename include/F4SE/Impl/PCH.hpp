@@ -132,47 +132,98 @@ namespace F4SE
 			struct string
 			{
 				using char_type = CharT;
-				using pointer = char_type*;
-				using const_pointer = const char_type*;
+				using traits_type = std::char_traits<char_type>;
+				using size_type = std::size_t;
 				using reference = char_type&;
 				using const_reference = const char_type&;
-				using size_type = std::size_t;
+				using pointer = char_type*;
+				using const_pointer = const char_type*;
+				using iterator = pointer;
+				using const_iterator = const_pointer;
+				using reverse_iterator = std::reverse_iterator<iterator>;
+				using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 				inline static constexpr auto npos = static_cast<std::size_t>(-1);
 
+				consteval string(std::basic_string_view<char_type> a_string) noexcept
+				{
+					for (size_type i = 0; i < std::min(chars.size(), a_string.size()); ++i) {
+						chars[i] = a_string[i];
+					}
+				}
+
 				consteval string(const_pointer a_string) noexcept
 				{
-					for (size_type i = 0; i < N; ++i) {
-						c[i] = a_string[i];
+					for (size_type i = 0; i < chars.size() && a_string[i]; i++) {
+						chars[i] = a_string[i];
 					}
+				}
+
+				consteval operator std::basic_string_view<char_type>() const noexcept
+				{
+					return { chars.data(), chars.size() };
+				}
+
+				[[nodiscard]] consteval reference operator[](size_type a_pos) noexcept
+				{
+					return at(a_pos);
 				}
 
 				[[nodiscard]] consteval const_reference operator[](size_type a_pos) const noexcept
 				{
-					assert(a_pos < N);
-					return c[a_pos];
+					return at(a_pos);
 				}
 
-				[[nodiscard]] consteval char_type value_at(size_type a_pos) const noexcept
+				[[nodiscard]] consteval reference at(size_type a_pos) noexcept
 				{
-					assert(a_pos < N);
-					return c[a_pos];
+					return chars.at(a_pos);
 				}
 
-				[[nodiscard]] consteval const_reference back() const noexcept { return (*this)[size() - 1]; }
-				[[nodiscard]] consteval const_pointer data() const noexcept { return c; }
-				[[nodiscard]] consteval bool empty() const noexcept { return this->size() == 0; }
-				[[nodiscard]] consteval const_reference front() const noexcept { return (*this)[0]; }
-				[[nodiscard]] consteval size_type length() const noexcept { return N; }
-				[[nodiscard]] consteval size_type size() const noexcept { return length(); }
+				[[nodiscard]] consteval const_reference at(size_type a_pos) const noexcept
+				{
+					return chars.at(a_pos);
+				}
+
+				[[nodiscard]] consteval iterator begin() noexcept { return chars.begin(); }
+				[[nodiscard]] consteval const_iterator begin() const noexcept { return chars.begin(); }
+				[[nodiscard]] consteval const_iterator cbegin() const noexcept { return chars.cbegin(); }
+
+				[[nodiscard]] consteval iterator end() noexcept { return chars.end(); }
+				[[nodiscard]] consteval const_iterator end() const noexcept { return chars.end(); }
+				[[nodiscard]] consteval const_iterator cend() const noexcept { return chars.cend(); }
+
+				[[nodiscard]] consteval reverse_iterator rbegin() noexcept { return chars.rbegin(); }
+				[[nodiscard]] consteval const_reverse_iterator rbegin() const noexcept { return chars.rbegin(); }
+				[[nodiscard]] consteval const_reverse_iterator crbegin() const noexcept { return chars.crbegin(); }
+
+				[[nodiscard]] consteval reverse_iterator rend() noexcept { return chars.rend(); }
+				[[nodiscard]] consteval const_reverse_iterator rend() const noexcept { return chars.rend(); }
+				[[nodiscard]] consteval const_reverse_iterator crend() const noexcept { return chars.crend(); }
+
+				[[nodiscard]] consteval reference front() noexcept { return chars.front(); }
+				[[nodiscard]] consteval const_reference front() const noexcept { return chars.front(); }
+
+				[[nodiscard]] consteval reference back() noexcept { return chars.back(); }
+				[[nodiscard]] consteval const_reference back() const noexcept { return chars.back(); }
+
+				[[nodiscard]] consteval pointer data() noexcept { return chars.data(); }
+				[[nodiscard]] consteval const_pointer data() const noexcept { return chars.data(); }
+
+				[[nodiscard]] consteval const_pointer c_str() const noexcept { return chars.data(); }
+
+				[[nodiscard]] consteval bool empty() const noexcept { return chars.empty(); }
+
+				[[nodiscard]] consteval size_type size() const noexcept { return chars.size(); }
+				[[nodiscard]] consteval size_type length() const noexcept { return chars.size(); }
 
 				template <std::size_t POS = 0, std::size_t COUNT = npos>
 				[[nodiscard]] consteval auto substr() const noexcept
 				{
-					return string < CharT, COUNT != npos ? COUNT : N - POS > (this->data() + POS);
+					constexpr auto LENGTH = COUNT != npos ? COUNT : N - POS;
+					return string<char_type, LENGTH>{ data() + POS };
 				}
 
-				char_type c[N] = {};
+				std::array<char_type, N> chars = {};
 			};
 
 			template <class CharT, std::size_t N>

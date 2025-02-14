@@ -13,7 +13,7 @@ namespace REL
 	{
 		REX::W32::BCRYPT_ALG_HANDLE algorithm;
 		if (!REX::W32::NT_SUCCESS(REX::W32::BCryptOpenAlgorithmProvider(&algorithm, REX::W32::BCRYPT_SHA512_ALGORITHM))) {
-			log::error("failed to open algorithm provider");
+			log::error("failed to open algorithm provider"sv);
 			return std::nullopt;
 		}
 
@@ -24,7 +24,7 @@ namespace REL
 
 		REX::W32::BCRYPT_HASH_HANDLE hash;
 		if (!REX::W32::NT_SUCCESS(REX::W32::BCryptCreateHash(algorithm, &hash))) {
-			log::error("failed to create hash");
+			log::error("failed to create hash"sv);
 			return std::nullopt;
 		}
 
@@ -37,7 +37,7 @@ namespace REL
 				hash,
 				reinterpret_cast<std::uint8_t*>(const_cast<std::byte*>(a_data.data())), // does not modify contents of buffer
 				static_cast<std::uint32_t>(a_data.size())))) {
-			log::error("failed to hash data");
+			log::error("failed to hash data"sv);
 			return std::nullopt;
 		}
 
@@ -49,7 +49,7 @@ namespace REL
 				reinterpret_cast<std::uint8_t*>(&hashLen),
 				sizeof(hashLen),
 				&discard))) {
-			log::error("failed to get property");
+			log::error("failed to get property"sv);
 			return std::nullopt;
 		}
 
@@ -58,7 +58,7 @@ namespace REL
 				hash,
 				buffer.data(),
 				static_cast<std::uint32_t>(buffer.size())))) {
-			log::error("failed to finish hash");
+			log::error("failed to finish hash"sv);
 			return std::nullopt;
 		}
 

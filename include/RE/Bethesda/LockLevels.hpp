@@ -69,6 +69,8 @@ namespace RE
 			return func(this, a_locked);
 		}
 
+		F4_HEAP_REDEFINE_NEW(REFR_LOCK);
+
 		// members
 		std::uint8_t baseLevel;					  // 00
 		TESKey* key;							  // 08

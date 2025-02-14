@@ -35,6 +35,8 @@ namespace RE
 			return func(this, a_buffer, a_beginTagFormat, a_endTagFormat, a_magnitude, a_duration);
 		}
 
+		F4_HEAP_REDEFINE_NEW(EffectItem);
+
 		// members
 		EffectItemData data;		  // 00
 		EffectSetting* effectSetting; // 10

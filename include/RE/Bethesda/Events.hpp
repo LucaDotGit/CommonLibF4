@@ -627,7 +627,7 @@ namespace RE
 	};
 	static_assert(sizeof(MenuOpenCloseEvent) == 0x10);
 
-	struct ViewCasterData final
+	struct ViewCasterData
 	{
 		ObjectRefHandle activatePickRef;	// 00
 		ObjectRefHandle magnetismRef;		// 04
@@ -639,7 +639,7 @@ namespace RE
 	};
 	static_assert(sizeof(ViewCasterData) == 0x28);
 
-	struct ViewCasterUpdateData final
+	struct ViewCasterUpdateData
 	{
 		ViewCasterData currentVCData;				  // 00
 		bool playerActivateable;					  // 28
@@ -647,7 +647,7 @@ namespace RE
 	};
 	static_assert(sizeof(ViewCasterUpdateData) == 0x38);
 
-	class ViewCasterUpdateEvent final
+	class ViewCasterUpdateEvent
 		: public BSTValueEvent<ViewCasterUpdateData>
 	{
 	private:
@@ -656,7 +656,7 @@ namespace RE
 	public:
 		[[nodiscard]] static EventSource_t* GetEventSource()
 		{
-			REL::Relocation<EventSource_t**> singleton{ REL::RelocationID(1536643, 2694310) };
+			static REL::Relocation<EventSource_t**> singleton{ REL::RelocationID(1536643, 2694310) };
 			if (!*singleton) {
 				*singleton = new EventSource_t(&BSTGlobalEvent::GetSingleton()->eventSourceSDMKiller);
 			}
@@ -945,12 +945,22 @@ namespace RE
 
 	struct TESEquipEvent
 	{
+	private:
+		using EventSource_t = BSTEventSource<TESEquipEvent>;
+
 	public:
-		[[nodiscard]] static BSTEventSource<TESEquipEvent>* GetEventSource()
+		[[nodiscard]] static EventSource_t* GetEventSource()
 		{
-			using func_t = decltype(&TESEquipEvent::GetEventSource);
-			static REL::Relocation<func_t> func{ REL::RelocationID(485633, 2201838) };
-			return func();
+			constexpr auto ID = REL::RelocationID(485633, 2201838);
+
+			if (REL::Module::IsNG()) {
+				using func_t = decltype(&TESEquipEvent::GetEventSource);
+				static REL::Relocation<func_t> func{ ID };
+				return func();
+			}
+
+			static REL::Relocation<EventSource_t*> singleton{ ID };
+			return singleton.get();
 		}
 
 		// members
@@ -1133,12 +1143,24 @@ namespace RE
 
 	class TESHitEvent
 	{
+	private:
+		using EventSource_t = BSTEventSource<TESHitEvent>;
+
 	public:
-		[[nodiscard]] static BSTEventSource<TESHitEvent>* GetEventSource()
+		[[nodiscard]] static EventSource_t* GetEventSource()
 		{
-			using func_t = decltype(&TESHitEvent::GetEventSource);
-			static REL::Relocation<func_t> func{ REL::RelocationID(989868, 1411899) };
-			return func();
+			// The Next-Gen ID doesn't seem to be anywhere near the other TES events.
+			// Maybe it was inlined or moved.
+			constexpr auto ID = REL::RelocationID(989868, 0);
+
+			if (REL::Module::IsNG()) {
+				using func_t = decltype(&TESHitEvent::GetEventSource);
+				static REL::Relocation<func_t> func{ ID };
+				return func();
+			}
+
+			static REL::Relocation<EventSource_t*> singleton{ ID };
+			return singleton.get();
 		}
 
 		// members
@@ -1154,12 +1176,22 @@ namespace RE
 
 	struct TESMagicEffectApplyEvent
 	{
+	private:
+		using EventSource_t = BSTEventSource<TESMagicEffectApplyEvent>;
+
 	public:
-		[[nodiscard]] static BSTEventSource<TESMagicEffectApplyEvent>* GetEventSource()
+		[[nodiscard]] static EventSource_t* GetEventSource()
 		{
-			using func_t = decltype(&TESMagicEffectApplyEvent::GetEventSource);
-			static REL::Relocation<func_t> func{ REL::RelocationID(1481228, 1327824) };
-			return func();
+			constexpr auto ID = REL::RelocationID(1481228, 2201851);
+
+			if (REL::Module::IsNG()) {
+				using func_t = decltype(&TESMagicEffectApplyEvent::GetEventSource);
+				static REL::Relocation<func_t> func{ ID };
+				return func();
+			}
+
+			static REL::Relocation<EventSource_t*> singleton{ ID };
+			return singleton.get();
 		}
 
 		// members
@@ -1183,12 +1215,22 @@ namespace RE
 
 	struct TESObjectLoadedEvent
 	{
+	private:
+		using EventSource_t = BSTEventSource<TESObjectLoadedEvent>;
+
 	public:
-		[[nodiscard]] static BSTEventSource<TESObjectLoadedEvent>* GetEventSource()
+		[[nodiscard]] static EventSource_t* GetEventSource()
 		{
-			using func_t = decltype(&TESObjectLoadedEvent::GetEventSource);
-			static REL::Relocation<func_t> func{ REL::RelocationID(416662, 2201853) };
-			return func();
+			constexpr auto ID = REL::RelocationID(416662, 2201853);
+
+			if (REL::Module::IsNG()) {
+				using func_t = decltype(&TESObjectLoadedEvent::GetEventSource);
+				static REL::Relocation<func_t> func{ ID };
+				return func();
+			}
+
+			static REL::Relocation<EventSource_t*> singleton{ ID };
+			return singleton.get();
 		}
 
 		// members

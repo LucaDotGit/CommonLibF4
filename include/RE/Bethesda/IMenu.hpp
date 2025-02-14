@@ -410,7 +410,7 @@ namespace RE
 	class HUDModeType
 	{
 	public:
-		HUDModeType(const char* a_modeString) :
+		HUDModeType(std::string_view a_modeString) :
 			modeString(a_modeString)
 		{
 		}
@@ -1876,7 +1876,7 @@ namespace RE
 			inline static constexpr auto RTTI{ RTTI::ExamineConfirmMenu__InitData };
 			inline static constexpr auto VTABLE{ VTABLE::ExamineConfirmMenu__InitData };
 
-			InitData(BSFixedString a_confirmQuestion, BSFixedStringCS a_buttonLabel, CONFIRM_TYPE a_confirmType) :
+			InitData(std::string_view a_confirmQuestion, std::string_view a_buttonLabel, CONFIRM_TYPE a_confirmType) :
 				confirmQuestion(a_confirmQuestion),
 				buttonLabel(a_buttonLabel),
 				confirmType(a_confirmType)
@@ -1903,7 +1903,8 @@ namespace RE
 			inline static constexpr auto RTTI{ RTTI::ExamineConfirmMenu__InitDataScrap };
 			inline static constexpr auto VTABLE{ VTABLE::ExamineConfirmMenu__InitDataScrap };
 
-			InitDataScrap(const char* a_confirmQuestion, const char* a_buttonLabel, const char* a_scrapSourceName, BSTArray<BSTTuple<TESBoundObject*, std::uint32_t>> a_scrapResults) :
+			InitDataScrap(std::string_view a_confirmQuestion, std::string_view a_buttonLabel, std::string_view a_scrapSourceName,
+				BSTArray<BSTTuple<TESBoundObject*, std::uint32_t>> a_scrapResults) :
 				InitData(a_confirmQuestion, a_buttonLabel, CONFIRM_TYPE::kScrap),
 				scrapSourceName(a_scrapSourceName),
 				scrapResults(a_scrapResults)
@@ -1929,7 +1930,7 @@ namespace RE
 			inline static constexpr auto VTABLE{ VTABLE::ExamineConfirmMenu__InitDataRepairFailure };
 
 			InitDataRepairFailure(const BSTArray<BSTTuple<TESForm*, BGSTypedFormValuePair::SharedVal>>* a_requiredItems) :
-				InitData(GameSettingCollection::GetSingleton()->GetSetting("sCannotRepairMessage")->GetString(), "$OK", CONFIRM_TYPE::kRepairFailure),
+				InitData(GameSettingCollection::GetSingleton()->GetSetting("sCannotRepairMessage")->GetString(), "$OK"sv, CONFIRM_TYPE::kRepairFailure),
 				requiredItems(a_requiredItems)
 			{
 				this->hasCancelButton = false;

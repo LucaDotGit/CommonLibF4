@@ -51,7 +51,7 @@ namespace F4SE
 		{
 			auto result = static_cast<T*>(a_intfc->QueryInterface(a_id));
 			if (result && result->Version() > T::kVersion) {
-				log::warn("interface definition is out of date");
+				log::warn("interface definition is out of date"sv);
 			}
 			return result;
 		}
@@ -83,7 +83,7 @@ namespace F4SE
 
 		if (a_log) {
 			log::init();
-			log::info("{} v{}", GetPluginName(), GetPluginVersion());
+			log::info("{} v{}"sv, GetPluginName(), GetPluginVersion());
 		}
 
 		storage.messagingInterface = detail::QueryInterface<MessagingInterface>(a_intfc, LoadInterface::kMessaging);
@@ -135,7 +135,7 @@ namespace F4SE
 			}
 		}
 
-		log::warn("failed to get plugin info for {}", a_plugin);
+		log::warn("failed to get plugin info for {}"sv, a_plugin);
 		return std::nullopt;
 	}
 

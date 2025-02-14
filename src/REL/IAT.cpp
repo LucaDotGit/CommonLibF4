@@ -30,7 +30,7 @@ namespace REL
 		assert(a_module);
 		const auto dosHeader = reinterpret_cast<REX::W32::IMAGE_DOS_HEADER*>(a_module);
 		if (dosHeader->magic != REX::W32::IMAGE_DOS_SIGNATURE) {
-			F4SE::log::error("Invalid DOS header");
+			F4SE::log::error("Invalid DOS header"sv);
 			return nullptr;
 		}
 
@@ -58,7 +58,7 @@ namespace REL
 			}
 		}
 
-		F4SE::log::warn("Failed to find {} ({})", a_dll, a_function);
+		F4SE::log::warn("Failed to find {} ({})"sv, a_dll, a_function);
 		return nullptr;
 	}
 
@@ -72,7 +72,7 @@ namespace REL
 			REL::safe_write(oldFunc, a_newFunc);
 		}
 		else {
-			F4SE::log::warn("Failed to patch {} ({})", a_dll, a_function);
+			F4SE::log::warn("Failed to patch {} ({})"sv, a_dll, a_function);
 		}
 
 		return origAddr;

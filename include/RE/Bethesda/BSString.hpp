@@ -131,7 +131,7 @@ namespace RE
 			set_cstr(a_rhs, a_len);
 		}
 
-		BSStringT(std::basic_string_view<value_type> a_rhs)
+		explicit BSStringT(std::basic_string_view<value_type> a_rhs)
 		{
 			set_cstr(a_rhs.data(), a_rhs.size());
 		}
@@ -239,13 +239,23 @@ namespace RE
 
 		[[nodiscard]] constexpr reference operator[](size_type a_pos) noexcept
 		{
-			assert(a_pos <= size());
-			return data()[a_pos];
+			return at(a_pos);
 		}
 
 		[[nodiscard]] constexpr const_reference operator[](size_type a_pos) const noexcept
 		{
-			assert(a_pos <= size());
+			return at(a_pos);
+		}
+
+		[[nodiscard]] reference at(size_type a_pos) noexcept
+		{
+			assert(a_pos < size());
+			return data()[a_pos];
+		}
+
+		[[nodiscard]] const_reference at(size_type a_pos) const noexcept
+		{
+			assert(a_pos < size());
 			return data()[a_pos];
 		}
 
@@ -258,18 +268,18 @@ namespace RE
 		[[nodiscard]] constexpr const_iterator cend() const noexcept { return end(); }
 
 		[[nodiscard]] constexpr reverse_iterator rbegin() noexcept { return reverse_iterator{ end() }; }
-		[[nodiscard]] constexpr const_reverse_iterator rbegin() const noexcept { return rbegin(); }
+		[[nodiscard]] constexpr const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator{ end() }; }
 		[[nodiscard]] constexpr const_reverse_iterator crbegin() const noexcept { return rbegin(); }
 
 		[[nodiscard]] constexpr reverse_iterator rend() noexcept { return reverse_iterator{ begin() }; }
-		[[nodiscard]] constexpr const_reverse_iterator rend() const noexcept { return rend(); }
+		[[nodiscard]] constexpr const_reverse_iterator rend() const noexcept { return const_reverse_iterator{ begin() }; }
 		[[nodiscard]] constexpr const_reverse_iterator crend() const noexcept { return rend(); }
 
-		[[nodiscard]] constexpr reference front() noexcept { return operator[](0); }
-		[[nodiscard]] constexpr const_reference front() const noexcept { return operator[](0); }
+		[[nodiscard]] constexpr reference front() noexcept { return at(0); }
+		[[nodiscard]] constexpr const_reference front() const noexcept { return at(0); }
 
-		[[nodiscard]] constexpr reference back() noexcept { return operator[](size() - 1); }
-		[[nodiscard]] constexpr const_reference back() const noexcept { return operator[](size() - 1); }
+		[[nodiscard]] constexpr reference back() noexcept { return at(size() - 1); }
+		[[nodiscard]] constexpr const_reference back() const noexcept { return at(size() - 1); }
 
 		[[nodiscard]] constexpr pointer data() noexcept { return _data ? _data : EMPTY; }
 		[[nodiscard]] constexpr const_pointer data() const noexcept { return _data ? _data : EMPTY; }
@@ -278,91 +288,91 @@ namespace RE
 
 		[[nodiscard]] constexpr bool empty() const noexcept { return size() == 0; }
 
-		[[nodiscard]] constexpr reference at(size_type a_pos) noexcept { return operator[](a_pos); }
-		[[nodiscard]] constexpr const_reference at(size_type a_pos) const noexcept { operator[](a_pos); }
+		[[nodiscard]] constexpr size_type size() const noexcept
+		{
+			return _size != MAX ? _size : static_cast<size_type>(traits_type::length(data()));
+		}
 
-		[[nodiscard]] constexpr size_type size() const noexcept { return _size != MAX ? _size : static_cast<size_type>(traits_type::length(data())); }
 		[[nodiscard]] constexpr size_type length() const noexcept { return size(); }
 
 		void clear() { set_cstr(EMPTY); }
 
-		[[nodiscard]] friend bool operator==(const BSStringT& a_lhs, const BSStringT& a_rhs) noexcept
+		[[nodiscard]] friend auto operator==(const BSStringT& a_lhs, const BSStringT& a_rhs) noexcept
 		{
-			return a_lhs <=> a_rhs == 0;
+			return stricmp(a_lhs, a_rhs) == std::strong_ordering::equal;
 		}
 
-		[[nodiscard]] friend bool operator==(const BSStringT& a_lhs, std::basic_string_view<value_type> a_rhs) noexcept
+		[[nodiscard]] friend auto operator==(const BSStringT& a_lhs, std::basic_string_view<value_type> a_rhs) noexcept
 		{
-			return a_lhs <=> a_rhs == 0;
+			return stricmp(a_lhs, a_rhs) == std::strong_ordering::equal;
 		}
 
-		[[nodiscard]] friend bool operator==(std::basic_string_view<value_type> a_lhs, const BSStringT& a_rhs) noexcept
+		[[nodiscard]] friend auto operator==(std::basic_string_view<value_type> a_lhs, const BSStringT& a_rhs) noexcept
 		{
-			return a_lhs <=> a_rhs == 0;
+			return stricmp(a_lhs, a_rhs) == std::strong_ordering::equal;
 		}
 
-		[[nodiscard]] friend bool operator==(const BSStringT& a_lhs, const_pointer a_rhs) noexcept
+		[[nodiscard]] friend auto operator==(const BSStringT& a_lhs, const_pointer a_rhs) noexcept
 		{
-			return a_lhs <=> a_rhs == 0;
+			return strnicmp(a_lhs.data(), a_rhs, a_lhs.size()) == std::strong_ordering::equal;
 		}
 
-		[[nodiscard]] friend bool operator==(const_pointer a_lhs, const BSStringT& a_rhs) noexcept
+		[[nodiscard]] friend auto operator==(const_pointer a_lhs, const BSStringT& a_rhs) noexcept
 		{
-			return a_lhs <=> a_rhs == 0;
+			return strnicmp(a_lhs, a_rhs.data(), a_rhs.size()) == std::strong_ordering::equal;
 		}
 
 		[[nodiscard]] friend auto operator<=>(const BSStringT& a_lhs, const BSStringT& a_rhs) noexcept
 		{
-			return stricmp(a_lhs, a_rhs) <=> 0;
+			return stricmp(a_lhs, a_rhs);
 		}
 
 		[[nodiscard]] friend auto operator<=>(const BSStringT& a_lhs, std::basic_string_view<value_type> a_rhs) noexcept
 		{
-			return stricmp(a_lhs, a_rhs) <=> 0;
+			return stricmp(a_lhs, a_rhs);
 		}
 
 		[[nodiscard]] friend auto operator<=>(std::basic_string_view<value_type> a_lhs, const BSStringT& a_rhs) noexcept
 		{
-			return stricmp(a_lhs, a_rhs) <=> 0;
+			return stricmp(a_lhs, a_rhs);
 		}
 
 		[[nodiscard]] friend auto operator<=>(const BSStringT& a_lhs, const_pointer a_rhs) noexcept
 		{
-			return strnicmp(a_lhs.data(), a_rhs, a_lhs.size()) <=> 0;
+			return strnicmp(a_lhs.data(), a_rhs, a_lhs.size());
 		}
 
 		[[nodiscard]] friend auto operator<=>(const_pointer a_lhs, const BSStringT& a_rhs) noexcept
 		{
-			return strnicmp(a_lhs, a_rhs.data(), a_rhs.size()) <=> 0;
+			return strnicmp(a_lhs, a_rhs.data(), a_rhs.size());
 		}
 
 		F4_HEAP_REDEFINE_NEW();
 
 	private:
-		[[nodiscard]] static int stricmp(std::basic_string_view<value_type> a_lhs, std::basic_string_view<value_type> a_rhs) noexcept
+		[[nodiscard]] static std::strong_ordering stricmp(std::basic_string_view<value_type> a_lhs, std::basic_string_view<value_type> a_rhs) noexcept
 		{
 			const auto lsize = a_lhs.size();
 			const auto rsize = a_rhs.size();
 
-			if (lsize == rsize) {
-				return stricmp(a_lhs.data(), a_rhs.data(), lsize);
+			if (lsize != rsize) {
+				return lsize <=> rsize;
 			}
-			else {
-				return lsize < rsize ? -1 : 1;
-			}
+
+			return strnicmp(a_lhs.data(), a_rhs.data(), lsize);
 		}
 
-		[[nodiscard]] static int strnicmp(const_pointer a_lhs, const_pointer a_rhs, std::size_t a_length) noexcept
+		[[nodiscard]] static std::strong_ordering strnicmp(const_pointer a_lhs, const_pointer a_rhs, std::size_t a_length) noexcept
 		{
 			if (a_length == 0) {
-				return 0;
+				return std::strong_ordering::equal;
 			}
 
 			if constexpr (std::is_same_v<value_type, char>) {
-				return _strnicmp(a_lhs, a_rhs, a_length);
+				return _strnicmp(a_lhs, a_rhs, a_length) <=> 0;
 			}
 			else if constexpr (std::is_same_v<value_type, wchar_t>) {
-				return _wcsnicmp(a_lhs, a_rhs, a_length);
+				return _wcsnicmp(a_lhs, a_rhs, a_length) <=> 0;
 			}
 			else {
 				static_assert(false, "unsupported value_type");

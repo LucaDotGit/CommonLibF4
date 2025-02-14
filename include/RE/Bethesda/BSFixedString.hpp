@@ -48,17 +48,11 @@ namespace RE
 				}
 			}
 
-			template <class T>
-			BSFixedString(const T& a_string) //
-				requires(std::convertible_to<const T&, std::basic_string_view<value_type>> &&
-						 !std::convertible_to<const T&, const_pointer> &&
-						 !std::same_as<T, BSFixedString<value_type, true>> &&
-						 !std::same_as<T, BSFixedString<value_type, false>>)
+			explicit BSFixedString(std::basic_string_view<value_type> a_string)
 			{
-				const auto view = static_cast<std::basic_string_view<value_type>>(a_string);
-				if (!view.empty()) {
-					assert(view.data()[view.length()] == value_type{});
-					GetEntry<value_type>(_data, view.data(), CS);
+				if (!a_string.empty()) {
+					assert(a_string.data()[a_string.size()] == value_type{});
+					GetEntry<value_type>(_data, a_string.data(), CS);
 				}
 			}
 
@@ -66,7 +60,7 @@ namespace RE
 			{
 				const auto view = std::basic_string_view<value_type>{ a_first, a_last };
 				if (!view.empty()) {
-					assert(view.data()[view.length()] == value_type{});
+					assert(view.data()[view.size()] == value_type{});
 					GetEntry<value_type>(_data, view.data(), CS);
 				}
 			}
@@ -75,7 +69,7 @@ namespace RE
 			{
 				const auto view = std::basic_string_view<value_type>{ a_ilist.begin(), a_ilist.size() };
 				if (!view.empty()) {
-					assert(view.data()[view.length()] == value_type{});
+					assert(view.data()[view.size()] == value_type{});
 					GetEntry<value_type>(_data, view.data(), CS);
 				}
 			}
@@ -97,7 +91,7 @@ namespace RE
 			BSFixedString& operator=(BSFixedString<value_type, B>&& a_rhs)
 			{
 				if (this != std::addressof(a_rhs)) {
-					std::swap(this->_data, a_rhs._data);
+					std::swap(_data, a_rhs._data);
 				}
 				return *this;
 			}
@@ -111,18 +105,12 @@ namespace RE
 				return *this;
 			}
 
-			template <class T>
-			BSFixedString& operator=(const T& a_string) //
-				requires(std::convertible_to<const T&, std::basic_string_view<value_type>> &&
-						 !std::convertible_to<const T&, const_pointer> &&
-						 !std::same_as<T, BSFixedString<value_type, true>> &&
-						 !std::same_as<T, BSFixedString<value_type, false>>)
+			BSFixedString& operator=(std::basic_string_view<value_type> a_string)
 			{
-				const auto view = static_cast<std::basic_string_view<value_type>>(a_string);
 				try_release();
-				if (!view.empty()) {
-					assert(view.data()[view.length()] == value_type{});
-					GetEntry<value_type>(_data, view.data(), CS);
+				if (!a_string.empty()) {
+					assert(a_string.data()[a_string.size()] == value_type{});
+					GetEntry<value_type>(_data, a_string.data(), CS);
 				}
 				return *this;
 			}
@@ -132,15 +120,20 @@ namespace RE
 				const auto view = std::basic_string_view<value_type>{ a_ilist.begin(), a_ilist.size() };
 				try_release();
 				if (!view.empty()) {
-					assert(view.data()[view.length()] == value_type{});
+					assert(view.data()[view.size()] == value_type{});
 					GetEntry<value_type>(_data, view.data(), CS);
 				}
 				return *this;
 			}
 
-			[[nodiscard]] operator std::basic_string_view<value_type>() const noexcept { return { data(), length() }; }
+			[[nodiscard]] operator std::basic_string_view<value_type>() const noexcept { return { data(), size() }; }
 
-			[[nodiscard]] value_type operator[](size_type a_pos) const noexcept
+			[[nodiscard]] const_reference operator[](size_type a_pos) const noexcept
+			{
+				return at(a_pos);
+			}
+
+			[[nodiscard]] const_reference at(size_type a_pos) const noexcept
 			{
 				assert(a_pos < size());
 				return data()[a_pos];
@@ -156,8 +149,8 @@ namespace RE
 			[[nodiscard]] const_reverse_iterator rend() const noexcept { return const_reverse_iterator{ begin() }; }
 			[[nodiscard]] const_reverse_iterator crend() const noexcept { return rend(); }
 
-			[[nodiscard]] const_reference front() const noexcept { return operator[](0); }
-			[[nodiscard]] const_reference back() const noexcept { return operator[](size() - 1); }
+			[[nodiscard]] const_reference front() const noexcept { return at(0); }
+			[[nodiscard]] const_reference back() const noexcept { return at(size() - 1); }
 
 			[[nodiscard]] const_pointer data() const noexcept
 			{
@@ -174,62 +167,62 @@ namespace RE
 
 			[[nodiscard]] friend auto operator==(const BSFixedString& a_lhs, const BSFixedString& a_rhs) noexcept
 			{
-				return a_lhs._data == a_rhs._data;
+				return strcmp(a_lhs, a_rhs) == std::strong_ordering::equal;
 			}
 
 			[[nodiscard]] friend auto operator==(const BSFixedString& a_lhs, std::basic_string_view<value_type> a_rhs) noexcept
 			{
-				return strncmp(a_lhs, a_rhs) == 0;
+				return strcmp(a_lhs, a_rhs) == std::strong_ordering::equal;
 			}
 
 			[[nodiscard]] friend auto operator==(std::basic_string_view<value_type> a_lhs, const BSFixedString& a_rhs) noexcept
 			{
-				return strncmp(a_lhs, a_rhs) == 0;
+				return strcmp(a_lhs, a_rhs) == std::strong_ordering::equal;
 			}
 
 			[[nodiscard]] friend auto operator==(const BSFixedString& a_lhs, const_pointer a_rhs) noexcept
 			{
-				return strncmp(a_lhs, a_rhs) == 0;
+				return strncmp(a_lhs.data(), a_rhs, a_lhs.size()) == std::strong_ordering::equal;
 			}
 
 			[[nodiscard]] friend auto operator==(const_pointer a_lhs, const BSFixedString& a_rhs) noexcept
 			{
-				return strncmp(a_lhs, a_rhs) == 0;
+				return strncmp(a_lhs, a_rhs.data(), a_rhs.size()) == std::strong_ordering::equal;
 			}
 
 			[[nodiscard]] friend auto operator<=>(const BSFixedString& a_lhs, const BSFixedString& a_rhs) noexcept
 			{
-				return strncmp(a_lhs, a_rhs) <=> 0;
+				return strcmp(a_lhs, a_rhs);
 			}
 
 			[[nodiscard]] friend auto operator<=>(const BSFixedString& a_lhs, std::basic_string_view<value_type> a_rhs) noexcept
 			{
-				return strncmp(a_lhs, a_rhs) <=> 0;
+				return strcmp(a_lhs, a_rhs);
 			}
 
 			[[nodiscard]] friend auto operator<=>(std::basic_string_view<value_type> a_lhs, const BSFixedString& a_rhs) noexcept
 			{
-				return strncmp(a_lhs, a_rhs) <=> 0;
+				return strcmp(a_lhs, a_rhs);
 			}
 
 			[[nodiscard]] friend auto operator<=>(const BSFixedString& a_lhs, const_pointer a_rhs) noexcept
 			{
-				return strncmp(a_lhs, a_rhs) <=> 0;
+				return strncmp(a_lhs.data(), a_rhs, a_lhs.size());
 			}
 
 			[[nodiscard]] friend auto operator<=>(const_pointer a_lhs, const BSFixedString& a_rhs) noexcept
 			{
-				return strncmp(a_lhs, a_rhs) <=> 0;
+				return strncmp(a_lhs, a_rhs.data(), a_rhs.size());
 			}
 
 			[[nodiscard]] bool contains(std::basic_string_view<value_type> a_rhs) const noexcept
 			{
-				if (a_rhs.length() > length()) {
+				if (a_rhs.size() > size()) {
 					return false;
 				}
 
-				for (auto i = 0ui64; i < length(); ++i) {
-					if (strnicmp(&data()[i], a_rhs.data(), a_rhs.length()) == 0) {
+				for (auto i = static_cast<size_type>(0); i < size(); ++i) {
+					if (strncmp(&data()[i], a_rhs.data(), a_rhs.size()) == std::strong_ordering::equal) {
 						return true;
 					}
 				}
@@ -247,31 +240,30 @@ namespace RE
 			template <class, bool>
 			friend class BSFixedString;
 
-			[[nodiscard]] static int strncmp(std::basic_string_view<value_type> a_lhs, std::basic_string_view<value_type> a_rhs) noexcept
+			[[nodiscard]] static std::strong_ordering strcmp(std::basic_string_view<value_type> a_lhs, std::basic_string_view<value_type> a_rhs) noexcept
 			{
 				const auto lsize = a_lhs.size();
 				const auto rsize = a_rhs.size();
 
-				if (lsize == rsize) {
-					return strnicmp(a_lhs.data(), a_rhs.data(), lsize);
+				if (lsize != rsize) {
+					return lsize <=> rsize;
 				}
-				else {
-					return lsize < rsize ? -1 : 1;
-				}
+
+				return strncmp(a_lhs.data(), a_rhs.data(), lsize);
 			}
 
-			[[nodiscard]] static int strnicmp(const_pointer a_lhs, const_pointer a_rhs, std::size_t a_length) noexcept
+			[[nodiscard]] static std::strong_ordering strncmp(const_pointer a_lhs, const_pointer a_rhs, std::size_t a_length) noexcept
 			{
 				if (a_length == 0) {
-					return 0;
+					return std::strong_ordering::equal;
 				}
 
 				if constexpr (CS) {
 					if constexpr (std::is_same_v<value_type, char>) {
-						return std::strncmp(a_lhs, a_rhs, a_length);
+						return std::strncmp(a_lhs, a_rhs, a_length) <=> 0;
 					}
 					else if constexpr (std::is_same_v<value_type, wchar_t>) {
-						return std::wcsncmp(a_lhs, a_rhs, a_length);
+						return std::wcsncmp(a_lhs, a_rhs, a_length) <=> 0;
 					}
 					else {
 						static_assert(false, "unsupported value_type");
@@ -279,10 +271,10 @@ namespace RE
 				}
 				else {
 					if constexpr (std::is_same_v<value_type, char>) {
-						return _strnicmp(a_lhs, a_rhs, a_length);
+						return _strnicmp(a_lhs, a_rhs, a_length) <=> 0;
 					}
 					else if constexpr (std::is_same_v<value_type, wchar_t>) {
-						return _wcsnicmp(a_lhs, a_rhs, a_length);
+						return _wcsnicmp(a_lhs, a_rhs, a_length) <=> 0;
 					}
 					else {
 						static_assert(false, "unsupported value_type");
@@ -368,9 +360,19 @@ namespace RE
 		BGSLocalizedString(const volatile BGSLocalizedString&) = delete;
 		BGSLocalizedString& operator=(const volatile BGSLocalizedString&) = delete;
 
-		BGSLocalizedString(const BSFixedStringCS& a_string)
+		BGSLocalizedString(const BGSLocalizedString& a_rhs) :
+			_data(a_rhs._data)
 		{
-			_data = a_string;
+		}
+
+		BGSLocalizedString(BGSLocalizedString&& a_rhs) noexcept :
+			_data(std::exchange(a_rhs._data, nullptr))
+		{
+		}
+
+		BGSLocalizedString(const BSFixedStringCS& a_string) :
+			_data(a_string)
+		{
 		}
 
 		BGSLocalizedString(const_pointer a_string)
@@ -378,16 +380,44 @@ namespace RE
 			parse(a_string);
 		}
 
-		BGSLocalizedString(std::basic_string_view<value_type> a_string)
+		explicit BGSLocalizedString(std::basic_string_view<value_type> a_string)
 		{
 			parse(a_string);
 		}
 
+		BGSLocalizedString(std::basic_string_view<value_type>::const_iterator a_first, std::basic_string_view<value_type>::const_iterator a_last)
+		{
+			const auto view = std::basic_string_view<value_type>{ a_first, a_last };
+			parse(view);
+		}
+
+		BGSLocalizedString(std::initializer_list<value_type> a_ilist)
+		{
+			const auto view = std::basic_string_view<value_type>{ a_ilist.begin(), a_ilist.size() };
+			parse(view);
+		}
+
 		~BGSLocalizedString() = default;
+
+		BGSLocalizedString& operator=(const BGSLocalizedString& a_rhs)
+		{
+			if (this != std::addressof(a_rhs)) {
+				_data = a_rhs._data;
+			}
+			return *this;
+		}
+
+		BGSLocalizedString& operator=(BGSLocalizedString&& a_rhs) noexcept
+		{
+			if (this != std::addressof(a_rhs)) {
+				std::swap(_data, a_rhs._data);
+			}
+			return *this;
+		}
 
 		BGSLocalizedString& operator=(const BSFixedStringCS& a_rhs)
 		{
-			_data = a_rhs;
+			parse(a_rhs);
 			return *this;
 		}
 
@@ -403,29 +433,39 @@ namespace RE
 			return *this;
 		}
 
-		[[nodiscard]] value_type operator[](size_type a_pos) const noexcept
+		BGSLocalizedString& operator=(std::initializer_list<value_type> a_rhs)
 		{
-			assert(a_pos < size());
-			return data()[a_pos];
+			const auto view = std::basic_string_view<value_type>{ a_rhs.begin(), a_rhs.size() };
+			parse(view);
+			return *this;
 		}
 
-		[[nodiscard]] const_reference front() const noexcept { return operator[](0); }
-		[[nodiscard]] const_reference back() const noexcept { return operator[](size() - 1); }
+		[[nodiscard]] operator std::basic_string_view<value_type>() const noexcept { return _data; }
+		[[nodiscard]] explicit operator BSFixedStringCS() const noexcept { return _data; }
+
+		[[nodiscard]] const_reference operator[](size_type a_pos) const noexcept
+		{
+			return _data[a_pos];
+		}
+
+		[[nodiscard]] const_reference at(size_type a_pos) const noexcept
+		{
+			return _data.at(a_pos);
+		}
+
+		[[nodiscard]] const_reference front() const noexcept { return _data.front(); }
+		[[nodiscard]] const_reference back() const noexcept { return _data.back(); }
 
 		[[nodiscard]] const_pointer data() const noexcept { return _data.data(); }
 		[[nodiscard]] const_pointer c_str() const noexcept { return _data.c_str(); }
 
-		[[nodiscard]] operator std::basic_string_view<value_type>() const { return _data; }
-
 		[[nodiscard]] const_iterator begin() const noexcept { return _data.begin(); }
 		[[nodiscard]] const_iterator cbegin() const noexcept { return _data.cbegin(); }
-
 		[[nodiscard]] const_iterator end() const noexcept { return _data.end(); }
 		[[nodiscard]] const_iterator cend() const noexcept { return _data.cend(); }
 
 		[[nodiscard]] const_reverse_iterator rbegin() const noexcept { return _data.rbegin(); }
 		[[nodiscard]] const_reverse_iterator crbegin() const noexcept { return _data.crbegin(); }
-
 		[[nodiscard]] const_reverse_iterator rend() const noexcept { return _data.rend(); }
 		[[nodiscard]] const_reverse_iterator crend() const noexcept { return _data.crend(); }
 
@@ -484,6 +524,11 @@ namespace RE
 			return a_lhs <=> a_rhs._data;
 		}
 
+		[[nodiscard]] bool contains(std::basic_string_view<value_type> a_rhs) const noexcept
+		{
+			return _data.contains(a_rhs);
+		}
+
 	protected:
 		template <class>
 		friend struct BSCRC32;
@@ -495,8 +540,8 @@ namespace RE
 		{
 			const auto self = static_cast<std::basic_string_view<value_type>>(_data);
 			if (self.starts_with("<ID=")) {
-				assert(self.length() >= PREFIX_LENGTH);
-				std::vector<char> buf(PREFIX_LENGTH + a_rhs.length() + 1, '\0');
+				assert(self.size() >= PREFIX_LENGTH);
+				std::vector<char> buf(PREFIX_LENGTH + a_rhs.size() + 1, '\0');
 				strncpy_s(buf.data(), buf.size(), self.data(), PREFIX_LENGTH);
 				strcpy_s(buf.data() + PREFIX_LENGTH, buf.size() - PREFIX_LENGTH, (a_rhs.empty() ? "" : a_rhs.data()));
 				_data = std::string_view{ buf.data(), buf.size() };
@@ -512,6 +557,18 @@ namespace RE
 		BSFixedStringCS _data; // 00
 	};
 	static_assert(sizeof(BGSLocalizedString) == 0x8);
+
+	namespace BSScript
+	{
+		template <class>
+		struct script_traits;
+
+		template <>
+		struct script_traits<RE::BGSLocalizedString> final
+		{
+			using is_string = std::true_type;
+		};
+	}
 
 	template <>
 	struct BSCRC32<BGSLocalizedString>

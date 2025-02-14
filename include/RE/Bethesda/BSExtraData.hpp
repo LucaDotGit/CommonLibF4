@@ -399,6 +399,8 @@ namespace RE
 
 	struct REFR_LIGHT
 	{
+		F4_HEAP_REDEFINE_NEW(REFR_LIGHT);
+
 		NiPointer<NiLight> light; // 00
 		float wantDimmer;		  // 08
 		std::uint32_t pad0C;	  // 0C
@@ -552,6 +554,8 @@ namespace RE
 	class DoorTeleportData
 	{
 	public:
+		F4_HEAP_REDEFINE_NEW(DoorTeleportData);
+
 		// members
 		TESObjectCELL* transitionCell; // 00
 		ObjectRefHandle linkedDoor;	   // 08

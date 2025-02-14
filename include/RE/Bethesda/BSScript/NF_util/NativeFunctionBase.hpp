@@ -50,7 +50,7 @@ namespace RE
 					isStatic(a_isStatic),
 					isLatent(a_isLatent)
 				{
-					for (std::size_t i = 0; i < descTable.paramCount; ++i) {
+					for (auto i = static_cast<Internal::VDescTable::size_type>(0); i < descTable.paramCount; ++i) {
 						descTable.entries[i].first = std::format("param{}", i + 1);
 					}
 				}
@@ -121,8 +121,8 @@ namespace RE
 				void SetCallableFromTasklets(bool a_taskletCallable) override { isCallableFromTasklet = a_taskletCallable; } // 14
 
 				// add
-				virtual bool HasStub() const = 0;																																		   // 15
-				virtual bool MarshallAndDispatch(Variable& a_self, Internal::VirtualMachine& a_vm, std::uint32_t a_stackID, Variable& a_retVal, const StackFrame& a_stackFrame) const = 0; // 16
+				virtual bool HasStub() const = 0;																																	   // 15
+				virtual bool MarshallAndDispatch(Variable& a_self, Internal::VirtualMachine& a_vm, VMStackID a_stackID, Variable& a_retVal, const StackFrame& a_stackFrame) const = 0; // 16
 
 				// members
 				BSFixedString name;					 // 10

@@ -2,7 +2,7 @@
 
 #include "REX/REX/INI.hpp"
 
-#define SI_CONVERT_GENERIC
+#define SI_NO_CONVERSION
 #include <SimpleIni.h>
 
 namespace REX::INI
@@ -193,7 +193,7 @@ namespace REX::JSON
 				}
 			}
 			catch (const std::exception& e) {
-				F4SE::log::error("{}", e.what());
+				F4SE::log::error("{}"sv, e.what());
 			}
 		}
 
@@ -206,7 +206,7 @@ namespace REX::JSON
 				}
 			}
 			catch (const std::exception& e) {
-				F4SE::log::error("{}", e.what());
+				F4SE::log::error("{}"sv, e.what());
 			}
 		}
 	}

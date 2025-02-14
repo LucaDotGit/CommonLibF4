@@ -4,7 +4,6 @@
 #include "RE/Bethesda/BGSBodyPartDefs.hpp"
 #include "RE/Bethesda/BSBitField.hpp"
 #include "RE/Bethesda/BSContainer.hpp"
-#include "RE/Bethesda/BSCoreTypes.hpp"
 #include "RE/Bethesda/BSFixedString.hpp"
 #include "RE/Bethesda/BSLock.hpp"
 #include "RE/Bethesda/BSPointerHandle.hpp"
@@ -31,7 +30,7 @@
 
 namespace RE
 {
-	struct TESRegionList;
+	class TESRegionList;
 	class TESForm;
 	class TESObject;
 	class TESBoundObject;
@@ -2956,8 +2955,8 @@ namespace RE
 		BSTArray<SpecialRefData> specialRefs;								   // 080
 		BSTArray<UniqueNPCData> uniqueNPCs;									   // 098
 		OverrideData* overrideData;											   // 0B0
-		BSTArray<std::uint32_t> newUnloadedRefs;							   // 0B8
-		BSTArray<BSTTuple<BGSLocationRefType*, std::uint32_t>> newSpecialRefs; // 0D0
+		BSTArray<RE::TESFormID> newUnloadedRefs;							   // 0B8
+		BSTArray<BSTTuple<BGSLocationRefType*, RE::TESFormID>> newSpecialRefs; // 0D0
 		NiPointer<QueuedPromoteLocationReferencesTask> promoteRefsTask;		   // 0E8
 		BSTArray<ObjectRefHandle> promotedRefsArray;						   // 0F0
 		volatile std::int32_t loadedCount;									   // 108

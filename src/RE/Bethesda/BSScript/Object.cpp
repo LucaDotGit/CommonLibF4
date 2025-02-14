@@ -1,12 +1,13 @@
 #include "RE/Bethesda/BSScript/Object.hpp"
 #include "RE/Bethesda/BSScript/Internal/VirtualMachine.hpp"
+
 namespace RE::BSScript
 {
 	Object::~Object()
 	{
 		if (IsConstructed()) {
-			const std::uint32_t size = type ? type->GetVariableCount() : 0;
-			for (std::uint32_t i = 0; i < size; ++i) {
+			const auto size = type ? type->GetVariableCount() : 0;
+			for (auto i = 0ui32; i < size; ++i) {
 				variables[i].reset();
 			}
 
@@ -30,7 +31,7 @@ namespace RE::BSScript
 		return type.get();
 	}
 
-	void* Object::Resolve(std::uint32_t a_typeID) const
+	void* Object::Resolve(VMTypeID a_typeID) const
 	{
 		auto vm = Internal::VirtualMachine::GetSingleton();
 		if (!vm) {
