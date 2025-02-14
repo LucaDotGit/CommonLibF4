@@ -4,7 +4,7 @@
 
 ## About
 
-This is a Next-Gen (NG) version of CommonLibF4, which means that multiple game versions can be supported at the same time, without having to ship multiple builds.
+This is a Next-Gen (NG) version of CommonLibF4, which makes it possible to support multiple game versions at the same time, without having to ship multiple builds.
 Note that the Next-Gen and VR ports are still in early stages.
 
 The project is based on [alandtse's](https://github.com/alandtse) [CommonLibF4 NG](https://github.com/alandtse/CommonLibF4), with many additions, improvements and fixes.
@@ -34,7 +34,7 @@ The project is based on [alandtse's](https://github.com/alandtse) [CommonLibF4 N
 
 ## Notes
 
-- For info about VR development, see [alandtse's build](hhttps://github.com/alandtse/CommonLibF4)
+- For info about VR development, see [alandtse's build](https://github.com/alandtse/CommonLibF4)
 
 ## Credits
 
