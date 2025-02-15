@@ -23,9 +23,9 @@ The project is based on [alandtse's](https://github.com/alandtse) [CommonLibF4 N
 
 ## End User Dependencies
 
+- [F4SE/VR](https://f4se.silverlock.org)
 - [Address Library for F4SE Plugins](https://www.nexusmods.com/fallout4/mods/47327)
 - [VR Address Library for F4SEVR Plugins](https://www.nexusmods.com/fallout4/mods/64879)
-- [F4SE/VR](https://f4se.silverlock.org)
 
 ## Development
 
