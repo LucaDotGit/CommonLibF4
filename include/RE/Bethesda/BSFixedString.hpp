@@ -144,9 +144,9 @@ namespace RE
 			[[nodiscard]] const_iterator end() const noexcept { return data() + size(); }
 			[[nodiscard]] const_iterator cend() const noexcept { return end(); }
 
-			[[nodiscard]] const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator{ end() }; }
+			[[nodiscard]] const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(end()); }
 			[[nodiscard]] const_reverse_iterator crbegin() const noexcept { return rbegin(); }
-			[[nodiscard]] const_reverse_iterator rend() const noexcept { return const_reverse_iterator{ begin() }; }
+			[[nodiscard]] const_reverse_iterator rend() const noexcept { return const_reverse_iterator(begin()); }
 			[[nodiscard]] const_reverse_iterator crend() const noexcept { return rend(); }
 
 			[[nodiscard]] const_reference front() const noexcept { return at(0); }
