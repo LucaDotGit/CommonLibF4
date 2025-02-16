@@ -99,8 +99,8 @@ namespace RE
 				{
 				public:
 					// members
-					std::uint32_t stackID; // 00
-					Variable returnValue;  // 08
+					VMStackID stackID;	  // 00
+					Variable returnValue; // 08
 				};
 				static_assert(sizeof(PendingLatentReturn) == 0x18);
 
@@ -248,8 +248,8 @@ namespace RE
 				LinkerProcessor linker;													   // 00C8
 				BSTHashMap<BSFixedString, BSTSmartPointer<ObjectTypeInfo>> objectTypeMap;  // 0168
 				BSTHashMap<BSFixedString, BSTSmartPointer<StructTypeInfo>> structTypeMap;  // 0198
-				BSTHashMap<std::uint32_t, BSFixedString> typeIDToObjectType;			   // 01C8
-				BSTHashMap<BSFixedString, std::uint32_t> objectTypeToTypeID;			   // 01F8
+				BSTHashMap<VMTypeID, BSFixedString> typeIDToObjectType;					   // 01C8
+				BSTHashMap<BSFixedString, VMTypeID> objectTypeToTypeID;					   // 01F8
 				BSTArray<BSTSmartPointer<ObjectTypeInfo>> typesToUnload;				   // 0228
 				mutable BSSpinLock funcQueueLock;										   // 0240
 				BSTStaticFreeList<FunctionMessage, 1024> funcMsgPool;					   // 0248
@@ -270,9 +270,9 @@ namespace RE
 				BSTCommonStaticMessageQueue_SuspendedStack_128* stacksToSuspend;		   // BD48 - ref to suspendQueue1 @A000
 				BSTArray<SuspendedStack>* stacksToSuspendOverflow;						   // BD50 - ref to overflowSuspendArray1 @BD18
 				mutable BSSpinLock runningStacksLock;									   // BD58
-				BSTHashMap<std::uint32_t, BSTSmartPointer<Stack>> allRunningStacks;		   // BD60
-				BSTHashMap<std::uint32_t, BSTSmartPointer<Stack>> waitingLatentReturns;	   // BD90
-				std::uint32_t nextStackID;												   // BDC0
+				BSTHashMap<VMStackID, BSTSmartPointer<Stack>> allRunningStacks;			   // BD60
+				BSTHashMap<VMStackID, BSTSmartPointer<Stack>> waitingLatentReturns;		   // BD90
+				VMStackID nextStackID;													   // BDC0
 				mutable BSSpinLock frozenStacksLock;									   // BDC4
 				std::byte padBDCC[0xBDD0 - 0xBDCC];										   // BDCC
 				BSTArray<msvc::unique_ptr<PendingLatentReturn>> pendingLatentReturns;	   // BDD0
@@ -280,9 +280,8 @@ namespace RE
 				std::uint32_t frozenStacksCount;										   // BDF0
 				REX::Enum<FreezeState, std::uint32_t> freezeState;						   // BDF4
 				mutable BSSpinLock attachedScriptsLock;									   // BDF8
-				BSTHashMap<uint64_t, BSTSmallSharedArray<AttachedScript>> attachedScripts; // BE00
+				BSTHashMap<VMHandle, BSTSmallSharedArray<AttachedScript>> attachedScripts; // BE00
 				std::uint32_t nextObjectToClean;										   // BE30
-				std::byte padBE34[0xBE38 - 0xBE34];										   // BE34
 				VMHandle nextAttachedObjectToClean;										   // BE38
 				BSTArray<BSTSmartPointer<Object>> detachedScripts;						   // BE40
 				mutable BSSpinLock structsLock;											   // BE58

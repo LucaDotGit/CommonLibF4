@@ -315,10 +315,10 @@ namespace RE
 				return reinterpret_cast<const NamedStateInfo*>(GetMemberFuncIter() + GetNumMemberFuncs());
 			}
 
-			[[nodiscard]] BSFixedString GetInitialState() const
+			[[nodiscard]] std::optional<BSFixedString> GetInitialState() const
 			{
 				if (GetNumNamedStates() == 0) {
-					return {};
+					return std::nullopt;
 				}
 
 				const auto* stateIter = GetNamedStateIter();

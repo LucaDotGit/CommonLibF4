@@ -98,7 +98,7 @@ namespace RE
 			REX::Enum<State, std::uint32_t> state;				  // 68
 			REX::Enum<FreezeState, std::uint32_t> freezeState;	  // 6C
 			Variable returnValue;								  // 70
-			std::uint32_t stackID;								  // 80
+			VMStackID stackID;									  // 80
 			REX::Enum<StackType, std::int32_t> stackType;		  // 84
 			BSTSmartPointer<Internal::CodeTasklet> owningTasklet; // 88
 			BSTSmartPointer<IStackCallbackFunctor> callback;	  // 90

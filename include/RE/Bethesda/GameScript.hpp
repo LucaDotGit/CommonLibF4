@@ -203,7 +203,7 @@ namespace RE
 			F4_HEAP_REDEFINE_NEW(DelayFunctor);
 
 			// members
-			std::uint32_t stackID; // 0C
+			VMStackID stackID; // 0C
 		};
 		static_assert(sizeof(DelayFunctor) == 0x10);
 
