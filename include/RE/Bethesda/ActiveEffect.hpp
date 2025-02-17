@@ -72,13 +72,15 @@ namespace RE
 		TESBoundObject* source;												// 60
 		BSSimpleList<ReferenceEffect*>* hitEffects;							// 68
 		MagicItem* displacementSpell;										// 70
-		float elapsedSeconds;												// 74
-		float duration;														// 78
-		float magnitude;													// 7C
-		REX::EnumSet<Flags, std::uint32_t> flags;							// 80
-		REX::Enum<ConditionStatus, std::int32_t> conditionStatus;			// 84
+		float elapsedSeconds;												// 78
+		float duration;														// 7C
+		float magnitude;													// 80
+		REX::EnumSet<Flags, std::uint32_t> flags;							// 84
+		REX::Enum<ConditionStatus, std::int32_t> conditionStatus;			// 88
 		std::uint16_t uniqueID;												// 8C
+		std::uint16_t pad8e;												// 8E
 		REX::Enum<MagicSystem::CastingSource, std::uint32_t> castingSource; // 90
+		std::uint32_t pad94;												// 94
 	};
 	static_assert(sizeof(ActiveEffect) == 0x98);
 }

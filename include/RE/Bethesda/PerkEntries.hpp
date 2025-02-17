@@ -28,9 +28,9 @@ namespace RE
 		};
 		static_assert(sizeof(Header) == 0x8);
 
-		virtual bool CheckConditionFilters(std::uint32_t a_numArgs, void* a_args); // 00
-		virtual EntryPoint GetFunction();										   // 01
-		[[nodiscard]] virtual void* GetFunctionData() const;					   // 02
+		[[nodiscard]] virtual bool CheckConditionFilters(std::uint32_t a_numArgs, void* a_args); // 00
+		[[nodiscard]] virtual EntryPoint GetFunction();											 // 01
+		[[nodiscard]] virtual void* GetFunctionData() const;									 // 02
 
 		virtual ~BGSPerkEntry(); // 03
 
