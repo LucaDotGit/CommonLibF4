@@ -1,4 +1,5 @@
 #include "RE/Bethesda/BSScript/Object.hpp"
+
 #include "RE/Bethesda/BSScript/Internal/VirtualMachine.hpp"
 
 namespace RE::BSScript
@@ -21,15 +22,6 @@ namespace RE::BSScript
 			--l;
 		}
 	}
-	ObjectTypeInfo* Object::GetTypeInfo()
-	{
-		return type.get();
-	}
-
-	const ObjectTypeInfo* Object::GetTypeInfo() const
-	{
-		return type.get();
-	}
 
 	void* Object::Resolve(VMTypeID a_typeID) const
 	{
@@ -46,6 +38,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 	}
+
 	Variable* Object::GetProperty(const BSFixedString& a_name)
 	{
 		return const_cast<Variable*>(
@@ -64,4 +57,17 @@ namespace RE::BSScript
 		return index != INVALID ? std::addressof(variables[index]) : nullptr;
 	}
 
+	[[nodiscard]] std::uint32_t Object::DecRef() const
+	{
+		using func_t = decltype(&Object::DecRef);
+		static REL::Relocation<func_t> func{ REL::ID(541793) };
+		return func(this);
+	}
+
+	void Object::IncRef() const
+	{
+		using func_t = decltype(&Object::IncRef);
+		static REL::Relocation<func_t> func{ REL::RelocationID(461710, 2314436) };
+		return func(this);
+	}
 }

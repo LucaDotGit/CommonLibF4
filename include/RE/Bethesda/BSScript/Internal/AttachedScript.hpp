@@ -3,17 +3,11 @@
 #include "RE/Bethesda/BSScript/Object.hpp"
 #include "RE/Bethesda/BSTPointerAndFlags.hpp"
 
-namespace RE
+namespace RE::BSScript::Internal
 {
-	namespace BSScript
+	class AttachedScript
+		: public BSTPointerAndFlags<BSTSmartPointer<Object>, 1> // 00
 	{
-		namespace Internal
-		{
-			class AttachedScript
-				: public BSTPointerAndFlags<BSTSmartPointer<Object>, 1> // 00
-			{
-			};
-			static_assert(sizeof(AttachedScript) == 0x8);
-		}
-	}
+	};
+	static_assert(sizeof(AttachedScript) == 0x8);
 }

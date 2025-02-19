@@ -1,9 +1,8 @@
+#include "RE/Bethesda/BSScript/Variable.hpp"
+
 #include "RE/Bethesda/BSScript/Array.hpp"
 #include "RE/Bethesda/BSScript/Object.hpp"
 #include "RE/Bethesda/BSScript/Struct.hpp"
-#include "RE/Bethesda/BSScript/TypeInfo.hpp"
-
-#include "RE/Bethesda/BSScript/Variable.hpp"
 
 namespace RE::BSScript
 {
@@ -15,8 +14,8 @@ namespace RE::BSScript
 			return *this;
 		}
 
+		varType = a_object->GetTypeInfo();
 		value.o = std::move(a_object);
-		varType = value.o->type.get();
 		assert(is<Object>());
 		return *this;
 	}
@@ -29,8 +28,8 @@ namespace RE::BSScript
 			return *this;
 		}
 
+		varType = a_struct->GetTypeInfo();
 		value.t = std::move(a_struct);
-		varType = value.t->type.get();
 		assert(is<Struct>());
 		return *this;
 	}
@@ -43,16 +42,11 @@ namespace RE::BSScript
 			return *this;
 		}
 
+		varType = a_array->elementType;
 		value.a = std::move(a_array);
-		varType = value.a->elementType;
 		varType.SetArray(true);
 		assert(is<Array>());
 		return *this;
-	}
-
-	void Variable::SetComplexType(IComplexType* a_type)
-	{
-		varType.data.complexTypeInfo = a_type;
 	}
 
 	void Variable::reset()

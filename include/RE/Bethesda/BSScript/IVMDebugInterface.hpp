@@ -1,5 +1,7 @@
 #pragma once
 
+#include "RE/Bethesda/BSFixedString.hpp"
+
 namespace RE
 {
 	namespace BSScript

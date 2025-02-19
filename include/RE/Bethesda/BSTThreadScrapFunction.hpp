@@ -2,9 +2,6 @@
 
 #include "RE/msvc/functional.hpp"
 
-#include <cassert>
-#include <functional>
-
 namespace RE
 {
 	template <class>
