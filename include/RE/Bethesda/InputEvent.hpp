@@ -289,7 +289,7 @@ namespace RE
 				return strUserEvent;
 			}
 
-			static auto DISABLED = BSFixedString{ "DISABLED"sv };
+			static const auto DISABLED = BSFixedString("DISABLED"sv);
 			return DISABLED;
 		}
 

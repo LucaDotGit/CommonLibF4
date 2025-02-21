@@ -116,7 +116,7 @@ namespace RE::BSScript
 		[[nodiscard]] bool IsNull() const noexcept { return _proxy == nullptr; }
 
 		template <class T>
-		std::optional<T> find(std::string_view a_name, bool a_quiet = false) const
+		std::optional<T> find(std::string_view a_name) const
 		{
 			if (!_proxy || !_proxy->type) {
 				return std::nullopt;
@@ -126,9 +126,7 @@ namespace RE::BSScript
 			const auto it = mappings.find(BSFixedString(a_name));
 
 			if (it == mappings.end()) {
-				if (!a_quiet) {
-					F4SE::log::warn("failed to find var \"{}\" on structure \"{}\""sv, a_name, NAME);
-				}
+				F4SE::log::warn("failed to find var \"{}\" on structure \"{}\""sv, a_name, NAME);
 				return std::nullopt;
 			}
 
@@ -428,37 +426,61 @@ namespace RE::BSScript
 	template <detail::object T>
 	[[nodiscard]] std::optional<TypeInfo> GetTypeInfo()
 	{
-		const auto game = GameVM::GetSingleton();
-		const auto vm = game ? game->GetVM() : nullptr;
-		BSTSmartPointer<ObjectTypeInfo> typeInfo;
-		if (!vm ||
-			!vm->GetScriptObjectType(GetVMTypeID<T>(), typeInfo) ||
-			!typeInfo) {
+		const auto result = []() -> std::optional<TypeInfo> {
+			const auto game = GameVM::GetSingleton();
+			if (!game) {
+				return std::nullopt;
+			}
+
+			const auto vm = game->GetVM();
+			if (!vm) {
+				return std::nullopt;
+			}
+
+			auto typeInfo = BSTSmartPointer<ObjectTypeInfo>();
+			if (!vm->GetScriptObjectType(GetVMTypeID<T>(), typeInfo) || !typeInfo) {
+				return std::nullopt;
+			}
+
+			return typeInfo.get();
+		}();
+
+		if (!result) {
 			assert(false);
 			F4SE::log::error("failed to get type info for object"sv);
-			return std::nullopt;
 		}
-		else {
-			return typeInfo.get();
-		}
+
+		return result;
 	}
 
 	template <detail::eobject T>
 	[[nodiscard]] std::optional<TypeInfo> GetTypeInfo()
 	{
-		const auto game = GameVM::GetSingleton();
-		const auto vm = game ? game->GetVM() : nullptr;
-		BSTSmartPointer<ObjectTypeInfo> typeInfo;
-		if (!vm ||
-			!vm->GetScriptObjectType(GetVMTypeID<T>(), typeInfo) ||
-			!typeInfo) {
-			assert(false);
-			F4SE::log::error("failed to get type info for object"sv);
-			return std::nullopt;
-		}
-		else {
+		const auto result = []() -> std::optional<TypeInfo> {
+			const auto game = GameVM::GetSingleton();
+			if (!game) {
+				return std::nullopt;
+			}
+
+			const auto vm = game->GetVM();
+			if (!vm) {
+				return std::nullopt;
+			}
+
+			auto typeInfo = BSTSmartPointer<ObjectTypeInfo>();
+			if (!vm->GetScriptObjectType(GetVMTypeID<T>(), typeInfo) || !typeInfo) {
+				return std::nullopt;
+			}
+
 			return typeInfo.get();
+		}();
+
+		if (!result) {
+			assert(false);
+			F4SE::log::error("failed to get type info for active effect"sv);
 		}
+
+		return result;
 	}
 
 	template <detail::cobject T>
@@ -470,21 +492,33 @@ namespace RE::BSScript
 	template <detail::vmobject T>
 	[[nodiscard]] std::optional<TypeInfo> GetTypeInfo()
 	{
-		static const auto baseObjectName = BSFixedString{ "ScriptObject"sv };
+		static const auto baseObjectName = BSFixedString("ScriptObject"sv);
 
-		const auto game = GameVM::GetSingleton();
-		const auto vm = game ? game->GetVM() : nullptr;
-		BSTSmartPointer<ObjectTypeInfo> typeInfo;
-		if (!vm ||
-			!vm->GetScriptObjectType(baseObjectName, typeInfo) ||
-			!typeInfo) {
+		const auto result = [&]() -> std::optional<TypeInfo> {
+			const auto game = GameVM::GetSingleton();
+			if (!game) {
+				return std::nullopt;
+			}
+
+			const auto vm = game->GetVM();
+			if (!vm) {
+				return std::nullopt;
+			}
+
+			auto typeInfo = BSTSmartPointer<ObjectTypeInfo>();
+			if (!vm->GetScriptObjectType(baseObjectName, typeInfo) || !typeInfo) {
+				return std::nullopt;
+			}
+
+			return typeInfo.get();
+		}();
+
+		if (!result) {
 			assert(false);
 			F4SE::log::error("failed to get type info for vm object"sv);
-			return std::nullopt;
 		}
-		else {
-			return typeInfo.get();
-		}
+
+		return result;
 	}
 
 	template <detail::vmobject_ptr T>
@@ -539,24 +573,31 @@ namespace RE::BSScript
 	template <detail::wrapper T>
 	[[nodiscard]] std::optional<TypeInfo> GetTypeInfo()
 	{
-		const auto game = GameVM::GetSingleton();
-		const auto vm = game ? game->GetVM() : nullptr;
-		if constexpr (detail::is_structure_wrapper_v<T>) {
-			BSTSmartPointer<StructTypeInfo> typeInfo;
-			if (!vm ||
-				!vm->GetScriptStructType(BSFixedString(T::NAME), typeInfo) ||
-				!typeInfo) {
-				F4SE::log::error("failed to get type info for structure \"{}\""sv, T::NAME);
-				assert(false);
+		const auto result = []() -> std::optional<TypeInfo> {
+			const auto game = GameVM::GetSingleton();
+			if (!game) {
 				return std::nullopt;
 			}
-			else {
-				return typeInfo.get();
+
+			const auto vm = game->GetVM();
+			if (!vm) {
+				return std::nullopt;
 			}
+
+			auto typeInfo = BSTSmartPointer<StructTypeInfo>();
+			if (!vm->GetScriptStructType(BSFixedString(T::NAME), typeInfo) || !typeInfo) {
+				return std::nullopt;
+			}
+
+			return typeInfo.get();
+		}();
+
+		if (!result) {
+			assert(false);
+			F4SE::log::error("failed to get type info for struct \"{}\""sv, T::NAME);
 		}
-		else {
-			static_assert(false && sizeof(T));
-		}
+
+		return result;
 	}
 
 	template <detail::nullable T>
@@ -585,11 +626,17 @@ namespace RE::BSScript
 
 		const auto success = [&]() {
 			const auto game = GameVM::GetSingleton();
-			const auto vm = game ? game->GetVM() : nullptr;
-			BSTSmartPointer<ObjectTypeInfo> typeInfo;
-			if (!vm ||
-				!vm->GetScriptObjectType(GetVMTypeID<T>(), typeInfo) ||
-				!typeInfo) {
+			if (!game) {
+				return false;
+			}
+
+			const auto vm = game->GetVM();
+			if (!vm) {
+				return false;
+			}
+
+			auto typeInfo = BSTSmartPointer<ObjectTypeInfo>();
+			if (!vm->GetScriptObjectType(GetVMTypeID<T>(), typeInfo) || !typeInfo) {
 				return false;
 			}
 
@@ -598,11 +645,13 @@ namespace RE::BSScript
 				GetVMTypeID<T>(),
 				const_cast<const void*>(
 					static_cast<const volatile void*>(a_val)));
+
 			if (handle == GameScript::HandlePolicy::EMPTY_HANDLE) {
 				return false;
 			}
 
-			BSTSmartPointer<Object> object;
+			auto object = BSTSmartPointer<Object>();
+
 			if (!vm->FindBoundObject(handle, typeInfo->name.c_str(), false, object, false) &&
 				vm->CreateObject(typeInfo->name, object) &&
 				object) {
@@ -630,6 +679,16 @@ namespace RE::BSScript
 	void PackVariable(Variable& a_var, T a_val)
 	{
 		const auto success = [&]() {
+			const auto game = GameVM::GetSingleton();
+			if (!game) {
+				return false;
+			}
+
+			const auto vm = game->GetVM();
+			if (!vm) {
+				return false;
+			}
+
 			if (a_val.Reference()) {
 				detail::PackVariable(a_var, a_val.Reference());
 				return true;
@@ -637,6 +696,7 @@ namespace RE::BSScript
 			else if (!a_val.Container() || !a_val.UniqueID()) {
 				return false;
 			}
+
 			const auto& container = *a_val.Container();
 			const auto uniqueID = a_val.UniqueID();
 
@@ -644,16 +704,11 @@ namespace RE::BSScript
 			if (!typeInfo || !typeInfo->IsObject()) {
 				return false;
 			}
+
 			const auto& objInfo = static_cast<const ObjectTypeInfo&>(*typeInfo->data.complexTypeInfo);
-
-			const auto game = GameVM::GetSingleton();
-			const auto vm = game ? game->GetVM() : nullptr;
-			if (!vm) {
-				return false;
-			}
-
 			const auto handle = GameScript::HandlePolicy::GetHandleForInventoryID(uniqueID, container.GetFormID());
-			BSTSmartPointer<Object> object;
+			auto object = BSTSmartPointer<Object>();
+
 			if (!vm->FindBoundObject(handle, objInfo.name.c_str(), false, object, false) &&
 				vm->CreateObject(objInfo.name, object)) {
 				GameScript::BindCObject(object, a_val, *vm);
@@ -678,6 +733,7 @@ namespace RE::BSScript
 	void PackVariable(Variable& a_var, T a_val)
 	{
 		a_var = a_val ? std::move(a_val) : nullptr;
+
 		const auto typeInfo = GetTypeInfo<T>();
 		if (typeInfo) {
 			a_var.SetComplexType(typeInfo->GetComplexType());
@@ -730,7 +786,7 @@ namespace RE::BSScript
 	void PackVariable(Variable& a_var, T&& a_val) //
 		requires(detail::array<std::remove_reference_t<T>>)
 	{
-		using value_type = detail::decay_t<typename std::remove_cvref_t<T>::value_type>;
+		using size_type = Array::size_type;
 		using reference_type =
 			std::conditional_t<
 				std::is_lvalue_reference_v<T>,
@@ -739,20 +795,30 @@ namespace RE::BSScript
 
 		const auto success = [&]() {
 			const auto game = GameVM::GetSingleton();
-			const auto vm = game ? game->GetVM() : nullptr;
-			const auto typeInfo = GetTypeInfo<std::remove_cvref_t<T>>();
-			const auto size = a_val.size();
-			BSTSmartPointer<Array> out;
-			if (!typeInfo ||
-				!vm ||
-				!vm->CreateArray(*typeInfo, static_cast<VMTypeID>(size), out) ||
-				!out) {
+			if (!game) {
 				return false;
 			}
 
-			auto i = 0ui32;
-			for (auto&& elem : std::forward<T>(a_val)) {
-				detail::PackVariable(out->elements[i++], static_cast<reference_type>(elem));
+			const auto vm = game->GetVM();
+			if (!vm) {
+				return false;
+			}
+
+			const auto typeInfo = GetTypeInfo<std::remove_cvref_t<T>>();
+			if (!typeInfo) {
+				return false;
+			}
+
+			const auto size = static_cast<size_type>(size);
+			auto out = BSTSmartPointer<Array>();
+
+			if (!vm->CreateArray(*typeInfo, size, out) || !out) {
+				return false;
+			}
+
+			auto i = static_cast<size_type>(0);
+			for (auto&& element : std::forward<T>(a_val)) {
+				detail::PackVariable(out->elements[i++], static_cast<reference_type>(element));
 			}
 
 			a_var = std::move(out);
@@ -804,25 +870,34 @@ namespace RE::BSScript
 	template <detail::object T>
 	[[nodiscard]] T* UnpackVariable(const Variable& a_var)
 	{
-		if (a_var.is<Object>() && get<Object>(a_var) == nullptr) {
+		if (!a_var.is<Object>()) {
+			assert(false);
+			return nullptr;
+		}
+
+		if (!get<Object>(a_var)) {
 			return nullptr;
 		}
 
 		const auto result = [&]() -> void* {
-			if (!a_var.is<Object>()) {
-				assert(false);
+			const auto game = GameVM::GetSingleton();
+			if (!game) {
 				return nullptr;
 			}
 
-			const auto game = GameVM::GetSingleton();
-			const auto vm = game ? game->GetVM() : nullptr;
+			const auto vm = game->GetVM();
+			if (!vm) {
+				return nullptr;
+			}
+
 			const auto object = get<Object>(a_var);
-			if (!vm || !object) {
+			if (!object) {
 				return nullptr;
 			}
 
 			const auto& handles = vm->GetObjectHandlePolicy();
 			const auto handle = object->GetHandle();
+
 			if (!handles.IsHandleLoaded(handle)) {
 				return nullptr;
 			}
@@ -843,16 +918,26 @@ namespace RE::BSScript
 	{
 		const auto result = [&]() -> void* {
 			const auto game = GameVM::GetSingleton();
-			const auto vm = game ? game->GetVM() : nullptr;
+			if (!game) {
+				return nullptr;
+			}
+
+			const auto vm = game->GetVM();
+			if (!vm) {
+				return nullptr;
+			}
+
 			const auto object = get<Object>(a_var);
-			if (!vm || !object) {
+			if (!object) {
 				return nullptr;
 			}
 
 			const auto& handles = vm->GetObjectHandlePolicy();
 			const auto handle = object->GetHandle();
-			if (!handles.HandleIsType(static_cast<uint32_t>(ENUM_FORMTYPE::kActiveEffect), handle))
+
+			if (!handles.HandleIsType(static_cast<VMTypeID>(ENUM_FORMTYPE::kActiveEffect), handle)) {
 				return nullptr;
+			}
 
 			return handles.GetObjectForHandle(GetVMTypeID<T>(), handle);
 		}();
@@ -880,7 +965,11 @@ namespace RE::BSScript
 			}
 
 			const auto game = GameVM::GetSingleton();
-			const auto vm = game ? game->GetVM() : nullptr;
+			if (!game) {
+				return std::nullopt;
+			}
+
+			const auto vm = game->GetVM();
 			if (!vm) {
 				return std::nullopt;
 			}
@@ -986,18 +1075,16 @@ namespace RE::BSScript
 			return T();
 		}
 
-		using value_type = typename T::value_type;
-
 		const auto in = get<Array>(a_var);
 		if (!in) {
 			return T();
 		}
 
 		auto out = T();
-		out.reserve(in->elements.size());
+		out.reserve(static_cast<T::size_type>(in->elements.size()));
 
 		for (const auto& var : in->elements) {
-			out.push_back(detail::UnpackVariable<value_type>(var));
+			out.push_back(detail::UnpackVariable<typename T::value_type>(var));
 		}
 
 		return out;
@@ -1180,7 +1267,7 @@ namespace RE::BSScript
 
 			if constexpr (LONG) {
 				return a_callback(
-					reinterpret_cast<IVirtualMachine&>(a_vm), // To-Do: static_cast
+					reinterpret_cast<IVirtualMachine&>(a_vm),
 					a_stackID,
 					self(),
 					args(std::in_place_type_t<Args>{}, I)...);
@@ -1226,7 +1313,7 @@ namespace RE::BSScript
 			_stub(std::move(a_func))
 		{
 			assert(super::descTable.paramCount == sizeof...(Args));
-			std::size_t i = 0;
+			auto i = 0ui64;
 			((super::descTable.entries[i++].second = GetTypeInfo<detail::decay_t<Args>>().value_or(nullptr)), ...);
 			super::retType = GetTypeInfo<detail::decay_t<R>>().value_or(nullptr);
 		}
@@ -1324,7 +1411,7 @@ namespace RE::BSScript
 		{
 			constexpr auto size = sizeof...(a_args);
 			auto args = std::make_tuple(std::forward<Args>(a_args)...);
-			BSScrapArray<Variable> result{ size };
+			auto result = BSScrapArray<Variable>{ size };
 			[&]<std::size_t... p>(std::index_sequence<p...>) {
 				((BSScript::PackVariable(result.at(p), std::get<p>(args))), ...);
 			}(std::make_index_sequence<size>{});

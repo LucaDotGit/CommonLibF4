@@ -2,12 +2,14 @@
 
 #include "RE/Bethesda/BSTSmartPointer.hpp"
 #include "RE/Bethesda/MemoryManager.hpp"
+
 namespace RE
 {
 	namespace BSStorageDefs
 	{
 		enum class ErrorCode;
 		enum class SeekMode;
+
 		struct StreamBuffer
 		{
 			// To-Do: add funcs

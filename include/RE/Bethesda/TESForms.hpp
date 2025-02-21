@@ -872,8 +872,14 @@ namespace RE
 
 		[[nodiscard]] static const char* GetFormTypeString(ENUM_FORMTYPE a_formType)
 		{
-			auto formEnumString = GetFormEnumString();
-			return formEnumString[std::to_underlying(a_formType)].formString;
+			const auto formTypes = GetFormEnumString();
+			const auto index = std::to_underlying(a_formType);
+
+			if (index < 0 || index >= formTypes.size()) {
+				return "";
+			}
+
+			return formTypes[index].formString;
 		}
 
 		[[nodiscard]] const char* GetFormTypeString() const

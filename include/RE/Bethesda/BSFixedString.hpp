@@ -167,7 +167,7 @@ namespace RE
 
 			[[nodiscard]] friend auto operator==(const BSFixedString& a_lhs, const BSFixedString& a_rhs) noexcept
 			{
-				return strcmp(a_lhs, a_rhs) == std::strong_ordering::equal;
+				return hash_equals(a_lhs, a_rhs) || strcmp(a_lhs, a_rhs) == std::strong_ordering::equal;
 			}
 
 			[[nodiscard]] friend auto operator==(const BSFixedString& a_lhs, std::basic_string_view<value_type> a_rhs) noexcept
@@ -280,6 +280,21 @@ namespace RE
 						static_assert(false, "unsupported value_type");
 					}
 				}
+			}
+
+			[[nodiscard]] static bool hash_equals(const BSFixedString& a_lhs, const BSFixedString& a_rhs) noexcept
+			{
+				if (a_lhs.empty() && a_rhs.empty()) {
+					return true;
+				}
+
+				const auto getLeaf = [](const BSFixedString& a_str) {
+					return a_str._data ? a_str._data->leaf() : nullptr;
+				};
+
+				const auto* lLeaf = getLeaf(a_lhs);
+				const auto* rLeaf = getLeaf(a_rhs);
+				return lLeaf == rLeaf;
 			}
 
 			void try_acquire()
