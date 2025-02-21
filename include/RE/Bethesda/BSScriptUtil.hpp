@@ -809,16 +809,15 @@ namespace RE::BSScript
 				return false;
 			}
 
-			const auto size = static_cast<size_type>(size);
+			const auto size = static_cast<size_type>(a_val.size());
 			auto out = BSTSmartPointer<Array>();
 
 			if (!vm->CreateArray(*typeInfo, size, out) || !out) {
 				return false;
 			}
 
-			auto i = static_cast<size_type>(0);
-			for (auto&& element : std::forward<T>(a_val)) {
-				detail::PackVariable(out->elements[i++], static_cast<reference_type>(element));
+			for (auto i = static_cast<size_type>(0); i < size; i++) {
+				detail::PackVariable(out->elements[i], static_cast<reference_type>(a_val[i]));
 			}
 
 			a_var = std::move(out);
