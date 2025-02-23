@@ -33,28 +33,94 @@ namespace RE
 	public:
 		using event_type = Event;
 
+		[[nodiscard]] bool IsSinkRegistered(const BSTEventSink<event_type>* a_sink) const
+		{
+			if (!a_sink) {
+				return false;
+			}
+
+			const auto lock = BSAutoLock{ _lock };
+			return std::ranges::contains(_sinks, a_sink);
+		}
+
+		[[nodiscard]] bool IsSinkRegisterPending(const BSTEventSink<event_type>* a_sink) const
+		{
+			if (!a_sink) {
+				return false;
+			}
+
+			const auto lock = BSAutoLock{ _lock };
+			return std::ranges::contains(_pendingRegisters, a_sink);
+		}
+
+		[[nodiscard]] bool IsSinkUnregisterPending(const BSTEventSink<event_type>* a_sink) const
+		{
+			if (!a_sink) {
+				return false;
+			}
+
+			const auto lock = BSAutoLock{ _lock };
+			return std::ranges::contains(_pendingUnregisters, a_sink);
+		}
+
 		[[nodiscard]] std::uint32_t GetSinkCount() const
 		{
 			const auto lock = BSAutoLock{ _lock };
 			return _sinks.size();
 		}
 
-		[[nodiscard]] bool IsSinkRegistered(const BSTEventSink<event_type>* a_sink) const
+		[[nodiscard]] std::uint32_t GetPendingRegisterCount() const
 		{
 			const auto lock = BSAutoLock{ _lock };
-			return std::ranges::contains(_sinks, a_sink);
+			return _pendingRegisters.size();
 		}
 
-		[[nodiscard]] bool IsSinkPendingRegistration(const BSTEventSink<event_type>* a_sink) const
+		[[nodiscard]] std::uint32_t GetPendingUnregisterCount() const
 		{
 			const auto lock = BSAutoLock{ _lock };
-			return std::ranges::contains(_pendingRegisters, a_sink);
+			return _pendingUnregisters.size();
 		}
 
-		[[nodiscard]] bool IsSinkPendingUnregistration(const BSTEventSink<event_type>* a_sink) const
+		[[nodiscard]] std::int8_t GetNotifying() const
 		{
 			const auto lock = BSAutoLock{ _lock };
-			return std::ranges::contains(_pendingUnregisters, a_sink);
+			return _notifying;
+		}
+
+		[[nodiscard]] BSTEventSink<event_type>* GetNthSink(std::uint32_t a_index)
+		{
+			const auto lock = BSAutoLock{ _lock };
+			return a_index < _sinks.size() ? _sinks[a_index] : nullptr;
+		}
+
+		[[nodiscard]] const BSTEventSink<event_type>* GetNthSink(std::uint32_t a_index) const
+		{
+			const auto lock = BSAutoLock{ _lock };
+			return a_index < _sinks.size() ? _sinks[a_index] : nullptr;
+		}
+
+		[[nodiscard]] BSTEventSink<event_type>* GetNthPendingRegister(std::uint32_t a_index)
+		{
+			const auto lock = BSAutoLock{ _lock };
+			return a_index < _pendingRegisters.size() ? _pendingRegisters[a_index] : nullptr;
+		}
+
+		[[nodiscard]] const BSTEventSink<event_type>* GetNthPendingRegister(std::uint32_t a_index) const
+		{
+			const auto lock = BSAutoLock{ _lock };
+			return a_index < _pendingRegisters.size() ? _pendingRegisters[a_index] : nullptr;
+		}
+
+		[[nodiscard]] BSTEventSink<event_type>* GetNthPendingUnregister(std::uint32_t a_index)
+		{
+			const auto lock = BSAutoLock{ _lock };
+			return a_index < _pendingUnregisters.size() ? _pendingUnregisters[a_index] : nullptr;
+		}
+
+		[[nodiscard]] const BSTEventSink<event_type>* GetNthPendingUnregister(std::uint32_t a_index) const
+		{
+			const auto lock = BSAutoLock{ _lock };
+			return a_index < _pendingUnregisters.size() ? _pendingUnregisters[a_index] : nullptr;
 		}
 
 		bool RegisterSink(BSTEventSink<event_type>* a_sink)
