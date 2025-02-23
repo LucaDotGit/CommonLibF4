@@ -29,17 +29,17 @@ namespace RE::BSScript
 		virtual bool Process(const BSFixedString& a_className) override; // 03
 
 		// members
-		Internal::VirtualMachine* virtualMachine;		// 08  //size 0x8
-		ErrorLogger* errorLogger;						// 10  //size 0x8
-		ILoader* loader;								// 18  //size 0x8
+		Internal::VirtualMachine* virtualMachine;		// 08
+		ErrorLogger* errorLogger;						// 10
+		ILoader* loader;								// 18
 		std::uint64_t unk20;							// 20
 		char* unk28;									// 28
-		BSScrapArray<BSFixedString> loadedParents;		// 30 //size 0x20
-		BSScrapArray<BSFixedString> objectsToTypecheck; // 50 //size 0x20
-		BSScrapArray<BSFixedString> processQueue;		// 70 //size 0x20
+		BSScrapArray<BSFixedString> loadedParents;		// 30
+		BSScrapArray<BSFixedString> objectsToTypecheck; // 50
+		BSScrapArray<BSFixedString> processQueue;		// 70
 
-		BSTHashMap<BSFixedString, BSTSmartPointer<ObjectTypeInfo>>* objectTypeInfoMap; // 90 //size 0x8
-		BSTHashMap<BSFixedString, BSTSmartPointer<StructTypeInfo>>* structTypeInfoMap; // 98 //size 0x8
+		BSTHashMap<BSFixedString, BSTSmartPointer<ObjectTypeInfo>>* objectTypeInfoMap; // 90
+		BSTHashMap<BSFixedString, BSTSmartPointer<StructTypeInfo>>* structTypeInfoMap; // 98
 	};
 	static_assert(sizeof(LinkerProcessor) == 0xA0);
 }

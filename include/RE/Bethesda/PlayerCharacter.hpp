@@ -425,7 +425,7 @@ namespace RE
 		BSPathingSolution* flightMountPathingSolution;									// 9C0
 		const TESObjectCELL* flightMountPreloadCell;									// 9C8
 		BSSoundHandle magicFailureSound;												// 9D0
-		BSTArray<RE::TESFormID> rumorTopicInfoList;										// 9D8
+		BSTArray<TESFormID> rumorTopicInfoList;											// 9D8
 		std::uint32_t testChallangeInfoID;												// 9F0
 		DialoguePackage* closestConversation;											// 9F8
 		DialoguePackage* aiConversationRunning;											// A00

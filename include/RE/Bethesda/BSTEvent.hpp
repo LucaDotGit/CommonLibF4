@@ -7,7 +7,7 @@
 
 namespace RE
 {
-	enum class BSEventNotifyControl : std::int32_t
+	enum class BSEventNotifyControl : std::uint32_t
 	{
 		kContinue,
 		kStop
@@ -33,89 +33,123 @@ namespace RE
 	public:
 		using event_type = Event;
 
-		void Notify(const event_type& a_event)
+		[[nodiscard]] std::uint32_t GetSinkCount() const
 		{
-			const BSAutoLock locker(_lock);
-
-			if (!_notifying && !_pendingRegisters.empty()) {
-				for (const auto& toAdd : _pendingRegisters) {
-					if (std::find(_sinks.begin(), _sinks.end(), toAdd) == _sinks.end()) {
-						_sinks.push_back(toAdd);
-					}
-				}
-				_pendingRegisters.clear();
-			}
-
-			++_notifying;
-			for (const auto& sink : _sinks) {
-				if (std::find(_pendingUnregisters.begin(), _pendingUnregisters.end(), sink) == _pendingUnregisters.end()) {
-					if (sink->ProcessEvent(a_event, this) == BSEventNotifyControl::kStop) {
-						break;
-					}
-				}
-			}
-
-			const auto uncontended = _notifying-- == 1;
-			if (uncontended && !_pendingUnregisters.empty()) {
-				for (const auto& toRemove : _pendingUnregisters) {
-					auto it = std::find(_sinks.begin(), _sinks.end(), toRemove);
-					if (it != _sinks.end()) {
-						_sinks.erase(it);
-					}
-				}
-				_pendingUnregisters.clear();
-			}
+			const auto lock = BSAutoLock{ _lock };
+			return _sinks.size();
 		}
 
-		void RegisterSink(BSTEventSink<event_type>* a_sink)
+		[[nodiscard]] bool IsSinkRegistered(const BSTEventSink<event_type>* a_sink) const
+		{
+			const auto lock = BSAutoLock{ _lock };
+			return std::ranges::contains(_sinks, a_sink);
+		}
+
+		[[nodiscard]] bool IsSinkPendingRegistration(const BSTEventSink<event_type>* a_sink) const
+		{
+			const auto lock = BSAutoLock{ _lock };
+			return std::ranges::contains(_pendingRegisters, a_sink);
+		}
+
+		[[nodiscard]] bool IsSinkPendingUnregistration(const BSTEventSink<event_type>* a_sink) const
+		{
+			const auto lock = BSAutoLock{ _lock };
+			return std::ranges::contains(_pendingUnregisters, a_sink);
+		}
+
+		bool RegisterSink(BSTEventSink<event_type>* a_sink)
 		{
 			if (!a_sink) {
-				return;
+				return false;
 			}
 
-			const BSAutoLock locker(_lock);
+			const auto lock = BSAutoLock{ _lock };
 
-			if (_notifying) {
-				if (std::find(_pendingRegisters.begin(), _pendingRegisters.end(), a_sink) == _pendingRegisters.end()) {
-					_pendingRegisters.push_back(a_sink);
-				}
-			}
-			else {
-				if (std::find(_sinks.begin(), _sinks.end(), a_sink) == _sinks.end()) {
-					_sinks.push_back(a_sink);
-				}
-			}
-
-			const auto it = std::find(_pendingUnregisters.begin(), _pendingUnregisters.end(), a_sink);
+			const auto it = std::ranges::find(_pendingUnregisters, a_sink);
 			if (it != _pendingUnregisters.end()) {
 				_pendingUnregisters.erase(it);
 			}
+
+			if (_notifying && !std::ranges::contains(_pendingRegisters, a_sink)) {
+				_pendingRegisters.push_back(a_sink);
+				return true;
+			}
+
+			if (!std::ranges::contains(_sinks, a_sink)) {
+				_sinks.push_back(a_sink);
+				return true;
+			}
+
+			return false;
 		}
 
-		void UnregisterSink(BSTEventSink<event_type>* a_sink)
+		bool UnregisterSink(BSTEventSink<event_type>* a_sink)
 		{
 			if (!a_sink) {
-				return;
+				return false;
 			}
 
-			const BSAutoLock locker(_lock);
+			const auto lock = BSAutoLock{ _lock };
 
-			if (_notifying) {
-				if (std::find(_pendingUnregisters.begin(), _pendingUnregisters.end(), a_sink) == _pendingUnregisters.end()) {
-					_pendingUnregisters.push_back(a_sink);
+			const auto pendingIt = std::ranges::find(_pendingRegisters, a_sink);
+			if (pendingIt != _pendingRegisters.end()) {
+				_pendingRegisters.erase(pendingIt);
+			}
+
+			if (_notifying && !std::ranges::contains(_pendingUnregisters, a_sink)) {
+				_pendingUnregisters.push_back(a_sink);
+				return true;
+			}
+
+			const auto it = std::ranges::find(_sinks, a_sink);
+			if (it != _sinks.end()) {
+				_sinks.erase(it);
+				return true;
+			}
+
+			return false;
+		}
+
+		std::uint32_t Notify(const event_type& a_event)
+		{
+			const auto lock = BSAutoLock{ _lock };
+
+			if (!_notifying && !_pendingRegisters.empty()) {
+				for (const auto& element : _pendingRegisters) {
+					if (!std::ranges::contains(_sinks, element)) {
+						_sinks.push_back(element);
+					}
 				}
+
+				_pendingRegisters.clear();
 			}
-			else {
-				const auto it = std::find(_sinks.begin(), _sinks.end(), a_sink);
+
+			auto count = 0ui32;
+			_notifying++;
+
+			for (const auto& sink : _sinks) {
+				if (!std::ranges::contains(_pendingUnregisters, sink) &&
+					sink->ProcessEvent(a_event, this) == BSEventNotifyControl::kStop) {
+					break;
+				}
+
+				count++;
+			}
+
+			const auto uncontended = _notifying-- == 1;
+			if (!uncontended || _pendingUnregisters.empty()) {
+				return count;
+			}
+
+			for (const auto& element : _pendingUnregisters) {
+				const auto it = std::ranges::find(_sinks, element);
 				if (it != _sinks.end()) {
 					_sinks.erase(it);
 				}
 			}
 
-			const auto it = std::find(_pendingRegisters.begin(), _pendingRegisters.end(), a_sink);
-			if (it != _pendingRegisters.end()) {
-				_pendingRegisters.erase(it);
-			}
+			_pendingUnregisters.clear();
+			return count;
 		}
 
 	private:
@@ -177,9 +211,11 @@ namespace RE
 		// override (BSTEventSink<BSTValueRequestEvent<T>>)
 		BSEventNotifyControl ProcessEvent(const event_type& a_event, BSTEventSource<event_type>*) override // 01
 		{
-			BSAutoLock l{ dataLock };
-			T event;
+			const auto lock = BSAutoLock{ dataLock };
+
+			auto event = T();
 			event.optionalValue = optionalValue;
+
 			a_event.valueEventSink.ProcessEvent(event, nullptr);
 		}
 

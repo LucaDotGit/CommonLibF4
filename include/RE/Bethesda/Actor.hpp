@@ -644,7 +644,7 @@ namespace RE
 			return func(this, a_actor, a_instance, a_slot);
 		}
 
-		bool SetupSpecialIdle(Actor& a_actor, RE::DEFAULT_OBJECT a_defaultObject, TESIdleForm* a_idle, bool a_testConditions, TESObjectREFR* a_targetOverride)
+		bool SetupSpecialIdle(Actor& a_actor, DEFAULT_OBJECT a_defaultObject, TESIdleForm* a_idle, bool a_testConditions, TESObjectREFR* a_targetOverride)
 		{
 			using func_t = decltype(&AIProcess::SetupSpecialIdle);
 			static REL::Relocation<func_t> func{ REL::RelocationID(1446774, 2231704) };

@@ -69,19 +69,19 @@ namespace RE
 	public:
 		struct RUNTIME_DATA
 		{
-#define RUNTIME_DATA_CONTENT                                \
-	BSTArray<RE::TESFormID> releasedFormIDArray; /* 0FF0 */ \
-	bool masterSave;							 /* 1008 */ \
-	bool blockSave;								 /* 1009 */ \
-	bool saveLoadGame;							 /* 100A */ \
-	bool autoSaving;							 /* 100B */ \
-	bool exportingPlugin;						 /* 100C */ \
-	bool clearingData;							 /* 100D */ \
-	bool hasDesiredFiles;						 /* 100E */ \
-	bool checkingModels;						 /* 100F */ \
-	bool loadingFiles;							 /* 1010 */ \
-	bool dontRemoveIDs;							 /* 1011 */ \
-	char gameSettingsLoadState;					 /* 1012*/
+#define RUNTIME_DATA_CONTENT                            \
+	BSTArray<TESFormID> releasedFormIDArray; /* 0FF0 */ \
+	bool masterSave;						 /* 1008 */ \
+	bool blockSave;							 /* 1009 */ \
+	bool saveLoadGame;						 /* 100A */ \
+	bool autoSaving;						 /* 100B */ \
+	bool exportingPlugin;					 /* 100C */ \
+	bool clearingData;						 /* 100D */ \
+	bool hasDesiredFiles;					 /* 100E */ \
+	bool checkingModels;					 /* 100F */ \
+	bool loadingFiles;						 /* 1010 */ \
+	bool dontRemoveIDs;						 /* 1011 */ \
+	char gameSettingsLoadState;				 /* 1012*/
 			RUNTIME_DATA_CONTENT
 		};
 
@@ -94,7 +94,7 @@ namespace RE
 			VR_MOD_DATA_CONTENT
 		};
 
-		inline static RE::TESFileCollection* VRcompiledFileCollection = nullptr; // used by FalloutVRESL to store pointer to VR version
+		inline static TESFileCollection* VRcompiledFileCollection = nullptr; // used by FalloutVRESL to store pointer to VR version
 
 		[[nodiscard]] static TESDataHandler* GetSingleton(bool a_VRESL = true);
 

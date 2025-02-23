@@ -121,7 +121,7 @@ namespace RE
 			};
 			static_assert(sizeof(LightParams) == 0x28);
 
-			static Renderer* Create(const BSFixedString& a_name, RE::UI_DEPTH_PRIORITY a_depth, float a_fov, bool a_alwaysRenderWhenEnabled)
+			static Renderer* Create(const BSFixedString& a_name, UI_DEPTH_PRIORITY a_depth, float a_fov, bool a_alwaysRenderWhenEnabled)
 			{
 				using func_t = decltype(&Renderer::Create);
 				static REL::Relocation<func_t> func{ REL::ID(88488) };
@@ -377,7 +377,7 @@ namespace RE
 				return func(this);
 			}
 
-			void SetViewport(RE::Scaleform::GFx::Movie& a_ui, const NiRect<float>& a_renderArea)
+			void SetViewport(Scaleform::GFx::Movie& a_ui, const NiRect<float>& a_renderArea)
 			{
 				using func_t = decltype(&Renderer::SetViewport);
 				static REL::Relocation<func_t> func{ REL::ID(825410) };

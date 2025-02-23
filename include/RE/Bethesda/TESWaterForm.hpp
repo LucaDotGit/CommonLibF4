@@ -86,10 +86,10 @@ namespace RE
 			};
 		};
 
-		[[nodiscard]] static TESWaterForm* GetDefaultWater() noexcept
+		[[nodiscard]] static TESWaterForm* GetDefaultWater()
 		{
-			// To-Do: Use the templated version - currently causes linker errors
-			static auto* defaultWater = reinterpret_cast<TESWaterForm*>(TESForm::GetFormByID(0x18));
+			// To-Do: Use the templated version; currently causes linker errors
+			static auto* defaultWater = TESForm::GetFormByID<TESWaterForm>(0x18);
 			return defaultWater;
 		}
 

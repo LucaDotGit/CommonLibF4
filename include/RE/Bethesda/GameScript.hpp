@@ -704,7 +704,7 @@ namespace RE
 		}
 
 		class __declspec(novtable) BaseHandleReaderWriter
-			: public RE::BSScript::IHandleReaderWriter
+			: public BSScript::IHandleReaderWriter
 		{
 		public:
 			inline static constexpr auto RTTI{ RTTI::GameScript__BaseHandleReaderWriter };

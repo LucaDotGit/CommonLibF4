@@ -76,6 +76,7 @@ namespace RE
 		return bytesWritten == toWrite;
 	}
 }
+
 namespace std
 {
 	template <class CharT, class Traits, class Allocator>

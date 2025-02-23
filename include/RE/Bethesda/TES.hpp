@@ -64,7 +64,7 @@ namespace RE
 		}
 
 		BSContainer::ForEachResult ForEachRefInSkyCell(std::function<BSContainer::ForEachResult(TESObjectREFR*)> a_callback) const;
-		BSContainer::ForEachResult ForEachRefInSkyCell(const RE::NiPoint3& a_origin, float a_radius,
+		BSContainer::ForEachResult ForEachRefInSkyCell(const NiPoint3& a_origin, float a_radius,
 			std::function<BSContainer::ForEachResult(TESObjectREFR*)> a_callback) const;
 
 		BSContainer::ForEachResult ForEachRef(std::function<BSContainer::ForEachResult(TESObjectREFR* a_ref)> a_callback) const;

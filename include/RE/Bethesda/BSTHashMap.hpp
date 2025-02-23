@@ -69,6 +69,7 @@ namespace RE
 						emplace(std::move(a_rhs).steal(), rnext);
 					}
 				}
+
 				return *this;
 			}
 
@@ -250,6 +251,7 @@ namespace RE
 				clear();
 				insert(a_rhs.begin(), a_rhs.end());
 			}
+
 			return *this;
 		}
 
@@ -267,6 +269,7 @@ namespace RE
 
 				assert(a_rhs.empty());
 			}
+
 			return *this;
 		}
 
@@ -296,8 +299,47 @@ namespace RE
 			assert(empty());
 		}
 
+		auto& operator[](const key_type& a_key)
+		{
+			if (const auto it = find(a_key); it != end()) {
+				return it->second;
+			}
+
+			return emplace(a_key, mapped_type()).first->second;
+		}
+
+		auto& operator[](key_type&& a_key)
+		{
+			if (const auto it = find(a_key); it != end()) {
+				return it->second;
+			}
+
+			return emplace(std::move(a_key), mapped_type()).first->second;
+		}
+
+		[[nodiscard]] auto& at(const key_type& a_key)
+		{
+			const auto it = find(a_key);
+			assert(it != end());
+			return it->second;
+		}
+
+		[[nodiscard]] const auto& at(const key_type& a_key) const
+		{
+			const auto it = find(a_key);
+			assert(it != end());
+			return it->second;
+		}
+
 		std::pair<iterator, bool> insert(const value_type& a_value) { return do_insert(a_value); }
 		std::pair<iterator, bool> insert(value_type&& a_value) { return do_insert(std::move(a_value)); }
+
+		template <class... Args>
+		std::pair<iterator, bool> insert_or_assign(Args&&... a_args) //
+			requires(std::constructible_from<value_type, Args...>)
+		{
+			return do_insert_or_assign(value_type(std::forward<Args>(a_args)...));
+		}
 
 		template <std::input_iterator InputIt>
 		void insert(InputIt a_first, InputIt a_last) //
@@ -500,6 +542,18 @@ namespace RE
 			}
 		}
 
+		template <class P>
+		[[nodiscard]] std::pair<iterator, bool> do_insert_or_assign(P&& a_value) //
+			requires(std::same_as<std::decay_t<P>, value_type>)
+		{
+			auto&& [it, inserted] = do_insert(std::forward<P>(a_value));
+			if (!inserted) {
+				it->second = std::forward<P>(a_value).second;
+			}
+
+			return std::make_pair(it, inserted);
+		}
+
 		void free_resources()
 		{
 			if (_capacity > 0) {
@@ -550,6 +604,7 @@ namespace RE
 			while (entries[_good].has_value()) {
 				_good = (_good + 1) & (_capacity - 1); // wrap around w/ quick modulo
 			}
+
 			return entries[_good];
 		}
 
@@ -597,7 +652,7 @@ namespace RE
 	public:
 		using key_type = Key;
 		using mapped_type = T;
-		using value_type = RE::BSTTuple<const key_type, mapped_type>;
+		using value_type = BSTTuple<const key_type, mapped_type>;
 
 		[[nodiscard]] static const key_type& unwrap_key(const value_type& a_value) noexcept { return a_value.first; }
 	};
@@ -637,6 +692,7 @@ namespace RE
 				assert(_entries == nullptr);
 				_entries = std::exchange(a_rhs._entries, nullptr);
 			}
+
 			return *this;
 		}
 

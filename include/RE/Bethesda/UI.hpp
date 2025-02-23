@@ -63,7 +63,7 @@ namespace RE
 		template <class T>
 		[[nodiscard]] BSTEventSource<T>* GetEventSource()
 		{
-			return static_cast<RE::BSTEventSource<T>*>(this);
+			return static_cast<BSTEventSource<T>*>(this);
 		}
 
 		[[nodiscard]] static BSReadWriteLock& GetMenuMapRWLock()

@@ -1028,7 +1028,7 @@ namespace RE
 	{
 		// members
 		NiPointer<TESObjectREFR> actor; // 00
-		RE::ActorValueInfo* limb;		// 08
+		ActorValueInfo* limb;			// 08
 		bool crippled;					// 10
 	};
 	static_assert(sizeof(TESLimbCrippleEvent) == 0x18);

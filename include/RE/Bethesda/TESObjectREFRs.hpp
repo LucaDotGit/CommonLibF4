@@ -795,7 +795,7 @@ namespace RE
 			}
 
 			const auto lock = BSAutoReadLock{ extraList->extraRWLock };
-			const auto* extraLock = extraList->GetByType<RE::ExtraLock>();
+			const auto* extraLock = extraList->GetByType<ExtraLock>();
 			return extraLock ? extraLock->lock : nullptr;
 		}
 
@@ -932,7 +932,7 @@ namespace RE
 
 		void UpdateDynamicNavmesh(bool a_active)
 		{
-			using func_t = decltype(&RE::TESObjectREFR::UpdateDynamicNavmesh);
+			using func_t = decltype(&TESObjectREFR::UpdateDynamicNavmesh);
 			static REL::Relocation<func_t> func{ REL::RelocationID(1518094, 2201206) };
 			return func(this, a_active);
 		}

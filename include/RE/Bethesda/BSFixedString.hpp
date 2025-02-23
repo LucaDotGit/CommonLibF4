@@ -67,7 +67,7 @@ namespace RE
 
 			BSFixedString(std::initializer_list<value_type> a_ilist)
 			{
-				const auto view = std::basic_string_view<value_type>{ a_ilist.begin(), a_ilist.size() };
+				const auto view = std::basic_string_view<value_type>{ a_ilist.begin(), a_ilist.end() };
 				if (!view.empty()) {
 					assert(view.data()[view.size()] == value_type{});
 					GetEntry<value_type>(_data, view.data(), CS);
@@ -117,7 +117,7 @@ namespace RE
 
 			BSFixedString& operator=(std::initializer_list<value_type> a_ilist)
 			{
-				const auto view = std::basic_string_view<value_type>{ a_ilist.begin(), a_ilist.size() };
+				const auto view = std::basic_string_view<value_type>{ a_ilist.begin(), a_ilist.end() };
 				try_release();
 				if (!view.empty()) {
 					assert(view.data()[view.size()] == value_type{});
@@ -408,7 +408,7 @@ namespace RE
 
 		BGSLocalizedString(std::initializer_list<value_type> a_ilist)
 		{
-			const auto view = std::basic_string_view<value_type>{ a_ilist.begin(), a_ilist.size() };
+			const auto view = std::basic_string_view<value_type>{ a_ilist.begin(), a_ilist.end() };
 			parse(view);
 		}
 
@@ -450,7 +450,7 @@ namespace RE
 
 		BGSLocalizedString& operator=(std::initializer_list<value_type> a_rhs)
 		{
-			const auto view = std::basic_string_view<value_type>{ a_rhs.begin(), a_rhs.size() };
+			const auto view = std::basic_string_view<value_type>{ a_rhs.begin(), a_rhs.end() };
 			parse(view);
 			return *this;
 		}

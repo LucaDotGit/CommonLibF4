@@ -1017,7 +1017,7 @@ namespace RE
 
 		bool AddKeywords(const std::vector<BGSKeyword*>& a_keywords);
 		bool RemoveKeywords(const std::vector<BGSKeyword*>& a_keywords);
-		void CopyKeywords(const std::vector<RE::BGSKeyword*>& a_copiedData);
+		void CopyKeywords(const std::vector<BGSKeyword*>& a_copiedData);
 
 		void AddKeyword(BGSKeyword* a_keyword);
 		bool RemoveKeyword(std::uint32_t a_index);
@@ -2234,7 +2234,7 @@ namespace RE
 
 		[[nodiscard]] std::int32_t GetFormValue() const noexcept { return value; }
 
-		[[nodiscard]] static std::optional<std::int32_t> GetFormValue(const RE::TESForm* a_form);
+		[[nodiscard]] static std::optional<std::int32_t> GetFormValue(const TESForm* a_form);
 		static bool SetFormValue(TESForm* a_form, std::int32_t a_value);
 
 		// members

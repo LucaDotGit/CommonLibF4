@@ -117,9 +117,6 @@ namespace RE::BSScript::Internal
 
 		~VirtualMachine() override; // 00
 
-		using RE::BSScript::IVirtualMachine::SendEvent;
-		// using RE::BSTEventSource<RE::BSScript::StatsEvent>::SendEvent;
-
 	public:
 		// override (IVirtualMachine)
 		virtual void SetLoader(ILoader* a_newLoader) override;																																																													   // 01
@@ -183,9 +180,8 @@ namespace RE::BSScript::Internal
 		virtual void UnregisterForStatsEvent(BSTEventSink<StatsEvent>* a_sink) override;																																																						   // 3B
 		virtual void PostCachedErrorToLogger(const ICachedErrorMessage& a_errorFunctor, ErrorLogger::Severity a_severity) const override;																																										   // 3D
 		virtual void PostCachedErrorToLogger(const ICachedErrorMessage& a_errorFunctor, VMStackID a_stackID, ErrorLogger::Severity a_severity) const override;																																					   // 3C
-		// To-Do: figure out if align 10h here fucks things up???
 
-		// override (IVMObjectBindInterface) 14307D8D8
+		// override (IVMObjectBindInterface)
 		virtual VMHandle GetBoundHandle(const BSTSmartPointer<Object>& a_objPtr) const override;															  // 01
 		virtual void TypeCanBeBound(const BSFixedString& a_className, VMHandle a_handle) override;															  // 02
 		virtual void BindObject(BSTSmartPointer<Object>& a_objPtr, VMHandle a_handle, bool a_conditional) override;											  // 03
@@ -197,44 +193,41 @@ namespace RE::BSScript::Internal
 		virtual bool CreateObjectWithProperties(const BSFixedString& a_className, std::uint32_t a_numProperties, BSTSmartPointer<Object>& a_objPtr) override; // 09
 		virtual bool InitObjectProperties(BSTSmartPointer<Object>& a_objPtr, void* a_property, bool a_arg3) override;										  // 0A
 
-		// To-Do: CommonLibSSE doesn't have these, figure out why
-		// override (IVMSaveLoadInterface) 14307D938
-		virtual bool SaveGame(BSStorage& a_storage, BSScript::IHandleReaderWriter const& a_HandleReaderWriter, bool a_flag) override;															  // 14307D940 	// 01
-		virtual bool LoadGame(BSStorage const& a_storage, BSScript::IHandleReaderWriter const& a_HandleReaderWriter, bool& a_flag, bool& b_flag) override;										  // 14307D948 	// 02
-		virtual void MarkSaveInvalid(BSStorage& a_storage) override;																															  // 14307D950 	// 03
-		virtual unsigned short GetSaveGameVersion() const override;																																  // 14307D958 	// 04
-		virtual void CleanupSave() override;																																					  // 14307D960 	// 05
-		virtual void CleanupLoad() override;																																					  // 14307D968 	// 06
-		virtual void DropAllRunningData() override;																																				  // 14307D970 	// 07
-		virtual VMHandle GetSaveHandleForObject(const BSScript::Object* a_Object) const override;																								  // 14307D978 	// 08
-		virtual void SetSaveHandleForObject(const BSScript::Object* a_Object, VMHandle) override;																								  // 14307D980 	// 09
-		virtual bool GetObjectBySaveHandle(VMHandle, const BSScript::TypeInfo& a_TypeInfo, BSTSmartPointer<BSScript::Object, BSTSmartPointerIntrusiveRefCount>& a_object_pointer) const override; // 14307D988 	// 0A
-		virtual bool GetObjectBySaveHandle(VMHandle, BSTSmartPointer<BSScript::Object, BSTSmartPointerIntrusiveRefCount>& a_object_pointer) const override;										  // 14307D990 	// 0B
-		virtual VMHandle GetSaveHandleForStruct(const BSScript::Struct* a_Struct) const override;																								  // 14307D998 	// 0C
-		virtual void SetSaveHandleForStruct(const BSScript::Struct* a_Struct, VMHandle) override;																								  // 14307D9A0 	// 0D
-		virtual bool GetStructBySaveHandle(VMHandle, BSTSmartPointer<BSScript::Struct, BSTSmartPointerIntrusiveRefCount>& a_object_pointer) const override;										  // 14307D9A8 	// 0E
-		virtual VMHandle GetSaveHandleForArray(const BSScript::Array* a_Array) const override;																									  // 14307D9B0 	// 0F
-		virtual void SetSaveHandleForArray(const BSScript::Array* a_Array, VMHandle) override;																									  // 14307D9B8 	// 10
-		virtual bool GetArrayBySaveHandle(VMHandle handle, BSTSmartPointer<BSScript::Array, BSTSmartPointerIntrusiveRefCount>& a_array_pointer) const override;									  // 14307D9C0 	// 11
-		virtual bool GetStackByID(unsigned int, BSTSmartPointer<BSScript::Stack, BSTSmartPointerIntrusiveRefCount>& a_stack_pointer) const override;											  // 14307D9C8 	// 12
-		virtual const BSScript::Internal::WritableStringTable& GetWritableStringTable() const override;																							  // 14307D9D0 	// 13
-		virtual const BSScript::Internal::WritableStringTable& GetWritableStringTable() override;																								  // 14307D9D8 	// 14
-		virtual BSScript::Internal::ReadableStringTable& GetReadableStringTable() const override;																								  // 14307D9E0 	// 15
-		virtual const BSScript::Internal::WritableTypeTable& GetWritableTypeTable() const override;																								  // 14307D9E8 	// 16
-		virtual BSScript::Internal::WritableTypeTable& GetWritableTypeTable() override;																											  // 14307D9F0 	// 17
-		virtual const BSScript::Internal::ReadableTypeTable& GetReadableTypeTable() const override;																								  // 14307D9F8 	// 18
-		virtual bool CreateEmptyTasklet(BSScript::Stack* a_Stack, BSTSmartPointer<BSScript::Internal::CodeTasklet, BSTSmartPointerIntrusiveRefCount>& a_tasklet_pointer) override;				  // 14307DA00 	// 19
+		// override (IVMSaveLoadInterface)
+		virtual bool SaveGame(BSStorage& a_storage, BSScript::IHandleReaderWriter const& a_HandleReaderWriter, bool a_flag) override;															  // 01
+		virtual bool LoadGame(BSStorage const& a_storage, BSScript::IHandleReaderWriter const& a_HandleReaderWriter, bool& a_flag, bool& b_flag) override;										  // 02
+		virtual void MarkSaveInvalid(BSStorage& a_storage) override;																															  // 03
+		virtual unsigned short GetSaveGameVersion() const override;																																  // 04
+		virtual void CleanupSave() override;																																					  // 05
+		virtual void CleanupLoad() override;																																					  // 06
+		virtual void DropAllRunningData() override;																																				  // 07
+		virtual VMHandle GetSaveHandleForObject(const BSScript::Object* a_Object) const override;																								  // 08
+		virtual void SetSaveHandleForObject(const BSScript::Object* a_Object, VMHandle) override;																								  // 09
+		virtual bool GetObjectBySaveHandle(VMHandle, const BSScript::TypeInfo& a_TypeInfo, BSTSmartPointer<BSScript::Object, BSTSmartPointerIntrusiveRefCount>& a_object_pointer) const override; // 0A
+		virtual bool GetObjectBySaveHandle(VMHandle, BSTSmartPointer<BSScript::Object, BSTSmartPointerIntrusiveRefCount>& a_object_pointer) const override;										  // 0B
+		virtual VMHandle GetSaveHandleForStruct(const BSScript::Struct* a_Struct) const override;																								  // 0C
+		virtual void SetSaveHandleForStruct(const BSScript::Struct* a_Struct, VMHandle) override;																								  // 0D
+		virtual bool GetStructBySaveHandle(VMHandle, BSTSmartPointer<BSScript::Struct, BSTSmartPointerIntrusiveRefCount>& a_object_pointer) const override;										  // 0E
+		virtual VMHandle GetSaveHandleForArray(const BSScript::Array* a_Array) const override;																									  // 0F
+		virtual void SetSaveHandleForArray(const BSScript::Array* a_Array, VMHandle) override;																									  // 10
+		virtual bool GetArrayBySaveHandle(VMHandle handle, BSTSmartPointer<BSScript::Array, BSTSmartPointerIntrusiveRefCount>& a_array_pointer) const override;									  // 11
+		virtual bool GetStackByID(unsigned int, BSTSmartPointer<BSScript::Stack, BSTSmartPointerIntrusiveRefCount>& a_stack_pointer) const override;											  // 12
+		virtual const BSScript::Internal::WritableStringTable& GetWritableStringTable() const override;																							  // 13
+		virtual const BSScript::Internal::WritableStringTable& GetWritableStringTable() override;																								  // 14
+		virtual BSScript::Internal::ReadableStringTable& GetReadableStringTable() const override;																								  // 15
+		virtual const BSScript::Internal::WritableTypeTable& GetWritableTypeTable() const override;																								  // 16
+		virtual BSScript::Internal::WritableTypeTable& GetWritableTypeTable() override;																											  // 17
+		virtual const BSScript::Internal::ReadableTypeTable& GetReadableTypeTable() const override;																								  // 18
+		virtual bool CreateEmptyTasklet(BSScript::Stack* a_Stack, BSTSmartPointer<BSScript::Internal::CodeTasklet, BSTSmartPointerIntrusiveRefCount>& a_tasklet_pointer) override;				  // 19
 
 		// override (IVMDebugInterface)
-		virtual void DumpRunningStacksToLog() override;																				  // 01   // 14307DA18
-		virtual void DumpStackFrameToLog(unsigned int a_v, unsigned int b_v, bool a_flag) override;									  // 02   // 14307DA20
-		virtual void GetStackFrame(unsigned int a_v, unsigned int b_v, bool a_flag, BSFixedString& a_identifier) override;			  // 03   // 14307DA28
-		virtual void DumpPersistenceInformationToLog(char const* logfile, uint64_t a_v) const override;								  // 04   // 14307DA30
-		virtual void DumpEventRelayInformationToLog(char const* logfile, uint64_t a_v, BSFixedString const& a_string) const override; // 05   // 14307DA38
+		virtual void DumpRunningStacksToLog() override;																				  // 01
+		virtual void DumpStackFrameToLog(unsigned int a_v, unsigned int b_v, bool a_flag) override;									  // 02
+		virtual void GetStackFrame(unsigned int a_v, unsigned int b_v, bool a_flag, BSFixedString& a_identifier) override;			  // 03
+		virtual void DumpPersistenceInformationToLog(char const* logfile, uint64_t a_v) const override;								  // 04
+		virtual void DumpEventRelayInformationToLog(char const* logfile, uint64_t a_v, BSFixedString const& a_string) const override; // 05
 
 		static VirtualMachine* GetSingleton();
-
-		// bool StackExists(std::uint32_t stack_id);
 
 		// members
 		ErrorLogger* errorLogger;												   // 0080

@@ -574,7 +574,7 @@ namespace RE
 			// members
 			std::uint32_t width;		 // 00
 			std::uint32_t height;		 // 04
-			Format format;				 // 08
+			REX::Enum<Format> format;	 // 08
 			std::uint32_t multiSample;	 // 0C
 			bool copyable;				 // 10
 			bool supportUnorderedAccess; // 11
@@ -608,7 +608,7 @@ namespace RE
 			// members
 			std::uint32_t width;		 // 00
 			std::uint32_t height;		 // 04
-			Format format;				 // 08
+			REX::Enum<Format> format;	 // 08
 			std::uint32_t multiSample;	 // 0C
 			bool sampleable;			 // 10
 			std::int32_t alias;			 // 14
@@ -623,7 +623,7 @@ namespace RE
 		public:
 			using Create_T = void (*)();
 
-			[[nodiscard]] static RenderTargetManager GetSingleton()
+			[[nodiscard]] static RenderTargetManager& GetSingleton()
 			{
 				static REL::Relocation<RenderTargetManager*> singleton{ REL::RelocationID(1508457, 2666735) };
 				return *singleton;

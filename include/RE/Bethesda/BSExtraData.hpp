@@ -762,8 +762,8 @@ namespace RE
 		inline static constexpr auto VTABLE{ VTABLE::ExtraKeywords };
 		inline static constexpr auto TYPE{ EXTRA_DATA_TYPE::kKeywords };
 
-		BSTArray<RE::BGSKeyword*> keywordArray_maybe; // 18
-		mutable BSReadWriteLock extraRWLock;		  // 28
+		BSTArray<BGSKeyword*> extraKeywords; // 18
+		mutable BSReadWriteLock extraRWLock; // 28
 	};
 	static_assert(sizeof(ExtraKeywords) == 0x38);
 

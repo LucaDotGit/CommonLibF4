@@ -2950,29 +2950,29 @@ namespace RE
 		bool IsParent(const BGSLocation* a_possibleParent) const;
 
 		// members
-		BGSLocation* parentLoc;												   // 050
-		TESFaction* unreportedCrimeFaction;									   // 058
-		BGSMusicType* musicType;											   // 060
-		BGSEncounterZone* zone;												   // 068
-		ObjectRefHandle worldLocMarker;										   // 070
-		float worldLocRadius;												   // 074
-		float actorFadeMult;												   // 078
-		ObjectRefHandle horseLocMarker;										   // 07C
-		BSTArray<SpecialRefData> specialRefs;								   // 080
-		BSTArray<UniqueNPCData> uniqueNPCs;									   // 098
-		OverrideData* overrideData;											   // 0B0
-		BSTArray<RE::TESFormID> newUnloadedRefs;							   // 0B8
-		BSTArray<BSTTuple<BGSLocationRefType*, RE::TESFormID>> newSpecialRefs; // 0D0
-		NiPointer<QueuedPromoteLocationReferencesTask> promoteRefsTask;		   // 0E8
-		BSTArray<ObjectRefHandle> promotedRefsArray;						   // 0F0
-		volatile std::int32_t loadedCount;									   // 108
-		std::uint32_t fileOffset;											   // 10C
-		BSTArray<KEYWORD_DATA> keywordData;									   // 110
-		mutable BSSpinLock locLoadedLock;									   // 128
-		std::uint32_t lastChecked;											   // 130
-		bool cleared;														   // 134
-		bool everCleared;													   // 135
-		mutable BSReadWriteLock locker;										   // 138
+		BGSLocation* parentLoc;											   // 050
+		TESFaction* unreportedCrimeFaction;								   // 058
+		BGSMusicType* musicType;										   // 060
+		BGSEncounterZone* zone;											   // 068
+		ObjectRefHandle worldLocMarker;									   // 070
+		float worldLocRadius;											   // 074
+		float actorFadeMult;											   // 078
+		ObjectRefHandle horseLocMarker;									   // 07C
+		BSTArray<SpecialRefData> specialRefs;							   // 080
+		BSTArray<UniqueNPCData> uniqueNPCs;								   // 098
+		OverrideData* overrideData;										   // 0B0
+		BSTArray<TESFormID> newUnloadedRefs;							   // 0B8
+		BSTArray<BSTTuple<BGSLocationRefType*, TESFormID>> newSpecialRefs; // 0D0
+		NiPointer<QueuedPromoteLocationReferencesTask> promoteRefsTask;	   // 0E8
+		BSTArray<ObjectRefHandle> promotedRefsArray;					   // 0F0
+		volatile std::int32_t loadedCount;								   // 108
+		std::uint32_t fileOffset;										   // 10C
+		BSTArray<KEYWORD_DATA> keywordData;								   // 110
+		mutable BSSpinLock locLoadedLock;								   // 128
+		std::uint32_t lastChecked;										   // 130
+		bool cleared;													   // 134
+		bool everCleared;												   // 135
+		mutable BSReadWriteLock locker;									   // 138
 	};
 	static_assert(sizeof(BGSLocation) == 0x140);
 

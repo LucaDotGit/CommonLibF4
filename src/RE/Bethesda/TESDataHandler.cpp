@@ -8,9 +8,9 @@ namespace RE
 		if (REL::Module::IsVR() && a_VRESL && !VRcompiledFileCollection) {
 			const auto VRhandle = REX::W32::GetModuleHandleW(L"falloutvresl");
 			if (VRhandle != NULL) {
-				const auto GetCompiledFileCollection = reinterpret_cast<const RE::TESFileCollection* (*)()>(REX::W32::GetProcAddress(VRhandle, "GetCompiledFileCollectionExtern"));
+				const auto GetCompiledFileCollection = reinterpret_cast<const TESFileCollection* (*)()>(REX::W32::GetProcAddress(VRhandle, "GetCompiledFileCollectionExtern"));
 				if (GetCompiledFileCollection != nullptr) {
-					TESDataHandler::VRcompiledFileCollection = const_cast<RE::TESFileCollection*>(GetCompiledFileCollection());
+					TESDataHandler::VRcompiledFileCollection = const_cast<TESFileCollection*>(GetCompiledFileCollection());
 				}
 			}
 		}

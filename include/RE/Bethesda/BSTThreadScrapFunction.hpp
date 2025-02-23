@@ -13,7 +13,27 @@ namespace RE
 	public:
 		using result_type = R;
 
-		BSTThreadScrapFunction() noexcept = default;
+		BSTThreadScrapFunction() noexcept
+		{
+			if (IsOldGen()) {
+				_oldGenFunc = nullptr;
+			}
+			else {
+				_nextGenFunc = nullptr;
+			}
+		}
+
+		BSTThreadScrapFunction(const BSTThreadScrapFunction& a_other) :
+			BSTThreadScrapFunction()
+		{
+			*this = a_other;
+		}
+
+		BSTThreadScrapFunction(BSTThreadScrapFunction&& a_other) noexcept :
+			BSTThreadScrapFunction()
+		{
+			*this = std::move(a_other);
+		}
 
 		explicit BSTThreadScrapFunction(msvc::function<R(Args...)> a_oldGenFunc) :
 			_oldGenFunc(a_oldGenFunc)
@@ -27,6 +47,16 @@ namespace RE
 			assert(IsNextGen());
 		}
 
+		~BSTThreadScrapFunction() noexcept
+		{
+			if (IsOldGen()) {
+				_oldGenFunc.~function();
+			}
+			else {
+				_nextGenFunc.~function();
+			}
+		}
+
 		BSTThreadScrapFunction& operator=(const BSTThreadScrapFunction& a_other)
 		{
 			if (this == std::addressof(a_other)) {
@@ -35,11 +65,10 @@ namespace RE
 
 			if (a_other.IsOldGen()) {
 				_oldGenFunc = a_other._oldGenFunc;
-			}
-			else if (a_other.IsNextGen()) {
-				_nextGenFunc = a_other._nextGenFunc;
+				return *this;
 			}
 
+			_nextGenFunc = a_other._nextGenFunc;
 			return *this;
 		}
 
@@ -51,11 +80,10 @@ namespace RE
 
 			if (a_other.IsOldGen()) {
 				_oldGenFunc = std::move(a_other._oldGenFunc);
-			}
-			else if (a_other.IsNextGen()) {
-				_nextGenFunc = std::move(a_other._nextGenFunc);
+				return *this;
 			}
 
+			_nextGenFunc = std::move(a_other._nextGenFunc);
 			return *this;
 		}
 
@@ -73,40 +101,13 @@ namespace RE
 			return *this;
 		}
 
-		BSTThreadScrapFunction(const BSTThreadScrapFunction& a_other) :
-			BSTThreadScrapFunction()
-		{
-			*this = a_other;
-		}
-
-		BSTThreadScrapFunction(BSTThreadScrapFunction&& a_other) noexcept :
-			BSTThreadScrapFunction()
-		{
-			*this = std::move(a_other);
-		}
-
-		~BSTThreadScrapFunction() noexcept
-		{
-			if (IsOldGen()) {
-				_oldGenFunc.~function();
-			}
-			else if (IsNextGen()) {
-				_nextGenFunc.~function();
-			}
-		}
-
 		result_type operator()(Args&&... a_args) const
 		{
 			if (IsOldGen()) {
 				return _oldGenFunc(std::forward<Args>(a_args)...);
 			}
 
-			if (IsNextGen()) {
-				return _nextGenFunc(std::forward<Args>(a_args)...);
-			}
-
-			assert(false);
-			return result_type{};
+			return _nextGenFunc(std::forward<Args>(a_args)...);
 		}
 
 		[[nodiscard]] explicit operator bool() const noexcept
@@ -115,17 +116,16 @@ namespace RE
 				return static_cast<bool>(_oldGenFunc);
 			}
 
-			if (IsNextGen()) {
-				return static_cast<bool>(_nextGenFunc);
-			}
-
-			assert(false);
-			return false;
+			return static_cast<bool>(_nextGenFunc);
 		}
 
 		[[nodiscard]] bool operator==(const BSTThreadScrapFunction& a_other) const noexcept
 		{
-			return _oldGenFunc == a_other._oldGenFunc && _nextGenFunc == a_other._nextGenFunc;
+			if (IsOldGen()) {
+				return _oldGenFunc == a_other._oldGenFunc;
+			}
+
+			return _nextGenFunc == a_other._nextGenFunc;
 		}
 
 		[[nodiscard]] bool operator!=(const BSTThreadScrapFunction& a_other) const noexcept
@@ -134,12 +134,12 @@ namespace RE
 		}
 
 	private:
-		inline static bool IsOldGen() noexcept
+		static bool IsOldGen() noexcept
 		{
-			return REL::Module::IsF4();
+			return !IsNextGen();
 		}
 
-		inline static bool IsNextGen() noexcept
+		static bool IsNextGen() noexcept
 		{
 			return REL::Module::IsNG();
 		}

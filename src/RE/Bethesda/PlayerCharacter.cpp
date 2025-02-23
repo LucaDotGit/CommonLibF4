@@ -8,15 +8,15 @@ namespace RE
 {
 	void PlayerCharacter::LockOutOfTerminal(ObjectRefHandle a_handle)
 	{
-		float TerminalLockoutTime{ 0.0f };
-		if (auto INISettingCollection = RE::INISettingCollection::GetSingleton()) {
+		auto TerminalLockoutTime = 0.0f;
+		if (auto INISettingCollection = INISettingCollection::GetSingleton()) {
 			if (auto setting = INISettingCollection->GetSetting("iTerminalLockoutTime:Gameplay")) {
 				TerminalLockoutTime = static_cast<float>(setting->GetInt());
 			}
 		}
 
-		BGSEntryPoint::HandleEntryPoint(RE::BGSEntryPoint::ENTRY_POINT::kModTerminalLockoutTime, this, &TerminalLockoutTime);
-		if (auto Calendar = RE::Calendar::GetSingleton()) {
+		BGSEntryPoint::HandleEntryPoint(BGSEntryPoint::ENTRY_POINT::kModTerminalLockoutTime, this, &TerminalLockoutTime);
+		if (auto Calendar = Calendar::GetSingleton()) {
 			auto TimeScale = Calendar->timeScale ? Calendar->timeScale->GetValue() : 0.0f;
 			TerminalLockoutTime *= TimeScale * 0.00027799999f;
 			TerminalLockoutTime += Calendar->GetHoursPassed();
@@ -28,7 +28,7 @@ namespace RE
 	bool PlayerCharacter::IsLockedOutOfTerminal(ObjectRefHandle a_handle)
 	{
 		float HoursPassed{ 24.0f };
-		if (auto Calendar = RE::Calendar::GetSingleton()) {
+		if (auto Calendar = Calendar::GetSingleton()) {
 			HoursPassed = Calendar->GetHoursPassed();
 		}
 
