@@ -134,12 +134,12 @@ namespace RE
 		}
 
 	private:
-		static bool IsOldGen() noexcept
+		static FALLOUT_REL_CONSTEXPR bool IsOldGen() noexcept
 		{
 			return !IsNextGen();
 		}
 
-		static bool IsNextGen() noexcept
+		static FALLOUT_REL_CONSTEXPR bool IsNextGen() noexcept
 		{
 			return REL::Module::IsNG();
 		}

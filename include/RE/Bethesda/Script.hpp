@@ -222,7 +222,7 @@ namespace RE
 		BSString scriptName;									// 10
 		SCRIPT_ERROR lastError;									// 20
 		bool isPartialScript;									// 24
-		std::uint32_t uiLastLineNumber;							// 28
+		std::uint32_t lastLineNumber;							// 28
 		char* output;											// 30
 		std::uint32_t outputOffset;								// 38
 		SCRIPT_HEADER header;									// 3C
@@ -253,14 +253,71 @@ namespace RE
 	struct SCRIPT_FUNCTION
 	{
 	public:
+		struct StringChunk;
+		struct IntegerChunk;
+
+		struct Chunk
+		{
+		public:
+			[[nodiscard]] StringChunk* AsString();
+			[[nodiscard]] IntegerChunk* AsInteger();
+
+			[[nodiscard]] const StringChunk* AsString() const;
+			[[nodiscard]] const IntegerChunk* AsInteger() const;
+		};
+
+		struct StringChunk : public Chunk
+		{
+		public:
+			[[nodiscard]] std::string GetString() const;
+			[[nodiscard]] Chunk* GetNext();
+			[[nodiscard]] const Chunk* GetNext() const;
+
+			// members
+			std::uint16_t length; // 00
+			char str[0];		  // 02
+		};
+		static_assert(sizeof(StringChunk) == 0x2);
+
+		struct IntegerChunk : public Chunk
+		{
+		public:
+			[[nodiscard]] int GetInteger() const;
+			[[nodiscard]] Chunk* GetNext();
+			[[nodiscard]] const Chunk* GetNext() const;
+
+			// members
+			char magic;			// 00
+			std::int32_t value; // 01
+		};
+		static_assert(sizeof(IntegerChunk) == 0x8);
+
+		struct ScriptData
+		{
+		public:
+			[[nodiscard]] Chunk* GetChunk();
+			[[nodiscard]] StringChunk* GetStringChunk();
+			[[nodiscard]] IntegerChunk* GetIntegerChunk();
+
+			[[nodiscard]] const Chunk* GetChunk() const;
+			[[nodiscard]] const StringChunk* GetStringChunk() const;
+			[[nodiscard]] const IntegerChunk* GetIntegerChunk() const;
+
+			// members
+			std::uint16_t opcode;	 // 00
+			std::uint16_t chunkSize; // 02
+			std::uint16_t numParams; // 04
+		};
+		static_assert(sizeof(ScriptData) == 0x6);
+
 		using ConditionFunction_t = bool(ConditionCheckParams& a_data, void* a_param2, void* a_param1, float& a_returnValue);
 		using CompileFunction_t = bool(const std::uint16_t a_paramCount, const SCRIPT_PARAMETER* a_parameters, SCRIPT_LINE* a_scriptLine, ScriptCompileData* a_compileData);
 		using ExecuteFunction_t = bool(const SCRIPT_PARAMETER* a_parameters, const char* a_compiledParams, TESObjectREFR* a_refObject, TESObjectREFR* a_container, Script* a_script, ScriptLocals* a_scriptLocals, float& a_returnValue, std::uint32_t& a_offset);
 
 		[[nodiscard]] static std::span<SCRIPT_FUNCTION> GetConsoleFunctions()
 		{
+			static FALLOUT_REL_CONSTEXPR auto SIZE = REL::Module::IsNG() ? 526ui32 : 522ui32;
 			static REL::Relocation<SCRIPT_FUNCTION(*)[]> functions{ REL::RelocationID(901511, 901511) };
-			static std::size_t SIZE = REL::Module::IsNG() ? 526 : 522;
 			return { *functions, SIZE };
 		}
 
@@ -330,22 +387,12 @@ namespace RE
 			return func(a_processScripts);
 		}
 
-		void SetText(std::string_view a_text)
-		{
-			if (text) {
-				free(text);
-				text = nullptr;
-			}
-
-			text = calloc<char>(a_text.length() + 1);
-			std::memset(text, '\0', a_text.length() + 1);
-			std::memcpy(text, a_text.data(), a_text.length());
-		}
+		void SetText(std::string_view a_text);
 
 		// members
 		SCRIPT_HEADER header;								// 20
 		char* text;											// 38
-		std::byte* data;									// 40
+		SCRIPT_FUNCTION::ScriptData* data;					// 40
 		float profilerTimer;								// 48
 		float questScriptDelay;								// 4C
 		float questScriptGetSecondsBuffer;					// 50

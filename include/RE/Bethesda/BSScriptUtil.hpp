@@ -242,13 +242,10 @@ namespace RE::BSScript
 		template <class T>
 		inline constexpr bool is_structure_wrapper_v = is_structure_wrapper<T>::value;
 
-		// clang-format off
 		template <class F, class R, class... Args>
-		concept invocable_r = requires(F&& a_func, Args&&... a_args)
-		{
+		concept invocable_r = requires(F&& a_func, Args&&... a_args) {
 			{ std::invoke(std::forward<F>(a_func), std::forward<Args>(a_args)...) } -> std::same_as<R>;
 		};
-		// clang-format on
 
 		template <class From, class To>
 		concept decays_to = std::same_as<std::decay_t<From>, To>;
@@ -256,7 +253,6 @@ namespace RE::BSScript
 		template <class T>
 		concept static_tag = std::same_as<T, std::monostate>;
 
-		// clang-format off
 		template <class T>
 		concept object =
 			std::derived_from<std::remove_cv_t<T>, TESForm> &&
@@ -264,9 +260,8 @@ namespace RE::BSScript
 
 		template <class T>
 		concept eobject =
-			std::derived_from<std::remove_cv_t<T>, ActiveEffect>&&
+			std::derived_from<std::remove_cv_t<T>, ActiveEffect> &&
 			requires { std::remove_cv_t<T>::FORMTYPE; };
-		// clang-format on
 
 		template <class T>
 		concept cobject = std::same_as<std::remove_cv_t<T>, GameScript::RefrOrInventoryObj>;
@@ -275,9 +270,25 @@ namespace RE::BSScript
 		concept vmobject = std::same_as<std::remove_cv_t<T>, Object>;
 
 		template <class T>
+		concept vmstruct = std::same_as<std::remove_cv_t<T>, Struct>;
+
+		template <class T>
+		concept vmarray = std::same_as<std::remove_cv_t<T>, Array>;
+
+		template <class T>
 		concept vmobject_ptr =
 			is_bstsmartptr_v<T> &&
 			vmobject<typename std::remove_cv_t<T>::element_type>;
+
+		template <class T>
+		concept vmstruct_ptr =
+			is_bstsmartptr_v<T> &&
+			vmstruct<typename std::remove_cv_t<T>::element_type>;
+
+		template <class T>
+		concept vmarray_ptr =
+			is_bstsmartptr_v<T> &&
+			vmarray<typename std::remove_cv_t<T>::element_type>;
 
 		template <class T>
 		concept vmvariable = std::same_as<std::remove_cv_t<T>, Variable>;
@@ -308,10 +319,8 @@ namespace RE::BSScript
 		template <class T>
 		concept floating_point = std::floating_point<T>;
 
-		// clang-format off
 		template <class T>
 		concept boolean = std::same_as<std::remove_cv_t<T>, bool>;
-		// clang-format on
 
 		// clang-format off
 		template <class T>
@@ -338,7 +347,7 @@ namespace RE::BSScript
 				typename script_traits<std::remove_cv_t<T>>::is_nullable,
 				std::true_type> &&
 			std::is_default_constructible_v<T> &&
-			((array<typename T::value_type> || wrapper<typename T::value_type>)) && //
+			((array<typename T::value_type> || wrapper<typename T::value_type>)) &&
 			requires(T a_nullable) {
 				// clang-format off
 			static_cast<bool>(a_nullable);
@@ -377,14 +386,14 @@ namespace RE::BSScript
 		struct wrapper_accessor
 		{
 			template <class T>
-			[[nodiscard]] static T construct(const Variable& a_var) //
+			[[nodiscard]] static T construct(const Variable& a_var)
 				requires(is_structure_wrapper_v<T>)
 			{
 				return T(get<Struct>(a_var));
 			}
 
 			template <class T>
-			[[nodiscard]] static auto get_proxy(T&& a_wrapper) //
+			[[nodiscard]] static auto get_proxy(T&& a_wrapper)
 				requires(wrapper<std::remove_reference_t<T>>)
 			{
 				return std::forward<T>(a_wrapper).get_proxy();
@@ -411,7 +420,7 @@ namespace RE::BSScript
 	}
 
 	template <class T>
-	[[nodiscard]] std::optional<TypeInfo> GetTypeInfo() //
+	[[nodiscard]] std::optional<TypeInfo> GetTypeInfo()
 		requires(std::same_as<T, void>)
 	{
 		return TypeInfo::RawType::kNone;
@@ -593,8 +602,8 @@ namespace RE::BSScript
 		}();
 
 		if (!result) {
-			assert(false);
 			F4SE::log::error("failed to get type info for struct \"{}\""sv, T::NAME);
+			assert(false);
 		}
 
 		return result;
@@ -730,9 +739,9 @@ namespace RE::BSScript
 	}
 
 	template <detail::vmobject_ptr T>
-	void PackVariable(Variable& a_var, T a_val)
+	void PackVariable(Variable& a_var, T&& a_val)
 	{
-		a_var = a_val ? std::move(a_val) : nullptr;
+		a_var = std::forward<T>(a_val);
 
 		const auto typeInfo = GetTypeInfo<T>();
 		if (typeInfo) {
@@ -747,7 +756,7 @@ namespace RE::BSScript
 	}
 
 	template <class T>
-	void PackVariable(Variable& a_var, T&& a_val) //
+	void PackVariable(Variable& a_var, T&& a_val)
 		requires(detail::string<std::remove_reference_t<T>>)
 	{
 		if constexpr (std::is_same_v<std::remove_cvref_t<T>, BSFixedString>) {
@@ -783,7 +792,7 @@ namespace RE::BSScript
 	}
 
 	template <class T>
-	void PackVariable(Variable& a_var, T&& a_val) //
+	void PackVariable(Variable& a_var, T&& a_val)
 		requires(detail::array<std::remove_reference_t<T>>)
 	{
 		using size_type = Array::size_type;
@@ -832,14 +841,14 @@ namespace RE::BSScript
 	}
 
 	template <class T>
-	void PackVariable(Variable& a_var, T&& a_val) //
+	void PackVariable(Variable& a_var, T&& a_val)
 		requires(detail::wrapper<std::remove_reference_t<T>>)
 	{
 		a_var = detail::wrapper_accessor::get_proxy(std::forward<T>(a_val));
 	}
 
 	template <class T>
-	void PackVariable(Variable& a_var, T&& a_val) //
+	void PackVariable(Variable& a_var, T&& a_val)
 		requires(detail::nullable<std::remove_reference_t<T>>)
 	{
 		if (a_val) {
@@ -996,6 +1005,18 @@ namespace RE::BSScript
 	[[nodiscard]] T UnpackVariable(const Variable& a_var)
 	{
 		return get<Object>(a_var);
+	}
+
+	template <detail::vmstruct_ptr T>
+	[[nodiscard]] T UnpackVariable(const Variable& a_var)
+	{
+		return get<Struct>(a_var);
+	}
+
+	template <detail::vmarray_ptr T>
+	[[nodiscard]] T UnpackVariable(const Variable& a_var)
+	{
+		return get<Array>(a_var);
 	}
 
 	template <detail::vmvariable T>
@@ -1470,30 +1491,32 @@ namespace RE::BSScript
 		template <class... Args>
 		inline BSTThreadScrapFunction<bool(BSScrapArray<Variable>&)> CreateVariadicThreadScrapFunction(IVirtualMachine* a_vm, Args&&... a_args)
 		{
-			if (REL::Module::IsNG()) {
+			if FALLOUT_REL_CONSTEXPR (REL::Module::IsNG()) {
 				return BSTThreadScrapFunction<bool(BSScrapArray<Variable>&)>([&](BSScrapArray<Variable>& a_out) {
 					a_out = detail::PackVariables(std::forward<Args>(a_args)...);
 					return true;
 				});
 			}
-
-			auto args = FunctionArgs(a_vm, std::forward<Args>(a_args)...);
-			return CreateThreadScrapFunction(args);
+			else {
+				auto args = FunctionArgs(a_vm, std::forward<Args>(a_args)...);
+				return CreateThreadScrapFunction(args);
+			}
 		}
 
 		template <array T>
 			requires std::is_same_v<typename std::remove_cv_t<T>::value_type, Variable>
 		inline BSTThreadScrapFunction<bool(BSScrapArray<Variable>&)> CreateAppliedThreadScrapFunction(IVirtualMachine* a_vm, const T& a_args)
 		{
-			if (REL::Module::IsNG()) {
+			if FALLOUT_REL_CONSTEXPR (REL::Module::IsNG()) {
 				return BSTThreadScrapFunction<bool(BSScrapArray<Variable>&)>([&](BSScrapArray<Variable>& a_out) {
 					a_out = BSScrapArray<Variable>{ a_args.begin(), a_args.end() };
 					return true;
 				});
 			}
-
-			auto args = AppliedFunctionArgs(a_vm, a_args);
-			return CreateThreadScrapFunction(args);
+			else {
+				auto args = AppliedFunctionArgs(a_vm, a_args);
+				return CreateThreadScrapFunction(args);
+			}
 		}
 
 		inline BSTThreadScrapFunction<bool(BSScrapArray<Variable>&)> CreateThreadScrapFunction(FunctionArgsBase& a_args)

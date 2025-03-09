@@ -953,14 +953,15 @@ namespace RE
 		{
 			constexpr auto ID = REL::RelocationID(485633, 2201838);
 
-			if (REL::Module::IsNG()) {
+			if FALLOUT_REL_CONSTEXPR (REL::Module::IsNG()) {
 				using func_t = decltype(&TESEquipEvent::GetEventSource);
 				static REL::Relocation<func_t> func{ ID };
 				return func();
 			}
-
-			static REL::Relocation<EventSource_t*> singleton{ ID };
-			return singleton.get();
+			else {
+				static REL::Relocation<EventSource_t*> singleton{ ID };
+				return singleton.get();
+			}
 		}
 
 		// members
@@ -1153,14 +1154,15 @@ namespace RE
 			// Maybe it was inlined or moved.
 			constexpr auto ID = REL::RelocationID(989868, 0);
 
-			if (REL::Module::IsNG()) {
+			if FALLOUT_REL_CONSTEXPR (REL::Module::IsNG()) {
 				using func_t = decltype(&TESHitEvent::GetEventSource);
 				static REL::Relocation<func_t> func{ ID };
 				return func();
 			}
-
-			static REL::Relocation<EventSource_t*> singleton{ ID };
-			return singleton.get();
+			else {
+				static REL::Relocation<EventSource_t*> singleton{ ID };
+				return singleton.get();
+			}
 		}
 
 		// members
@@ -1184,14 +1186,15 @@ namespace RE
 		{
 			constexpr auto ID = REL::RelocationID(1481228, 2201851);
 
-			if (REL::Module::IsNG()) {
+			if FALLOUT_REL_CONSTEXPR (REL::Module::IsNG()) {
 				using func_t = decltype(&TESMagicEffectApplyEvent::GetEventSource);
 				static REL::Relocation<func_t> func{ ID };
 				return func();
 			}
-
-			static REL::Relocation<EventSource_t*> singleton{ ID };
-			return singleton.get();
+			else {
+				static REL::Relocation<EventSource_t*> singleton{ ID };
+				return singleton.get();
+			}
 		}
 
 		// members
@@ -1223,14 +1226,15 @@ namespace RE
 		{
 			constexpr auto ID = REL::RelocationID(416662, 2201853);
 
-			if (REL::Module::IsNG()) {
+			if FALLOUT_REL_CONSTEXPR (REL::Module::IsNG()) {
 				using func_t = decltype(&TESObjectLoadedEvent::GetEventSource);
 				static REL::Relocation<func_t> func{ ID };
 				return func();
 			}
-
-			static REL::Relocation<EventSource_t*> singleton{ ID };
-			return singleton.get();
+			else {
+				static REL::Relocation<EventSource_t*> singleton{ ID };
+				return singleton.get();
+			}
 		}
 
 		// members
