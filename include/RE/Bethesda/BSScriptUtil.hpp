@@ -738,12 +738,13 @@ namespace RE::BSScript
 		}
 	}
 
-	template <detail::vmobject_ptr T>
+	template <class T>
 	void PackVariable(Variable& a_var, T&& a_val)
+		requires(detail::vmobject_ptr<std::remove_reference_t<T>>)
 	{
 		a_var = std::forward<T>(a_val);
 
-		const auto typeInfo = GetTypeInfo<T>();
+		const auto typeInfo = GetTypeInfo<std::remove_cvref_t<T>>();
 		if (typeInfo) {
 			a_var.SetComplexType(typeInfo->GetComplexType());
 		}
@@ -1005,18 +1006,6 @@ namespace RE::BSScript
 	[[nodiscard]] T UnpackVariable(const Variable& a_var)
 	{
 		return get<Object>(a_var);
-	}
-
-	template <detail::vmstruct_ptr T>
-	[[nodiscard]] T UnpackVariable(const Variable& a_var)
-	{
-		return get<Struct>(a_var);
-	}
-
-	template <detail::vmarray_ptr T>
-	[[nodiscard]] T UnpackVariable(const Variable& a_var)
-	{
-		return get<Array>(a_var);
 	}
 
 	template <detail::vmvariable T>
