@@ -1,56 +1,57 @@
 #pragma once
 
-#include "REL/Version.hpp"
-#ifdef ENABLE_FALLOUT_VR
-#include <rapidcsv.h>
-#endif
+#include "REX/MemoryMap.hpp"
+#include "REX/NotNull.hpp"
+#include "REX/Singleton.hpp"
+#include "REX/Version.hpp"
 
 namespace REL
 {
-	class IDDB
+	class Iddb final
+		: public REX::Singleton<Iddb>
 	{
-	private:
-		struct mapping_t
-		{
-			std::uint64_t id;
-			std::uint64_t offset;
-		};
-
 	public:
-		IDDB(const IDDB&) = delete;
-		IDDB(IDDB&&) = delete;
+		Iddb();
+		~Iddb() noexcept;
 
-		IDDB& operator=(const IDDB&) = delete;
-		IDDB& operator=(IDDB&&) = delete;
+		Iddb(const Iddb&) = delete;
+		Iddb(Iddb&&) = delete;
 
-		[[nodiscard]] static IDDB& get()
-		{
-			static IDDB singleton;
-			return singleton;
-		}
+		Iddb& operator=(const Iddb&) = delete;
+		Iddb& operator=(Iddb&&) = delete;
 
-		[[nodiscard]] std::size_t id2offset(std::uint64_t a_id) const;
+		[[nodiscard]] const std::filesystem::path& GetPath() const noexcept { return _path; }
+		[[nodiscard]] std::ptrdiff_t GetOffset(std::uintptr_t a_id) const noexcept;
 
-#ifdef ENABLE_FALLOUT_VR
-		bool IsVRAddressLibraryAtLeastVersion(const char* a_minimalVRAddressLibVersion, bool a_reportAndFail = false) const;
-#endif
-
-	protected:
-		friend class Offset2ID;
-
-		[[nodiscard]] std::span<const mapping_t> get_id2offset() const noexcept { return _id2offset; }
+		void Load();
 
 	private:
-#ifdef ENABLE_FALLOUT_VR
-		bool load_csv(std::string a_filename, Version a_version, bool a_failOnError);
-#endif
-		IDDB();
-		~IDDB() = default;
+		enum class FormatVersion : std::int32_t;
 
-		mmio::mapped_file_source _mmap;
-		std::span<const mapping_t> _id2offset;
-#ifdef ENABLE_FALLOUT_VR
-		Version _vrAddressLibraryVersion;
+		class Mapping;
+
+		class Stream;
+		class HeaderV2;
+		class HeaderV5;
+
+		class LoaderInfo;
+
+		class IFormatInfo;
+		class FormatInfoV0;
+		class FormatInfoV1;
+		class FormatInfoV2;
+		class FormatInfoV5;
+#if COMMONLIB_RUNTIME_VR == 1
+		class FormatInfoVR;
 #endif
+
+		[[nodiscard]] static std::string GetMemoryMapName(REX::Version a_version);
+
+		std::filesystem::path _path;
+		std::unordered_map<std::string_view, REX::NotNull<std::shared_ptr<LoaderInfo>>> _loaderInfoMap;
+		std::unordered_map<FormatVersion, REX::NotNull<std::shared_ptr<IFormatInfo>>> _formatInfoMap;
+		std::shared_ptr<LoaderInfo> _currentLoaderInfo;
+		std::shared_ptr<IFormatInfo> _currentFormatInfo;
+		REX::NotNull<std::shared_ptr<REX::MemoryMap>> _memoryMap;
 	};
 }

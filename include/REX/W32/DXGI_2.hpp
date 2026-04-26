@@ -17,52 +17,52 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	enum DXGI_ALPHA_MODE
+	enum DXGI_ALPHA_MODE : std::int32_t
 	{
 		DXGI_ALPHA_MODE_UNSPECIFIED = 0,
 		DXGI_ALPHA_MODE_PREMULTIPLIED = 1,
 		DXGI_ALPHA_MODE_STRAIGHT = 2,
 		DXGI_ALPHA_MODE_IGNORE = 3,
-		DXGI_ALPHA_MODE_FORCE_DWORD = 0xFFFFFFFF,
+		DXGI_ALPHA_MODE_FORCE_DWORD = -1
 	};
 
-	enum DXGI_COMPUTE_PREEMPTION_GRANULARITY
+	enum DXGI_COMPUTE_PREEMPTION_GRANULARITY : std::int32_t
 	{
 		DXGI_COMPUTE_PREEMPTION_DMA_BUFFER_BOUNDARY = 0,
 		DXGI_COMPUTE_PREEMPTION_DISPATCH_BOUNDARY = 1,
 		DXGI_COMPUTE_PREEMPTION_THREAD_GROUP_BOUNDARY = 2,
 		DXGI_COMPUTE_PREEMPTION_THREAD_BOUNDARY = 3,
-		DXGI_COMPUTE_PREEMPTION_INSTRUCTION_BOUNDARY = 4,
+		DXGI_COMPUTE_PREEMPTION_INSTRUCTION_BOUNDARY = 4
 	};
 
-	enum DXGI_GRAPHICS_PREEMPTION_GRANULARITY
+	enum DXGI_GRAPHICS_PREEMPTION_GRANULARITY : std::int32_t
 	{
 		DXGI_GRAPHICS_PREEMPTION_DMA_BUFFER_BOUNDARY = 0,
 		DXGI_GRAPHICS_PREEMPTION_PRIMITIVE_BOUNDARY = 1,
 		DXGI_GRAPHICS_PREEMPTION_TRIANGLE_BOUNDARY = 2,
 		DXGI_GRAPHICS_PREEMPTION_PIXEL_BOUNDARY = 3,
-		DXGI_GRAPHICS_PREEMPTION_INSTRUCTION_BOUNDARY = 4,
+		DXGI_GRAPHICS_PREEMPTION_INSTRUCTION_BOUNDARY = 4
 	};
 
-	enum DXGI_OFFER_RESOURCE_PRIORITY
+	enum DXGI_OFFER_RESOURCE_PRIORITY : std::int32_t
 	{
 		DXGI_OFFER_RESOURCE_PRIORITY_LOW = 1,
-		DXGI_OFFER_RESOURCE_PRIORITY_NORMAL = (DXGI_OFFER_RESOURCE_PRIORITY_LOW + 1),
-		DXGI_OFFER_RESOURCE_PRIORITY_HIGH = (DXGI_OFFER_RESOURCE_PRIORITY_NORMAL + 1)
+		DXGI_OFFER_RESOURCE_PRIORITY_NORMAL = 2,
+		DXGI_OFFER_RESOURCE_PRIORITY_HIGH = 3
 	};
 
-	enum DXGI_OUTDUPL_POINTER_SHAPE_TYPE
+	enum DXGI_OUTDUPL_POINTER_SHAPE_TYPE : std::int32_t
 	{
 		DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME = 0x1,
 		DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR = 0x2,
-		DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR = 0x4,
+		DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR = 0x4
 	};
 
-	enum DXGI_SCALING
+	enum DXGI_SCALING : std::int32_t
 	{
 		DXGI_SCALING_STRETCH = 0,
 		DXGI_SCALING_NONE = 1,
-		DXGI_SCALING_ASPECT_RATIO_STRETCH = 2,
+		DXGI_SCALING_ASPECT_RATIO_STRETCH = 2
 	};
 }
 
@@ -70,7 +70,7 @@ namespace REX::W32
 {
 	struct DXGI_ADAPTER_DESC2
 	{
-		wchar_t description[128];
+		std::array<wchar_t, 128> description;
 		std::uint32_t vendorID;
 		std::uint32_t deviceID;
 		std::uint32_t subSysID;
@@ -189,7 +189,7 @@ namespace REX::W32
 	IDXGIDisplayControl
 		: public IUnknown
 	{
-		virtual BOOL IsStereoEnabled(void) = 0;
+		virtual BOOL IsStereoEnabled() = 0;
 		virtual void SetStereoEnabled(BOOL a_enabled) = 0;
 	};
 
@@ -197,7 +197,7 @@ namespace REX::W32
 	IDXGIFactory2
 		: public IDXGIFactory1
 	{
-		virtual BOOL IsWindowedStereoEnabled(void) = 0;
+		virtual BOOL IsWindowedStereoEnabled() = 0;
 		virtual HRESULT CreateSwapChainForHwnd(IUnknown* a_device, HWND a_wnd, const DXGI_SWAP_CHAIN_DESC1* a_desc, const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* a_fullscreenDesc, IDXGIOutput* a_restrictToOutput, IDXGISwapChain1** a_swapChain) = 0;
 		virtual HRESULT CreateSwapChainForCoreWindow(IUnknown* a_device, IUnknown* a_window, const DXGI_SWAP_CHAIN_DESC1* a_desc, IDXGIOutput* a_restrictToOutput, IDXGISwapChain1** a_swapChain) = 0;
 		virtual HRESULT GetSharedResourceAdapterLuid(HANDLE a_resource, LUID* a_luid) = 0;
@@ -230,8 +230,8 @@ namespace REX::W32
 		virtual HRESULT GetFrameMoveRects(std::uint32_t a_moveRectsBufferSize, DXGI_OUTDUPL_MOVE_RECT* a_moveRectBuffer, std::uint32_t* a_moveRectsBufferSizeRequired) = 0;
 		virtual HRESULT GetFramePointerShape(std::uint32_t a_pointerShapeBufferSize, void* a_pointerShapeBuffer, std::uint32_t* a_pointerShapeBufferSizeRequired, DXGI_OUTDUPL_POINTER_SHAPE_INFO* a_pointerShapeInfo) = 0;
 		virtual HRESULT MapDesktopSurface(DXGI_MAPPED_RECT* a_lockedRect) = 0;
-		virtual HRESULT UnMapDesktopSurface(void) = 0;
-		virtual HRESULT ReleaseFrame(void) = 0;
+		virtual HRESULT UnMapDesktopSurface() = 0;
+		virtual HRESULT ReleaseFrame() = 0;
 	};
 
 	struct __declspec(novtable, uuid("30961379-4609-4A41-998E-54FE567EE0C1"))
@@ -258,7 +258,7 @@ namespace REX::W32
 		virtual HRESULT GetHwnd(HWND* a_wnd) = 0;
 		virtual HRESULT GetCoreWindow(const IID& a_iid, void** a_unk) = 0;
 		virtual HRESULT Present1(std::uint32_t a_syncInterval, std::uint32_t a_presentFlags, const DXGI_PRESENT_PARAMETERS* a_presentParameters) = 0;
-		virtual BOOL IsTemporaryMonoSupported(void) = 0;
+		virtual BOOL IsTemporaryMonoSupported() = 0;
 		virtual HRESULT GetRestrictToOutput(IDXGIOutput** a_restrictToOutput) = 0;
 		virtual HRESULT SetBackgroundColor(const DXGI_RGBA* a_color) = 0;
 		virtual HRESULT GetBackgroundColor(DXGI_RGBA* a_color) = 0;
@@ -269,13 +269,13 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	inline constexpr IID IID_IDXGIAdapter2{ 0x0AA1AE0A, 0xFA0E, 0x4B84, { 0x86, 0x44, 0xE0, 0x5F, 0xF8, 0xE5, 0xAC, 0xB5 } };
-	inline constexpr IID IID_IDXGIDevice2{ 0x05008617, 0xFBFD, 0x4051, { 0xA7, 0x90, 0x14, 0x48, 0x84, 0xB4, 0xF6, 0xA9 } };
-	inline constexpr IID IID_IDXGIDisplayControl{ 0xEA9DBF1A, 0xC88E, 0x4486, { 0x85, 0x4A, 0x98, 0xAA, 0x01, 0x38, 0xF3, 0x0C } };
-	inline constexpr IID IID_IDXGIFactory2{ 0x50C83A1C, 0xE072, 0x4C48, { 0x87, 0xB0, 0x36, 0x30, 0xFA, 0x36, 0xA6, 0xD0 } };
-	inline constexpr IID IID_IDXGIOutput1{ 0x00CDDEA8, 0x939B, 0x4B83, { 0xA3, 0x40, 0xA6, 0x85, 0x22, 0x66, 0x66, 0xCC } };
-	inline constexpr IID IID_IDXGIOutputDuplication{ 0x191CFAC3, 0xA341, 0x470D, { 0xB2, 0x6E, 0xA8, 0x64, 0xF4, 0x28, 0x31, 0x9C } };
-	inline constexpr IID IID_IDXGIResource1{ 0x30961379, 0x4609, 0x4A41, { 0x99, 0x8E, 0x54, 0xFE, 0x56, 0x7E, 0xE0, 0xC1 } };
-	inline constexpr IID IID_IDXGISurface2{ 0xABA496DD, 0xB617, 0x4CB8, { 0xA8, 0x66, 0xBC, 0x44, 0xD7, 0xEB, 0x1F, 0xA2 } };
-	inline constexpr IID IID_IDXGISwapChain1{ 0x790A45F7, 0x0D42, 0x4876, { 0x98, 0x3A, 0x0A, 0x55, 0xCF, 0xE6, 0xF4, 0xAA } };
+	inline constexpr auto IID_IDXGIAdapter2 = IID{ 0x0AA1AE0A, 0xFA0E, 0x4B84, { 0x86, 0x44, 0xE0, 0x5F, 0xF8, 0xE5, 0xAC, 0xB5 } };
+	inline constexpr auto IID_IDXGIDevice2 = IID{ 0x05008617, 0xFBFD, 0x4051, { 0xA7, 0x90, 0x14, 0x48, 0x84, 0xB4, 0xF6, 0xA9 } };
+	inline constexpr auto IID_IDXGIDisplayControl = IID{ 0xEA9DBF1A, 0xC88E, 0x4486, { 0x85, 0x4A, 0x98, 0xAA, 0x01, 0x38, 0xF3, 0x0C } };
+	inline constexpr auto IID_IDXGIFactory2 = IID{ 0x50C83A1C, 0xE072, 0x4C48, { 0x87, 0xB0, 0x36, 0x30, 0xFA, 0x36, 0xA6, 0xD0 } };
+	inline constexpr auto IID_IDXGIOutput1 = IID{ 0x00CDDEA8, 0x939B, 0x4B83, { 0xA3, 0x40, 0xA6, 0x85, 0x22, 0x66, 0x66, 0xCC } };
+	inline constexpr auto IID_IDXGIOutputDuplication = IID{ 0x191CFAC3, 0xA341, 0x470D, { 0xB2, 0x6E, 0xA8, 0x64, 0xF4, 0x28, 0x31, 0x9C } };
+	inline constexpr auto IID_IDXGIResource1 = IID{ 0x30961379, 0x4609, 0x4A41, { 0x99, 0x8E, 0x54, 0xFE, 0x56, 0x7E, 0xE0, 0xC1 } };
+	inline constexpr auto IID_IDXGISurface2 = IID{ 0xABA496DD, 0xB617, 0x4CB8, { 0xA8, 0x66, 0xBC, 0x44, 0xD7, 0xEB, 0x1F, 0xA2 } };
+	inline constexpr auto IID_IDXGISwapChain1 = IID{ 0x790A45F7, 0x0D42, 0x4876, { 0x98, 0x3A, 0x0A, 0x55, 0xCF, 0xE6, 0xF4, 0xAA } };
 }

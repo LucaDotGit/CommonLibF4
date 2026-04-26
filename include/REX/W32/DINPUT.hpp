@@ -12,152 +12,153 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	enum DIK : std::uint32_t
+	enum DIK : std::int32_t
 	{
-		DIK_ESCAPE = 0x1,
-		DIK_1 = 0x2,
-		DIK_2 = 0x3,
-		DIK_3 = 0x4,
-		DIK_4 = 0x5,
-		DIK_5 = 0x6,
-		DIK_6 = 0x7,
-		DIK_7 = 0x8,
-		DIK_8 = 0x9,
-		DIK_9 = 0xA,
-		DIK_0 = 0xB,
-		DIK_MINUS = 0xC,
-		DIK_EQUALS = 0xD,
-		DIK_BACK = 0xE,
-		DIK_TAB = 0xF,
-		DIK_Q = 0x10,
-		DIK_W = 0x11,
-		DIK_E = 0x12,
-		DIK_R = 0x13,
-		DIK_T = 0x14,
-		DIK_Y = 0x15,
-		DIK_U = 0x16,
-		DIK_I = 0x17,
-		DIK_O = 0x18,
-		DIK_P = 0x19,
-		DIK_LBRACKET = 0x1A,
-		DIK_RBRACKET = 0x1B,
-		DIK_RETURN = 0x1C,
-		DIK_LCONTROL = 0x1D,
-		DIK_A = 0x1E,
-		DIK_S = 0x1F,
-		DIK_D = 0x20,
-		DIK_F = 0x21,
-		DIK_G = 0x22,
-		DIK_H = 0x23,
-		DIK_J = 0x24,
-		DIK_K = 0x25,
-		DIK_L = 0x26,
-		DIK_SEMICOLON = 0x27,
-		DIK_APOSTROPHE = 0x28,
-		DIK_GRAVE = 0x29,
-		DIK_LSHIFT = 0x2A,
-		DIK_BACKSLASH = 0x2B,
-		DIK_Z = 0x2C,
-		DIK_X = 0x2D,
-		DIK_C = 0x2E,
-		DIK_V = 0x2F,
-		DIK_B = 0x30,
-		DIK_N = 0x31,
-		DIK_M = 0x32,
-		DIK_COMMA = 0x33,
-		DIK_PERIOD = 0x34,
-		DIK_SLASH = 0x35,
-		DIK_RSHIFT = 0x36,
-		DIK_MULTIPLY = 0x37,
-		DIK_LMENU = 0x38,
-		DIK_SPACE = 0x39,
-		DIK_CAPITAL = 0x3A,
-		DIK_F1 = 0x3B,
-		DIK_F2 = 0x3C,
-		DIK_F3 = 0x3D,
-		DIK_F4 = 0x3E,
-		DIK_F5 = 0x3F,
-		DIK_F6 = 0x40,
-		DIK_F7 = 0x41,
-		DIK_F8 = 0x42,
-		DIK_F9 = 0x43,
-		DIK_F10 = 0x44,
-		DIK_NUMLOCK = 0x45,
-		DIK_SCROLL = 0x46,
-		DIK_NUMPAD7 = 0x47,
-		DIK_NUMPAD8 = 0x48,
-		DIK_NUMPAD9 = 0x49,
-		DIK_SUBTRACT = 0x4A,
-		DIK_NUMPAD4 = 0x4B,
-		DIK_NUMPAD5 = 0x4C,
-		DIK_NUMPAD6 = 0x4D,
-		DIK_ADD = 0x4E,
-		DIK_NUMPAD1 = 0x4F,
-		DIK_NUMPAD2 = 0x50,
-		DIK_NUMPAD3 = 0x51,
-		DIK_NUMPAD0 = 0x52,
-		DIK_DECIMAL = 0x53,
-		DIK_OEM_102 = 0x56,
-		DIK_F11 = 0x57,
-		DIK_F12 = 0x58,
-		DIK_F13 = 0x64,
-		DIK_F14 = 0x65,
-		DIK_F15 = 0x66,
-		DIK_KANA = 0x70,
-		DIK_ABNT_C1 = 0x73,
-		DIK_CONVERT = 0x79,
-		DIK_NOCONVERT = 0x7B,
-		DIK_YEN = 0x7D,
-		DIK_ABNT_C2 = 0x7E,
-		DIK_NUMPADEQUALS = 0x8D,
-		DIK_PREVTRACK = 0x90,
-		DIK_AT = 0x91,
-		DIK_COLON = 0x92,
-		DIK_UNDERLINE = 0x93,
-		DIK_KANJI = 0x94,
-		DIK_STOP = 0x95,
-		DIK_AX = 0x96,
-		DIK_UNLABELED = 0x97,
-		DIK_NEXTTRACK = 0x99,
-		DIK_NUMPADENTER = 0x9C,
-		DIK_RCONTROL = 0x9D,
-		DIK_MUTE = 0xA0,
-		DIK_CALCULATOR = 0xA1,
-		DIK_PLAYPAUSE = 0xA2,
-		DIK_MEDIASTOP = 0xA4,
-		DIK_VOLUMEDOWN = 0xAE,
-		DIK_VOLUMEUP = 0xB0,
-		DIK_WEBHOME = 0xB2,
-		DIK_NUMPADCOMMA = 0xB3,
-		DIK_DIVIDE = 0xB5,
-		DIK_SYSRQ = 0xB7,
-		DIK_RMENU = 0xB8,
-		DIK_PAUSE = 0xC5,
-		DIK_HOME = 0xC7,
-		DIK_UP = 0xC8,
-		DIK_PRIOR = 0xC9,
-		DIK_LEFT = 0xCB,
-		DIK_RIGHT = 0xCD,
-		DIK_END = 0xCF,
-		DIK_DOWN = 0xD0,
-		DIK_NEXT = 0xD1,
-		DIK_INSERT = 0xD2,
-		DIK_DELETE = 0xD3,
-		DIK_LWIN = 0xDB,
-		DIK_RWIN = 0xDC,
-		DIK_APPS = 0xDD,
-		DIK_POWER = 0xDE,
-		DIK_SLEEP = 0xDF,
-		DIK_WAKE = 0xE3,
-		DIK_WEBSEARCH = 0xE5,
-		DIK_WEBFAVORITES = 0xE6,
-		DIK_WEBREFRESH = 0xE7,
-		DIK_WEBSTOP = 0xE8,
-		DIK_WEBFORWARD = 0xE9,
-		DIK_WEBBACK = 0xEA,
-		DIK_MYCOMPUTER = 0xEB,
-		DIK_MAIL = 0xEC,
-		DIK_MEDIASELECT = 0xED,
+		DIK_NONE = 0,
+		DIK_ESCAPE = 1,
+		DIK_1 = 2,
+		DIK_2 = 3,
+		DIK_3 = 4,
+		DIK_4 = 5,
+		DIK_5 = 6,
+		DIK_6 = 7,
+		DIK_7 = 8,
+		DIK_8 = 9,
+		DIK_9 = 10,
+		DIK_0 = 11,
+		DIK_MINUS = 12,
+		DIK_EQUALS = 13,
+		DIK_BACK = 14,
+		DIK_TAB = 15,
+		DIK_Q = 16,
+		DIK_W = 17,
+		DIK_E = 18,
+		DIK_R = 19,
+		DIK_T = 20,
+		DIK_Y = 21,
+		DIK_U = 22,
+		DIK_I = 23,
+		DIK_O = 24,
+		DIK_P = 25,
+		DIK_LBRACKET = 26,
+		DIK_RBRACKET = 27,
+		DIK_RETURN = 28,
+		DIK_LCONTROL = 29,
+		DIK_A = 30,
+		DIK_S = 31,
+		DIK_D = 32,
+		DIK_F = 33,
+		DIK_G = 34,
+		DIK_H = 35,
+		DIK_J = 36,
+		DIK_K = 37,
+		DIK_L = 38,
+		DIK_SEMICOLON = 39,
+		DIK_APOSTROPHE = 40,
+		DIK_GRAVE = 41,
+		DIK_LSHIFT = 42,
+		DIK_BACKSLASH = 43,
+		DIK_Z = 44,
+		DIK_X = 45,
+		DIK_C = 46,
+		DIK_V = 47,
+		DIK_B = 48,
+		DIK_N = 49,
+		DIK_M = 50,
+		DIK_COMMA = 51,
+		DIK_PERIOD = 52,
+		DIK_SLASH = 53,
+		DIK_RSHIFT = 54,
+		DIK_MULTIPLY = 55,
+		DIK_LMENU = 56,
+		DIK_SPACE = 57,
+		DIK_CAPITAL = 58,
+		DIK_F1 = 59,
+		DIK_F2 = 60,
+		DIK_F3 = 61,
+		DIK_F4 = 62,
+		DIK_F5 = 63,
+		DIK_F6 = 64,
+		DIK_F7 = 65,
+		DIK_F8 = 66,
+		DIK_F9 = 67,
+		DIK_F10 = 68,
+		DIK_NUMLOCK = 69,
+		DIK_SCROLL = 70,
+		DIK_NUMPAD7 = 71,
+		DIK_NUMPAD8 = 72,
+		DIK_NUMPAD9 = 73,
+		DIK_SUBTRACT = 74,
+		DIK_NUMPAD4 = 75,
+		DIK_NUMPAD5 = 76,
+		DIK_NUMPAD6 = 77,
+		DIK_ADD = 78,
+		DIK_NUMPAD1 = 79,
+		DIK_NUMPAD2 = 80,
+		DIK_NUMPAD3 = 81,
+		DIK_NUMPAD0 = 82,
+		DIK_DECIMAL = 83,
+		DIK_OEM_102 = 86,
+		DIK_F11 = 87,
+		DIK_F12 = 88,
+		DIK_F13 = 100,
+		DIK_F14 = 101,
+		DIK_F15 = 102,
+		DIK_KANA = 112,
+		DIK_ABNT_C1 = 115,
+		DIK_CONVERT = 121,
+		DIK_NOCONVERT = 123,
+		DIK_YEN = 125,
+		DIK_ABNT_C2 = 126,
+		DIK_NUMPADEQUALS = 141,
+		DIK_PREVTRACK = 144,
+		DIK_AT = 145,
+		DIK_COLON = 146,
+		DIK_UNDERLINE = 147,
+		DIK_KANJI = 148,
+		DIK_STOP = 149,
+		DIK_AX = 150,
+		DIK_UNLABELED = 151,
+		DIK_NEXTTRACK = 153,
+		DIK_NUMPADENTER = 156,
+		DIK_RCONTROL = 157,
+		DIK_MUTE = 160,
+		DIK_CALCULATOR = 161,
+		DIK_PLAYPAUSE = 162,
+		DIK_MEDIASTOP = 164,
+		DIK_VOLUMEDOWN = 174,
+		DIK_VOLUMEUP = 176,
+		DIK_WEBHOME = 178,
+		DIK_NUMPADCOMMA = 179,
+		DIK_DIVIDE = 181,
+		DIK_SYSRQ = 183,
+		DIK_RMENU = 184,
+		DIK_PAUSE = 197,
+		DIK_HOME = 199,
+		DIK_UP = 200,
+		DIK_PRIOR = 201,
+		DIK_LEFT = 203,
+		DIK_RIGHT = 205,
+		DIK_END = 207,
+		DIK_DOWN = 208,
+		DIK_NEXT = 209,
+		DIK_INSERT = 210,
+		DIK_DELETE = 211,
+		DIK_LWIN = 219,
+		DIK_RWIN = 220,
+		DIK_APPS = 221,
+		DIK_POWER = 222,
+		DIK_SLEEP = 223,
+		DIK_WAKE = 227,
+		DIK_WEBSEARCH = 229,
+		DIK_WEBFAVORITES = 230,
+		DIK_WEBREFRESH = 231,
+		DIK_WEBSTOP = 232,
+		DIK_WEBFORWARD = 233,
+		DIK_WEBBACK = 234,
+		DIK_MYCOMPUTER = 235,
+		DIK_MAIL = 236,
+		DIK_MEDIASELECT = 237,
 		DIK_BACKSPACE = DIK_BACK,
 		DIK_NUMPADSTAR = DIK_MULTIPLY,
 		DIK_LALT = DIK_LMENU,
@@ -211,7 +212,7 @@ namespace REX::W32
 		HINSTANCE instString;
 		FILETIME timeStamp;
 		std::uint32_t crc;
-		char actionMap[MAX_PATH];
+		std::array<char, MAX_PATH> actionMap;
 	};
 
 	struct DICOLORSET
@@ -266,13 +267,13 @@ namespace REX::W32
 
 	struct DIDEVICEIMAGEINFOA
 	{
-		char imagePath[MAX_PATH];
+		std::array<char, MAX_PATH> imagePath;
 		std::uint32_t flags;
 		std::uint32_t viewID;
 		RECT overlay;
 		std::uint32_t objID;
 		std::uint32_t validPts;
-		POINT calloutLine[5];
+		std::array<POINT, 5> calloutLine;
 		RECT calloutRect;
 		std::uint32_t textAlign;
 	};
@@ -296,8 +297,8 @@ namespace REX::W32
 		GUID guidInstance;
 		GUID guidProduct;
 		std::uint32_t devType;
-		char instanceName[MAX_PATH];
-		char productName[MAX_PATH];
+		std::array<char, MAX_PATH> instanceName;
+		std::array<char, MAX_PATH> productName;
 		GUID guidFFDriver;
 
 		// DIRECTINPUT_VERSION >= 0x0500
@@ -321,7 +322,7 @@ namespace REX::W32
 		std::uint32_t ofs;
 		std::uint32_t type;
 		std::uint32_t flags;
-		char name[MAX_PATH];
+		std::array<char, MAX_PATH> name;
 
 		// DIRECTINPUT_VERSION >= 0x0500
 		std::uint32_t ffMaxForce;
@@ -369,7 +370,7 @@ namespace REX::W32
 		std::uint32_t effectType;
 		std::uint32_t staticParams;
 		std::uint32_t dynamicParams;
-		char name[MAX_PATH];
+		std::array<char, MAX_PATH> name;
 	};
 
 	struct DIEFFESCAPE
@@ -387,7 +388,7 @@ namespace REX::W32
 		std::uint32_t size;
 		GUID guidEffect;
 		const DIEFFECT* effect;
-		char friendlyName[MAX_PATH];
+		std::array<char, MAX_PATH> friendlyName;
 	};
 
 	struct DIMOUSESTATE2
@@ -395,7 +396,7 @@ namespace REX::W32
 		std::int32_t x;
 		std::int32_t y;
 		std::int32_t z;
-		std::uint8_t rgbButtons[8];
+		std::array<std::uint8_t, 8> rgbButtons;
 	};
 
 	struct DIOBJECTDATAFORMAT
@@ -496,7 +497,7 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	inline constexpr IID IID_IDirectInput8A{ 0xBF798030, 0x483A, 0x4DA2, { 0xAA, 0x99, 0x5D, 0x64, 0xED, 0x36, 0x97, 0x00 } };
-	inline constexpr IID IID_IDirectInputDevice8A{ 0x54D41080, 0xDC15, 0x4833, { 0xA4, 0x1B, 0x74, 0x8F, 0x73, 0xA3, 0x81, 0x79 } };
-	inline constexpr IID IID_IDirectInputEffect{ 0xE7E1F7C0, 0x88D2, 0x11D0, { 0x9A, 0xD0, 0x00, 0xA0, 0xC9, 0xA0, 0x6E, 0x35 } };
+	inline constexpr auto IID_IDirectInput8A = IID{ 0xBF798030, 0x483A, 0x4DA2, { 0xAA, 0x99, 0x5D, 0x64, 0xED, 0x36, 0x97, 0x00 } };
+	inline constexpr auto IID_IDirectInputDevice8A = IID{ 0x54D41080, 0xDC15, 0x4833, { 0xA4, 0x1B, 0x74, 0x8F, 0x73, 0xA3, 0x81, 0x79 } };
+	inline constexpr auto IID_IDirectInputEffect = IID{ 0xE7E1F7C0, 0x88D2, 0x11D0, { 0x9A, 0xD0, 0x00, 0xA0, 0xC9, 0xA0, 0x6E, 0x35 } };
 }

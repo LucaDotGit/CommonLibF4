@@ -1,0 +1,48 @@
+#pragma once
+
+namespace RE::BSGraphics
+{
+	class Vertex
+	{
+	public:
+		enum Attribute : std::uint8_t
+		{
+			VA_POSITION = 0,
+			VA_TEXCOORD0 = 1,
+			VA_TEXCOORD1 = 2,
+			VA_NORMAL = 3,
+			VA_BINORMAL = 4,
+			VA_COLOR = 5,
+			VA_SKINNING = 6,
+			VA_LANDDATA = 7,
+			VA_EYEDATA = 8,
+
+			VA_COUNT = 9
+		};
+
+		enum Flags : std::uint16_t
+		{
+			VF_VERTEX = 1 << VA_POSITION,
+			VF_UV = 1 << VA_TEXCOORD0,
+			VF_UV_2 = 1 << VA_TEXCOORD1,
+			VF_NORMAL = 1 << VA_NORMAL,
+			VF_TANGENT = 1 << VA_BINORMAL,
+			VF_COLORS = 1 << VA_COLOR,
+			VF_SKINNED = 1 << VA_SKINNING,
+			VF_LANDDATA = 1 << VA_LANDDATA,
+			VF_EYEDATA = 1 << VA_EYEDATA,
+			VF_FULLPREC = 0x400
+		};
+
+		enum Masks : std::uint64_t
+		{
+			DESC_MASK_VERT = 0xFFFFFFFFFFFFFFF0,
+			DESC_MASK_UVS = 0xFFFFFFFFFFFFFF0F,
+			DESC_MASK_NBT = 0xFFFFFFFFFFFFF0FF,
+			DESC_MASK_SKCOL = 0xFFFFFFFFFFFF0FFF,
+			DESC_MASK_DATA = 0xFFFFFFFFFFF0FFFF,
+			DESC_MASK_OFFSET = 0xFFFFFF0000000000,
+			DESC_MASK_FLAGS = ~(DESC_MASK_OFFSET)
+		};
+	};
+}

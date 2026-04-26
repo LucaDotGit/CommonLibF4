@@ -1,30 +1,64 @@
+---
 BasedOnStyle: LLVM
-LineEnding: LF
-UseTab: Always
-IndentWidth: 4
-TabWidth: 4
-ColumnLimit: 0
-AccessModifierOffset: -4
-NamespaceIndentation: All
-FixNamespaceComments: false
-LambdaBodyIndentation: OuterScope
-AlignAfterOpenBracket: DontAlign
-PointerAlignment: Left
-AllowShortIfStatementsOnASingleLine: Never
-AllowAllArgumentsOnNextLine: true
-AllowAllParametersOfDeclarationOnNextLine: false
-BreakConstructorInitializers: AfterColon
+Language: Cpp
+
+AlignConsecutiveBitFields:
+  Enabled: true
+  AcrossComments: true
+
 BreakBeforeBraces: Custom
 BraceWrapping:
-  AfterExternBlock: true
-  AfterNamespace: true
-  AfterFunction: true
+  AfterCaseLabel: false
   AfterClass: true
-  AfterStruct: true
   AfterEnum: true
+  AfterExternBlock: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
   AfterUnion: true
-  BeforeElse: true
   BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: false
+  BeforeWhile: true
   IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyNamespace: true
+  SplitEmptyRecord: true
+  AfterControlStatement: Never
+
+NumericLiteralCase:
+  ExponentLetter: Lower
+  HexDigit: Upper
+  Prefix: Lower
+  Suffix: Lower
+
+QualifierAlignment: Custom
+QualifierOrder:
+  [inline, static, constexpr, friend, restrict, volatile, const, type]
+
+AccessModifierOffset: -4
+AlignAfterOpenBracket: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowBreakBeforeNoexceptSpecifier: Always
+AllowShortEnumsOnASingleLine: false
+BinPackLongBracedList: false
+BreakBeforeTernaryOperators: false
+BreakBinaryOperations: RespectPrecedence
+BreakConstructorInitializers: BeforeColon
+BreakInheritanceList: BeforeColon
+ColumnLimit: 0
 Cpp11BracedListStyle: false
+EmptyLineBeforeAccessModifier: LogicalBlock
+EnumTrailingComma: Remove
+FixNamespaceComments: false
 IndentCaseLabels: true
+IndentWidth: 4
+InsertBraces: true
+LineEnding: LF
+NamespaceIndentation: All
+PackConstructorInitializers: NextLineOnly
+PointerAlignment: Left
+RemoveParentheses: ReturnStatement
+RemoveSemicolon: true
+TabWidth: 4
+UseTab: Always

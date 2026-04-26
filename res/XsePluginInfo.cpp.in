@@ -1,0 +1,82 @@
+#include "XsePluginInfo.hpp"
+
+#include <F4SE/F4SE.hpp>
+
+using std::literals::operator""sv;
+
+static constexpr auto PLUGIN_NAME = "@COMMONLIB_PLUGIN_NAME@"sv;
+static constexpr auto PLUGIN_AUTHOR = "@COMMONLIB_PLUGIN_AUTHOR@"sv;
+static constexpr auto PLUGIN_VERSION = REX::Version(@PROJECT_VERSION_MAJOR@, @PROJECT_VERSION_MINOR@, @PROJECT_VERSION_PATCH@, @PROJECT_VERSION_TWEAK@);
+
+#if COMMONLIB_RUNTIME_NG == 1 || COMMONLIB_RUNTIME_AE == 1
+F4SE_PLUGIN_VERSION = []() consteval noexcept {
+	auto versionData = F4SE::PluginVersionData();
+
+	versionData.SetPluginName(PLUGIN_NAME);
+	versionData.SetPluginAuthor(PLUGIN_AUTHOR);
+	versionData.SetPluginVersion(PLUGIN_VERSION);
+
+	versionData.SetUseSignatureScanning(false);
+#if COMMONLIB_RUNTIME_NG == 1
+	versionData.SetUseAddressLibrary_RuntimeNG(true);
+#endif
+#if COMMONLIB_RUNTIME_AE == 1
+	versionData.SetUseAddressLibrary_RuntimeAE(true);
+#endif
+
+	versionData.SetUseNoStructs(false);
+#if COMMONLIB_RUNTIME_NG == 1
+	versionData.SetIsLayoutDependent_RuntimeNG(true);
+#endif
+#if COMMONLIB_RUNTIME_AE == 1
+	versionData.SetIsLayoutDependent_RuntimeAE(true);
+#endif
+
+	versionData.SetCompatibleVersions(std::array{
+#if COMMONLIB_RUNTIME_NG == 1
+		F4SE::RUNTIME_LATEST_NG
+#endif
+#if COMMONLIB_RUNTIME_AE == 1
+		,
+		F4SE::RUNTIME_LATEST_AE
+#endif
+	});
+
+	return versionData;
+}();
+#endif
+
+#if COMMONLIB_RUNTIME_VR == 1 || COMMONLIB_RUNTIME_OG == 1
+F4SE_PLUGIN_QUERY(const F4SE::QueryInterface* a_f4se, F4SE::PluginInfo* a_info)
+{
+	if (!a_f4se) [[unlikely]] {
+		REX::Assert(false);
+		return false;
+	}
+
+	if (!a_info) [[unlikely]] {
+		REX::Assert(false);
+		return false;
+	}
+
+	a_info->SetPluginName(PLUGIN_NAME);
+	a_info->SetPluginVersion(PLUGIN_VERSION);
+
+	if (a_f4se->IsEditor()) {
+		return false;
+	}
+
+	const auto version = a_f4se->GetRuntimeVersion();
+#if COMMONLIB_RUNTIME_VR == 1
+	if (version == F4SE::RUNTIME_LATEST_VR) {
+		return true;
+	}
+#endif
+
+#if COMMONLIB_RUNTIME_OG == 1
+	return version == F4SE::RUNTIME_LATEST_OG;
+#else
+	return false;
+#endif
+}
+#endif

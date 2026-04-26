@@ -1,31 +1,26 @@
 #pragma once
 
+#include "REL/Cast.hpp"
+
+#include "REX/W32/CORE.hpp"
+
 namespace REL
 {
-	[[nodiscard]] std::uintptr_t GetIATAddr(std::string_view a_dll, std::string_view a_function);
-	[[nodiscard]] std::uintptr_t GetIATAddr(REX::W32::HMODULE a_module, std::string_view a_dll, std::string_view a_function);
+	[[nodiscard]] std::uintptr_t GetImportFunctionAddress(REX::W32::HMODULE a_module, std::string_view a_library, std::string_view a_function);
 
-	[[nodiscard]] void* GetIATPtr(std::string_view a_dll, std::string_view a_function);
-
-	template <class T>
-	[[nodiscard]] T* GetIATPtr(std::string_view a_dll, std::string_view a_function)
-	{
-		return static_cast<T*>(GetIATPtr(std::move(a_dll), std::move(a_function)));
-	}
-
-	[[nodiscard]] void* GetIATPtr(REX::W32::HMODULE a_module, std::string_view a_dll, std::string_view a_function);
+	[[nodiscard]] void* GetImportFunctionPointer(REX::W32::HMODULE a_module, std::string_view a_library, std::string_view a_function);
 
 	template <class T>
-	[[nodiscard]] T* GetIATPtr(REX::W32::HMODULE a_module, std::string_view a_dll, std::string_view a_function)
+	[[nodiscard]] T* GetImportFunctionPointer(REX::W32::HMODULE a_module, std::string_view a_library, std::string_view a_function)
 	{
-		return static_cast<T*>(GetIATPtr(a_module, std::move(a_dll), std::move(a_function)));
+		return static_cast<T*>(GetImportFunctionPointer(a_module, a_library, a_function));
 	}
 
-	std::uintptr_t PatchIAT(std::uintptr_t a_newFunc, std::string_view a_dll, std::string_view a_function);
+	std::uintptr_t SetImportFunctionPointer(REX::W32::HMODULE a_module, std::string_view a_library, std::string_view a_function, std::uintptr_t a_newFunc);
 
 	template <class F>
-	std::uintptr_t PatchIAT(F a_newFunc, std::string_view a_dll, std::string_view a_function)
+	std::uintptr_t SetImportFunctionPointer(REX::W32::HMODULE a_module, std::string_view a_library, std::string_view a_function, F a_newFunc)
 	{
-		return PatchIAT(stl::unrestricted_cast<std::uintptr_t>(a_newFunc), a_dll, a_function);
+		return SetImportFunctionPointer(a_module, a_library, a_function, REL::UnrestrictedCast<std::uintptr_t>(a_newFunc));
 	}
 }

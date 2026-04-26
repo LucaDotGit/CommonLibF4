@@ -21,15 +21,14 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	enum DXGI_ADAPTER_FLAG
+	enum DXGI_ADAPTER_FLAG : std::uint32_t
 	{
-		DXGI_ADAPTER_FLAG_NONE = 0,
-		DXGI_ADAPTER_FLAG_REMOTE = 1,
-		DXGI_ADAPTER_FLAG_SOFTWARE = 2,
-		DXGI_ADAPTER_FLAG_FORCE_DWORD = 0xFFFFFFFF,
+		DXGI_ADAPTER_FLAG_REMOTE = 0x1,
+		DXGI_ADAPTER_FLAG_SOFTWARE = 0x2,
+		DXGI_ADAPTER_FLAG_FORCE_DWORD = static_cast<std::underlying_type_t<DXGI_ADAPTER_FLAG>>(std::numeric_limits<std::uint32_t>::max())
 	};
 
-	enum DXGI_COLOR_SPACE_TYPE
+	enum DXGI_COLOR_SPACE_TYPE : std::int32_t
 	{
 		DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709 = 0,
 		DXGI_COLOR_SPACE_RGB_FULL_G10_NONE_P709 = 1,
@@ -56,10 +55,10 @@ namespace REX::W32
 		DXGI_COLOR_SPACE_YCBCR_STUDIO_G24_LEFT_P709 = 22,
 		DXGI_COLOR_SPACE_YCBCR_STUDIO_G24_LEFT_P2020 = 23,
 		DXGI_COLOR_SPACE_YCBCR_STUDIO_G24_TOPLEFT_P2020 = 24,
-		DXGI_COLOR_SPACE_CUSTOM = 0xFFFFFFFF,
+		DXGI_COLOR_SPACE_CUSTOM = static_cast<std::underlying_type_t<DXGI_COLOR_SPACE_TYPE>>(std::numeric_limits<std::uint32_t>::max())
 	};
 
-	enum DXGI_FORMAT
+	enum DXGI_FORMAT : std::int32_t
 	{
 		DXGI_FORMAT_UNKNOWN = 0,
 		DXGI_FORMAT_R32G32B32A32_TYPELESS = 1,
@@ -185,63 +184,63 @@ namespace REX::W32
 		DXGI_FORMAT_SAMPLER_FEEDBACK_MIN_MIP_OPAQUE = 189,
 		DXGI_FORMAT_SAMPLER_FEEDBACK_MIP_REGION_USED_OPAQUE = 190,
 
-		DXGI_FORMAT_FORCE_UINT = 0xFFFFFFFF,
+		DXGI_FORMAT_FORCE_UINT = static_cast<std::underlying_type_t<DXGI_FORMAT>>(std::numeric_limits<std::uint32_t>::max())
 	};
 
-	enum DXGI_MODE_ROTATION
+	enum DXGI_MODE_ROTATION : std::int32_t
 	{
 		DXGI_MODE_ROTATION_UNSPECIFIED = 0,
 		DXGI_MODE_ROTATION_IDENTITY = 1,
 		DXGI_MODE_ROTATION_ROTATE90 = 2,
 		DXGI_MODE_ROTATION_ROTATE180 = 3,
-		DXGI_MODE_ROTATION_ROTATE270 = 4,
+		DXGI_MODE_ROTATION_ROTATE270 = 4
 	};
 
-	enum DXGI_MODE_SCALING
+	enum DXGI_MODE_SCALING : std::int32_t
 	{
 		DXGI_MODE_SCALING_UNSPECIFIED = 0,
 		DXGI_MODE_SCALING_CENTERED = 1,
-		DXGI_MODE_SCALING_STRETCHED = 2,
+		DXGI_MODE_SCALING_STRETCHED = 2
 	};
 
-	enum DXGI_MODE_SCANLINE_ORDER
+	enum DXGI_MODE_SCANLINE_ORDER : std::int32_t
 	{
 		DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED = 0,
 		DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE = 1,
 		DXGI_MODE_SCANLINE_ORDER_UPPER_FIELD_FIRST = 2,
-		DXGI_MODE_SCANLINE_ORDER_LOWER_FIELD_FIRST = 3,
+		DXGI_MODE_SCANLINE_ORDER_LOWER_FIELD_FIRST = 3
 	};
 
-	enum DXGI_RESIDENCY
+	enum DXGI_RESIDENCY : std::int32_t
 	{
 		DXGI_RESIDENCY_FULLY_RESIDENT = 1,
 		DXGI_RESIDENCY_RESIDENT_IN_SHARED_MEMORY = 2,
-		DXGI_RESIDENCY_EVICTED_TO_DISK = 3,
+		DXGI_RESIDENCY_EVICTED_TO_DISK = 3
 	};
 
-	enum DXGI_SWAP_EFFECT
+	enum DXGI_SWAP_EFFECT : std::int32_t
 	{
 		DXGI_SWAP_EFFECT_DISCARD = 0,
 		DXGI_SWAP_EFFECT_SEQUENTIAL = 1,
 		DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL = 3,
-		DXGI_SWAP_EFFECT_FLIP_DISCARD = 4,
+		DXGI_SWAP_EFFECT_FLIP_DISCARD = 4
 	};
 
-	enum DXGI_SWAP_CHAIN_FLAG
+	enum DXGI_SWAP_CHAIN_FLAG : std::uint32_t
 	{
-		DXGI_SWAP_CHAIN_FLAG_NONPREROTATED = 1,
-		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH = 2,
-		DXGI_SWAP_CHAIN_FLAG_GDI_COMPATIBLE = 4,
-		DXGI_SWAP_CHAIN_FLAG_RESTRICTED_CONTENT = 8,
-		DXGI_SWAP_CHAIN_FLAG_RESTRICT_SHARED_RESOURCE_DRIVER = 16,
-		DXGI_SWAP_CHAIN_FLAG_DISPLAY_ONLY = 32,
-		DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT = 64,
-		DXGI_SWAP_CHAIN_FLAG_FOREGROUND_LAYER = 128,
-		DXGI_SWAP_CHAIN_FLAG_FULLSCREEN_VIDEO = 256,
-		DXGI_SWAP_CHAIN_FLAG_YUV_VIDEO = 512,
-		DXGI_SWAP_CHAIN_FLAG_HW_PROTECTED = 1024,
-		DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING = 2048,
-		DXGI_SWAP_CHAIN_FLAG_RESTRICTED_TO_ALL_HOLOGRAPHIC_DISPLAYS = 4096,
+		DXGI_SWAP_CHAIN_FLAG_NONPREROTATED = 0x1,
+		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH = 0x2,
+		DXGI_SWAP_CHAIN_FLAG_GDI_COMPATIBLE = 0x4,
+		DXGI_SWAP_CHAIN_FLAG_RESTRICTED_CONTENT = 0x8,
+		DXGI_SWAP_CHAIN_FLAG_RESTRICT_SHARED_RESOURCE_DRIVER = 0x10,
+		DXGI_SWAP_CHAIN_FLAG_DISPLAY_ONLY = 0x20,
+		DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT = 0x40,
+		DXGI_SWAP_CHAIN_FLAG_FOREGROUND_LAYER = 0x80,
+		DXGI_SWAP_CHAIN_FLAG_FULLSCREEN_VIDEO = 0x100,
+		DXGI_SWAP_CHAIN_FLAG_YUV_VIDEO = 0x200,
+		DXGI_SWAP_CHAIN_FLAG_HW_PROTECTED = 0x400,
+		DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING = 0x800,
+		DXGI_SWAP_CHAIN_FLAG_RESTRICTED_TO_ALL_HOLOGRAPHIC_DISPLAYS = 0x1000
 	};
 }
 
@@ -249,10 +248,10 @@ namespace REX::W32
 {
 	struct D3DCOLORVALUE
 	{
-		float r;
-		float g;
-		float b;
-		float a;
+		REX::Float32 r;
+		REX::Float32 g;
+		REX::Float32 b;
+		REX::Float32 a;
 	};
 
 	using DXGI_RGBA = D3DCOLORVALUE;
@@ -260,8 +259,8 @@ namespace REX::W32
 
 	struct LUID
 	{
-		std::uint32_t lo;
-		std::int32_t hi;
+		std::uint32_t lowPart;
+		std::int32_t highPart;
 	};
 }
 
@@ -269,7 +268,7 @@ namespace REX::W32
 {
 	struct DXGI_ADAPTER_DESC
 	{
-		wchar_t description[128];
+		std::array<wchar_t, 128> description;
 		std::uint32_t vendorId;
 		std::uint32_t deviceId;
 		std::uint32_t subSysId;
@@ -282,7 +281,7 @@ namespace REX::W32
 
 	struct DXGI_ADAPTER_DESC1
 	{
-		wchar_t description[128];
+		std::array<wchar_t, 128> description;
 		std::uint32_t vendorId;
 		std::uint32_t deviceId;
 		std::uint32_t subSysId;
@@ -296,8 +295,8 @@ namespace REX::W32
 
 	struct DXGI_DISPLAY_COLOR_SPACE
 	{
-		float primaryCoordinates[8][2];
-		float whitePoints[16][2];
+		std::array<std::array<REX::Float32, 8>, 2> primaryCoordinates;
+		std::array<std::array<REX::Float32, 16>, 2> whitePoints;
 	};
 
 	struct DXGI_FRAME_STATISTICS
@@ -311,25 +310,25 @@ namespace REX::W32
 
 	struct DXGI_RGB
 	{
-		float red;
-		float green;
-		float blue;
+		REX::Float32 red;
+		REX::Float32 green;
+		REX::Float32 blue;
 	};
 
 	struct DXGI_GAMMA_CONTROL
 	{
 		DXGI_RGB scale;
 		DXGI_RGB offset;
-		DXGI_RGB gammaCurve[1025];
+		std::array<DXGI_RGB, 1025> gammaCurve;
 	};
 
 	struct DXGI_GAMMA_CONTROL_CAPABILITIES
 	{
 		BOOL scaleAndOffsetSupported;
-		float maxConvertedValue;
-		float minConvertedValue;
+		REX::Float32 maxConvertedValue;
+		REX::Float32 minConvertedValue;
 		std::uint32_t numGammaControlPoints;
-		float controlPointPositions[1025];
+		std::array<REX::Float32, 1025> controlPointPositions;
 	};
 
 	struct DXGI_MAPPED_RECT
@@ -356,7 +355,7 @@ namespace REX::W32
 
 	struct DXGI_OUTPUT_DESC
 	{
-		wchar_t deviceName[32];
+		std::array<wchar_t, 32> deviceName;
 		RECT desktopCoordinates;
 		BOOL attachedToDesktop;
 		DXGI_MODE_ROTATION rotation;
@@ -438,7 +437,7 @@ namespace REX::W32
 	{
 		virtual HRESULT GetDesc(DXGI_SURFACE_DESC* a_desc) = 0;
 		virtual HRESULT Map(DXGI_MAPPED_RECT* a_lockedRect, std::uint32_t a_mapFlags) = 0;
-		virtual HRESULT Unmap(void) = 0;
+		virtual HRESULT Unmap() = 0;
 	};
 
 	struct __declspec(novtable, uuid("4AE63092-6327-4c1b-80AE-BFE12EA32B86"))
@@ -472,9 +471,9 @@ namespace REX::W32
 		virtual HRESULT GetDesc(DXGI_OUTPUT_DESC* a_desc) = 0;
 		virtual HRESULT GetDisplayModeList(DXGI_FORMAT a_enumFormat, std::uint32_t a_flags, std::uint32_t* a_numModes, DXGI_MODE_DESC* a_desc) = 0;
 		virtual HRESULT FindClosestMatchingMode(const DXGI_MODE_DESC* a_modeToMatch, DXGI_MODE_DESC* a_closestMatch, IUnknown* a_concernedDevice) = 0;
-		virtual HRESULT WaitForVBlank(void) = 0;
+		virtual HRESULT WaitForVBlank() = 0;
 		virtual HRESULT TakeOwnership(IUnknown* a_device, BOOL a_exclusive) = 0;
-		virtual void ReleaseOwnership(void) = 0;
+		virtual void ReleaseOwnership() = 0;
 		virtual HRESULT GetGammaControlCapabilities(DXGI_GAMMA_CONTROL_CAPABILITIES* a_gammaCaps) = 0;
 		virtual HRESULT SetGammaControl(const DXGI_GAMMA_CONTROL* a_array) = 0;
 		virtual HRESULT GetGammaControl(DXGI_GAMMA_CONTROL* a_array) = 0;
@@ -515,7 +514,7 @@ namespace REX::W32
 		: public IDXGIFactory
 	{
 		virtual HRESULT EnumAdapters1(std::uint32_t a_adapterSize, IDXGIAdapter1** a_adapter) = 0;
-		virtual BOOL IsCurrent(void) = 0;
+		virtual BOOL IsCurrent() = 0;
 	};
 
 	struct __declspec(novtable, uuid("54ec77fa-1377-44e6-8c32-88fd5f44c84c"))
@@ -546,18 +545,18 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	inline constexpr IID IID_IDXGIAdapter{ 0x2411E7E1, 0x12AC, 0x4CCF, { 0xBD, 0x14, 0x97, 0x98, 0xE8, 0x53, 0x4D, 0xC0 } };
-	inline constexpr IID IID_IDXGIAdapter1{ 0x29038F61, 0x3839, 0x4626, { 0x91, 0xFD, 0x08, 0x68, 0x79, 0x01, 0x1A, 0x05 } };
-	inline constexpr IID IID_IDXGIObject{ 0xAEC22Fb8, 0x76F3, 0x4639, { 0x9B, 0xE0, 0x28, 0xEB, 0x43, 0xA6, 0x7A, 0x2E } };
-	inline constexpr IID IID_IDXGIDevice{ 0x54EC77FA, 0x1377, 0x44E6, { 0x8C, 0x32, 0x88, 0xFD, 0x5F, 0x44, 0xC8, 0x4C } };
-	inline constexpr IID IID_IDXGIDevice1{ 0x77DB970F, 0x6276, 0x48BA, { 0xBA, 0x28, 0x07, 0x01, 0x43, 0xB4, 0x39, 0x2C } };
-	inline constexpr IID IID_IDXGIDeviceSubObject{ 0x3D3E0379, 0xF9DE, 0x4D58, { 0xBB, 0x6C, 0x18, 0xD6, 0x29, 0x92, 0xF1, 0xA6 } };
-	inline constexpr IID IID_IDXGIFactory{ 0x7B7166EC, 0x21C7, 0x44AE, { 0xB2, 0x1A, 0xC9, 0xAE, 0x32, 0x1A, 0xE3, 0x69 } };
-	inline constexpr IID IID_IDXGIFactory1{ 0x770AAE78, 0xF26F, 0x4DBA, { 0xA8, 0x29, 0x25, 0x3C, 0x83, 0xD1, 0xB3, 0x87 } };
-	inline constexpr IID IID_IDXGIKeyedMutex{ 0x9D8E1289, 0xD7B3, 0x465F, { 0x81, 0x26, 0x25, 0x0E, 0x34, 0x9A, 0xF8, 0x5D } };
-	inline constexpr IID IID_IDXGIOutput{ 0xAE02EEDB, 0xC735, 0x4690, { 0x8D, 0x52, 0x5A, 0x8D, 0xC2, 0x02, 0x13, 0xAA } };
-	inline constexpr IID IID_IDXGIResource{ 0x035F3AB4, 0x482E, 0x4E50, { 0xB4, 0x1F, 0x8A, 0x7F, 0x8B, 0xD8, 0x96, 0x0B } };
-	inline constexpr IID IID_IDXGISurface{ 0xCAFCB56C, 0x6AC3, 0x4889, { 0xBF, 0x47, 0x9E, 0x23, 0xBB, 0xD2, 0x60, 0xEC } };
-	inline constexpr IID IID_IDXGISurface1{ 0x4AE63092, 0x6327, 0x4C1B, { 0x80, 0xAE, 0xBF, 0xE1, 0x2E, 0xA3, 0x2B, 0x86 } };
-	inline constexpr IID IID_IDXGISwapChain{ 0x310D36A0, 0xD2E7, 0x4C0A, { 0xAA, 0x04, 0x6A, 0x9D, 0x23, 0xB8, 0x88, 0x6A } };
+	inline constexpr auto IID_IDXGIAdapter = IID{ 0x2411E7E1, 0x12AC, 0x4CCF, { 0xBD, 0x14, 0x97, 0x98, 0xE8, 0x53, 0x4D, 0xC0 } };
+	inline constexpr auto IID_IDXGIAdapter1 = IID{ 0x29038F61, 0x3839, 0x4626, { 0x91, 0xFD, 0x08, 0x68, 0x79, 0x01, 0x1A, 0x05 } };
+	inline constexpr auto IID_IDXGIObject = IID{ 0xAEC22FB8, 0x76F3, 0x4639, { 0x9B, 0xE0, 0x28, 0xEB, 0x43, 0xA6, 0x7A, 0x2E } };
+	inline constexpr auto IID_IDXGIDevice = IID{ 0x54EC77FA, 0x1377, 0x44E6, { 0x8C, 0x32, 0x88, 0xFD, 0x5F, 0x44, 0xC8, 0x4C } };
+	inline constexpr auto IID_IDXGIDevice1 = IID{ 0x77DB970F, 0x6276, 0x48BA, { 0xBA, 0x28, 0x07, 0x01, 0x43, 0xB4, 0x39, 0x2C } };
+	inline constexpr auto IID_IDXGIDeviceSubObject = IID{ 0x3D3E0379, 0xF9DE, 0x4D58, { 0xBB, 0x6C, 0x18, 0xD6, 0x29, 0x92, 0xF1, 0xA6 } };
+	inline constexpr auto IID_IDXGIFactory = IID{ 0x7B7166EC, 0x21C7, 0x44AE, { 0xB2, 0x1A, 0xC9, 0xAE, 0x32, 0x1A, 0xE3, 0x69 } };
+	inline constexpr auto IID_IDXGIFactory1 = IID{ 0x770AAE78, 0xF26F, 0x4DBA, { 0xA8, 0x29, 0x25, 0x3C, 0x83, 0xD1, 0xB3, 0x87 } };
+	inline constexpr auto IID_IDXGIKeyedMutex = IID{ 0x9D8E1289, 0xD7B3, 0x465F, { 0x81, 0x26, 0x25, 0x0E, 0x34, 0x9A, 0xF8, 0x5D } };
+	inline constexpr auto IID_IDXGIOutput = IID{ 0xAE02EEDB, 0xC735, 0x4690, { 0x8D, 0x52, 0x5A, 0x8D, 0xC2, 0x02, 0x13, 0xAA } };
+	inline constexpr auto IID_IDXGIResource = IID{ 0x035F3AB4, 0x482E, 0x4E50, { 0xB4, 0x1F, 0x8A, 0x7F, 0x8B, 0xD8, 0x96, 0x0B } };
+	inline constexpr auto IID_IDXGISurface = IID{ 0xCAFCB56C, 0x6AC3, 0x4889, { 0xBF, 0x47, 0x9E, 0x23, 0xBB, 0xD2, 0x60, 0xEC } };
+	inline constexpr auto IID_IDXGISurface1 = IID{ 0x4AE63092, 0x6327, 0x4C1B, { 0x80, 0xAE, 0xBF, 0xE1, 0x2E, 0xA3, 0x2B, 0x86 } };
+	inline constexpr auto IID_IDXGISwapChain = IID{ 0x310D36A0, 0xD2E7, 0x4C0A, { 0xAA, 0x04, 0x6A, 0x9D, 0x23, 0xB8, 0x88, 0x6A } };
 }

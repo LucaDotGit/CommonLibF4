@@ -1,136 +1,71 @@
 #pragma once
 
-#include "REL/Segment.hpp"
-#include "REL/Version.hpp"
+#include "REL/Cast.hpp"
+#include "REL/ModuleSection.hpp"
+#include "REL/Runtime.hpp"
+
+#include "REX/Singleton.hpp"
+#include "REX/Version.hpp"
+#include "REX/ZString.hpp"
 
 namespace REL
 {
-	class Module
+	class Module final
+		: public REX::Singleton<Module>
 	{
 	public:
+		Module();
+		~Module() noexcept;
+
 		Module(const Module&) = delete;
 		Module(Module&&) = delete;
 
 		Module& operator=(const Module&) = delete;
 		Module& operator=(Module&&) = delete;
 
-		/**
-		 * Identifies a FALLOUT runtime.
-		 */
-		enum class Runtime : uint8_t
-		{
-			Unknown = 0,
+		[[nodiscard]] const std::filesystem::path& GetFilePath() const noexcept { return _filePath; }
+		[[nodiscard]] REL::ModuleSection GetSection(std::string_view a_sectionName) const noexcept;
+		[[nodiscard]] REX::Version GetVersion() const noexcept { return _version; }
+		[[nodiscard]] std::uintptr_t GetBaseAddress() const noexcept { return _baseAddress; }
 
-			/**
-			 * The FALLOUT runtime is a post-Next Generation Update FALLOUT release (version 1.10.980 and later).
-			 */
-			NG = 1 << 0,
+		[[nodiscard]] Runtime GetRuntime() const noexcept { return _runtime; }
+		void SetRuntime(Runtime a_runtime) noexcept { _runtime = a_runtime; }
 
-			/**
-			 * The FALLOUT runtime is a pre-Next Generation Update FALLOUT release (version 1.10.163 and prior).
-			 */
-			F4 = 1 << 1,
+		[[nodiscard]] bool GetIsRuntimeVR() const noexcept { return _runtime.GetType() == RuntimeType::kVR; }
 
-			/**
-			 * The FALLOUT runtime is FALLOUT VR.
-			 */
-			VR = 1 << 2
-		};
-		[[nodiscard]] static Module& get()
-		{
-			static Module singleton;
-			return singleton;
-		}
+		[[nodiscard]] std::uintptr_t GetImportFunctionAddress(std::string_view a_library, std::string_view a_function) const;
 
-		[[nodiscard]] constexpr std::uintptr_t base() const noexcept { return _base; }
-		[[nodiscard]] stl::zwstring filename() const noexcept { return _filename; }
-		[[nodiscard]] stl::zwstring filePath() const noexcept { return _filePath; }
-		[[nodiscard]] constexpr Segment segment(Segment::Name a_segment) const noexcept { return _segments[a_segment]; }
-		[[nodiscard]] constexpr Version version() const noexcept { return _version; }
-
-		[[nodiscard]] REX::W32::HMODULE pointer() const noexcept { return reinterpret_cast<REX::W32::HMODULE>(base()); }
+		[[nodiscard]] void* GetImportFunctionPointer(std::string_view a_library, std::string_view a_function) const;
 
 		template <class T>
-		[[nodiscard]] T* pointer() const noexcept
+		[[nodiscard]] T* GetImportFunctionPointer(std::string_view a_library, std::string_view a_function) const
 		{
-			return static_cast<T*>(pointer());
+			return static_cast<T*>(GetImportFunctionPointer(a_library, a_function));
 		}
 
-		/**
-		 * Get the type of runtime the currently-loaded FALLOUT module is.
-		 */
-		[[nodiscard]] static FALLOUT_REL Runtime GetRuntime() noexcept
+		std::uintptr_t SetImportFunctionPointer(std::string_view a_library, std::string_view a_function, std::uintptr_t a_newFunc) const;
+
+		template <class F>
+		std::uintptr_t SetImportFunctionPointer(std::string_view a_library, std::string_view a_function, F a_newFunc) const
 		{
-#if (!defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_VR))
-			return Runtime::F4;
-#elif (!defined(ENABLE_FALLOUT_F4) && !defined(ENABLE_FALLOUT_VR))
-			return Runtime::NG;
-#elif (!defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_F4))
-			return Runtime::VR;
-#else
-			return get()._runtime;
-#endif
+			return SetImportFunctionPointer(a_library, a_function, REL::UnrestrictedCast<std::uintptr_t>(a_newFunc));
 		}
 
-		/**
-		 * Returns whether the current FALLOUT runtime is a post-Nextgen Update Fallout release.
-		 */
-		[[nodiscard]] static FALLOUT_REL bool IsNG() noexcept
-		{
-			return GetRuntime() == Runtime::NG;
-		}
+		[[nodiscard]] static bool IsModuleLoaded(REX::zstring_view a_moduleName) noexcept;
+		[[nodiscard]] static bool IsModuleLoaded(REX::zwstring_view a_moduleName) noexcept;
 
-		/**
-		 * Returns whether the current FALLOUT runtime is a pre-Nextgen Update Fallout release.
-		 */
-		[[nodiscard]] static FALLOUT_REL bool IsF4() noexcept
-		{
-			return GetRuntime() == Runtime::F4;
-		}
-
-		/**
-		 * Returns whether the current FALLOUT runtime is a FALLOUT VR release.
-		 */
-		[[nodiscard]] static FALLOUT_REL_VR bool IsVR() noexcept
-		{
-#if !defined(ENABLE_FALLOUT_VR)
-			return false;
-#elif !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_F4)
-			return true;
-#else
-			return GetRuntime() == Runtime::VR;
-#endif
-		}
+		void Load();
 
 	private:
-		Module();
-		~Module() noexcept = default;
+		static void LoadLocale();
+		void LoadFile();
+		void LoadVersion();
+		void LoadSegments();
 
-		void load_segments();
-		void load_version();
-
-		static constexpr auto ENVIRONMENT = L"F4SE_RUNTIME"sv;
-
-		static constexpr std::array<std::wstring_view, 2> RUNTIMES{ { L"Fallout4VR.exe",
-			L"Fallout4.exe" } };
-
-		static constexpr std::array SEGMENTS{
-			".text"sv,
-			".interpr"sv,
-			".idata"sv,
-			".rdata"sv,
-			".data"sv,
-			".pdata"sv,
-			".tls"sv
-		};
-
-		static inline std::uintptr_t _natvis{ 0 };
-
-		std::wstring _filename;
-		std::wstring _filePath;
-		std::array<Segment, Segment::total> _segments;
-		Version _version;
-		std::uintptr_t _base{ 0 };
-		Runtime _runtime{ Runtime::NG };
+		std::filesystem::path _filePath;
+		std::uintptr_t _baseAddress{ 0 };
+		REX::Version _version;
+		std::unordered_map<std::string_view, REL::ModuleSection> _sections;
+		Runtime _runtime{ Runtime::LATEST };
 	};
 }

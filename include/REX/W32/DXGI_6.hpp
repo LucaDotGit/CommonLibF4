@@ -12,30 +12,29 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	enum DXGI_ADAPTER_FLAG3
+	enum DXGI_ADAPTER_FLAG3 : std::int32_t
 	{
-		DXGI_ADAPTER_FLAG3_NONE = 0,
-		DXGI_ADAPTER_FLAG3_REMOTE = 1,
-		DXGI_ADAPTER_FLAG3_SOFTWARE = 2,
-		DXGI_ADAPTER_FLAG3_ACG_COMPATIBLE = 4,
-		DXGI_ADAPTER_FLAG3_SUPPORT_MONITORED_FENCES = 8,
+		DXGI_ADAPTER_FLAG3_REMOTE = 0x1,
+		DXGI_ADAPTER_FLAG3_SOFTWARE = 0x2,
+		DXGI_ADAPTER_FLAG3_ACG_COMPATIBLE = 0x4,
+		DXGI_ADAPTER_FLAG3_SUPPORT_MONITORED_FENCES = 0x8,
 		DXGI_ADAPTER_FLAG3_SUPPORT_NON_MONITORED_FENCES = 0x10,
 		DXGI_ADAPTER_FLAG3_KEYED_MUTEX_CONFORMANCE = 0x20,
-		DXGI_ADAPTER_FLAG3_FORCE_DWORD = 0xFFFFFFFF,
+		DXGI_ADAPTER_FLAG3_FORCE_DWORD = static_cast<std::underlying_type_t<DXGI_ADAPTER_FLAG3>>(std::numeric_limits<std::uint32_t>::max())
 	};
 
-	enum DXGI_GPU_PREFERENCE
+	enum DXGI_GPU_PREFERENCE : std::int32_t
 	{
 		DXGI_GPU_PREFERENCE_UNSPECIFIED = 0,
-		DXGI_GPU_PREFERENCE_MINIMUM_POWER = (DXGI_GPU_PREFERENCE_UNSPECIFIED + 1),
-		DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE = (DXGI_GPU_PREFERENCE_MINIMUM_POWER + 1),
+		DXGI_GPU_PREFERENCE_MINIMUM_POWER = 1,
+		DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE = 2
 	};
 
-	enum DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS
+	enum DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS : std::uint32_t
 	{
-		DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_FULLSCREEN = 1,
-		DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_WINDOWED = 2,
-		DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_CURSOR_STRETCHED = 4,
+		DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_FULLSCREEN = 0x1,
+		DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_WINDOWED = 0x2,
+		DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_CURSOR_STRETCHED = 0x4
 	};
 }
 
@@ -43,7 +42,7 @@ namespace REX::W32
 {
 	struct DXGI_ADAPTER_DESC3
 	{
-		wchar_t description[128];
+		std::array<wchar_t, 128> description;
 		std::uint32_t vendorID;
 		std::uint32_t deviceID;
 		std::uint32_t subSysID;
@@ -59,20 +58,20 @@ namespace REX::W32
 
 	struct DXGI_OUTPUT_DESC1
 	{
-		wchar_t deviceName[32];
+		std::array<wchar_t, 32> deviceName;
 		RECT desktopCoordinates;
 		BOOL attachedToDesktop;
 		DXGI_MODE_ROTATION rotation;
 		HMONITOR monitor;
 		std::uint32_t bitsPerColor;
 		DXGI_COLOR_SPACE_TYPE colorSpace;
-		float redPrimary[2];
-		float greenPrimary[2];
-		float bluePrimary[2];
-		float whitePoint[2];
-		float minLuminance;
-		float maxLuminance;
-		float maxFullFrameLuminance;
+		std::array<REX::Float32, 2> redPrimary;
+		std::array<REX::Float32, 2> greenPrimary;
+		std::array<REX::Float32, 2> bluePrimary;
+		std::array<REX::Float32, 2> whitePoint;
+		REX::Float32 minLuminance;
+		REX::Float32 maxLuminance;
+		REX::Float32 maxFullFrameLuminance;
 	};
 }
 
@@ -111,8 +110,8 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	inline constexpr IID IID_IDXGIAdapter4{ 0x3C8D99D1, 0x4FBF, 0x4181, { 0xA8, 0x2C, 0xAF, 0x66, 0xBF, 0x7B, 0xD2, 0x4E } };
-	inline constexpr IID IID_IDXGIFactory6{ 0xC1B6694F, 0xFF09, 0x44A9, { 0xB0, 0x3C, 0x77, 0x90, 0x0A, 0x0A, 0x1D, 0x17 } };
-	inline constexpr IID IID_IDXGIFactory7{ 0xA4966EED, 0x76DB, 0x44DA, { 0x84, 0xC1, 0xEE, 0x9A, 0x7A, 0xFB, 0x20, 0xA8 } };
-	inline constexpr IID IID_IDXGIOutput6{ 0x068346E8, 0xAAEC, 0x4B84, { 0xAD, 0xD7, 0x13, 0x7F, 0x51, 0x3F, 0x77, 0xA1 } };
+	inline constexpr auto IID_IDXGIAdapter4 = IID{ 0x3C8D99D1, 0x4FBF, 0x4181, { 0xA8, 0x2C, 0xAF, 0x66, 0xBF, 0x7B, 0xD2, 0x4E } };
+	inline constexpr auto IID_IDXGIFactory6 = IID{ 0xC1B6694F, 0xFF09, 0x44A9, { 0xB0, 0x3C, 0x77, 0x90, 0x0A, 0x0A, 0x1D, 0x17 } };
+	inline constexpr auto IID_IDXGIFactory7 = IID{ 0xA4966EED, 0x76DB, 0x44DA, { 0x84, 0xC1, 0xEE, 0x9A, 0x7A, 0xFB, 0x20, 0xA8 } };
+	inline constexpr auto IID_IDXGIOutput6 = IID{ 0x068346E8, 0xAAEC, 0x4B84, { 0xAD, 0xD7, 0x13, 0x7F, 0x51, 0x3F, 0x77, 0xA1 } };
 }

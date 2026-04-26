@@ -1,33 +1,35 @@
 #pragma once
 
-#include "F4SE/Trampoline.hpp"
-
-#include "REL/ID.hpp"
+#include "REL/Asm.hpp"
+#include "REL/Cast.hpp"
+#include "REL/Id.hpp"
+#include "REL/Memory.hpp"
 #include "REL/Module.hpp"
 #include "REL/Offset.hpp"
+#include "REL/Size.hpp"
+#include "REL/Trampoline.hpp"
+
+#include "REX/Concepts.hpp"
+#include "REX/Contract.hpp"
+#include "REX/ErrorCode.hpp"
+#include "REX/Message.hpp"
 
 #define REL_MAKE_MEMBER_FUNCTION_POD_TYPE_HELPER_IMPL(a_nopropQual, a_propQual, ...)              \
-	template <                                                                                    \
-		class R,                                                                                  \
-		class Cls,                                                                                \
-		class... Args>                                                                            \
+	template <class R, class Cls, class... Args>                                                  \
 	struct member_function_pod_type<R (Cls::*)(Args...) __VA_ARGS__ a_nopropQual a_propQual>      \
 	{                                                                                             \
 		using type = R(__VA_ARGS__ Cls*, Args...) a_propQual;                                     \
 	};                                                                                            \
                                                                                                   \
-	template <                                                                                    \
-		class R,                                                                                  \
-		class Cls,                                                                                \
-		class... Args>                                                                            \
+	template <class R, class Cls, class... Args>                                                  \
 	struct member_function_pod_type<R (Cls::*)(Args..., ...) __VA_ARGS__ a_nopropQual a_propQual> \
 	{                                                                                             \
 		using type = R(__VA_ARGS__ Cls*, Args..., ...) a_propQual;                                \
 	};
 
-#define REL_MAKE_MEMBER_FUNCTION_POD_TYPE_HELPER(a_qualifer, ...)              \
-	REL_MAKE_MEMBER_FUNCTION_POD_TYPE_HELPER_IMPL(a_qualifer, , ##__VA_ARGS__) \
-	REL_MAKE_MEMBER_FUNCTION_POD_TYPE_HELPER_IMPL(a_qualifer, noexcept, ##__VA_ARGS__)
+#define REL_MAKE_MEMBER_FUNCTION_POD_TYPE_HELPER(a_qualifier, ...)              \
+	REL_MAKE_MEMBER_FUNCTION_POD_TYPE_HELPER_IMPL(a_qualifier, , ##__VA_ARGS__) \
+	REL_MAKE_MEMBER_FUNCTION_POD_TYPE_HELPER_IMPL(a_qualifier, noexcept, ##__VA_ARGS__)
 
 #define REL_MAKE_MEMBER_FUNCTION_POD_TYPE(...)                 \
 	REL_MAKE_MEMBER_FUNCTION_POD_TYPE_HELPER(, __VA_ARGS__)    \
@@ -35,27 +37,21 @@
 	REL_MAKE_MEMBER_FUNCTION_POD_TYPE_HELPER(&&, ##__VA_ARGS__)
 
 #define REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE_HELPER_IMPL(a_nopropQual, a_propQual, ...)              \
-	template <                                                                                        \
-		class R,                                                                                      \
-		class Cls,                                                                                    \
-		class... Args>                                                                                \
+	template <class R, class Cls, class... Args>                                                      \
 	struct member_function_non_pod_type<R (Cls::*)(Args...) __VA_ARGS__ a_nopropQual a_propQual>      \
 	{                                                                                                 \
 		using type = R&(__VA_ARGS__ Cls*, void*, Args...)a_propQual;                                  \
 	};                                                                                                \
                                                                                                       \
-	template <                                                                                        \
-		class R,                                                                                      \
-		class Cls,                                                                                    \
-		class... Args>                                                                                \
+	template <class R, class Cls, class... Args>                                                      \
 	struct member_function_non_pod_type<R (Cls::*)(Args..., ...) __VA_ARGS__ a_nopropQual a_propQual> \
 	{                                                                                                 \
 		using type = R&(__VA_ARGS__ Cls*, void*, Args..., ...)a_propQual;                             \
 	};
 
-#define REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE_HELPER(a_qualifer, ...)              \
-	REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE_HELPER_IMPL(a_qualifer, , ##__VA_ARGS__) \
-	REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE_HELPER_IMPL(a_qualifer, noexcept, ##__VA_ARGS__)
+#define REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE_HELPER(a_qualifier, ...)              \
+	REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE_HELPER_IMPL(a_qualifier, , ##__VA_ARGS__) \
+	REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE_HELPER_IMPL(a_qualifier, noexcept, ##__VA_ARGS__)
 
 #define REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE(...)                 \
 	REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE_HELPER(, __VA_ARGS__)    \
@@ -66,188 +62,310 @@ namespace REL
 {
 	template <class>
 	class Relocation;
+}
 
-	namespace detail
-	{
-		class memory_map
-		{
-		public:
-			memory_map() noexcept = default;
+namespace REL::Impl
+{
+	template <class>
+	struct member_function_pod_type;
 
-			memory_map(const memory_map&) = delete;
+	REL_MAKE_MEMBER_FUNCTION_POD_TYPE();
+	REL_MAKE_MEMBER_FUNCTION_POD_TYPE(const);
+	REL_MAKE_MEMBER_FUNCTION_POD_TYPE(volatile);
+	REL_MAKE_MEMBER_FUNCTION_POD_TYPE(const volatile);
 
-			memory_map(memory_map&& a_rhs) noexcept :
-				_mapping(a_rhs._mapping),
-				_view(a_rhs._view)
-			{
-				a_rhs._mapping = nullptr;
-				a_rhs._view = nullptr;
-			}
+	template <class F>
+	using member_function_pod_type_t = member_function_pod_type<F>::type;
 
-			~memory_map() { close(); }
+	template <class>
+	struct member_function_non_pod_type;
 
-			memory_map& operator=(const memory_map&) = delete;
+	REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE();
+	REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE(const);
+	REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE(volatile);
+	REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE(const volatile);
 
-			memory_map& operator=(memory_map&& a_rhs) noexcept
-			{
-				if (this != std::addressof(a_rhs)) {
-					_mapping = a_rhs._mapping;
-					a_rhs._mapping = nullptr;
+	template <class F>
+	using member_function_non_pod_type_t = member_function_non_pod_type<F>::type;
 
-					_view = a_rhs._view;
-					a_rhs._view = nullptr;
-				}
-				return *this;
-			}
+	// Source: https://docs.microsoft.com/en-us/cpp/build/x64-calling-convention
 
-			[[nodiscard]] void* data() noexcept { return _view; }
+	template <class T>
+	concept meets_length_requirement =
+		sizeof(T) == 1 ||
+		sizeof(T) == 2 ||
+		sizeof(T) == 4 ||
+		sizeof(T) == 8;
 
-			bool open(stl::zwstring a_name, std::size_t a_size);
+	template <class T>
+	concept meets_function_requirement =
+		std::is_trivially_constructible_v<T> &&
+		std::is_trivially_destructible_v<T> &&
+		std::is_trivially_copy_assignable_v<T> &&
+		!std::is_polymorphic_v<T>;
 
-			bool create(stl::zwstring a_name, std::size_t a_size);
+	template <class T>
+	concept meets_member_requirement =
+		std::is_standard_layout_v<T>;
 
-			void close();
-
-		private:
-			void* _mapping{ nullptr };
-			void* _view{ nullptr };
-		};
-
-		template <class>
-		struct member_function_pod_type;
-
-		REL_MAKE_MEMBER_FUNCTION_POD_TYPE();
-		REL_MAKE_MEMBER_FUNCTION_POD_TYPE(const);
-		REL_MAKE_MEMBER_FUNCTION_POD_TYPE(volatile);
-		REL_MAKE_MEMBER_FUNCTION_POD_TYPE(const volatile);
-
-		template <class F>
-		using member_function_pod_type_t = typename member_function_pod_type<F>::type;
-
-		template <class>
-		struct member_function_non_pod_type;
-
-		REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE();
-		REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE(const);
-		REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE(volatile);
-		REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE(const volatile);
-
-		template <class F>
-		using member_function_non_pod_type_t = typename member_function_non_pod_type<F>::type;
-
-		// https://docs.microsoft.com/en-us/cpp/build/x64-calling-convention
-
-		template <class T>
-		struct meets_length_req : std::disjunction<
-									  std::bool_constant<sizeof(T) == 1>,
-									  std::bool_constant<sizeof(T) == 2>,
-									  std::bool_constant<sizeof(T) == 4>,
-									  std::bool_constant<sizeof(T) == 8>>
-		{
-		};
-
-		template <class T>
-		struct meets_function_req : std::conjunction<
-										std::is_trivially_constructible<T>,
-										std::is_trivially_destructible<T>,
-										std::is_trivially_copy_assignable<T>,
-										std::negation<
-											std::is_polymorphic<T>>>
-		{
-		};
-
-		template <class T>
-		struct meets_member_req : std::is_standard_layout<T>
-		{
-		};
-
-		template <class T, class = void>
-		struct is_x64_pod : std::true_type
-		{
-		};
-
-		template <class T>
-		struct is_x64_pod<
-			T,
-			std::enable_if_t<
-				std::is_union_v<T>>> : std::false_type
-		{
-		};
-
-		template <class T>
-		struct is_x64_pod<
-			T,
-			std::enable_if_t<
-				std::is_class_v<T>>> : std::conjunction<meets_length_req<T>,
-										   meets_function_req<T>,
-										   meets_member_req<T>>
-		{
-		};
-
-		template <class T>
-		inline constexpr bool is_x64_pod_v = is_x64_pod<T>::value;
-
-		template <
-			class F,
-			class First,
-			class... Rest>
-		decltype(auto) invoke_member_function_non_pod(F&& a_func, First&& a_first, Rest&&... a_rest) //
-			noexcept(std::is_nothrow_invocable_v<F, First, Rest...>)
-		{
-			using result_t = std::invoke_result_t<F, First, Rest...>;
-			alignas(result_t) std::byte result[sizeof(result_t)]{};
-
-			using func_t = member_function_non_pod_type_t<F>;
-			auto func = stl::unrestricted_cast<func_t*>(std::forward<F>(a_func));
-
-			return func(std::forward<First>(a_first), std::addressof(result), std::forward<Rest>(a_rest)...);
-		}
-
-		std::optional<std::string> sha512(std::span<const std::byte> a_data);
-	}
-
-	inline constexpr std::uint8_t NOP = 0x90;
-	inline constexpr std::uint8_t RET = 0xC3;
-	inline constexpr std::uint8_t INT3 = 0xCC;
+	template <class T>
+	concept is_x64_pod =
+		!std::is_union_v<T> &&
+		(!std::is_class_v<T> ||
+			(meets_length_requirement<T> &&
+				meets_function_requirement<T> &&
+				meets_member_requirement<T>));
 
 	template <class F, class... Args>
-	std::invoke_result_t<F, Args...> invoke(F&& a_func, Args&&... a_args) //
-		noexcept(std::is_nothrow_invocable_v<F, Args...>)				  //
-		requires(std::invocable<F, Args...>)
+	__forceinline constexpr auto InvokeMemberFunctionPod(F&& a_func, Args&&... a_args) //
+		noexcept(std::is_nothrow_invocable_v<F, Args...>)
+			-> std::invoke_result_t<F, Args...>
+		requires(std::is_invocable_v<F, Args...>)
+	{
+		using func_t = member_function_pod_type_t<std::decay_t<F>>;
+		auto* funcPtr = REL::UnrestrictedCast<func_t*>(std::forward<F>(a_func));
+		return std::invoke(funcPtr, std::forward<Args>(a_args)...);
+	}
+
+	template <class F, class First, class... Rest>
+	__forceinline constexpr auto InvokeMemberFunctionNonPod(F&& a_func, First&& a_first, Rest&&... a_rest) //
+		noexcept(std::is_nothrow_invocable_v<F, First, Rest...>)
+			-> std::invoke_result_t<F, First, Rest...>
+		requires(std::is_invocable_v<F, First, Rest...>)
+	{
+		using func_t = member_function_non_pod_type_t<std::decay_t<F>>;
+		auto* funcPtr = REL::UnrestrictedCast<func_t*>(std::forward<F>(a_func));
+
+		using result_t = std::invoke_result_t<F, First, Rest...>;
+		alignas(result_t) auto result = std::array<std::byte, sizeof(result_t)>();
+
+		return std::invoke(funcPtr, std::forward<First>(a_first), std::addressof(result), std::forward<Rest>(a_rest)...);
+	}
+
+	template <class F, class... Args>
+	__forceinline constexpr auto InvokeFunction(F&& a_func, Args&&... a_args) //
+		noexcept(std::is_nothrow_invocable_v<F, Args...>)
+			-> std::invoke_result_t<F, Args...>
+		requires(std::is_invocable_v<F, Args...>)
 	{
 		if constexpr (std::is_member_function_pointer_v<std::decay_t<F>>) {
-			if constexpr (detail::is_x64_pod_v<std::invoke_result_t<F, Args...>>) { // member functions == free functions in x64
-				using func_t = detail::member_function_pod_type_t<std::decay_t<F>>;
-				auto func = stl::unrestricted_cast<func_t*>(std::forward<F>(a_func));
-				return func(std::forward<Args>(a_args)...);
+			// member functions == free functions in x64
+			if constexpr (is_x64_pod<std::invoke_result_t<F, Args...>>) {
+				return InvokeMemberFunctionPod(std::forward<F>(a_func), std::forward<Args>(a_args)...);
 			}
-			else { // shift args to insert result
-				return detail::invoke_member_function_non_pod(std::forward<F>(a_func), std::forward<Args>(a_args)...);
+			else {
+				// shift args to insert result
+				return InvokeMemberFunctionNonPod(std::forward<F>(a_func), std::forward<Args>(a_args)...);
 			}
 		}
 		else {
-			return std::forward<F>(a_func)(std::forward<Args>(a_args)...);
+			return std::invoke(std::forward<F>(a_func), std::forward<Args>(a_args)...);
 		}
 	}
 
-	void safe_write(std::uintptr_t a_dst, const void* a_src, std::size_t a_count);
-
-	template <std::integral T>
-	void safe_write(std::uintptr_t a_dst, const T& a_data)
+	template <class T, class Self>
+	[[nodiscard]] __forceinline constexpr T& GetMemberAt(std::ptrdiff_t a_offset, Self* a_self) noexcept
+		requires(std::is_class_v<Self>)
 	{
-		safe_write(a_dst, std::addressof(a_data), sizeof(T));
+		if (!a_self) [[unlikely]] {
+			REX::Fail("Failed to get member on a null self pointer."sv);
+		}
+
+		const auto memberAddress = std::bit_cast<std::uintptr_t>(a_self) + a_offset;
+		return *REL::UnrestrictedCast<T*>(memberAddress);
 	}
 
-	template <class T>
-	void safe_write(std::uintptr_t a_dst, std::span<T> a_data)
+	template <class T, class Self>
+	[[nodiscard]] __forceinline T& GetVirtualMethodAt(std::size_t a_index, std::uintptr_t a_vtableAddress) noexcept
+		requires(std::is_class_v<Self> &&
+				 std::is_polymorphic_v<Self> &&
+				 std::is_member_function_pointer_v<T>)
 	{
-		safe_write(a_dst, a_data.data(), a_data.size_bytes());
+		if (a_vtableAddress == 0) [[unlikely]] {
+			REX::Fail("Failed to get virtual method on a null vtable address."sv);
+		}
+
+		const auto methodAddress = a_vtableAddress + (sizeof(std::uintptr_t) * a_index);
+		if (methodAddress == 0) [[unlikely]] {
+			REX::Fail("Failed to get virtual method on a null method pointer."sv);
+		}
+
+		return *REL::UnrestrictedCast<T*>(methodAddress);
 	}
 
-	void safe_fill(std::uintptr_t a_dst, std::uint8_t a_value, std::size_t a_count);
+	template <class T, class Self, class... Args>
+	__forceinline auto InvokeVirtualMethodAt(std::size_t a_index, std::uintptr_t a_vtableAddress, Self* a_self, Args&&... a_args) //
+		noexcept(std::is_nothrow_invocable_v<T, Self*, Args...>)
+			-> std::invoke_result_t<T, Self*, Args...>
+		requires(std::is_class_v<Self> &&
+				 std::is_polymorphic_v<Self> &&
+				 std::is_member_function_pointer_v<T> &&
+				 std::is_invocable_v<T, Self*, Args...>)
+	{
+		if (!a_self) [[unlikely]] {
+			REX::Fail("Failed to invoke virtual method on a null self pointer."sv);
+		}
 
+		auto& method = GetVirtualMethodAt<T, Self>(a_index, a_vtableAddress);
+		return Impl::InvokeFunction(std::forward<T>(method), a_self, std::forward<Args>(a_args)...);
+	}
+
+	template <class T, class Self>
+	__forceinline T& GetVirtualMethodAt(std::size_t a_index, Self* a_self) noexcept
+		requires(std::is_class_v<Self> &&
+				 std::is_polymorphic_v<Self> &&
+				 std::is_member_function_pointer_v<T>)
+	{
+		if (!a_self) [[unlikely]] {
+			REX::Fail("Failed to get virtual method on a null self pointer."sv);
+		}
+
+		const auto vtableAddress = REL::GetVtableAddress(*a_self);
+		return GetVirtualMethodAt<T, Self>(a_index, vtableAddress);
+	}
+
+	template <class T, class Self, class... Args>
+	__forceinline auto InvokeVirtualMethodAt(std::size_t a_index, Self* a_self, Args&&... a_args) //
+		noexcept(std::is_nothrow_invocable_v<T, Self*, Args...>)
+			-> std::invoke_result_t<T, Self*, Args...>
+		requires(std::is_class_v<Self> &&
+				 std::is_polymorphic_v<Self> &&
+				 std::is_member_function_pointer_v<T> &&
+				 std::is_invocable_v<T, Self*, Args...>)
+	{
+		auto& method = GetVirtualMethodAt<T>(a_index, a_self);
+		return Impl::InvokeFunction(std::forward<T>(method), a_self, std::forward<Args>(a_args)...);
+	}
+}
+
+namespace REL
+{
+	template <class F, class... Args>
+	constexpr auto InvokeFunction(F&& a_func, Args&&... a_args) //
+		noexcept(std::is_nothrow_invocable_v<F, Args...>)
+			-> std::invoke_result_t<F, Args...>
+		requires(std::is_invocable_v<F, Args...>)
+	{
+		return Impl::InvokeFunction(std::forward<F>(a_func), std::forward<Args>(a_args)...);
+	}
+
+	template <class T, class Self>
+	[[nodiscard]] constexpr T& GetMemberAt(std::ptrdiff_t a_offset, Self* a_self) noexcept
+		requires(std::is_class_v<Self>)
+	{
+		return Impl::GetMemberAt<T>(a_offset, a_self);
+	}
+
+	template <class T, class Self>
+	[[nodiscard]] constexpr const T& GetMemberAt(std::ptrdiff_t a_offset, const Self* a_self) noexcept
+		requires(std::is_class_v<Self>)
+	{
+		return Impl::GetMemberAt<const T>(a_offset, a_self);
+	}
+
+	template <class T, class Self>
+	[[nodiscard]] constexpr T& GetMemberAt(const REL::IOffset& a_offset, Self* a_self) noexcept
+		requires(std::is_class_v<Self>)
+	{
+		return Impl::GetMemberAt<T>(a_offset.GetOffset(), a_self);
+	}
+
+	template <class T, class Self>
+	[[nodiscard]] constexpr const T& GetMemberAt(const REL::IOffset& a_offset, const Self* a_self) noexcept
+		requires(std::is_class_v<Self>)
+	{
+		return Impl::GetMemberAt<const T>(a_offset.GetOffset(), a_self);
+	}
+
+	template <class T, class Self>
+	[[nodiscard]] T& GetVirtualMethodAt(std::size_t a_index, Self* a_self) noexcept
+		requires(std::is_class_v<Self> &&
+				 std::is_polymorphic_v<Self> &&
+				 std::is_member_function_pointer_v<T>)
+	{
+		return Impl::GetVirtualMethodAt<T>(a_index, a_self);
+	}
+
+	template <class T, class Self>
+	[[nodiscard]] T& GetVirtualMethodAt(const REL::ISize& a_index, Self* a_self) noexcept
+		requires(std::is_class_v<Self> &&
+				 std::is_polymorphic_v<Self> &&
+				 std::is_member_function_pointer_v<T>)
+	{
+		return Impl::GetVirtualMethodAt<T>(a_index.GetSize(), a_self);
+	}
+
+	template <class T, class Self>
+	[[nodiscard]] const T& GetVirtualMethodAt(std::size_t a_index, const Self* a_self) noexcept
+		requires(std::is_class_v<Self> &&
+				 std::is_polymorphic_v<Self> &&
+				 std::is_member_function_pointer_v<T>)
+	{
+		return Impl::GetVirtualMethodAt<const T>(a_index, a_self);
+	}
+
+	template <class T, class Self>
+	[[nodiscard]] const T& GetVirtualMethodAt(const REL::ISize& a_index, const Self* a_self) noexcept
+		requires(std::is_class_v<Self> &&
+				 std::is_polymorphic_v<Self> &&
+				 std::is_member_function_pointer_v<T>)
+	{
+		return Impl::GetVirtualMethodAt<const T>(a_index.GetSize(), a_self);
+	}
+
+	template <class T, class Self, class... Args>
+	auto InvokeVirtualMethodAt(std::size_t a_index, Self* a_self, Args&&... a_args) //
+		noexcept(std::is_nothrow_invocable_v<T, Self*, Args...>)
+			-> std::invoke_result_t<T, Self*, Args...>
+		requires(std::is_class_v<Self> &&
+				 std::is_polymorphic_v<Self> &&
+				 std::is_member_function_pointer_v<T> &&
+				 std::is_invocable_v<T, Self*, Args...>)
+	{
+		return Impl::InvokeVirtualMethodAt<T>(a_index, a_self, std::forward<Args>(a_args)...);
+	}
+
+	template <class T, class Self, class... Args>
+	auto InvokeVirtualMethodAt(const REL::ISize& a_index, Self* a_self, Args&&... a_args) //
+		noexcept(std::is_nothrow_invocable_v<T, Self*, Args...>)
+			-> std::invoke_result_t<T, Self*, Args...>
+		requires(std::is_class_v<Self> &&
+				 std::is_polymorphic_v<Self> &&
+				 std::is_member_function_pointer_v<T> &&
+				 std::is_invocable_v<T, Self*, Args...>)
+	{
+		return Impl::InvokeVirtualMethodAt<T>(a_index.GetSize(), a_self, std::forward<Args>(a_args)...);
+	}
+
+	template <class T, class Self, class... Args>
+	auto InvokeVirtualMethodAt(std::size_t a_index, const Self* a_self, Args&&... a_args) //
+		noexcept(std::is_nothrow_invocable_v<T, const Self*, Args...>)
+			-> std::invoke_result_t<T, const Self*, Args...>
+		requires(std::is_class_v<Self> &&
+				 std::is_polymorphic_v<Self> &&
+				 std::is_member_function_pointer_v<T> &&
+				 std::is_invocable_v<T, const Self*, Args...>)
+	{
+		return Impl::InvokeVirtualMethodAt<const T>(a_index, a_self, std::forward<Args>(a_args)...);
+	}
+
+	template <class T, class Self, class... Args>
+	auto InvokeVirtualMethodAt(const REL::ISize& a_index, const Self* a_self, Args&&... a_args) //
+		noexcept(std::is_nothrow_invocable_v<T, const Self*, Args...>)
+			-> std::invoke_result_t<T, const Self*, Args...>
+		requires(std::is_class_v<Self> &&
+				 std::is_polymorphic_v<Self> &&
+				 std::is_member_function_pointer_v<T> &&
+				 std::is_invocable_v<T, const Self*, Args...>)
+	{
+		return Impl::InvokeVirtualMethodAt<const T>(a_index.GetSize(), a_self, std::forward<Args>(a_args)...);
+	}
+}
+
+namespace REL
+{
 	template <class T = std::uintptr_t>
-	class Relocation
+	class Relocation final
 	{
 	public:
 		using value_type =
@@ -257,39 +375,48 @@ namespace REL
 				T>;
 
 		constexpr Relocation() noexcept = default;
+		constexpr ~Relocation() noexcept = default;
 
-		explicit constexpr Relocation(std::uintptr_t a_address) noexcept :
-			_impl{ a_address } {}
+		constexpr Relocation(const Relocation&) noexcept = default;
+		constexpr Relocation(Relocation&&) noexcept = default;
 
-		explicit Relocation(Offset a_offset) :
-			_impl{ a_offset.address() } {}
+		constexpr explicit Relocation(std::uintptr_t a_address) noexcept
+			: _impl{ a_address }
+		{
+		}
 
-		explicit Relocation(VariantOffset a_offset) :
-			_impl{ a_offset.address() } {}
+		explicit Relocation(const REL::IId& a_id) noexcept
+			: _impl{ a_id.GetAddress() }
+		{
+		}
 
-		explicit Relocation(ID a_id) :
-			_impl{ a_id.address() } {}
+		explicit Relocation(const REL::IOffset& a_offset) noexcept
+			: _impl{ a_offset.GetAddress() }
+		{
+		}
 
-		explicit Relocation(ID a_id, std::ptrdiff_t a_offset) :
-			_impl{ a_id.address() + a_offset } {}
+		constexpr explicit Relocation(std::uintptr_t a_address, std::ptrdiff_t a_offset) noexcept
+			: _impl{ a_address + a_offset }
+		{
+		}
 
-		explicit Relocation(ID a_id, Offset a_offset) :
-			_impl{ a_id.address() + a_offset.offset() } {}
+		explicit Relocation(const REL::IId& a_id, std::ptrdiff_t a_offset) noexcept
+			: _impl{ a_id.GetAddress() + a_offset }
+		{
+		}
 
-		explicit Relocation(ID a_id, VariantOffset a_offset) :
-			_impl{ a_id.address() + a_offset.offset() } {}
+		explicit Relocation(std::uintptr_t a_address, const REL::IOffset& a_offset) noexcept
+			: _impl{ a_address + a_offset.GetOffset() }
+		{
+		}
 
-		explicit Relocation(RelocationID a_id) :
-			_impl{ a_id.address() } {}
+		explicit Relocation(const REL::IId& a_id, const REL::IOffset& a_offset) noexcept
+			: _impl{ a_id.GetAddress() + a_offset.GetOffset() }
+		{
+		}
 
-		explicit Relocation(RelocationID a_id, std::ptrdiff_t a_offset) :
-			_impl{ a_id.address() + a_offset } {}
-
-		explicit Relocation(RelocationID a_id, Offset a_offset) :
-			_impl{ a_id.address() + a_offset.offset() } {}
-
-		explicit Relocation(RelocationID a_id, VariantOffset a_offset) :
-			_impl{ a_id.address() + a_offset.offset() } {}
+		constexpr Relocation& operator=(const Relocation&) noexcept = default;
+		constexpr Relocation& operator=(Relocation&&) noexcept = default;
 
 		constexpr Relocation& operator=(std::uintptr_t a_address) noexcept
 		{
@@ -297,419 +424,275 @@ namespace REL
 			return *this;
 		}
 
-		Relocation& operator=(Offset a_offset)
+		Relocation& operator=(const REL::IId& a_id) noexcept
 		{
-			_impl = a_offset.address();
+			_impl = a_id.GetAddress();
 			return *this;
 		}
 
-		Relocation& operator=(VariantOffset a_offset)
+		Relocation& operator=(const REL::IOffset& a_offset) noexcept
 		{
-			_impl = a_offset.address();
+			_impl = a_offset.GetAddress();
 			return *this;
 		}
 
-		Relocation& operator=(ID a_id)
+		[[nodiscard]] constexpr explicit operator bool() const noexcept
 		{
-			_impl = a_id.address();
-			return *this;
-		}
-
-		Relocation& operator=(VariantID a_id)
-		{
-			_impl = a_id.address();
-			return *this;
+			return _impl != INVALID_ADDRESS;
 		}
 
 		template <class U = value_type>
-		[[nodiscard]] decltype(auto) operator*() const noexcept
+		[[nodiscard]] constexpr decltype(auto) operator*() const noexcept
 			requires(std::is_pointer_v<U>)
 		{
 			return *get();
 		}
 
 		template <class U = value_type>
-		[[nodiscard]] auto operator->() const noexcept
+		[[nodiscard]] constexpr decltype(auto) operator->() const noexcept
 			requires(std::is_pointer_v<U>)
 		{
 			return get();
 		}
 
 		template <class... Args>
-		std::invoke_result_t<const value_type&, Args...> operator()(Args&&... a_args) const
+		constexpr auto operator()(Args&&... a_args) const //
 			noexcept(std::is_nothrow_invocable_v<const value_type&, Args...>)
-			requires(std::invocable<const value_type&, Args...>)
+				-> std::invoke_result_t<const value_type&, Args...>
+			requires(std::is_invocable_v<const value_type&, Args...>)
 		{
-			return REL::invoke(get(), std::forward<Args>(a_args)...);
+			return Impl::InvokeFunction(get(), std::forward<Args>(a_args)...);
 		}
 
-		[[nodiscard]] constexpr std::uintptr_t address() const noexcept { return _impl; }
-		[[nodiscard]] std::size_t offset() const { return _impl - base(); }
-
-		[[nodiscard]] value_type get() const
-			noexcept(std::is_nothrow_copy_constructible_v<value_type>)
+		[[nodiscard]] constexpr bool empty() const noexcept
 		{
-			assert(_impl != 0);
-			return stl::unrestricted_cast<value_type>(_impl);
+			return _impl == INVALID_ADDRESS;
 		}
 
-		template <std::ptrdiff_t O = 0>
-		void replace_func(const std::size_t a_count, const std::uintptr_t a_dst)
+		[[nodiscard]] constexpr std::uintptr_t GetAddress() const noexcept
+		{
+			return _impl;
+		}
+
+		[[nodiscard]] std::uintptr_t GetOffset() const noexcept
+		{
+			REX::Assert(static_cast<bool>(*this));
+			return _impl - REL::Module::GetSingleton()->GetBaseAddress();
+		}
+
+		[[nodiscard]] constexpr value_type get() const noexcept
+		{
+			REX::Assert(static_cast<bool>(*this));
+			return REL::UnrestrictedCast<value_type>(_impl);
+		}
+
+		void Write(const void* a_newData, std::size_t a_size) const noexcept
 			requires(std::same_as<value_type, std::uintptr_t>)
 		{
-#pragma pack(push, 1)
-			struct Assembly
-			{
-				std::uint8_t jmp;
-				std::uint8_t modrm;
-				std::int32_t disp;
-				std::uint64_t addr;
-			};
-			static_assert(sizeof(Assembly) == 0xE);
-#pragma pack(pop)
-
-			Assembly assembly{
-				.jmp = static_cast<std::uint8_t>(0xFF),
-				.modrm = static_cast<std::uint8_t>(0x25),
-				.disp = static_cast<std::int32_t>(0),
-				.addr = static_cast<std::uint64_t>(a_dst),
-			};
-
-			safe_fill(address() + O, INT3, a_count);
-			safe_write(address() + O, &assembly, sizeof(assembly));
+			const auto writeError = REL::WriteSafe(GetAddress(), a_newData, a_size);
+			if (writeError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				REX::Fail(
+					"Failed to write data.\n"
+					"System Error (0x{:08X}): {}"sv,
+					writeError.value(), writeError.message());
+			}
 		}
 
-		template <std::ptrdiff_t O = 0, class F>
-		void replace_func(const std::size_t a_count, const F a_dst)
+		template <REX::trivially_writable U>
+		void Write(std::span<U> a_data) const noexcept
 			requires(std::same_as<value_type, std::uintptr_t>)
 		{
-			replace_func<O>(a_count, stl::unrestricted_cast<std::uintptr_t>(a_dst));
+			const auto writeError = REL::WriteSafe(GetAddress(), a_data);
+			if (writeError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				REX::Fail(
+					"Failed to write data.\n"
+					"System Error (0x{:08X}): {}"sv,
+					writeError.value(), writeError.message());
+			}
 		}
 
-		void write(const void* a_src, std::size_t a_count)
+		template <REX::trivially_writable U>
+		void Write(const U& a_data) const noexcept
 			requires(std::same_as<value_type, std::uintptr_t>)
 		{
-			safe_write(address(), a_src, a_count);
+			const auto writeError = REL::WriteSafeData(GetAddress(), a_data);
+			if (writeError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				REX::Fail(
+					"Failed to write data.\n"
+					"System Error (0x{:08X}): {}"sv,
+					writeError.value(), writeError.message());
+			}
 		}
 
-		template <std::integral U>
-		void write(const U& a_data)
+		void WriteFill(std::uint8_t a_value, std::size_t a_size) const noexcept
 			requires(std::same_as<value_type, std::uintptr_t>)
 		{
-			safe_write(address(), std::addressof(a_data), sizeof(U));
-		}
-
-		void write(const std::initializer_list<std::uint8_t> a_data)
-			requires(std::same_as<value_type, std::uintptr_t>)
-		{
-			safe_write(address(), a_data.begin(), a_data.size());
-		}
-
-		template <class U>
-		void write(const std::span<U> a_data)
-			requires(std::same_as<value_type, std::uintptr_t>)
-		{
-			safe_write(address(), a_data.data(), a_data.size_bytes());
+			const auto writeError = REL::WriteSafeFill(GetAddress(), a_value, a_size);
+			if (writeError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				REX::Fail(
+					"Failed to write fill data.\n"
+					"System Error (0x{:08X}): {}"sv,
+					writeError.value(), writeError.message());
+			}
 		}
 
 		template <std::size_t N>
-		std::uintptr_t write_branch(const std::uintptr_t a_dst)
-			requires(std::same_as<value_type, std::uintptr_t>)
+		std::uintptr_t WriteJump(std::uintptr_t a_newAddress) const noexcept
+			requires(std::same_as<value_type, std::uintptr_t> &&
+					 REL::Impl::valid_jump_size<N>)
 		{
-			return F4SE::GetTrampoline().write_branch<N>(address(), a_dst);
+			return REL::GetTrampoline()->WriteJump<N>(GetAddress(), a_newAddress);
 		}
 
 		template <std::size_t N, class F>
-		std::uintptr_t write_branch(const F a_dst)
-			requires(std::same_as<value_type, std::uintptr_t>)
+		std::uintptr_t WriteJump(const F& a_newFunc) const noexcept
+			requires(std::same_as<value_type, std::uintptr_t> &&
+					 REL::Impl::valid_jump_size<N> &&
+					 std::is_function_v<F>)
 		{
-			return F4SE::GetTrampoline().write_branch<N>(address(), stl::unrestricted_cast<std::uintptr_t>(a_dst));
+			return REL::GetTrampoline()->WriteJump<N>(GetAddress(), a_newFunc);
 		}
 
 		template <std::size_t N>
-		std::uintptr_t write_call(const std::uintptr_t a_dst)
-			requires(std::same_as<value_type, std::uintptr_t>)
+		std::uintptr_t WriteCall(std::uintptr_t a_newAddress) const noexcept
+			requires(std::same_as<value_type, std::uintptr_t> &&
+					 REL::Impl::valid_jump_size<N>)
 		{
-			return F4SE::GetTrampoline().write_call<N>(address(), a_dst);
+			return REL::GetTrampoline()->WriteCall<N>(GetAddress(), a_newAddress);
 		}
 
 		template <std::size_t N, class F>
-		std::uintptr_t write_call(const F a_dst)
-			requires(std::same_as<value_type, std::uintptr_t>)
+		std::uintptr_t WriteCall(const F& a_newFunc) const noexcept
+			requires(std::same_as<value_type, std::uintptr_t> &&
+					 REL::Impl::valid_jump_size<N> &&
+					 std::is_function_v<F>)
 		{
-			return F4SE::GetTrampoline().write_call<N>(address(), stl::unrestricted_cast<std::uintptr_t>(a_dst));
+			return REL::GetTrampoline()->WriteCall<N>(GetAddress(), a_newFunc);
 		}
 
-		void write_fill(const std::uint8_t a_value, const std::size_t a_count)
+		std::uintptr_t WriteVirtualCall(std::size_t a_index, std::uintptr_t a_newFunc) const noexcept
 			requires(std::same_as<value_type, std::uintptr_t>)
 		{
-			safe_fill(address(), a_value, a_count);
+			const auto address = GetAddress() + (sizeof(std::uintptr_t) * a_index);
+			const auto oldAddress = *std::bit_cast<const std::uintptr_t*>(address);
+
+			const auto writeError = REL::WriteSafeData(address, a_newFunc);
+			if (writeError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				REX::Fail(
+					"Failed to write virtual call data.\n"
+					"System Error (0x{:08X}): {}"sv,
+					writeError.value(), writeError.message());
+			}
+
+			return oldAddress;
 		}
 
-		template <class U = value_type>
-		std::uintptr_t write_vfunc(std::size_t a_index, std::uintptr_t a_newFunc)
-			requires(std::same_as<U, std::uintptr_t>)
+		std::uintptr_t WriteVirtualCall(const REL::ISize& a_index, std::uintptr_t a_newFunc) const noexcept
+			requires(std::same_as<value_type, std::uintptr_t>)
 		{
-			const auto addr = address() + (sizeof(void*) * a_index);
-			const auto result = *reinterpret_cast<std::uintptr_t*>(addr);
-			safe_write(addr, a_newFunc);
-			return result;
+			return WriteVirtualCall(a_index.GetSize(), a_newFunc);
 		}
 
 		template <class F>
-		std::uintptr_t write_vfunc(std::size_t a_index, F a_newFunc)
+		std::uintptr_t WriteVirtualCall(std::size_t a_index, const F& a_newFunc) const noexcept
+			requires(std::same_as<value_type, std::uintptr_t> &&
+					 std::is_function_v<F>)
+		{
+			return WriteVirtualCall(a_index, REL::UnrestrictedCast<std::uintptr_t>(a_newFunc));
+		}
+
+		template <class F>
+		std::uintptr_t WriteVirtualCall(const REL::ISize& a_index, const F& a_newFunc) const noexcept
+			requires(std::same_as<value_type, std::uintptr_t> &&
+					 std::is_function_v<F>)
+		{
+			return WriteVirtualCall(a_index.GetSize(), REL::UnrestrictedCast<std::uintptr_t>(a_newFunc));
+		}
+
+		void ReplaceFunction(std::size_t a_size, std::uintptr_t a_newAddress) const noexcept
 			requires(std::same_as<value_type, std::uintptr_t>)
 		{
-			return write_vfunc(a_index, stl::unrestricted_cast<std::uintptr_t>(a_newFunc));
+			const auto assembly = REL::Asm::Jump14(a_newAddress);
+
+			const auto writeSafeFillErrorCode = REL::WriteSafeFill(GetAddress(), INT3, a_size);
+			if (writeSafeFillErrorCode != REX::ERROR_NUMBER_SUCCESS) {
+				return;
+			}
+
+			const auto writeSafeErrorCode = REL::WriteSafe(GetAddress(), std::addressof(assembly), sizeof(assembly));
+			if (writeSafeErrorCode != REX::ERROR_NUMBER_SUCCESS) {
+				return;
+			}
+		}
+
+		template <class F>
+		void ReplaceFunction(std::size_t a_size, const F& a_newFunc) const noexcept
+			requires(std::same_as<value_type, std::uintptr_t> &&
+					 std::is_function_v<F>)
+		{
+			ReplaceFunction(a_size, REL::UnrestrictedCast<std::uintptr_t>(a_newFunc));
+		}
+
+		template <class... Args>
+		auto Invoke(Args&&... a_args) const //
+			noexcept(std::is_nothrow_invocable_v<const value_type&, Args...>)
+				-> std::invoke_result_t<const value_type&, Args...>
+			requires(std::is_invocable_v<const value_type&, Args...>)
+		{
+			return Impl::InvokeFunction(get(), std::forward<Args>(a_args)...);
+		}
+
+		template <class Self, class... Args>
+		auto InvokeVirtual(std::size_t a_index, Self* a_self, Args&&... a_args) const //
+			noexcept(std::is_nothrow_invocable_v<const value_type&, Self*, Args...>)
+				-> std::invoke_result_t<const value_type&, Self*, Args...>
+			requires(std::is_class_v<Self> &&
+					 std::is_polymorphic_v<Self> &&
+					 std::is_member_function_pointer_v<value_type> &&
+					 std::is_invocable_v<const value_type&, Self*, Args...>)
+		{
+			return Impl::InvokeVirtualMethodAt<value_type>(a_index, GetAddress(), a_self, std::forward<Args>(a_args)...);
+		}
+
+		template <class Self, class... Args>
+		auto InvokeVirtual(const REL::ISize& a_index, Self* a_self, Args&&... a_args) const //
+			noexcept(std::is_nothrow_invocable_v<const value_type&, Self*, Args...>)
+				-> std::invoke_result_t<const value_type&, Self*, Args...>
+			requires(std::is_class_v<Self> &&
+					 std::is_polymorphic_v<Self> &&
+					 std::is_member_function_pointer_v<value_type> &&
+					 std::is_invocable_v<const value_type&, Self*, Args...>)
+		{
+			return Impl::InvokeVirtualMethodAt<value_type>(a_index.GetSize(), GetAddress(), a_self, std::forward<Args>(a_args)...);
+		}
+
+		template <class Self, class... Args>
+		auto InvokeVirtual(std::size_t a_index, const Self* a_self, Args&&... a_args) const //
+			noexcept(std::is_nothrow_invocable_v<const value_type&, const Self*, Args...>)
+				-> std::invoke_result_t<const value_type&, const Self*, Args...>
+			requires(std::is_class_v<Self> &&
+					 std::is_polymorphic_v<Self> &&
+					 std::is_member_function_pointer_v<value_type> &&
+					 std::is_invocable_v<const value_type&, const Self*, Args...>)
+		{
+			return Impl::InvokeVirtualMethodAt<const value_type>(a_index, GetAddress(), a_self, std::forward<Args>(a_args)...);
+		}
+
+		template <class Self, class... Args>
+		auto InvokeVirtual(const REL::ISize& a_index, const Self* a_self, Args&&... a_args) const //
+			noexcept(std::is_nothrow_invocable_v<const value_type&, const Self*, Args...>)
+				-> std::invoke_result_t<const value_type&, const Self*, Args...>
+			requires(std::is_class_v<Self> &&
+					 std::is_polymorphic_v<Self> &&
+					 std::is_member_function_pointer_v<value_type> &&
+					 std::is_invocable_v<const value_type&, const Self*, Args...>)
+		{
+			return Impl::InvokeVirtualMethodAt<const value_type>(a_index.GetSize(), GetAddress(), a_self, std::forward<Args>(a_args)...);
 		}
 
 	private:
-		// clang-format off
-        [[nodiscard]] static std::uintptr_t base() { return Module::get().base(); }
-		// clang-format on
-
-		std::uintptr_t _impl{ 0 };
+		std::uintptr_t _impl{ INVALID_ADDRESS };
 	};
-
-	/**
-	 * Return the correct value of two choices between VR and F4 versions of FALLOUT.
-	 *
-	 * <p>
-	 * This is commonly used to select between relative offsets within a function, when hooking a call instruction.
-	 * In such cases the function can be identified by its Address Library ID, but the offset within the function
-	 * may vary between FALLOUT versions. This selection is made at runtime, allowing the same compiled code to run
-	 * in multiple versions of FALLOUT.
-	 * </p>
-	 *
-	 * @tparam T the type of value to return.
-	 * @param a_f4AndVR the value to use for F4 and VR.
-	 * @param a_ng the value to use for NG.
-	 * @return Either <code>a_f4AndVR</code> if the current runtime is FALLOUT SE or VR, or <code>a_ae</code> if the runtime is AE.
-	 */
-	template <class T>
-	[[nodiscard]] FALLOUT_ADDR T Relocate([[maybe_unused]] T&& a_f4AndVR, [[maybe_unused]] T&& a_ng) noexcept
-	{
-#ifndef ENABLE_FALLOUT_NG
-		return a_f4AndVR;
-#elif !defined(ENABLE_FALLOUT_F4) && !defined(ENABLE_FALLOUT_VR)
-		return a_ng;
-#else
-		return Module::IsNG() ? a_ng : a_f4AndVR;
-#endif
-	}
-
-	/**
-	 * Return the correct value of two choices between original, NG and VR versions of FALLOUT.
-	 *
-	 * <p>
-	 * This is commonly used to select between relative offsets within a function, when hooking a call instruction.
-	 * In such cases the function can be identified by its Address Library ID, but the offset within the function
-	 * may vary between FALLOUT versions. This selection is made at runtime, allowing the same compiled code to run
-	 * in multiple versions of FALLOUT.
-	 * </p>
-	 *
-	 * @tparam T the type of value to return.
-	 * @param a_f4 the value to use for F4.
-	 * @param a_ng the value to use for NG.
-	 * @param a_vr the value to use for VR.
-	 * @return Either <code>a_f4</code> if the current runtime is F4, or <code>a_vr</code> if the runtime is VR
-	 */
-	template <class T>
-	[[nodiscard]] FALLOUT_REL T Relocate(
-		[[maybe_unused]] T a_f4,
-		[[maybe_unused]] T a_ng,
-		[[maybe_unused]] T a_vr) noexcept
-	{
-#if !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_VR)
-		return a_f4;
-#elif !defined(ENABLE_FALLOUT_F4) && !defined(ENABLE_FALLOUT_VR)
-		return a_ng;
-#elif !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_F4)
-		return a_vr;
-#else
-		switch (Module::get().GetRuntime()) {
-			case Module::Runtime::NG:
-				return a_ng;
-			case Module::Runtime::VR:
-				return a_vr;
-			default:
-				return a_f4;
-		}
-#endif
-	}
-
-	namespace detail
-	{
-		template <class T>
-		struct RelocateVirtualHelper
-		{
-		};
-
-		template <class Ret, class This>
-		struct RelocateVirtualHelper<Ret(This*)>
-		{
-			using this_type = This;
-			using return_type = Ret;
-			using function_type = Ret(This*);
-		};
-
-		template <class Ret, class This, class... Args>
-		struct RelocateVirtualHelper<Ret(This*, Args...)>
-		{
-			using this_type = This;
-			using return_type = Ret;
-			using function_type = Ret(This*, Args...);
-		};
-
-		template <class Ret, class This>
-		struct RelocateVirtualHelper<Ret (This::*)()>
-		{
-			using this_type = This;
-			using return_type = Ret;
-			using function_type = Ret(This*);
-		};
-
-		template <class Ret, class This, class... Args>
-		struct RelocateVirtualHelper<Ret (This::*)(Args...)>
-		{
-			using this_type = This;
-			using return_type = Ret;
-			using function_type = Ret(This*, Args...);
-		};
-
-		template <class Ret, class This>
-		struct RelocateVirtualHelper<Ret (This::*)() const>
-		{
-			using this_type = const This;
-			using return_type = Ret;
-			using function_type = Ret(const This*);
-		};
-
-		template <class Ret, class This, class... Args>
-		struct RelocateVirtualHelper<Ret (This::*)(Args...) const>
-		{
-			using this_type = const This;
-			using return_type = Ret;
-			using function_type = Ret(const This*, Args...);
-		};
-	}
-
-	/**
-	 * Invokes a virtual function in a cross-platform way where the vtable structure is variant across AE/SE and VR runtimes.
-	 *
-	 * <p>
-	 * Some classes in Fallout VR add new virtual functions in the middle of the vtable structure, which makes it ABI-incompatible with AE/SE.
-	 * A naive virtual function call, therefore, cannot work across all runtimes without the plugin being recompiled specifically for VR.
-	 * This call works with types which have variant vtables to allow a non-virtual function definition to be created in the virtual function's
-	 * place, and to have that call dynamically lookup the correct function based on the vtable structure expected in the current runtime.
-	 * </p>
-	 *
-	 * @tparam Fn the type of the function being called.
-	 * @tparam Args the types of the arguments being passed.
-	 * @param a_f4AndNGVtableOffset the offset from the <code>this</code> pointer to the vtable with the virtual function in SE/AE.
-	 * @param a_vrVtableIndex the offset from the <code>this</code> pointer to the vtable with the virtual function in VR.
-	 * @param a_f4AndNGVtableIndex the index of the function in the class' vtable in F4 and NG.
-	 * @param a_vrVtableIndex the index of the function in the class' vtable in VR.
-	 * @param a_self the <code>this</code> argument for the call.
-	 * @param a_args the remaining arguments for the call, if any.
-	 * @return The result of the function call.
-	 */
-	template <class Fn, class... Args>
-	[[nodiscard]] inline typename detail::RelocateVirtualHelper<Fn>::return_type RelocateVirtual(
-		[[maybe_unused]] std::ptrdiff_t a_f4AndNGVtableOffset,
-		[[maybe_unused]] std::ptrdiff_t a_vrVtableOffset,
-		[[maybe_unused]] std::ptrdiff_t a_f4AndNGVtableIndex,
-		[[maybe_unused]] std::ptrdiff_t a_vrVtableIndex,
-		typename detail::RelocateVirtualHelper<Fn>::this_type* a_self, Args&&... a_args)
-	{
-		return (*reinterpret_cast<typename detail::RelocateVirtualHelper<Fn>::function_type**>(
-			*reinterpret_cast<const uintptr_t*>(reinterpret_cast<uintptr_t>(a_self) +
-#ifndef ENABLE_FALLOUT_VR
-												a_f4AndNGVtableOffset) +
-			a_f4AndNGVtableIndex
-#elif !defined(ENABLE_FALLOUT_NG) && !defined(ENABLE_FALLOUT_F4)
-												a_vrVtableOffset) +
-			a_vrVtableIndex
-#else
-												(Module::IsVR() ? a_vrVtableOffset : a_f4AndNGVtableOffset)) +
-			(Module::IsVR() ? a_vrVtableIndex : a_f4AndNGVtableIndex)
-#endif
-				* sizeof(uintptr_t)))(a_self, std::forward<Args>(a_args)...);
-	}
-
-	/**
-	 * Invokes a virtual function in a cross-platform way where the vtable structure is variant across AE/SE and VR runtimes.
-	 *
-	 * <p>
-	 * Some classes in Fallout VR add new virtual functions in the middle of the vtable structure, which makes it ABI-incompatible with AE/SE.
-	 * A naive virtual function call, therefore, cannot work across all runtimes without the plugin being recompiled specifically for VR.
-	 * This call works with types which have variant vtables to allow a non-virtual function definition to be created in the virtual function's
-	 * place, and to have that call dynamically lookup the correct function based on the vtable structure expected in the current runtime.
-	 * </p>
-	 *
-	 * <p>
-	 * This call assumes the vtable to be used is the one at offset 0, i.e. it invokes a virtual function either on the first parent class
-	 * or the current class.
-	 * </p>
-	 *
-	 * @tparam Fn the type of the function being called.
-	 * @tparam Args the types of the arguments being passed.
-	 * @param a_f4AndNGVtableIndex the index of the function in the class' vtable in F4 and NG.
-	 * @param a_vrVtableIndex the index of the function in the class' vtable in VR.
-	 * @param a_self the <code>this</code> argument for the call.
-	 * @param a_args the remaining arguments for the call, if any.
-	 * @return The result of the function call.
-	 */
-	template <class Fn, class... Args>
-	[[nodiscard]] inline typename detail::RelocateVirtualHelper<Fn>::return_type RelocateVirtual(
-		std::ptrdiff_t a_f4AndNGVtableIndex,
-		std::ptrdiff_t a_vrVtableIndex,
-		typename detail::RelocateVirtualHelper<Fn>::this_type* a_self, Args&&... a_args)
-	{
-		return RelocateVirtual<Fn, Args...>(0, 0, a_f4AndNGVtableIndex, a_vrVtableIndex, a_self, std::forward<Args>(a_args)...);
-	}
-
-	/**
-	 * Gets a member variable in a cross-platform way, using runtime-specific memory offsets.
-	 *
-	 * <p>
-	 * This function handles the variant memory structures used in Fallout VR as compared to versions of SE.
-	 * It allows a memory offset relative to the object's base address for SE (and AE) and a separate one for
-	 * VR. This simplifies the process of creating functions to get member variables that are at different
-	 * offsets in different runtimes from a single build.
-	 * </p>
-	 *
-	 * @tparam T the type of the member being accessed.
-	 * @tparam This the type of the target object that has the member.
-	 * @param a_self the target object that has the member.
-	 * @param a_f4AndNG the memory offset of the member in Fallout F4 and NG.
-	 * @param a_vr the memory offset of the member in Fallout VR.
-	 * @return A reference to the member.
-	 */
-	template <class T, class This>
-	[[nodiscard]] inline T& RelocateMember(This* a_self, std::ptrdiff_t a_f4AndNG, std::ptrdiff_t a_vr)
-	{
-		return *reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(a_self) + Relocate(a_f4AndNG, a_f4AndNG, a_vr));
-	}
-
-	template <class T, class This>
-	[[nodiscard]] inline T& RelocateMember(This* a_self, std::ptrdiff_t offset)
-	{
-		return *reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(a_self) + offset);
-	}
-
-	template <class T, class This>
-	[[nodiscard]] inline T& RelocateMemberIf(bool condition, This* a_self, std::ptrdiff_t a, std::ptrdiff_t b)
-	{
-		return *reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(a_self) + (condition ? a : b));
-	}
-
-	template <class T, class This>
-	[[nodiscard]] inline T& RelocateMemberIfNewer(Version v, This* a_self, std::ptrdiff_t older, std::ptrdiff_t newer)
-	{
-		return *reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(a_self) +
-									 (REL::Module::get().version().compare(v) == std::strong_ordering::less ? older : newer));
-	}
 }
 
 #undef REL_MAKE_MEMBER_FUNCTION_NON_POD_TYPE

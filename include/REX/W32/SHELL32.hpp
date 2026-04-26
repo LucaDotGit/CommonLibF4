@@ -1,31 +1,32 @@
 #pragma once
 
-#include "REX/W32/BASE.hpp"
+#include "REX/W32/CORE.hpp"
 
 namespace REX::W32
 {
-	// known folder ids
-	inline constexpr GUID FOLDERID_Documents{ 0xFDD39AD0u, 0x238Fu, 0x46AFu, { 0xADu, 0xB4u, 0x6Cu, 0x85u, 0x48u, 0x03u, 0x69u, 0xC7u } };
-	inline constexpr GUID FOLDERID_Pictures{ 0x33E28130u, 0x4E1Eu, 0x4676u, { 0x83u, 0x5Au, 0x98u, 0x39u, 0x5Cu, 0x3Bu, 0xC3u, 0xBBu } };
-	inline constexpr GUID FOLDERID_ProgramData{ 0x62AB5D82u, 0xFDC1u, 0x4DC3u, { 0xA9u, 0xDDu, 0x07u, 0x0Du, 0x1Du, 0x49u, 0x5Du, 0x97u } };
+	inline constexpr auto FOLDERID_Documents = GUID{ 0xFDD39AD0, 0x238F, 0x46AF, { 0xAD, 0xB4, 0x6C, 0x85, 0x48, 0x03, 0x69, 0xC7 } };
+	inline constexpr auto FOLDERID_Pictures = GUID{ 0x33E28130, 0x4E1E, 0x4676, { 0x83, 0x5A, 0x98, 0x39, 0x5C, 0x3B, 0xC3, 0xBBu } };
+	inline constexpr auto FOLDERID_ProgramData = GUID{ 0x62AB5D82, 0xFDC1, 0x4DC3, { 0xA9, 0xDD, 0x07, 0x0D, 0x1D, 0x49, 0x5D, 0x97 } };
 
-	// known folder flags
-	inline constexpr auto KF_FLAG_DEFAULT{ 0x00000000u };
-	inline constexpr auto KF_FLAG_FORCE_APP_DATA_REDIRECTION{ 0x00080000u };
-	inline constexpr auto KF_FLAG_RETURN_FILTER_REDIRECTION_TARGET{ 0x00040000u };
-	inline constexpr auto KF_FLAG_FORCE_PACKAGE_REDIRECTION{ 0x00020000u };
-	inline constexpr auto KF_FLAG_NO_PACKAGE_REDIRECTION{ 0x00010000u };
-	inline constexpr auto KF_FLAG_FORCE_APPCONTAINER_REDIRECTION{ 0x00020000u };
-	inline constexpr auto KF_FLAG_NO_APPCONTAINER_REDIRECTION{ 0x00010000u };
-	inline constexpr auto KF_FLAG_CREATE{ 0x00008000u };
-	inline constexpr auto KF_FLAG_DONT_VERIFY{ 0x00004000u };
-	inline constexpr auto KF_FLAG_DONT_UNEXPAND{ 0x00002000u };
-	inline constexpr auto KF_FLAG_NO_ALIAS{ 0x00001000u };
-	inline constexpr auto KF_FLAG_INIT{ 0x00000800u };
-	inline constexpr auto KF_FLAG_DEFAULT_PATH{ 0x00000400u };
-	inline constexpr auto KF_FLAG_NOT_PARENT_RELATIVE{ 0x00000200u };
-	inline constexpr auto KF_FLAG_SIMPLE_IDLIST{ 0x00000100u };
-	inline constexpr auto KF_FLAG_ALIAS_ONLY{ 0x80000000u };
+	enum KF : std::uint32_t
+	{
+		KF_FLAG_DEFAULT = 0x0,
+		KF_FLAG_FORCE_APP_DATA_REDIRECTION = 0x80000,
+		KF_FLAG_RETURN_FILTER_REDIRECTION_TARGET = 0x40000,
+		KF_FLAG_FORCE_PACKAGE_REDIRECTION = 0x20000,
+		KF_FLAG_NO_PACKAGE_REDIRECTION = 0x10000,
+		KF_FLAG_FORCE_APPCONTAINER_REDIRECTION = 0x20000,
+		KF_FLAG_NO_APPCONTAINER_REDIRECTION = 0x10000,
+		KF_FLAG_CREATE = 0x8000,
+		KF_FLAG_DONT_VERIFY = 0x4000,
+		KF_FLAG_DONT_UNEXPAND = 0x2000,
+		KF_FLAG_NO_ALIAS = 0x1000,
+		KF_FLAG_INIT = 0x800,
+		KF_FLAG_DEFAULT_PATH = 0x400,
+		KF_FLAG_NOT_PARENT_RELATIVE = 0x200,
+		KF_FLAG_SIMPLE_IDLIST = 0x100,
+		KF_FLAG_ALIAS_ONLY = 0x80000000
+	};
 }
 
 namespace REX::W32

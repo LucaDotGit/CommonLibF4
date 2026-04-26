@@ -1,0 +1,55 @@
+#pragma once
+
+namespace RE
+{
+	enum class PTYPE : std::int32_t
+	{
+		kExplore = 0,
+		kFollow = 1,
+		kEscore = 2,
+		kEat = 3,
+		kSleep = 4,
+		kWander = 5,
+		kTravel = 6,
+		kAccompany = 7,
+		kUseItemAt = 8,
+		kAmbush = 9,
+		kFleeNonCombat = 10,
+		kCastMagic = 11,
+		kSandbox = 12,
+		kPatrol = 13,
+		kGuard = 14,
+		kDialogue = 15,
+		kUseWeapon = 16,
+		kFind = 17,
+		kCustom = 18,
+		kTemplate = 19,
+		kActivate = 20,
+		kAlarm = 21,
+		kFlee = 22,
+		kTrespass = 23,
+		kSpectator = 24,
+		kGreet = 25,
+		kGetUp = 26,
+		kDoNothing = 27,
+		kInGameDialogue = 28,
+		kSurface = 29,
+		kSearchForAttacker = 30,
+		kAvoidReference = 31,
+		kBumpReaction = 32,
+		kGrenadeMineReaction = 33,
+		kStealWarning = 34,
+		kPickpocketWarning = 35,
+		kMovementBlocked = 36,
+		kVampireFeed = 37,
+		kCannibal = 38,
+		kLand = 39,
+		kUnused = 40,
+		kMountActor = 41,
+		kDismountActor = 42,
+		kClearMountPosition = 43,
+		kClearPowerArmorExit = 44,
+
+		kTotal = 45
+	};
+}

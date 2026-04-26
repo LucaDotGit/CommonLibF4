@@ -1,94 +1,142 @@
 #pragma once
 
 #include "REL/Module.hpp"
+#include "REL/Runtime.hpp"
+
+#include "REX/Hash.hpp"
 
 namespace REL
 {
-	class Offset
+	inline constexpr auto INVALID_OFFSET = std::numeric_limits<std::ptrdiff_t>::max();
+	inline constexpr auto INVALID_OFFSET_ADDRESS = std::numeric_limits<std::uintptr_t>::min();
+
+	class IOffset
 	{
 	public:
-		constexpr Offset() noexcept = default;
+		using value_type = std::ptrdiff_t;
 
-		explicit constexpr Offset(std::size_t a_offset) noexcept :
-			_offset(a_offset)
-		{
-		}
+		virtual ~IOffset() noexcept = default;
 
-		constexpr Offset& operator=(std::size_t a_offset) noexcept
-		{
-			_offset = a_offset;
-			return *this;
-		}
-
-		[[nodiscard]] std::uintptr_t address() const { return base() + offset(); }
-		[[nodiscard]] constexpr std::size_t offset() const noexcept { return _offset; }
-
-	private:
-		[[nodiscard]] static std::uintptr_t base() { return Module::get().base(); }
-
-		std::size_t _offset{ 0 };
+		[[nodiscard]] virtual value_type GetOffset() const noexcept = 0;
+		[[nodiscard]] virtual std::uintptr_t GetAddress() const noexcept = 0;
 	};
 
-	class VariantOffset
+	template <Runtime R0 = Runtime::LATEST, Runtime... R>
+	class Offset final
+		: public IOffset
 	{
 	public:
-		constexpr VariantOffset() noexcept = default;
+		using value_type = IOffset::value_type;
 
-		explicit constexpr VariantOffset(
-			[[maybe_unused]] std::size_t a_f4Offset,
-			[[maybe_unused]] std::size_t a_ngOffset,
-			[[maybe_unused]] std::size_t a_vrOffset) noexcept
+		static_assert(REL::Impl::ValidateRuntimeValues<R0, R...>());
+		static_assert(REL::Impl::ValidateRuntimeOrder<R0, R...>());
+
+		inline static constexpr auto RUNTIMES = std::array{ R0, R... };
+
+		constexpr Offset() noexcept = default;
+		constexpr ~Offset() noexcept override = default;
+
+		template <class... V>
+		constexpr explicit Offset(V&&... a_offsets) //
+			noexcept((std::is_nothrow_convertible_v<V, value_type> && ...))
+			requires((std::is_convertible_v<V, value_type> && ...) &&
+					 (sizeof...(V) == sizeof...(R) + 1))
+			: _offsets{ static_cast<value_type>(std::forward<V>(a_offsets))... }
 		{
-#ifdef ENABLE_FALLOUT_F4
-			_f4Offset = a_f4Offset;
-#endif
-#ifdef ENABLE_FALLOUT_NG
-			_ngOffset = a_ngOffset;
-#endif
-#ifdef ENABLE_FALLOUT_VR
-			_vrOffset = a_vrOffset;
-#endif
 		}
 
-		[[nodiscard]] std::uintptr_t address() const
-		{
-			auto thisOffset = offset();
-			return thisOffset ? base() + thisOffset : 0;
-		}
+		constexpr Offset(const Offset&) noexcept = default;
+		constexpr Offset(Offset&&) noexcept = default;
 
-		[[nodiscard]] FALLOUT_REL std::size_t offset() const noexcept
+		constexpr Offset& operator=(const Offset&) noexcept = default;
+		constexpr Offset& operator=(Offset&&) noexcept = default;
+
+		[[nodiscard]] constexpr bool operator==(const Offset&) const noexcept = default;
+		[[nodiscard]] constexpr bool operator!=(const Offset&) const noexcept = default;
+		[[nodiscard]] constexpr auto operator<=>(const Offset&) const noexcept = default;
+
+		[[nodiscard]] constexpr const auto& GetOffsets() const noexcept { return _offsets; }
+
+		[[nodiscard]] constexpr value_type GetOffset(Runtime a_runtime) const noexcept
 		{
-			switch (Module::GetRuntime()) {
-#ifdef ENABLE_FALLOUT_NG
-				case Module::Runtime::NG:
-					return _ngOffset;
-#endif
-#ifdef ENABLE_FALLOUT_F4
-				case Module::Runtime::F4:
-					return _f4Offset;
-#endif
-#ifdef ENABLE_FALLOUT_VR
-				case Module::Runtime::VR:
-					return _vrOffset;
-#endif
-				default:
-					return 0;
+			if constexpr (RUNTIMES.size() == 1) {
+				if (a_runtime > RUNTIMES.front()) {
+					return INVALID_OFFSET;
+				}
+
+				return _offsets.front();
+			}
+			else {
+				const auto runtimeIt = std::ranges::upper_bound(RUNTIMES, a_runtime);
+				if (runtimeIt == RUNTIMES.begin()) {
+					return INVALID_OFFSET;
+				}
+
+				const auto index = static_cast<std::size_t>(std::distance(RUNTIMES.begin(), runtimeIt - 1));
+				return _offsets[index];
 			}
 		}
 
-		[[nodiscard]] FALLOUT_REL explicit operator Offset() const noexcept { return Offset(offset()); }
+		[[nodiscard]] value_type GetOffset() const noexcept override
+		{
+			const auto currentRuntime = REL::Module::GetSingleton()->GetRuntime();
+			return GetOffset(currentRuntime);
+		}
+
+		[[nodiscard]] std::uintptr_t GetAddress() const noexcept override
+		{
+			const auto offset = GetOffset();
+			if (offset == INVALID_OFFSET) {
+				return INVALID_OFFSET_ADDRESS;
+			}
+
+			const auto baseAddress = REL::Module::GetSingleton()->GetBaseAddress();
+			return baseAddress + offset;
+		}
+
+		constexpr void swap(Offset& a_other) noexcept
+		{
+			std::swap(_offsets, a_other._offsets);
+		}
 
 	private:
-		[[nodiscard]] static std::uintptr_t base() { return Module::get().base(); }
+		std::array<value_type, RUNTIMES.size()> _offsets;
+	};
 
-#ifdef ENABLE_FALLOUT_F4
-		std::size_t _f4Offset{ 0 };
-#endif
-#ifdef ENABLE_FALLOUT_NG
-		std::size_t _ngOffset{ 0 };
-#endif
-#ifdef ENABLE_FALLOUT_VR
-		std::size_t _vrOffset{ 0 };
-#endif
+	template <Runtime R0 = Runtime::LATEST, Runtime... R>
+	constexpr void swap(Offset<R0, R...>& a_lhs, Offset<R0, R...>& a_rhs) noexcept
+	{
+		a_lhs.swap(a_rhs);
+	}
+
+	template <class V>
+	[[nodiscard]] constexpr auto CreateOffset(V&& a_offset) //
+		noexcept(std::is_nothrow_constructible_v<Offset<>, V>)
+		requires(std::is_constructible_v<Offset<>, V>)
+	{
+		return Offset(std::forward<V>(a_offset));
+	}
+
+	template <Runtime R0, Runtime... R, class... V>
+	[[nodiscard]] constexpr auto CreateOffset(V&&... a_offsets) //
+		noexcept(std::is_nothrow_constructible_v<Offset<R0, R...>, V...>)
+		requires(std::is_constructible_v<Offset<R0, R...>, V...> &&
+				 (sizeof...(V) == sizeof...(R) + 1))
+	{
+		return Offset<R0, R...>(std::forward<V>(a_offsets)...);
+	}
+}
+
+namespace std
+{
+	template <class T>
+		requires(std::derived_from<T, REL::IOffset>)
+	struct hash<T>
+	{
+	public:
+		[[nodiscard]] std::size_t operator()(const T& a_key) const noexcept
+		{
+			return REX::Hash(a_key.GetOffset());
+		}
 	};
 }

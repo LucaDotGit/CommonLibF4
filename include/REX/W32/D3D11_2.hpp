@@ -10,28 +10,28 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	enum D3D11_CHECK_MULTISAMPLE_QUALITY_LEVELS_FLAG
+	enum D3D11_CHECK_MULTISAMPLE_QUALITY_LEVELS_FLAG : std::uint32_t
 	{
-		D3D11_CHECK_MULTISAMPLE_QUALITY_LEVELS_TILED_RESOURCE = 0x1,
+		D3D11_CHECK_MULTISAMPLE_QUALITY_LEVELS_TILED_RESOURCE = 0x1
 	};
 
-	enum D3D11_TILE_COPY_FLAG
+	enum D3D11_TILE_COPY_FLAG : std::uint32_t
 	{
 		D3D11_TILE_COPY_NO_OVERWRITE = 0x1,
 		D3D11_TILE_COPY_LINEAR_BUFFER_TO_SWIZZLED_TILED_RESOURCE = 0x2,
-		D3D11_TILE_COPY_SWIZZLED_TILED_RESOURCE_TO_LINEAR_BUFFER = 0x4,
+		D3D11_TILE_COPY_SWIZZLED_TILED_RESOURCE_TO_LINEAR_BUFFER = 0x4
 	};
 
-	enum D3D11_TILE_MAPPING_FLAG
+	enum D3D11_TILE_MAPPING_FLAG : std::uint32_t
 	{
-		D3D11_TILE_MAPPING_NO_OVERWRITE = 0x1,
+		D3D11_TILE_MAPPING_NO_OVERWRITE = 0x1
 	};
 
-	enum D3D11_TILE_RANGE_FLAG
+	enum D3D11_TILE_RANGE_FLAG : std::uint32_t
 	{
 		D3D11_TILE_RANGE_NULL = 0x1,
 		D3D11_TILE_RANGE_SKIP = 0x2,
-		D3D11_TILE_RANGE_REUSE_SINGLE_TILE = 0x4,
+		D3D11_TILE_RANGE_REUSE_SINGLE_TILE = 0x4
 	};
 }
 
@@ -100,15 +100,15 @@ namespace REX::W32
 		virtual void UpdateTiles(ID3D11Resource* a_destTiledResource, const D3D11_TILED_RESOURCE_COORDINATE* a_destTileRegionStartCoordinate, const D3D11_TILE_REGION_SIZE* a_destTileRegionSize, const void* a_sourceTileData, std::uint32_t a_flags) = 0;
 		virtual HRESULT ResizeTilePool(ID3D11Buffer* a_tilePool, std::uint64_t a_newSizeInBytes) = 0;
 		virtual void TiledResourceBarrier(ID3D11DeviceChild* a_tiledResourceOrViewAccessBeforeBarrier, ID3D11DeviceChild* a_tiledResourceOrViewAccessAfterBarrier) = 0;
-		virtual BOOL IsAnnotationEnabled(void) = 0;
+		virtual BOOL IsAnnotationEnabled() = 0;
 		virtual void SetMarkerInt(const wchar_t* a_label, std::int32_t a_data) = 0;
 		virtual void BeginEventInt(const wchar_t* a_label, std::int32_t a_data) = 0;
-		virtual void EndEvent(void) = 0;
+		virtual void EndEvent() = 0;
 	};
 }
 
 namespace REX::W32
 {
-	inline constexpr IID IID_ID3D11Device2{ 0x9D06DFFA, 0xD1E5, 0x4D07, { 0x83, 0xA8, 0x1B, 0xB1, 0x23, 0xF2, 0xF8, 0x41 } };
-	inline constexpr IID IID_ID3D11DeviceContext2{ 0x420D5B32, 0xB90C, 0x4DA4, { 0xBE, 0xF0, 0x35, 0x9F, 0x6A, 0x24, 0xA8, 0x3A } };
+	inline constexpr auto IID_ID3D11Device2 = IID{ 0x9D06DFFA, 0xD1E5, 0x4D07, { 0x83, 0xA8, 0x1B, 0xB1, 0x23, 0xF2, 0xF8, 0x41 } };
+	inline constexpr auto IID_ID3D11DeviceContext2 = IID{ 0x420D5B32, 0xB90C, 0x4DA4, { 0xBE, 0xF0, 0x35, 0x9F, 0x6A, 0x24, 0xA8, 0x3A } };
 }

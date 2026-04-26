@@ -1,6 +1,6 @@
 #pragma once
 
-#include "REX/W32/BASE.hpp"
+#include "REX/W32/CORE.hpp"
 
 namespace REX::W32
 {
@@ -14,12 +14,12 @@ namespace REX::W32
 		template <class T>
 		HRESULT QueryInterface(T** a_object)
 		{
-			return QueryInterface(*reinterpret_cast<const IID*>(&__uuidof(T)), static_cast<void**>(a_object));
+			return QueryInterface(*reinterpret_cast<const IID*>(std::addressof(__uuidof(T))), reinterpret_cast<void**>(a_object));
 		}
 	};
 }
 
 namespace REX::W32
 {
-	inline constexpr IID IID_IUnknown{ 0x00000000, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
+	inline constexpr auto IID_IUnknown = IID{ 0x00000000, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 }

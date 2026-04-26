@@ -1,196 +1,373 @@
 #pragma once
 
-#include "REX/W32/BASE.hpp"
+#include "REX/Contract.hpp"
+#include "REX/W32/CORE.hpp"
 
 namespace REX::W32
 {
-	// based on Microsoft::WRL::ComPtr
+	// Source: https://learn.microsoft.com/en-us/cpp/cppcx/wrl/comptr-class
+
 	template <class T>
-	struct ComPtr
+	class ComPtr
 	{
+	public:
+		using element_type = T;
+
 		constexpr ComPtr() noexcept = default;
-		constexpr ComPtr(std::nullptr_t) noexcept {}
 
-		ComPtr(const ComPtr& a_other) noexcept :
-			_ptr(a_other._ptr)
+		constexpr ~ComPtr() noexcept
 		{
-			TryAddRef();
+			reset();
+		}
+
+		constexpr ComPtr(std::nullptr_t) noexcept
+			: _ptr(nullptr)
+		{
 		}
 
 		template <class U>
-		ComPtr(U* a_other) noexcept :
-			_ptr(a_other)
+		constexpr explicit ComPtr(U* a_rhs) noexcept
+			requires(std::is_convertible_v<U*, T*>)
+			: _ptr(static_cast<T*>(a_rhs))
 		{
-			TryAddRef();
-		}
-
-		~ComPtr() noexcept
-		{
-			TryRelease();
-		}
-
-		ComPtr& operator=(std::nullptr_t) noexcept
-		{
-			TryRelease();
-			return *this;
-		}
-
-		ComPtr& operator=(T* a_other) noexcept
-		{
-			if (_ptr != a_other)
-				ComPtr(a_other).Swap(*this);
-
-			return *this;
+			try_attach();
 		}
 
 		template <class U>
-		ComPtr& operator=(U* a_other) noexcept
+		constexpr ComPtr(const ComPtr<U>& a_rhs) noexcept
+			requires(std::is_convertible_v<U*, T*>)
+			: _ptr(static_cast<T*>(a_rhs._ptr))
 		{
-			ComPtr(a_other).Swap(*this);
-			return *this;
-		}
-
-		ComPtr& operator=(const ComPtr& a_other) noexcept
-		{
-			if (_ptr != a_other._ptr)
-				ComPtr(a_other).Swap(*this);
-
-			return *this;
+			try_attach();
 		}
 
 		template <class U>
-		ComPtr& operator=(const ComPtr<U>& a_other) noexcept
+		constexpr ComPtr(ComPtr<U>&& a_rhs) noexcept // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+			requires(std::is_convertible_v<U*, T*>)
+			: _ptr(std::exchange(static_cast<T*>(a_rhs._ptr), nullptr))
 		{
-			ComPtr(a_other).Swap(*this);
-			return *this;
 		}
 
-		ComPtr& operator=(ComPtr&& a_other) noexcept
+		constexpr ComPtr(const ComPtr& a_rhs) noexcept
+			: _ptr(a_rhs._ptr)
 		{
-			ComPtr(static_cast<ComPtr&&>(a_other)).Swap(*this);
+			try_attach();
+		}
+
+		constexpr ComPtr(ComPtr&& a_rhs) noexcept
+			: _ptr(std::exchange(a_rhs._ptr, nullptr))
+		{
+		}
+
+		constexpr ComPtr& operator=(std::nullptr_t) noexcept
+		{
+			try_detach();
 			return *this;
 		}
 
 		template <class U>
-		ComPtr& operator=(ComPtr<U>&& a_other) noexcept
+		constexpr ComPtr& operator=(U* a_rhs) noexcept
+			requires(std::is_convertible_v<U*, T*>)
 		{
-			ComPtr(static_cast<ComPtr<U>&&>(a_other)).Swap(*this);
+			try_detach();
+			_ptr = static_cast<T*>(a_rhs);
+			try_attach();
 			return *this;
 		}
 
-		T* operator->() const noexcept
+		template <class U>
+		constexpr ComPtr& operator=(const ComPtr<U>& a_rhs) noexcept
+			requires(std::is_convertible_v<U*, T*>)
 		{
-			return _ptr;
+			try_detach();
+			_ptr = static_cast<T*>(a_rhs._ptr);
+			try_attach();
+			return *this;
 		}
 
-		void Attach(T* a_other) noexcept
+		template <class U>
+		constexpr ComPtr& operator=(ComPtr<U>&& a_rhs) noexcept // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+			requires(std::is_convertible_v<U*, T*>)
 		{
-			if (_ptr != nullptr) {
-				[[maybe_unused]] auto ref = _ptr->Release();
-				assert((ref != 0) || (_ptr != a_other));
+			try_detach();
+			_ptr = std::exchange(static_cast<T*>(a_rhs._ptr), nullptr);
+			return *this;
+		}
+
+		constexpr ComPtr& operator=(const ComPtr& a_rhs) noexcept
+		{
+			if (this == std::addressof(a_rhs)) {
+				return *this;
 			}
 
-			_ptr = a_other;
+			try_detach();
+			_ptr = a_rhs._ptr;
+			try_attach();
+			return *this;
 		}
 
-		T* Detach() noexcept
+		constexpr ComPtr& operator=(ComPtr&& a_rhs) noexcept
 		{
-			T* ptr = _ptr;
-			_ptr = nullptr;
-			return ptr;
+			if (this == std::addressof(a_rhs)) {
+				return *this;
+			}
+
+			try_detach();
+			_ptr = std::exchange(a_rhs._ptr, nullptr);
+			return *this;
 		}
 
-		T* Get() const noexcept
+		[[nodiscard]] constexpr explicit operator bool() const noexcept
+		{
+			return _ptr != nullptr;
+		}
+
+		[[nodiscard]] constexpr T& operator*() const noexcept
+		{
+			REX::Assert(static_cast<bool>(_ptr));
+			return *_ptr;
+		}
+
+		[[nodiscard]] constexpr T* operator->() const noexcept
+		{
+			REX::Assert(static_cast<bool>(_ptr));
+			return _ptr;
+		}
+
+		[[nodiscard]] constexpr T* get() const noexcept
 		{
 			return _ptr;
 		}
 
-		T** GetAddressOf() noexcept
+		template <class U>
+		HRESULT try_as(ComPtr<U>* a_ptr) const noexcept
 		{
-			return &_ptr;
-		}
-
-		T* const* GetAddressOf() const noexcept
-		{
-			return &_ptr;
-		}
-
-		T** ReleaseAndGetAddressOf() noexcept
-		{
-			TryRelease();
-			return &_ptr;
-		}
-
-		std::uint32_t Reset() noexcept
-		{
-			return TryRelease();
-		}
-
-		void Swap(ComPtr& a_other) noexcept
-		{
-			T* ptr = _ptr;
-			_ptr = a_other._ptr;
-			a_other._ptr = ptr;
-		}
-
-		void Swap(ComPtr&& a_other) noexcept
-		{
-			T* ptr = _ptr;
-			_ptr = a_other._ptr;
-			a_other._ptr = ptr;
+			return _ptr->QueryInterface(__uuidof(U), reinterpret_cast<void**>(a_ptr ? a_ptr->try_detach_and_address_of() : nullptr));
 		}
 
 		template <class U>
-		HRESULT As(ComPtr<U>* a_ptr) const noexcept
+		HRESULT try_as(const IID& a_iid, ComPtr<U>* a_ptr) const noexcept
 		{
-			return _ptr->QueryInterface(__uuidof(U), reinterpret_cast<void**>(a_ptr->ReleaseAndGetAddressOf()));
+			return _ptr->QueryInterface(a_iid, reinterpret_cast<void**>(a_ptr ? a_ptr->try_detach_and_address_of() : nullptr));
 		}
 
-		template <class U>
-		HRESULT AsIID(const IID& a_iid, ComPtr<U>* a_ptr) const noexcept
+		HRESULT copy_to(T** a_ptr) const noexcept
 		{
-			return _ptr->QueryInterface(a_iid, reinterpret_cast<void**>(a_ptr->ReleaseAndGetAddressOf()));
-		}
-
-		HRESULT CopyTo(const IID& a_iid, void** a_ptr) const noexcept
-		{
-			return _ptr->QueryInterface(a_iid, a_ptr);
-		}
-
-		HRESULT CopyTo(T** a_ptr) const noexcept
-		{
-			TryAddRef();
+			try_attach();
 			*a_ptr = _ptr;
 			return 0;
 		}
 
 		template <class U>
-		HRESULT CopyTo(U** a_ptr) const noexcept
+		HRESULT copy_to(U** a_ptr) const noexcept
 		{
 			return _ptr->QueryInterface(__uuidof(U), reinterpret_cast<void**>(a_ptr));
 		}
 
-	protected:
-		template <class U>
-		friend struct ComPtr;
-
-		void TryAddRef() const noexcept
+		HRESULT copy_to(const IID& a_iid, void** a_ptr) const noexcept
 		{
-			if (_ptr)
-				_ptr->AddRef();
+			return _ptr->QueryInterface(a_iid, a_ptr);
 		}
 
-		std::uint32_t TryRelease() noexcept
+		constexpr void attach(T* a_rhs) noexcept
 		{
-			T* ptr = _ptr;
-			if (ptr) {
-				_ptr = nullptr;
-				return ptr->Release();
+			if (_ptr != nullptr) {
+				[[maybe_unused]] auto refCount = _ptr->Release();
+				REX::Assert((refCount != 0) || (_ptr != a_rhs));
 			}
 
-			return 0;
+			_ptr = a_rhs;
 		}
 
-		T* _ptr{ nullptr };
+		[[nodiscard]] constexpr T* detach() noexcept
+		{
+			return std::exchange(_ptr, nullptr);
+		}
+
+		constexpr void reset() noexcept
+		{
+			return try_detach();
+		}
+
+		template <class U>
+		constexpr void reset(U* a_ptr) noexcept
+			requires(std::is_convertible_v<U*, T*>)
+		{
+			if (_ptr == a_ptr) {
+				return;
+			}
+
+			try_detach();
+			_ptr = static_cast<T*>(a_ptr);
+			try_attach();
+		}
+
+		constexpr void swap(ComPtr& a_other) noexcept
+		{
+			if (this == std::addressof(a_other)) {
+				return;
+			}
+
+			std::swap(_ptr, a_other._ptr);
+		}
+
+	protected:
+		template <class U>
+		friend class ComPtr;
+
+		constexpr element_type** try_detach_and_address_of() noexcept
+		{
+			try_detach();
+			return std::addressof(_ptr);
+		}
+
+		constexpr void try_attach() noexcept
+		{
+			if (!_ptr) {
+				return;
+			}
+
+			try {
+				_ptr->AddRef();
+			}
+			catch (...) {
+				REX::QuickFail("Failed to add reference to COM object."sv);
+			}
+		}
+
+		constexpr void try_detach() noexcept
+		{
+			if (!_ptr) {
+				return;
+			}
+
+			try {
+				_ptr->Release();
+				_ptr = nullptr;
+			}
+			catch (...) {
+				REX::QuickFail("Failed to release reference to COM object."sv);
+			}
+		}
+
+		// members
+		T* _ptr{ nullptr }; // 00
+	};
+	static_assert(sizeof(ComPtr<void*>) == 0x08);
+
+	template <class T>
+	ComPtr(T*) -> ComPtr<T>;
+
+	template <class T>
+	[[nodiscard]] constexpr bool operator==(const ComPtr<T>& a_lhs, const ComPtr<T>& a_rhs) noexcept
+	{
+		return a_lhs.get() == a_rhs.get();
+	}
+
+	template <class T>
+	[[nodiscard]] constexpr bool operator==(const ComPtr<T>& a_lhs, std::nullptr_t) noexcept
+	{
+		return a_lhs.get() == static_cast<T*>(nullptr);
+	}
+
+	template <class T>
+	[[nodiscard]] constexpr bool operator==(std::nullptr_t, const ComPtr<T>& a_rhs) noexcept
+	{
+		return static_cast<T*>(nullptr) == a_rhs.get();
+	}
+
+	template <class T>
+	[[nodiscard]] constexpr bool operator==(const ComPtr<T>& a_lhs, const T* a_rhs) noexcept
+	{
+		return a_lhs.get() == a_rhs;
+	}
+
+	template <class T>
+	[[nodiscard]] constexpr bool operator==(const T* a_lhs, const ComPtr<T>& a_rhs) noexcept
+	{
+		return a_lhs == a_rhs.get();
+	}
+
+	template <class T>
+	[[nodiscard]] constexpr auto operator<=>(const ComPtr<T>& a_lhs, const ComPtr<T>& a_rhs) noexcept
+	{
+		return a_lhs.get() <=> a_rhs.get();
+	}
+
+	template <class T>
+	[[nodiscard]] constexpr auto operator<=>(const ComPtr<T>& a_lhs, std::nullptr_t) noexcept
+	{
+		return a_lhs.get() <=> static_cast<T*>(nullptr);
+	}
+
+	template <class T>
+	[[nodiscard]] constexpr auto operator<=>(std::nullptr_t, const ComPtr<T>& a_rhs) noexcept
+	{
+		return static_cast<T*>(nullptr) <=> a_rhs.get();
+	}
+
+	template <class T>
+	[[nodiscard]] constexpr auto operator<=>(const ComPtr<T>& a_lhs, const T* a_rhs) noexcept
+	{
+		return a_lhs.get() <=> a_rhs;
+	}
+
+	template <class T>
+	[[nodiscard]] constexpr auto operator<=>(const T* a_lhs, const ComPtr<T>& a_rhs) noexcept
+	{
+		return a_lhs <=> a_rhs.get();
+	}
+
+	template <class T>
+	constexpr void swap(REX::W32::ComPtr<T>& a_lhs, REX::W32::ComPtr<T>& a_rhs) noexcept
+	{
+		a_lhs.Swap(a_rhs);
+	}
+
+	template <class T, class... Args>
+	[[nodiscard]] ComPtr<T> make_com_ptr(Args&&... a_args)
+		requires(std::is_constructible_v<T, Args...>)
+	{
+		return ComPtr{ new T(std::forward<Args>(a_args)...) };
+	}
+
+	template <class T1, class T2>
+	[[nodiscard]] ComPtr<T1> static_com_ptr_cast(const ComPtr<T2>& a_ptr) noexcept
+		requires(std::is_convertible_v<T2*, T1*>)
+	{
+		return ComPtr<T1>{ static_cast<T1*>(a_ptr.get()) };
+	}
+
+	template <class T1, class T2>
+	[[nodiscard]] ComPtr<T1> dynamic_com_ptr_cast(const ComPtr<T2>& a_ptr) noexcept
+	{
+		auto result = ComPtr<T1>();
+		a_ptr.try_as(result);
+		return result;
+	}
+
+	template <class T1, class T2>
+	[[nodiscard]] ComPtr<T1> reinterpret_com_ptr_cast(const ComPtr<T2>& a_ptr) noexcept
+	{
+		return ComPtr<T1>{ reinterpret_cast<T1*>(a_ptr.get()) };
+	}
+
+	template <class T1, class T2>
+	[[nodiscard]] ComPtr<T1> const_com_ptr_cast(const ComPtr<T2>& a_ptr) noexcept
+	{
+		return ComPtr<T1>{ const_cast<T1*>(a_ptr.get()) };
+	}
+}
+
+namespace std
+{
+	template <class T>
+	struct hash<REX::W32::ComPtr<T>>
+	{
+	public:
+		[[nodiscard]] std::size_t operator()(const REX::W32::ComPtr<T>& a_key) const noexcept
+		{
+			return REX::Hash<const void*>(a_key.get());
+		}
 	};
 }

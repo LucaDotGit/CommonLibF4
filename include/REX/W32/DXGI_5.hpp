@@ -12,28 +12,28 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	enum DXGI_FEATURE
+	enum DXGI_FEATURE : std::int32_t
 	{
-		DXGI_FEATURE_PRESENT_ALLOW_TEARING = 0,
+		DXGI_FEATURE_PRESENT_ALLOW_TEARING = 0
 	};
 
-	enum DXGI_HDR_METADATA_TYPE
+	enum DXGI_HDR_METADATA_TYPE : std::int32_t
 	{
 		DXGI_HDR_METADATA_TYPE_NONE = 0,
 		DXGI_HDR_METADATA_TYPE_HDR10 = 1,
-		DXGI_HDR_METADATA_TYPE_HDR10PLUS = 2,
+		DXGI_HDR_METADATA_TYPE_HDR10PLUS = 2
 	};
 
-	enum DXGI_OFFER_RESOURCE_FLAGS
+	enum DXGI_OFFER_RESOURCE_FLAGS : std::uint32_t
 	{
-		DXGI_OFFER_RESOURCE_FLAG_ALLOW_DECOMMIT = 0x1,
+		DXGI_OFFER_RESOURCE_FLAG_ALLOW_DECOMMIT = 0x1
 	};
 
-	enum DXGI_RECLAIM_RESOURCE_RESULTS
+	enum DXGI_RECLAIM_RESOURCE_RESULTS : std::int32_t
 	{
 		DXGI_RECLAIM_RESOURCE_RESULT_OK = 0,
 		DXGI_RECLAIM_RESOURCE_RESULT_DISCARDED = 1,
-		DXGI_RECLAIM_RESOURCE_RESULT_NOT_COMMITTED = 2,
+		DXGI_RECLAIM_RESOURCE_RESULT_NOT_COMMITTED = 2
 	};
 }
 
@@ -41,10 +41,10 @@ namespace REX::W32
 {
 	struct DXGI_HDR_METADATA_HDR10
 	{
-		std::uint16_t redPrimary[2];
-		std::uint16_t GreenPrimary[2];
-		std::uint16_t bluePrimary[2];
-		std::uint16_t whitePoint[2];
+		std::array<std::uint16_t, 2> redPrimary;
+		std::array<std::uint16_t, 2> GreenPrimary;
+		std::array<std::uint16_t, 2> bluePrimary;
+		std::array<std::uint16_t, 2> whitePoint;
 		std::uint32_t maxMasteringLuminance;
 		std::uint32_t minMasteringLuminance;
 		std::uint16_t maxContentLightLevel;
@@ -53,7 +53,7 @@ namespace REX::W32
 
 	struct DXGI_HDR_METADATA_HDR10PLUS
 	{
-		std::uint8_t data[72];
+		std::array<std::uint8_t, 72> data;
 	};
 }
 
@@ -91,8 +91,8 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	inline constexpr IID IID_IDXGIDevice4{ 0x95B4F95F, 0xD8DA, 0x4CA4, { 0x9E, 0xE6, 0x3B, 0x76, 0xD5, 0x96, 0x8A, 0x10 } };
-	inline constexpr IID IID_IDXGIFactory5{ 0x7632E1F5, 0xEE65, 0x4DCA, { 0x87, 0xFD, 0x84, 0xCD, 0x75, 0xF8, 0x83, 0x8D } };
-	inline constexpr IID IID_IDXGIOutput5{ 0x80A07424, 0xAB52, 0x42EB, { 0x83, 0x3C, 0x0C, 0x42, 0xFD, 0x28, 0x2D, 0x98 } };
-	inline constexpr IID IID_IDXGISwapChain4{ 0x3D585D5A, 0xBD4A, 0x489E, { 0xB1, 0xF4, 0x3D, 0xBC, 0xB6, 0x45, 0x2F, 0xFB } };
+	inline constexpr auto IID_IDXGIDevice4 = IID{ 0x95B4F95F, 0xD8DA, 0x4CA4, { 0x9E, 0xE6, 0x3B, 0x76, 0xD5, 0x96, 0x8A, 0x10 } };
+	inline constexpr auto IID_IDXGIFactory5 = IID{ 0x7632E1F5, 0xEE65, 0x4DCA, { 0x87, 0xFD, 0x84, 0xCD, 0x75, 0xF8, 0x83, 0x8D } };
+	inline constexpr auto IID_IDXGIOutput5 = IID{ 0x80A07424, 0xAB52, 0x42EB, { 0x83, 0x3C, 0x0C, 0x42, 0xFD, 0x28, 0x2D, 0x98 } };
+	inline constexpr auto IID_IDXGISwapChain4 = IID{ 0x3D585D5A, 0xBD4A, 0x489E, { 0xB1, 0xF4, 0x3D, 0xBC, 0xB6, 0x45, 0x2F, 0xFB } };
 }

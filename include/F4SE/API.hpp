@@ -1,40 +1,82 @@
 #pragma once
 
+#include "F4SE/Core.hpp"
+
+#include "REX/Enum.hpp"
+#include "REX/NotNull.hpp"
+#include "REX/Version.hpp"
+
+namespace REX
+{
+	enum class LogLevel : std::int32_t;
+}
+
 namespace F4SE
 {
-	using PluginHandle = std::uint32_t;
-
+	class PreLoadInterface;
 	class LoadInterface;
-
-	struct PluginInfo;
-
+	class PluginInfo;
 	class MessagingInterface;
 	class ScaleformInterface;
 	class PapyrusInterface;
 	class SerializationInterface;
 	class TaskInterface;
 	class ObjectInterface;
+	class DelayFunctorManager;
+	class ObjectRegistry;
+	class PersistentObjectStorage;
 	class TrampolineInterface;
 
-	void Init(const LoadInterface* a_intfc, bool a_log = true) noexcept;
+	inline constexpr auto ROOT_DIRECTORY_PATH = "."sv;
+	inline constexpr auto DATA_DIRECTORY_PATH = "Data"sv;
+	inline constexpr auto PLUGINS_DIRECTORY_PATH = "Data/F4SE/Plugins"sv;
 
+	class InitInfo final
+	{
+	public:
+		std::string logName;
+		std::string logFileName;
+		std::string logFormat;
+		REX::Enum<REX::LogLevel> logLevel{
+#if NDEBUG == 0
+			REX::LogLevel::kDebug
+#else
+			REX::LogLevel::kInformation
+#endif
+		};
+		std::size_t logFileCount{ std::numeric_limits<std::size_t>::max() };
+		std::size_t logFileSize{ std::numeric_limits<std::size_t>::max() };
+		bool useHooks{ false };
+		bool useTrampoline{ false };
+		std::size_t trampolineSize{ 0 };
+	};
+
+	void Init(REX::NotNull<const PreLoadInterface*> a_interface, const InitInfo& a_info = {});
+	void Init(REX::NotNull<const LoadInterface*> a_interface, const InitInfo& a_info = {});
+
+	bool RegisterForOnPreLoad(REX::NotNull<std::function<void()>> a_callback);
+	bool RegisterForOnLoad(REX::NotNull<std::function<void()>> a_callback);
+
+	[[nodiscard]] const InitInfo& GetInitInfo() noexcept;
+	[[nodiscard]] PluginHandle GetPluginHandle() noexcept;
 	[[nodiscard]] std::string_view GetPluginName() noexcept;
 	[[nodiscard]] std::string_view GetPluginAuthor() noexcept;
-	[[nodiscard]] REL::Version GetPluginVersion() noexcept;
-
-	[[nodiscard]] REL::Version GetF4SEVersion() noexcept;
-	[[nodiscard]] PluginHandle GetPluginHandle() noexcept;
+	[[nodiscard]] REX::Version GetPluginVersion() noexcept;
+	[[nodiscard]] const PluginInfo* GetPluginInfo(const char* a_name) noexcept;
 	[[nodiscard]] std::uint32_t GetReleaseIndex() noexcept;
-	[[nodiscard]] std::optional<PluginInfo> GetPluginInfo(std::string_view a_plugin) noexcept;
+	[[nodiscard]] REX::Version GetF4SEVersion() noexcept;
+	[[nodiscard]] REX::Version GetRuntimeVersion() noexcept;
 	[[nodiscard]] std::string_view GetSaveFolderName() noexcept;
+	[[nodiscard]] const std::filesystem::path& GetLogDirectoryPath() noexcept;
 
-	[[nodiscard]] const MessagingInterface* GetMessagingInterface() noexcept;
-	[[nodiscard]] const ScaleformInterface* GetScaleformInterface() noexcept;
-	[[nodiscard]] const PapyrusInterface* GetPapyrusInterface() noexcept;
-	[[nodiscard]] const SerializationInterface* GetSerializationInterface() noexcept;
-	[[nodiscard]] const TaskInterface* GetTaskInterface() noexcept;
-	[[nodiscard]] const ObjectInterface* GetObjectInterface() noexcept;
-	[[nodiscard]] const TrampolineInterface* GetTrampolineInterface() noexcept;
-
-	void AllocTrampoline(std::size_t a_size) noexcept;
+	[[nodiscard]] auto GetMessagingInterface() noexcept -> REX::NotNull<const MessagingInterface*>;
+	[[nodiscard]] auto GetScaleformInterface() noexcept -> REX::NotNull<const ScaleformInterface*>;
+	[[nodiscard]] auto GetPapyrusInterface() noexcept -> REX::NotNull<const PapyrusInterface*>;
+	[[nodiscard]] auto GetSerializationInterface() noexcept -> REX::NotNull<const SerializationInterface*>;
+	[[nodiscard]] auto GetTaskInterface() noexcept -> REX::NotNull<const TaskInterface*>;
+	[[nodiscard]] auto GetObjectInterface() noexcept -> REX::NotNull<const ObjectInterface*>;
+	[[nodiscard]] auto GetDelayFunctorManager() noexcept -> REX::NotNull<const DelayFunctorManager*>;
+	[[nodiscard]] auto GetObjectRegistry() noexcept -> REX::NotNull<const ObjectRegistry*>;
+	[[nodiscard]] auto GetPersistentObjectStorage() noexcept -> REX::NotNull<const PersistentObjectStorage*>;
+	[[nodiscard]] auto GetTrampolineInterface() noexcept -> REX::NotNull<const TrampolineInterface*>;
 }

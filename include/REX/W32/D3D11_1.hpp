@@ -1,6 +1,7 @@
 #pragma once
 
 #include "REX/W32/D3D11.hpp"
+#include "REX/W32/DXGI.hpp"
 
 namespace REX::W32
 {
@@ -17,59 +18,59 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	enum D3D11_1_CREATE_DEVICE_CONTEXT_STATE_FLAG
+	enum D3D11_1_CREATE_DEVICE_CONTEXT_STATE_FLAG : std::uint32_t
 	{
-		D3D11_1_CREATE_DEVICE_CONTEXT_STATE_SINGLETHREADED = 0x1,
+		D3D11_1_CREATE_DEVICE_CONTEXT_STATE_SINGLETHREADED = 0x1
 	};
 
-	enum D3D11_COPY_FLAGS
+	enum D3D11_COPY_FLAGS : std::uint32_t
 	{
 		D3D11_COPY_NO_OVERWRITE = 0x1,
-		D3D11_COPY_DISCARD = 0x2,
+		D3D11_COPY_DISCARD = 0x2
 	};
 
-	enum D3D11_CRYPTO_SESSION_STATUS
+	enum D3D11_CRYPTO_SESSION_STATUS : std::int32_t
 	{
 		D3D11_CRYPTO_SESSION_STATUS_OK = 0,
 		D3D11_CRYPTO_SESSION_STATUS_KEY_LOST = 1,
-		D3D11_CRYPTO_SESSION_STATUS_KEY_AND_CONTENT_LOST = 2,
+		D3D11_CRYPTO_SESSION_STATUS_KEY_AND_CONTENT_LOST = 2
 	};
 
-	enum D3D11_LOGIC_OP
+	enum D3D11_LOGIC_OP : std::int32_t
 	{
 		D3D11_LOGIC_OP_CLEAR = 0,
-		D3D11_LOGIC_OP_SET = (D3D11_LOGIC_OP_CLEAR + 1),
-		D3D11_LOGIC_OP_COPY = (D3D11_LOGIC_OP_SET + 1),
-		D3D11_LOGIC_OP_COPY_INVERTED = (D3D11_LOGIC_OP_COPY + 1),
-		D3D11_LOGIC_OP_NOOP = (D3D11_LOGIC_OP_COPY_INVERTED + 1),
-		D3D11_LOGIC_OP_INVERT = (D3D11_LOGIC_OP_NOOP + 1),
-		D3D11_LOGIC_OP_AND = (D3D11_LOGIC_OP_INVERT + 1),
-		D3D11_LOGIC_OP_NAND = (D3D11_LOGIC_OP_AND + 1),
-		D3D11_LOGIC_OP_OR = (D3D11_LOGIC_OP_NAND + 1),
-		D3D11_LOGIC_OP_NOR = (D3D11_LOGIC_OP_OR + 1),
-		D3D11_LOGIC_OP_XOR = (D3D11_LOGIC_OP_NOR + 1),
-		D3D11_LOGIC_OP_EQUIV = (D3D11_LOGIC_OP_XOR + 1),
-		D3D11_LOGIC_OP_AND_REVERSE = (D3D11_LOGIC_OP_EQUIV + 1),
-		D3D11_LOGIC_OP_AND_INVERTED = (D3D11_LOGIC_OP_AND_REVERSE + 1),
-		D3D11_LOGIC_OP_OR_REVERSE = (D3D11_LOGIC_OP_AND_INVERTED + 1),
-		D3D11_LOGIC_OP_OR_INVERTED = (D3D11_LOGIC_OP_OR_REVERSE + 1),
+		D3D11_LOGIC_OP_SET = 1,
+		D3D11_LOGIC_OP_COPY = 2,
+		D3D11_LOGIC_OP_COPY_INVERTED = 3,
+		D3D11_LOGIC_OP_NOOP = 4,
+		D3D11_LOGIC_OP_INVERT = 5,
+		D3D11_LOGIC_OP_AND = 6,
+		D3D11_LOGIC_OP_NAND = 7,
+		D3D11_LOGIC_OP_OR = 8,
+		D3D11_LOGIC_OP_NOR = 9,
+		D3D11_LOGIC_OP_XOR = 10,
+		D3D11_LOGIC_OP_EQUIV = 11,
+		D3D11_LOGIC_OP_AND_REVERSE = 12,
+		D3D11_LOGIC_OP_AND_INVERTED = 13,
+		D3D11_LOGIC_OP_OR_REVERSE = 14,
+		D3D11_LOGIC_OP_OR_INVERTED = 15
 	};
 
-	enum D3D11_VIDEO_DECODER_CAPS
+	enum D3D11_VIDEO_DECODER_CAPS : std::int32_t
 	{
 		D3D11_VIDEO_DECODER_CAPS_DOWNSAMPLE = 0x1,
 		D3D11_VIDEO_DECODER_CAPS_NON_REAL_TIME = 0x2,
 		D3D11_VIDEO_DECODER_CAPS_DOWNSAMPLE_DYNAMIC = 0x4,
 		D3D11_VIDEO_DECODER_CAPS_DOWNSAMPLE_REQUIRED = 0x8,
-		D3D11_VIDEO_DECODER_CAPS_UNSUPPORTED = 0x10,
+		D3D11_VIDEO_DECODER_CAPS_UNSUPPORTED = 0x10
 	};
 
-	enum D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINTS
+	enum D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINTS : std::int32_t
 	{
 		D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINT_MULTIPLANE_OVERLAY_ROTATION = 0x1,
 		D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINT_MULTIPLANE_OVERLAY_RESIZE = 0x2,
 		D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINT_MULTIPLANE_OVERLAY_COLOR_SPACE_CONVERSION = 0x4,
-		D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINT_TRIPLE_BUFFER_OUTPUT = 0x8,
+		D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINT_TRIPLE_BUFFER_OUTPUT = 0x8
 	};
 }
 
@@ -91,7 +92,7 @@ namespace REX::W32
 	{
 		std::uint32_t privateDataSize;
 		std::uint32_t hwProtectionDataSize;
-		std::uint8_t input[4];
+		std::array<std::uint8_t, 4> input;
 	};
 
 	struct D3D11_KEY_EXCHANGE_HW_PROTECTION_OUTPUT_DATA
@@ -101,7 +102,7 @@ namespace REX::W32
 		std::uint32_t hwProtectionDataSize;
 		std::uint64_t transportTime;
 		std::uint64_t executionTime;
-		std::uint8_t output[4];
+		std::array<std::uint8_t, 4> output;
 	};
 
 	struct D3D11_RASTERIZER_DESC1
@@ -110,8 +111,8 @@ namespace REX::W32
 		D3D11_CULL_MODE cullMode;
 		BOOL frontCounterClockwise;
 		std::int32_t depthBias;
-		float depthBiasClamp;
-		float slopeScaledDepthBias;
+		REX::Float32 depthBiasClamp;
+		REX::Float32 slopeScaledDepthBias;
 		BOOL depthClipEnable;
 		BOOL scissorEnable;
 		BOOL multisampleEnable;
@@ -180,7 +181,7 @@ namespace REX::W32
 	{
 		BOOL alphaToCoverageEnable;
 		BOOL independentBlendEnable;
-		D3D11_RENDER_TARGET_BLEND_DESC1 renderTarget[8];
+		std::array<D3D11_RENDER_TARGET_BLEND_DESC1, 8> renderTarget;
 	};
 }
 
@@ -197,9 +198,9 @@ namespace REX::W32
 		: public IUnknown
 	{
 		virtual std::int32_t BeginEvent(const wchar_t* a_name) = 0;
-		virtual std::int32_t EndEvent(void) = 0;
+		virtual std::int32_t EndEvent() = 0;
 		virtual void SetMarker(const wchar_t* a_name) = 0;
-		virtual BOOL GetStatus(void) = 0;
+		virtual BOOL GetStatus() = 0;
 	};
 
 	struct __declspec(novtable, uuid("cc86fabe-da55-401d-85e7-e3c9de2877e9"))
@@ -243,7 +244,7 @@ namespace REX::W32
 		virtual void PSGetConstantBuffers1(std::uint32_t a_startSlot, std::uint32_t a_numBuffers, ID3D11Buffer** a_constantBuffers, std::uint32_t* a_firstConstant, std::uint32_t* a_numConstants) = 0;
 		virtual void CSGetConstantBuffers1(std::uint32_t a_startSlot, std::uint32_t a_numBuffers, ID3D11Buffer** a_constantBuffers, std::uint32_t* a_firstConstant, std::uint32_t* a_numConstants) = 0;
 		virtual void SwapDeviceContextState(ID3DDeviceContextState* a_state, ID3DDeviceContextState** a_previousState) = 0;
-		virtual void ClearView(ID3D11View* a_view, const float a_color[4], const D3D11_RECT* a_rect, std::uint32_t a_numRects) = 0;
+		virtual void ClearView(ID3D11View* a_view, std::array<const REX::Float32, 4> a_color, const D3D11_RECT* a_rect, std::uint32_t a_numRects) = 0;
 		virtual void DiscardView1(ID3D11View* a_resourceView, const D3D11_RECT* a_rects, std::uint32_t a_numRects) = 0;
 	};
 
@@ -294,13 +295,13 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	inline constexpr IID IID_ID3DDeviceContextState{ 0x5C1E0D8A, 0x7C23, 0x48F9, { 0x8C, 0x59, 0xA9, 0x29, 0x58, 0xCE, 0xFF, 0x11 } };
-	inline constexpr IID IID_ID3DUserDefinedAnnotation{ 0xB2DAAD8B, 0x03D4, 0x4DBF, { 0x95, 0xEB, 0x32, 0xAB, 0x4B, 0x63, 0xD0, 0xAB } };
-	inline constexpr IID IID_ID3D11BlendState1{ 0xCC86FABE, 0xDA55, 0x401D, { 0x85, 0xE7, 0xE3, 0xC9, 0xDE, 0x28, 0x77, 0xE9 } };
-	inline constexpr IID IID_ID3D11Device1{ 0xA04BFB29, 0x08EF, 0x43D6, { 0xA4, 0x9C, 0xA9, 0xBD, 0xBD, 0xCB, 0xE6, 0x86 } };
-	inline constexpr IID IID_ID3D11DeviceContext1{ 0xBB2C6FAA, 0xB5FB, 0x4082, { 0x8E, 0x6B, 0x38, 0x8B, 0x8C, 0xFA, 0x90, 0xE1 } };
-	inline constexpr IID IID_ID3D11RasterizerState1{ 0x1217D7A6, 0x5039, 0x418C, { 0xB0, 0x42, 0x9C, 0xBE, 0x25, 0x6A, 0xFD, 0x6E } };
-	inline constexpr IID IID_ID3D11VideoContext1{ 0xA7F026DA, 0xA5F8, 0x4487, { 0xA5, 0x64, 0x15, 0xE3, 0x43, 0x57, 0x65, 0x1E } };
-	inline constexpr IID IID_ID3D11VideoDevice1{ 0x29DA1D51, 0x1321, 0x4454, { 0x80, 0x4B, 0xF5, 0xFC, 0x9F, 0x86, 0x1F, 0x0F } };
-	inline constexpr IID IID_ID3D11VideoProcessorEnumerator1{ 0x465217F2, 0x5568, 0x43CF, { 0xB5, 0xB9, 0xF6, 0x1D, 0x54, 0x53, 0x1C, 0xA1 } };
+	inline constexpr auto IID_ID3DDeviceContextState = IID{ 0x5C1E0D8A, 0x7C23, 0x48F9, { 0x8C, 0x59, 0xA9, 0x29, 0x58, 0xCE, 0xFF, 0x11 } };
+	inline constexpr auto IID_ID3DUserDefinedAnnotation = IID{ 0xB2DAAD8B, 0x03D4, 0x4DBF, { 0x95, 0xEB, 0x32, 0xAB, 0x4B, 0x63, 0xD0, 0xAB } };
+	inline constexpr auto IID_ID3D11BlendState1 = IID{ 0xCC86FABE, 0xDA55, 0x401D, { 0x85, 0xE7, 0xE3, 0xC9, 0xDE, 0x28, 0x77, 0xE9 } };
+	inline constexpr auto IID_ID3D11Device1 = IID{ 0xA04BFB29, 0x08EF, 0x43D6, { 0xA4, 0x9C, 0xA9, 0xBD, 0xBD, 0xCB, 0xE6, 0x86 } };
+	inline constexpr auto IID_ID3D11DeviceContext1 = IID{ 0xBB2C6FAA, 0xB5FB, 0x4082, { 0x8E, 0x6B, 0x38, 0x8B, 0x8C, 0xFA, 0x90, 0xE1 } };
+	inline constexpr auto IID_ID3D11RasterizerState1 = IID{ 0x1217D7A6, 0x5039, 0x418C, { 0xB0, 0x42, 0x9C, 0xBE, 0x25, 0x6A, 0xFD, 0x6E } };
+	inline constexpr auto IID_ID3D11VideoContext1 = IID{ 0xA7F026DA, 0xA5F8, 0x4487, { 0xA5, 0x64, 0x15, 0xE3, 0x43, 0x57, 0x65, 0x1E } };
+	inline constexpr auto IID_ID3D11VideoDevice1 = IID{ 0x29DA1D51, 0x1321, 0x4454, { 0x80, 0x4B, 0xF5, 0xFC, 0x9F, 0x86, 0x1F, 0x0F } };
+	inline constexpr auto IID_ID3D11VideoProcessorEnumerator1 = IID{ 0x465217F2, 0x5568, 0x43CF, { 0xB5, 0xB9, 0xF6, 0x1D, 0x54, 0x53, 0x1C, 0xA1 } };
 }

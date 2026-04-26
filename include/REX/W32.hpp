@@ -1,10 +1,11 @@
 #pragma once
 
-#include "REX/W32/BASE.hpp"
-
+// IWYU pragma: begin_exports
 #include "REX/W32/ADVAPI32.hpp"
+#include "REX/W32/BCRYPT.hpp"
 #include "REX/W32/COM.hpp"
 #include "REX/W32/COMPTR.hpp"
+#include "REX/W32/CORE.hpp"
 #include "REX/W32/D3D.hpp"
 #include "REX/W32/D3D11.hpp"
 #include "REX/W32/D3D11_1.hpp"
@@ -21,7 +22,11 @@
 #include "REX/W32/DXGI_5.hpp"
 #include "REX/W32/DXGI_6.hpp"
 #include "REX/W32/KERNEL32.hpp"
+#include "REX/W32/NT.hpp"
 #include "REX/W32/OLE32.hpp"
+#include "REX/W32/SHELL32.hpp"
 #include "REX/W32/USER32.hpp"
 #include "REX/W32/VERSION.hpp"
+#include "REX/W32/WS2_32.hpp"
 #include "REX/W32/XINPUT.hpp"
+// IWYU pragma: end_exports

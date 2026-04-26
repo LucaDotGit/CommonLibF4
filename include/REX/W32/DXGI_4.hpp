@@ -12,21 +12,21 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	enum DXGI_MEMORY_SEGMENT_GROUP
+	enum DXGI_MEMORY_SEGMENT_GROUP : std::int32_t
 	{
 		DXGI_MEMORY_SEGMENT_GROUP_LOCAL = 0,
-		DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL = 1,
+		DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL = 1
 	};
 
-	enum DXGI_OVERLAY_COLOR_SPACE_SUPPORT_FLAG
+	enum DXGI_OVERLAY_COLOR_SPACE_SUPPORT_FLAG : std::uint32_t
 	{
-		DXGI_OVERLAY_COLOR_SPACE_SUPPORT_FLAG_PRESENT = 0x1,
+		DXGI_OVERLAY_COLOR_SPACE_SUPPORT_FLAG_PRESENT = 0x1
 	};
 
-	enum DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG
+	enum DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG : std::uint32_t
 	{
 		DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG_PRESENT = 0x1,
-		DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG_OVERLAY_PRESENT = 0x2,
+		DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG_OVERLAY_PRESENT = 0x2
 	};
 }
 
@@ -74,7 +74,7 @@ namespace REX::W32
 	IDXGISwapChain3
 		: public IDXGISwapChain2
 	{
-		virtual std::uint32_t GetCurrentBackBufferIndex(void) = 0;
+		virtual std::uint32_t GetCurrentBackBufferIndex() = 0;
 		virtual HRESULT CheckColorSpaceSupport(DXGI_COLOR_SPACE_TYPE a_colorSpace, std::uint32_t* a_colorSpaceSupport) = 0;
 		virtual HRESULT SetColorSpace1(DXGI_COLOR_SPACE_TYPE a_colorSpace) = 0;
 		virtual HRESULT ResizeBuffers1(std::uint32_t a_bufferCount, std::uint32_t a_width, std::uint32_t a_height, DXGI_FORMAT a_format, std::uint32_t a_swapChainFlags, const std::uint32_t* a_creationNodeMask, IUnknown* const* a_presentQueue) = 0;
@@ -83,8 +83,8 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	inline constexpr IID IID_IDXGIAdapter3{ 0x645967A4, 0x1392, 0x4310, { 0xA7, 0x98, 0x80, 0x53, 0xCE, 0x3E, 0x93, 0xFD } };
-	inline constexpr IID IID_IDXGIFactory4{ 0x1BC6EA02, 0xEF36, 0x464F, { 0xBF, 0x0C, 0x21, 0xCA, 0x39, 0xE5, 0x16, 0x8A } };
-	inline constexpr IID IID_IDXGIOutput4{ 0xDC7DCA35, 0x2196, 0x414D, { 0x9F, 0x53, 0x61, 0x78, 0x84, 0x03, 0x2A, 0x60 } };
-	inline constexpr IID IID_IDXGISwapChain3{ 0x94D99BDB, 0xF1F8, 0x4AB0, { 0xB2, 0x36, 0x7D, 0xA0, 0x17, 0x0E, 0xDA, 0xB1 } };
+	inline constexpr auto IID_IDXGIAdapter3 = IID{ 0x645967A4, 0x1392, 0x4310, { 0xA7, 0x98, 0x80, 0x53, 0xCE, 0x3E, 0x93, 0xFD } };
+	inline constexpr auto IID_IDXGIFactory4 = IID{ 0x1BC6EA02, 0xEF36, 0x464F, { 0xBF, 0x0C, 0x21, 0xCA, 0x39, 0xE5, 0x16, 0x8A } };
+	inline constexpr auto IID_IDXGIOutput4 = IID{ 0xDC7DCA35, 0x2196, 0x414D, { 0x9F, 0x53, 0x61, 0x78, 0x84, 0x03, 0x2A, 0x60 } };
+	inline constexpr auto IID_IDXGISwapChain3 = IID{ 0x94D99BDB, 0xF1F8, 0x4AB0, { 0xB2, 0x36, 0x7D, 0xA0, 0x17, 0x0E, 0xDA, 0xB1 } };
 }

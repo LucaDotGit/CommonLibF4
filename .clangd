@@ -1,0 +1,13 @@
+---
+Index:
+  Background: Skip
+
+Diagnostics:
+  ClangTidy:
+    FastCheckFilter: Loose
+
+InlayHints:
+  Enabled: false
+
+CompileFlags:
+  Add: -ferror-limit=0

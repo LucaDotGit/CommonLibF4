@@ -1,13 +1,16 @@
-# dot folders
-/.idea*
-/.vs*
-/.xmake
+/.cache/
+/.idea/
+/.vs/
+/.vscode/
+/.xmake/
 
-# folders
-build*/
-out*/
-vs*/
+/build/
+/vs/
 
-# files
+*.7z
+*.log
+*.rar
+*.tar.gz
 *.zip
 CMakeUserPresets.json
+compile_commands.json

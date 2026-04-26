@@ -1,0 +1,110 @@
+#include "REX/Fnv1a.hpp"
+
+namespace REX
+{
+	template struct Fnv1a32<bool>;
+	template struct Fnv1a32<char>;
+	template struct Fnv1a32<wchar_t>;
+	template struct Fnv1a32<char8_t>;
+	template struct Fnv1a32<char16_t>;
+	template struct Fnv1a32<char32_t>;
+	template struct Fnv1a32<std::int8_t>;
+	template struct Fnv1a32<std::uint8_t>;
+	template struct Fnv1a32<std::int16_t>;
+	template struct Fnv1a32<std::uint16_t>;
+	template struct Fnv1a32<std::int32_t>;
+	template struct Fnv1a32<std::uint32_t>;
+	template struct Fnv1a32<std::int64_t>;
+	template struct Fnv1a32<std::uint64_t>;
+	template struct Fnv1a32<REX::Float32>;
+	template struct Fnv1a32<REX::Float64>;
+	template struct Fnv1a32<REX::Float128>;
+	template struct Fnv1a32<std::string>;
+	template struct Fnv1a32<std::wstring>;
+	template struct Fnv1a32<std::string_view>;
+	template struct Fnv1a32<std::wstring_view>;
+	template struct Fnv1a32<std::nullptr_t>;
+	template struct Fnv1a32<void*>;
+	template struct Fnv1a32<const void*>;
+
+	template std::uint32_t HashFnv1a32(const bool&) noexcept;
+	template std::uint32_t HashFnv1a32(const char&) noexcept;
+	template std::uint32_t HashFnv1a32(const wchar_t&) noexcept;
+	template std::uint32_t HashFnv1a32(const char8_t&) noexcept;
+	template std::uint32_t HashFnv1a32(const char16_t&) noexcept;
+	template std::uint32_t HashFnv1a32(const char32_t&) noexcept;
+	template std::uint32_t HashFnv1a32(const std::int8_t&) noexcept;
+	template std::uint32_t HashFnv1a32(const std::uint8_t&) noexcept;
+	template std::uint32_t HashFnv1a32(const std::int16_t&) noexcept;
+	template std::uint32_t HashFnv1a32(const std::uint16_t&) noexcept;
+	template std::uint32_t HashFnv1a32(const std::int32_t&) noexcept;
+	template std::uint32_t HashFnv1a32(const std::uint32_t&) noexcept;
+	template std::uint32_t HashFnv1a32(const std::int64_t&) noexcept;
+	template std::uint32_t HashFnv1a32(const std::uint64_t&) noexcept;
+	template std::uint32_t HashFnv1a32(const REX::Float32&) noexcept;
+	template std::uint32_t HashFnv1a32(const REX::Float64&) noexcept;
+	template std::uint32_t HashFnv1a32(const REX::Float128&) noexcept;
+	template std::uint32_t HashFnv1a32(const std::string&) noexcept;
+	template std::uint32_t HashFnv1a32(const std::wstring&) noexcept;
+	template std::uint32_t HashFnv1a32(const std::string_view&) noexcept;
+	template std::uint32_t HashFnv1a32(const std::wstring_view&) noexcept;
+	template std::uint32_t HashFnv1a32(const std::nullptr_t&) noexcept;
+	template std::uint32_t HashFnv1a32(void* const&) noexcept;
+	template std::uint32_t HashFnv1a32(const void* const&) noexcept;
+
+	static_assert(HashFnv1a32(""sv) == 0x811C9DC5ui32);
+	static_assert(HashFnv1a32("123456789"sv) == 0xBB86B11Cui32);
+
+	template struct Fnv1a64<bool>;
+	template struct Fnv1a64<char>;
+	template struct Fnv1a64<wchar_t>;
+	template struct Fnv1a64<char8_t>;
+	template struct Fnv1a64<char16_t>;
+	template struct Fnv1a64<char32_t>;
+	template struct Fnv1a64<std::int8_t>;
+	template struct Fnv1a64<std::uint8_t>;
+	template struct Fnv1a64<std::int16_t>;
+	template struct Fnv1a64<std::uint16_t>;
+	template struct Fnv1a64<std::int32_t>;
+	template struct Fnv1a64<std::uint32_t>;
+	template struct Fnv1a64<std::int64_t>;
+	template struct Fnv1a64<std::uint64_t>;
+	template struct Fnv1a64<REX::Float32>;
+	template struct Fnv1a64<REX::Float64>;
+	template struct Fnv1a64<REX::Float128>;
+	template struct Fnv1a64<std::string>;
+	template struct Fnv1a64<std::wstring>;
+	template struct Fnv1a64<std::string_view>;
+	template struct Fnv1a64<std::wstring_view>;
+	template struct Fnv1a64<std::nullptr_t>;
+	template struct Fnv1a64<void*>;
+	template struct Fnv1a64<const void*>;
+
+	template std::uint64_t HashFnv1a64(const bool&) noexcept;
+	template std::uint64_t HashFnv1a64(const char&) noexcept;
+	template std::uint64_t HashFnv1a64(const wchar_t&) noexcept;
+	template std::uint64_t HashFnv1a64(const char8_t&) noexcept;
+	template std::uint64_t HashFnv1a64(const char16_t&) noexcept;
+	template std::uint64_t HashFnv1a64(const char32_t&) noexcept;
+	template std::uint64_t HashFnv1a64(const std::int8_t&) noexcept;
+	template std::uint64_t HashFnv1a64(const std::uint8_t&) noexcept;
+	template std::uint64_t HashFnv1a64(const std::int16_t&) noexcept;
+	template std::uint64_t HashFnv1a64(const std::uint16_t&) noexcept;
+	template std::uint64_t HashFnv1a64(const std::int32_t&) noexcept;
+	template std::uint64_t HashFnv1a64(const std::uint32_t&) noexcept;
+	template std::uint64_t HashFnv1a64(const std::int64_t&) noexcept;
+	template std::uint64_t HashFnv1a64(const std::uint64_t&) noexcept;
+	template std::uint64_t HashFnv1a64(const REX::Float32&) noexcept;
+	template std::uint64_t HashFnv1a64(const REX::Float64&) noexcept;
+	template std::uint64_t HashFnv1a64(const REX::Float128&) noexcept;
+	template std::uint64_t HashFnv1a64(const std::string&) noexcept;
+	template std::uint64_t HashFnv1a64(const std::wstring&) noexcept;
+	template std::uint64_t HashFnv1a64(const std::string_view&) noexcept;
+	template std::uint64_t HashFnv1a64(const std::wstring_view&) noexcept;
+	template std::uint64_t HashFnv1a64(const std::nullptr_t&) noexcept;
+	template std::uint64_t HashFnv1a64(void* const&) noexcept;
+	template std::uint64_t HashFnv1a64(const void* const&) noexcept;
+
+	static_assert(HashFnv1a64(""sv) == 0xCBF29CE484222325ui64);
+	static_assert(HashFnv1a64("123456789"sv) == 0x6D5573923C6CDFCui64);
+}

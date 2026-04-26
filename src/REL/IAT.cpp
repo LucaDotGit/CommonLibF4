@@ -1,80 +1,64 @@
-#include "REL/IAT.hpp"
-#include "REL/Module.hpp"
-#include "REL/Relocation.hpp"
+#include "REL/Iat.hpp"
 
-#include "F4SE/Logger.hpp"
+#include "REL/Memory.hpp"
 
+#include "REX/Compare.hpp"
 #include "REX/W32/KERNEL32.hpp"
 
 namespace REL
 {
-	std::uintptr_t GetIATAddr(std::string_view a_dll, std::string_view a_function)
+	std::uintptr_t GetImportFunctionAddress(REX::W32::HMODULE a_module, std::string_view a_library, std::string_view a_function)
 	{
-		return reinterpret_cast<std::uintptr_t>(GetIATPtr(std::move(a_dll), std::move(a_function)));
+		return std::bit_cast<std::uintptr_t>(GetImportFunctionPointer(a_module, a_library, a_function));
 	}
 
-	std::uintptr_t GetIATAddr(REX::W32::HMODULE a_module, std::string_view a_dll, std::string_view a_function)
+	// Source: https://guidedhacking.com/attachments/pe_imptbl_headers-jpg.2241/
+	void* GetImportFunctionPointer(REX::W32::HMODULE a_module, std::string_view a_library, std::string_view a_function)
 	{
-		return reinterpret_cast<std::uintptr_t>(GetIATPtr(a_module, std::move(a_dll), std::move(a_function)));
-	}
-
-	void* GetIATPtr(std::string_view a_dll, std::string_view a_function)
-	{
-		const auto mod = static_cast<REX::W32::HMODULE>(REL::Module::get().pointer());
-		return GetIATPtr(mod, std::move(a_dll), std::move(a_function));
-	}
-
-	// https://guidedhacking.com/attachments/pe_imptbl_headers-jpg.2241/
-	void* GetIATPtr(REX::W32::HMODULE a_module, std::string_view a_dll, std::string_view a_function)
-	{
-		assert(a_module);
-		const auto dosHeader = reinterpret_cast<REX::W32::IMAGE_DOS_HEADER*>(a_module);
-		if (dosHeader->magic != REX::W32::IMAGE_DOS_SIGNATURE) {
-			F4SE::log::error("Invalid DOS header"sv);
+		if (!a_module) {
 			return nullptr;
 		}
 
-		const auto ntHeader = stl::adjust_pointer<REX::W32::IMAGE_NT_HEADERS64>(dosHeader, dosHeader->lfanew);
-		const auto& dataDir = ntHeader->optionalHeader.dataDirectory[REX::W32::IMAGE_DIRECTORY_ENTRY_IMPORT];
-		const auto importDesc = stl::adjust_pointer<REX::W32::IMAGE_IMPORT_DESCRIPTOR>(dosHeader, dataDir.virtualAddress);
+		auto* dosHeader = std::bit_cast<REX::W32::IMAGE_DOS_HEADER*>(a_module);
+		if (dosHeader->magic != REX::W32::IMAGE_DOS_SIGNATURE) {
+			return nullptr;
+		}
 
-		for (auto import = importDesc; import->characteristics != 0; ++import) {
-			auto name = stl::adjust_pointer<const char>(dosHeader, import->name);
-			if (a_dll.size() == strlen(name) && _strnicmp(a_dll.data(), name, a_dll.size()) != 0) {
+		const auto* ntHeader = REL::AdjustPointer<REX::W32::IMAGE_NT_HEADERS64>(dosHeader, dosHeader->lfanew);
+		const auto& dataDirectory = ntHeader->optionalHeader.dataDirectory[REX::W32::IMAGE_DIRECTORY_ENTRY_IMPORT];
+		const auto* importDescriptor = REL::AdjustPointer<REX::W32::IMAGE_IMPORT_DESCRIPTOR>(dosHeader, dataDirectory.virtualAddress);
+
+		for (const auto* import = importDescriptor; import->characteristics != 0; import++) {
+			const auto* importName = REL::AdjustPointer<const char>(dosHeader, import->name);
+			if (!REX::EqualsIgnoreCase(a_library, std::string_view(importName))) {
 				continue;
 			}
 
-			const auto thunk = stl::adjust_pointer<REX::W32::IMAGE_THUNK_DATA64>(dosHeader, import->firstThunkOriginal);
-			for (std::size_t i = 0; thunk[i].ordinal; ++i) {
-				if (REX::W32::IMAGE_SNAP_BY_ORDINAL64(thunk[i].ordinal)) {
+			const auto* thunkData = REL::AdjustPointer<REX::W32::IMAGE_THUNK_DATA64>(dosHeader, import->firstThunkOriginal);
+			for (auto i = static_cast<std::size_t>(0); thunkData[i].ordinal != 0; i++) {
+				if (REX::W32::IMAGE_SNAP_BY_ORDINAL64(thunkData[i].ordinal)) {
 					continue;
 				}
 
-				const auto importByName = stl::adjust_pointer<REX::W32::IMAGE_IMPORT_BY_NAME>(dosHeader, thunk[i].address);
-				if (a_function.size() == strlen(importByName->name) &&
-					_strnicmp(a_function.data(), importByName->name, a_function.size()) == 0) {
-					return stl::adjust_pointer<REX::W32::IMAGE_THUNK_DATA64>(dosHeader, import->firstThunk) + i;
+				const auto* importByName = REL::AdjustPointer<REX::W32::IMAGE_IMPORT_BY_NAME>(dosHeader, static_cast<std::ptrdiff_t>(thunkData[i].address));
+				if (REX::EqualsIgnoreCase(a_function, std::string_view(importByName->name.data()))) {
+					return REL::AdjustPointer<REX::W32::IMAGE_THUNK_DATA64>(dosHeader, import->firstThunk) + i;
 				}
 			}
 		}
 
-		F4SE::log::warn("Failed to find {} ({})"sv, a_dll, a_function);
 		return nullptr;
 	}
 
-	std::uintptr_t PatchIAT(std::uintptr_t a_newFunc, std::string_view a_dll, std::string_view a_function)
+	std::uintptr_t SetImportFunctionPointer(REX::W32::HMODULE a_module, std::string_view a_library, std::string_view a_function, std::uintptr_t a_newFunc)
 	{
-		std::uintptr_t origAddr = 0;
-
-		const auto oldFunc = GetIATAddr(a_dll, a_function);
-		if (oldFunc) {
-			origAddr = *reinterpret_cast<std::uintptr_t*>(oldFunc);
-			REL::safe_write(oldFunc, a_newFunc);
-		}
-		else {
-			F4SE::log::warn("Failed to patch {} ({})"sv, a_dll, a_function);
+		const auto oldFunc = GetImportFunctionAddress(a_module, a_library, a_function);
+		if (oldFunc == 0) {
+			return 0;
 		}
 
-		return origAddr;
+		const auto oldAddress = *std::bit_cast<std::uintptr_t*>(oldFunc);
+		std::ignore = WriteSafeData(oldFunc, a_newFunc);
+		return oldAddress;
 	}
 }

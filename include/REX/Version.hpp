@@ -1,0 +1,365 @@
+#pragma once
+
+#include "REX/Concepts.hpp"
+#include "REX/Contract.hpp"
+#include "REX/ErrorCode.hpp"
+#include "REX/Hash.hpp"
+#include "REX/ZString.hpp"
+
+namespace REX
+{
+	struct Version final
+	{
+	public:
+		inline static constexpr auto MAX_SIZE = static_cast<std::size_t>(4);
+
+		using value_type = std::uint16_t;
+		using container_type = std::array<value_type, MAX_SIZE>;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
+		using pointer = value_type*;
+		using const_pointer = const value_type*;
+		using reference = value_type&;
+		using const_reference = const value_type&;
+		using iterator = pointer;
+		using const_iterator = const_pointer;
+		using reverse_iterator = std::reverse_iterator<iterator>;
+		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+		static const Version MIN;
+		static const Version MAX;
+
+		constexpr Version() noexcept = default;
+		constexpr ~Version() noexcept = default;
+
+		constexpr explicit Version(value_type a_v01, value_type a_v02, value_type a_v03, value_type a_v04) noexcept
+			: _data{ a_v01, a_v02, a_v03, a_v04 }
+		{
+		}
+
+		constexpr explicit Version(value_type a_v01, value_type a_v02, value_type a_v03) noexcept
+			: _data{ a_v01, a_v02, a_v03, 0 }
+		{
+		}
+
+		constexpr explicit Version(value_type a_v01, value_type a_v02) noexcept
+			: _data{ a_v01, a_v02, 0, 0 }
+		{
+		}
+
+		constexpr explicit Version(value_type a_v01) noexcept
+			: _data{ a_v01, 0, 0, 0 }
+		{
+		}
+
+		constexpr explicit Version(container_type a_version) noexcept
+			: _data(a_version)
+		{
+		}
+
+		constexpr explicit Version(std::span<const value_type, MAX_SIZE> a_version) noexcept
+			: _data{ a_version[0], a_version[1], a_version[2], a_version[3] }
+		{
+		}
+
+		constexpr Version(const Version&) noexcept = default;
+		constexpr Version(Version&&) noexcept = default;
+
+		constexpr Version& operator=(const Version&) noexcept = default;
+		constexpr Version& operator=(Version&&) noexcept = default;
+
+		constexpr Version& operator=(container_type a_version) noexcept
+		{
+			_data = a_version;
+			return *this;
+		}
+
+		constexpr Version& operator=(std::span<value_type, MAX_SIZE> a_version) noexcept
+		{
+			_data = { a_version[0], a_version[1], a_version[2], a_version[3] };
+			return *this;
+		}
+
+		[[nodiscard]] constexpr bool operator==(const Version&) const noexcept = default;
+		[[nodiscard]] constexpr bool operator!=(const Version&) const noexcept = default;
+		[[nodiscard]] constexpr auto operator<=>(const Version&) const noexcept = default;
+
+		[[nodiscard]] constexpr reference operator[](size_type a_index) noexcept { return at(a_index); }
+		[[nodiscard]] constexpr const_reference operator[](size_type a_index) const noexcept { return at(a_index); }
+
+		[[nodiscard]] constexpr reference at(size_type a_index) noexcept
+		{
+			REX::Assert(a_index < size());
+			return _data[a_index];
+		}
+
+		[[nodiscard]] constexpr const_reference at(size_type a_index) const noexcept
+		{
+			REX::Assert(a_index < size());
+			return _data[a_index];
+		}
+
+		[[nodiscard]] constexpr reference front() noexcept { return at(0); }
+		[[nodiscard]] constexpr const_reference front() const noexcept { return at(0); }
+
+		[[nodiscard]] constexpr reference back() noexcept { return at(size() - 1); }
+		[[nodiscard]] constexpr const_reference back() const noexcept { return at(size() - 1); }
+
+		[[nodiscard]] constexpr pointer data() noexcept { return _data.data(); }
+		[[nodiscard]] constexpr const_pointer data() const noexcept { return _data.data(); }
+
+		[[nodiscard]] constexpr iterator begin() noexcept { return data(); }
+		[[nodiscard]] constexpr const_iterator begin() const noexcept { return data(); }
+		[[nodiscard]] constexpr const_iterator cbegin() const noexcept { return begin(); }
+
+		[[nodiscard]] constexpr iterator end() noexcept { return data() + size(); }
+		[[nodiscard]] constexpr const_iterator end() const noexcept { return data() + size(); }
+		[[nodiscard]] constexpr const_iterator cend() const noexcept { return end(); }
+
+		[[nodiscard]] constexpr reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
+		[[nodiscard]] constexpr const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(end()); }
+		[[nodiscard]] constexpr const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(cend()); }
+
+		[[nodiscard]] constexpr reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
+		[[nodiscard]] constexpr const_reverse_iterator rend() const noexcept { return const_reverse_iterator(begin()); }
+		[[nodiscard]] constexpr const_reverse_iterator crend() const noexcept { return const_reverse_iterator(cbegin()); }
+
+		[[nodiscard]] constexpr size_type size() const noexcept { return _data.size(); }
+		[[nodiscard]] constexpr size_type max_size() const noexcept { return _data.max_size(); }
+
+		[[nodiscard]] constexpr value_type GetMajor() const noexcept { return at(0); }
+		[[nodiscard]] constexpr value_type GetMinor() const noexcept { return at(1); }
+		[[nodiscard]] constexpr value_type GetPatch() const noexcept { return at(2); }
+		[[nodiscard]] constexpr value_type GetBuild() const noexcept { return at(3); }
+
+		template <REX::win32_character T>
+		[[nodiscard]] static constexpr auto FromString(std::basic_string_view<T> a_version, T a_separator = static_cast<T>('.')) noexcept -> std::expected<Version, REX::PosixErrorCode>
+		{
+			auto parts = container_type();
+			auto partIndex = static_cast<std::size_t>(0);
+
+			auto start = a_version.begin();
+			auto end = a_version.end();
+
+			while (start != end) {
+				const auto next = std::find(start, end, a_separator);
+				const auto length = std::distance(start, next);
+
+				if (length == 0) {
+					break;
+				}
+
+				auto buffer = std::array<char, REX::buffer_traits<value_type>::buffer_size::value>();
+
+				for (auto i = 0ui32; i < buffer.size() && i < length; i++) {
+					buffer[i] = static_cast<char>(start[i]);
+				}
+
+				const auto conversion = std::from_chars(buffer.data(), buffer.data() + buffer.size(), parts[partIndex]);
+				if (conversion.ec != REX::POSIX_ERROR_CODE_SUCCESS) {
+					return std::unexpected(conversion.ec);
+				}
+
+				if (next == end) {
+					break;
+				}
+
+				partIndex++;
+
+				if (partIndex >= parts.size()) {
+					break;
+				}
+
+				start = next + 1;
+			}
+
+			return Version(parts);
+		}
+
+		template <REX::win32_character T>
+		[[nodiscard]] constexpr auto ToString(T a_separator = static_cast<T>('.')) const -> std::basic_string<T>
+		{
+			auto result = std::array<T, REX::buffer_traits<value_type>::buffer_size::value * MAX_SIZE>();
+			auto totalLength = static_cast<std::size_t>(0);
+
+			for (auto it = _data.begin(); it != _data.end(); it++) {
+				auto buffer = std::array<char, REX::buffer_traits<value_type>::buffer_size::value>();
+
+				const auto conversion = std::to_chars(buffer.data(), buffer.data() + buffer.size(), *it);
+				if (conversion.ec != REX::POSIX_ERROR_CODE_SUCCESS) [[unlikely]] {
+					REX::Assert(false);
+					return {};
+				}
+
+				const auto length = std::char_traits<char>::length(buffer.data());
+				std::copy_n(buffer.data(), length, result.data() + totalLength);
+
+				totalLength += length;
+				if (totalLength >= result.size()) {
+					break;
+				}
+
+				if (it != std::prev(_data.end())) {
+					result[totalLength] = a_separator;
+					totalLength++;
+				}
+			}
+
+			result[totalLength] = '\0';
+			return std::basic_string<T>{ result.data(), totalLength };
+		}
+
+		template <REX::unsigned_integer T>
+		[[nodiscard]] static constexpr Version Unpack(T a_packedVersion) noexcept;
+
+		template <>
+		[[nodiscard]] constexpr Version Unpack(std::uint32_t a_packedVersion) noexcept
+		{
+			return Version{
+				static_cast<value_type>((a_packedVersion >> 0x18ui32) & 0x0FFui32),
+				static_cast<value_type>((a_packedVersion >> 0x10ui32) & 0x0FFui32),
+				static_cast<value_type>((a_packedVersion >> 0x04ui32) & 0xFFFui32),
+				static_cast<value_type>((a_packedVersion >> 0x00ui32) & 0x00Fui32)
+			};
+		}
+
+		template <>
+		[[nodiscard]] constexpr Version Unpack(std::uint64_t a_packedVersion) noexcept
+		{
+			return Version{
+				static_cast<value_type>((a_packedVersion >> 0x30ui64) & 0xFFFFui64),
+				static_cast<value_type>((a_packedVersion >> 0x20ui64) & 0xFFFFui64),
+				static_cast<value_type>((a_packedVersion >> 0x10ui64) & 0xFFFFui64),
+				static_cast<value_type>((a_packedVersion >> 0x00ui64) & 0xFFFFui64)
+			};
+		}
+
+		template <REX::unsigned_integer T>
+		[[nodiscard]] constexpr T Pack() const noexcept;
+
+		template <>
+		[[nodiscard]] constexpr std::uint32_t Pack() const noexcept
+		{
+			return (GetMajor() & 0x0FFui32) << 0x18ui32 |
+				   (GetMinor() & 0x0FFui32) << 0x10ui32 |
+				   (GetPatch() & 0xFFFui32) << 0x04ui32 |
+				   (GetBuild() & 0x0FFui32) << 0x00ui32;
+		}
+
+		template <>
+		[[nodiscard]] constexpr std::uint64_t Pack() const noexcept
+		{
+			return (static_cast<std::uint64_t>(GetMajor()) & 0xFFFFui64) << 0x30ui64 |
+				   (static_cast<std::uint64_t>(GetMinor()) & 0xFFFFui64) << 0x20ui64 |
+				   (static_cast<std::uint64_t>(GetPatch()) & 0xFFFFui64) << 0x10ui64 |
+				   (static_cast<std::uint64_t>(GetBuild()) & 0xFFFFui64) << 0x00ui64;
+		}
+
+		constexpr void swap(Version& a_other) noexcept
+		{
+			if (this == std::addressof(a_other)) {
+				return;
+			}
+
+			std::swap(_data, a_other._data);
+		}
+
+		container_type _data{ 0, 0, 0, 0 };
+	};
+
+	inline constexpr auto Version::MIN = Version(
+		std::numeric_limits<Version::value_type>::min(),
+		std::numeric_limits<Version::value_type>::min(),
+		std::numeric_limits<Version::value_type>::min(),
+		std::numeric_limits<Version::value_type>::min());
+
+	inline constexpr auto Version::MAX = Version(
+		std::numeric_limits<Version::value_type>::max(),
+		std::numeric_limits<Version::value_type>::max(),
+		std::numeric_limits<Version::value_type>::max(),
+		std::numeric_limits<Version::value_type>::max());
+
+	extern template auto Version::FromString(std::string_view a_version, char a_separator) noexcept -> std::expected<Version, REX::PosixErrorCode>;
+	extern template auto Version::FromString(std::wstring_view a_version, wchar_t a_separator) noexcept -> std::expected<Version, REX::PosixErrorCode>;
+
+	extern template auto Version::ToString(char a_separator) const -> std::string;
+	extern template auto Version::ToString(wchar_t a_separator) const -> std::wstring;
+
+	static_assert(std::is_standard_layout_v<Version>);
+	static_assert(std::is_trivially_destructible_v<Version>);
+	static_assert(std::is_trivially_copyable_v<Version>);
+
+	constexpr void swap(Version& a_lhs, Version& a_rhs) noexcept
+	{
+		a_lhs.swap(a_rhs);
+	}
+
+	[[nodiscard]] auto GetFileVersion(REX::zstring_view a_fileName) noexcept -> std::expected<Version, REX::SystemError>;
+	[[nodiscard]] auto GetFileVersion(REX::zwstring_view a_fileName) noexcept -> std::expected<Version, REX::SystemError>;
+
+	[[nodiscard]] auto GetProductVersion(REX::zstring_view a_fileName) noexcept -> std::expected<Version, REX::SystemError>;
+	[[nodiscard]] auto GetProductVersion(REX::zwstring_view a_fileName) noexcept -> std::expected<Version, REX::SystemError>;
+}
+
+namespace std
+{
+	template <>
+	struct hash<REX::Version>
+	{
+	public:
+		[[nodiscard]] std::size_t operator()(const REX::Version& a_key) const noexcept
+		{
+			return REX::HashRange(std::span{ a_key.begin(), a_key.end() });
+		}
+	};
+}
+
+#if __cpp_lib_format > 0l
+namespace std
+{
+	template <>
+	struct formatter<REX::Version>
+		: public formatter<std::string>
+	{
+	public:
+		template <class ParseContext>
+		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		{
+			return a_ctx.begin();
+		}
+
+		template <class FormatContext>
+		[[nodiscard]] constexpr auto format(const REX::Version& a_value, FormatContext& a_ctx) const
+		{
+			using namespace std::string_view_literals;
+
+			return format_to(a_ctx.out(), "{}"sv, a_value.ToString<char>());
+		}
+	};
+}
+#endif
+
+#if FMT_VERSION > 0l
+namespace fmt
+{
+	template <>
+	struct formatter<REX::Version>
+		: public formatter<std::string>
+	{
+	public:
+		template <class ParseContext>
+		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		{
+			return a_ctx.begin();
+		}
+
+		template <class FormatContext>
+		[[nodiscard]] constexpr auto format(const REX::Version& a_value, FormatContext& a_ctx) const
+		{
+			using namespace std::string_view_literals;
+
+			return format_to(a_ctx.out(), "{}"sv, a_value.ToString<char>());
+		}
+	};
+}
+#endif

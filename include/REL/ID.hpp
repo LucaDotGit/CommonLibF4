@@ -1,181 +1,155 @@
 #pragma once
 
-#include "REL/IDDB.hpp"
+#include "REL/Iddb.hpp"
 #include "REL/Module.hpp"
+#include "REL/Runtime.hpp"
+
+#include "REX/Hash.hpp"
 
 namespace REL
 {
-	class ID
+	inline constexpr auto INVALID_ID = std::numeric_limits<std::uintptr_t>::max();
+	inline constexpr auto INVALID_ID_OFFSET = std::numeric_limits<std::ptrdiff_t>::max();
+	inline constexpr auto INVALID_ID_ADDRESS = std::numeric_limits<std::uintptr_t>::min();
+
+	class IId
 	{
 	public:
-		constexpr ID() noexcept = default;
+		using value_type = std::uintptr_t;
 
-		explicit constexpr ID(std::uint64_t a_id) noexcept :
-			_id(a_id)
-		{
-		}
+		virtual ~IId() noexcept = default;
 
-		constexpr ID& operator=(std::uint64_t a_id) noexcept
-		{
-			_id = a_id;
-			return *this;
-		}
-
-		[[nodiscard]] std::uintptr_t address() const { return base() + offset(); }
-		[[nodiscard]] constexpr std::uint64_t id() const noexcept { return _id; }
-		[[nodiscard]] std::size_t offset() const { return IDDB::get().id2offset(_id); }
-
-	private:
-		[[nodiscard]] static std::uintptr_t base() { return Module::get().base(); }
-
-		std::uint64_t _id{ static_cast<std::uint64_t>(-1) };
+		[[nodiscard]] virtual value_type GetId() const noexcept = 0;
+		[[nodiscard]] virtual std::ptrdiff_t GetOffset() const noexcept = 0;
+		[[nodiscard]] virtual std::uintptr_t GetAddress() const noexcept = 0;
 	};
 
-	class RelocationID
+	template <Runtime R0 = Runtime::LATEST, Runtime... R>
+	class Id final
+		: public IId
 	{
 	public:
-		constexpr RelocationID() noexcept = default;
+		using value_type = IId::value_type;
 
-		explicit constexpr RelocationID(
-			[[maybe_unused]] std::uint64_t a_f4ID,
-			[[maybe_unused]] std::uint64_t a_ngID) noexcept
+		static_assert(REL::Impl::ValidateRuntimeValues<R0, R...>());
+		static_assert(REL::Impl::ValidateRuntimeOrder<R0, R...>());
+
+		inline static constexpr auto RUNTIMES = std::array{ R0, R... };
+
+		constexpr Id() noexcept = default;
+		constexpr ~Id() noexcept override = default;
+
+		template <class... V>
+		constexpr explicit Id(V&&... a_ids) //
+			noexcept((std::is_nothrow_convertible_v<V, value_type> && ...))
+			requires((std::is_convertible_v<V, value_type> && ...) &&
+					 (sizeof...(V) == sizeof...(R) + 1))
+			: _ids{ static_cast<value_type>(std::forward<V>(a_ids))... }
 		{
-#ifdef ENABLE_FALLOUT_F4
-			_f4ID = a_f4ID;
-#endif
-#ifdef ENABLE_FALLOUT_NG
-			_ngID = a_ngID;
-#endif
-#ifdef ENABLE_FALLOUT_VR
-			_vrID = a_f4ID;
-#endif
 		}
 
-		explicit constexpr RelocationID(
-			[[maybe_unused]] std::uint64_t a_f4ID,
-			[[maybe_unused]] std::uint64_t a_ngID,
-			[[maybe_unused]] std::uint64_t a_vrID) noexcept
-		{
-#ifdef ENABLE_FALLOUT_F4
-			_f4ID = a_f4ID;
-#endif
-#ifdef ENABLE_FALLOUT_NG
-			_ngID = a_ngID;
-#endif
-#ifdef ENABLE_FALLOUT_VR
-			_vrID = a_vrID;
-#endif
-		}
+		constexpr Id(const Id&) noexcept = default;
+		constexpr Id(Id&&) noexcept = default;
 
-		[[nodiscard]] std::uintptr_t address() const
-		{
-			auto thisOffset = offset();
-			return thisOffset ? base() + offset() : 0;
-		}
+		constexpr Id& operator=(const Id&) noexcept = default;
+		constexpr Id& operator=(Id&&) noexcept = default;
 
-		[[nodiscard]] std::size_t offset() const
-		{
-			auto thisID = id();
-			return thisID ? IDDB::get().id2offset(thisID) : 0;
-		}
+		[[nodiscard]] constexpr bool operator==(const Id&) const noexcept = default;
+		[[nodiscard]] constexpr bool operator!=(const Id&) const noexcept = default;
+		[[nodiscard]] constexpr auto operator<=>(const Id&) const noexcept = default;
 
-		[[nodiscard]] FALLOUT_REL std::uint64_t id() const noexcept
+		[[nodiscard]] constexpr const auto& GetIds() const noexcept { return _ids; }
+
+		[[nodiscard]] constexpr value_type GetId(Runtime a_runtime) const noexcept
 		{
-			switch (Module::GetRuntime()) {
-#ifdef ENABLE_FALLOUT_NG
-				case Module::Runtime::NG:
-					return _ngID;
-#endif
-#ifdef ENABLE_FALLOUT_F4
-				case Module::Runtime::F4:
-					return _f4ID;
-#endif
-#ifdef ENABLE_FALLOUT_VR
-				case Module::Runtime::VR:
-					return _vrID;
-#endif
-				default:
-					return 0;
+			if constexpr (RUNTIMES.size() == 1) {
+				if (a_runtime > RUNTIMES.front()) {
+					return INVALID_ID;
+				}
+
+				return _ids.front();
+			}
+			else {
+				const auto runtimeIt = std::ranges::upper_bound(RUNTIMES, a_runtime);
+				if (runtimeIt == RUNTIMES.begin()) {
+					return INVALID_ID;
+				}
+
+				const auto index = static_cast<std::size_t>(std::distance(RUNTIMES.begin(), runtimeIt - 1));
+				return _ids[index];
 			}
 		}
 
-		[[nodiscard]] FALLOUT_REL explicit operator ID() const noexcept
+		[[nodiscard]] value_type GetId() const noexcept override
 		{
-			return ID(id());
+			const auto currentRuntime = REL::Module::GetSingleton()->GetRuntime();
+			return GetId(currentRuntime);
+		}
+
+		[[nodiscard]] std::ptrdiff_t GetOffset() const noexcept override
+		{
+			const auto id = GetId();
+			if (id == INVALID_ID) {
+				return INVALID_ID_OFFSET;
+			}
+
+			return REL::Iddb::GetSingleton()->GetOffset(id);
+		}
+
+		[[nodiscard]] std::uintptr_t GetAddress() const noexcept override
+		{
+			const auto offset = GetOffset();
+			if (offset == INVALID_ID_OFFSET) {
+				return INVALID_ID_ADDRESS;
+			}
+
+			const auto baseAddress = REL::Module::GetSingleton()->GetBaseAddress();
+			return baseAddress + offset;
+		}
+
+		constexpr void swap(Id& a_other) noexcept
+		{
+			std::swap(_ids, a_other._ids);
 		}
 
 	private:
-		[[nodiscard]] static std::uintptr_t base() { return Module::get().base(); }
-
-#ifdef ENABLE_FALLOUT_F4
-		std::uint64_t _f4ID{ 0 };
-#endif
-#ifdef ENABLE_FALLOUT_NG
-		std::uint64_t _ngID{ 0 };
-#endif
-#ifdef ENABLE_FALLOUT_VR
-		std::uint64_t _vrID{ 0 };
-#endif
+		std::array<value_type, RUNTIMES.size()> _ids;
 	};
 
-	class VariantID
+	template <Runtime R0 = Runtime::LATEST, Runtime... R>
+	constexpr void swap(Id<R0, R...>& a_lhs, Id<R0, R...>& a_rhs) noexcept
+	{
+		a_lhs.swap(a_rhs);
+	}
+
+	template <class V>
+	[[nodiscard]] constexpr auto CreateId(V&& a_id) //
+		noexcept(std::is_nothrow_constructible_v<Id<>, V>)
+		requires(std::is_constructible_v<Id<>, V>)
+	{
+		return Id<>(std::forward<V>(a_id));
+	}
+
+	template <Runtime R0, Runtime... R, class... V>
+	[[nodiscard]] constexpr auto CreateId(V&&... a_ids) //
+		noexcept(std::is_nothrow_constructible_v<Id<R0, R...>, V...>)
+		requires(std::is_constructible_v<Id<R0, R...>, V...> &&
+				 (sizeof...(V) == sizeof...(R) + 1))
+	{
+		return Id<R0, R...>(std::forward<V>(a_ids)...);
+	}
+}
+
+namespace std
+{
+	template <class T>
+		requires(std::derived_from<T, REL::IId>)
+	struct hash<T>
 	{
 	public:
-		constexpr VariantID() noexcept = default;
-
-		explicit constexpr VariantID(
-			[[maybe_unused]] std::uint64_t a_f4ID,
-			[[maybe_unused]] std::uint64_t a_ngID,
-			[[maybe_unused]] std::uint64_t a_vrOffset) noexcept
+		[[nodiscard]] std::size_t operator()(const T& a_key) const noexcept
 		{
-#ifdef ENABLE_FALLOUT_F4
-			_f4ID = a_f4ID;
-#endif
-#ifdef ENABLE_FALLOUT_NG
-			_ngID = a_ngID;
-#endif
-#ifdef ENABLE_FALLOUT_VR
-			_vrOffset = a_vrOffset;
-#endif
+			return REX::Hash(a_key.GetId());
 		}
-
-		[[nodiscard]] std::uintptr_t address() const
-		{
-			auto thisOffset = offset();
-			return thisOffset ? base() + offset() : 0;
-		}
-
-		[[nodiscard]] std::size_t offset() const
-		{
-			switch (Module::GetRuntime()) {
-#ifdef ENABLE_FALLOUT_NG
-				case Module::Runtime::NG:
-					return _ngID ? IDDB::get().id2offset(_ngID) : 0;
-#endif
-#ifdef ENABLE_FALLOUT_F4
-				case Module::Runtime::F4:
-					return _f4ID ? IDDB::get().id2offset(_f4ID) : 0;
-#endif
-#ifdef ENABLE_FALLOUT_VR
-				case Module::Runtime::VR:
-					return _vrOffset;
-#endif
-				default:
-					return 0;
-			}
-		}
-
-	private:
-		[[nodiscard]] static std::uintptr_t base() { return Module::get().base(); }
-
-#ifdef ENABLE_FALLOUT_F4
-		std::uint64_t _f4ID{ 0 };
-#endif
-#ifdef ENABLE_FALLOUT_NG
-		std::uint64_t _ngID{ 0 };
-#endif
-#ifdef ENABLE_FALLOUT_VR
-		std::uint64_t _vrOffset{ 0 };
-#endif
 	};
 }

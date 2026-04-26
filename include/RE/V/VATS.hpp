@@ -1,0 +1,87 @@
+#pragma once
+
+#include "RE/B/BSSpinLock.hpp"
+#include "RE/B/BSTArray.hpp"
+#include "RE/B/BSTEvent.hpp"
+#include "RE/B/BSTSingleton.hpp"
+#include "RE/B/BSTSmartPointer.hpp"
+#include "RE/N/NiPointer.hpp"
+
+namespace RE
+{
+	class BSLight;
+	class ProjectileBeginUpdateEvent;
+	class TESDeathEvent;
+	class TESHitEvent;
+	class VATSCameraContext;
+	class VATSCommand;
+	class WeaponFiredEvent;
+
+	class __declspec(novtable) VATS
+		: public BSTEventSink<WeaponFiredEvent>,		   // 00
+		  public BSTEventSink<ProjectileBeginUpdateEvent>, // 08
+		  public BSTEventSink<TESHitEvent>,				   // 10
+		  public BSTEventSink<TESDeathEvent>,			   // 18
+		  public BSTSingletonSDM<VATS>					   // 20
+	{
+	public:
+		inline static constexpr auto RTTI{ RTTI::VATS };
+		inline static constexpr auto VTABLE{ VTABLE::VATS };
+
+		enum class VATS_MODE_ENUM : std::int32_t
+		{
+			kNone = 0,
+			kPlayback = 1
+		};
+
+		~VATS() override; // 00
+
+		// override (BSTEventSink<WeaponFiredEvent>)
+		BSEventNotifyControl ProcessEvent(const WeaponFiredEvent& a_event, BSTEventSource<WeaponFiredEvent>* a_eventSource) override; // 01
+
+		// override (BSTEventSink<ProjectileBeginUpdateEvent>)
+		BSEventNotifyControl ProcessEvent(const ProjectileBeginUpdateEvent& a_event, BSTEventSource<ProjectileBeginUpdateEvent>* a_eventSource) override; // 01
+
+		// override (BSTEventSink<TESHitEvent> and BSTEventSink<TESDeathEvent>)
+		BSEventNotifyControl ProcessEvent(const TESHitEvent& a_event, BSTEventSource<TESHitEvent>* a_eventSource) override; // 01
+
+		// override (BSTEventSink<TESDeathEvent>)
+		BSEventNotifyControl ProcessEvent(const TESDeathEvent& a_event, BSTEventSource<TESDeathEvent>* a_eventSource) override; // 01
+
+		[[nodiscard]] static VATS* GetSingleton()
+		{
+			static const auto SINGLETON = REL::Relocation<VATS**>{ ID::VATS::Singleton };
+			return *SINGLETON;
+		}
+
+		// members
+		BSTArray<BSTSmartPointer<VATSCommand>> commands; // 28
+		REX::Enum<VATS_MODE_ENUM, std::int32_t> mode;	 // 40
+		VATSCameraContext* cameraContext;				 // 48
+		REX::Float32 castingAfterKillDelay;				 // 50
+		NiPointer<Projectile> firstProjectile;			 // 58
+		NiPointer<Projectile> lastProjectile;			 // 60
+		REX::Float32 fakeShotCounter;					 // 68
+		TESIdleForm* meleeAttack;						 // 70
+		NiPointer<BSLight> vatsLight;					 // 78
+		std::int32_t killCount;							 // 80
+		REX::Float32 magicTimeSlowdown;					 // 84
+		REX::Float32 playerMagicTimeSlowdown;			 // 88
+		NiPointer<TESObjectREFR> vatsTarget;			 // 90
+		NiPointer<Actor> vatsAttacker;					 // 98
+		NiPointer<Actor> stranger;						 // A0
+		NiPointer<Projectile> predictionProjectile;		 // A8
+		BSTSmartPointer<VATSCommand> reloadCommand;		 // B0
+		BSTSmartPointer<VATSCommand> sightedCommand;	 // B8
+		REX::Float32 vatsPlaybackTimer;					 // C0
+		REX::Float32 vatsCommandTimer;					 // C4
+		bool projectileNearTarget;						 // C8
+		bool applyCritical;								 // C9
+		bool firstAttackExecuted;						 // CA
+		bool firstAttackFired;							 // CB
+		bool readyForShutdown;							 // CC
+		bool wantsStranger;								 // CD
+		mutable BSSpinLock spinLock;					 // D0
+	};
+	static_assert(sizeof(VATS) == 0xD8);
+}

@@ -1,0 +1,100 @@
+---
+FormatStyle: file
+HeaderFilterRegex: ""
+SystemHeaders: false
+WarningsAsErrors: "*"
+
+Checks: >
+  -*,
+
+  bugprone-*,
+  -bugprone-derived-method-shadowing-base-method,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-implicit-widening-of-multiplication-result,
+  -bugprone-misplaced-widening-cast,
+  -bugprone-reserved-identifier,
+  -bugprone-std-namespace-modification,
+  -bugprone-suspicious-stringview-data-usage,
+  -bugprone-throwing-static-initialization,
+  -bugprone-virtual-near-miss,
+
+  clang-analyzer-*,
+
+  concurrency-*,
+
+  cppcoreguidelines-*,
+  -cppcoreguidelines-avoid-do-while,
+  -cppcoreguidelines-macro-usage,
+  -cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-type-const-cast,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -cppcoreguidelines-pro-type-union-access,
+  -cppcoreguidelines-special-member-functions,
+
+  google-build-explicit-make-pair,
+  google-runtime-int,
+  google-runtime-operator,
+
+  hicpp-exception-baseclass,
+  hicpp-multiway-paths-covered,
+
+  llvm-include-order,
+  llvm-prefer-static-over-anonymous-namespace,
+
+  misc-*,
+  -misc-multiple-inheritance,
+  -misc-no-recursion,
+  -misc-non-private-member-variables-in-classes,
+  -misc-use-anonymous-namespace,
+
+  modernize-*,
+  -modernize-use-nodiscard,
+  -modernize-use-trailing-return-type,
+
+  performance-*,
+  -performance-enum-size,
+
+  portability-*,
+  -portability-avoid-pragma-once,
+  -portability-template-virtual-member-function,
+
+  readability-*,
+  -readability-enum-initial-value,
+  -readability-function-cognitive-complexity,
+  -readability-function-size,
+  -readability-identifier-length,
+  -readability-implicit-bool-conversion,
+  -readability-magic-numbers,
+  -readability-redundant-control-flow,
+  -readability-redundant-inline-specifier,
+  -readability-uppercase-literal-suffix,
+
+
+  -cppcoreguidelines-avoid-c-arrays,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-c-copy-assignment-signature,
+  -cppcoreguidelines-explicit-virtual-functions,
+  -cppcoreguidelines-macro-to-enum,
+  -cppcoreguidelines-narrowing-conversions,
+  -cppcoreguidelines-noexcept-destructor,
+  -cppcoreguidelines-noexcept-move-operations,
+  -cppcoreguidelines-noexcept-swap,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
+  -cppcoreguidelines-use-default-member-init,
+
+CheckOptions:
+  - key: cppcoreguidelines-avoid-non-const-global-variables.AllowInternalLinkage
+    value: true
+  - key: cppcoreguidelines-use-enum-class.IgnoreUnscopedEnumsInClasses
+    value: true
+  - key: misc-throw-by-value-catch-by-reference.WarnOnLargeObject
+    value: true
+  - key: misc-use-internal-linkage.AnalyzeTypes
+    value: false
+  - key: misc-use-internal-linkage.FixMode
+    value: UseStatic
+  - key: modernize-use-transparent-functors.SafeMode
+    value: true

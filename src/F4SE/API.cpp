@@ -1,194 +1,475 @@
 #include "F4SE/API.hpp"
 
-#include "F4SE/Interfaces.hpp"
-#include "F4SE/Logger.hpp"
-#include "F4SE/Trampoline.hpp"
+#include "F4SE/DelayFunctorManager.hpp"
+#include "F4SE/LoadInterface.hpp"
+#include "F4SE/MessagingInterface.hpp"
+#include "F4SE/ObjectInterface.hpp"
+#include "F4SE/ObjectRegistry.hpp"
+#include "F4SE/PapyrusInterface.hpp"
+#include "F4SE/PersistentObjectStorage.hpp"
+#include "F4SE/PluginInfo.hpp"
+#include "F4SE/PluginVersionData.hpp"
+#include "F4SE/PreLoadInterface.hpp"
+#include "F4SE/QueryInterface.hpp"
+#include "F4SE/Runtimes.hpp"
+#include "F4SE/ScaleformInterface.hpp"
+#include "F4SE/SerializationInterface.hpp"
+#include "F4SE/TaskInterface.hpp"
+#include "F4SE/TrampolineInterface.hpp"
+
+#include "REL/HookStore.hpp"
+#include "REL/IHook.hpp"
+#include "REL/Iddb.hpp"
+#include "REL/Module.hpp"
+#include "REL/Trampoline.hpp"
+
+#include "REX/Contract.hpp"
+#include "REX/ErrorCode.hpp"
+#include "REX/Format.hpp"
+#include "REX/Log.hpp"
+#include "REX/Message.hpp"
+#include "REX/Singleton.hpp"
+#include "REX/W32/OLE32.hpp"
+#include "REX/W32/SHELL32.hpp"
+
+namespace F4SE::Impl
+{
+	class CallbackEvent final
+	{
+	public:
+		using value_type = REX::NotNull<std::function<void()>>;
+
+		CallbackEvent() = default;
+		~CallbackEvent() noexcept = default;
+
+		CallbackEvent(const CallbackEvent&) = delete;
+		CallbackEvent(CallbackEvent&&) = delete;
+
+		CallbackEvent& operator=(const CallbackEvent&) = delete;
+		CallbackEvent& operator=(CallbackEvent&&) = delete;
+
+		bool Register(value_type a_callback)
+		{
+			const auto callbackLock = std::scoped_lock(_mutex);
+
+			if (_ran) {
+				std::invoke(*a_callback);
+				return true;
+			}
+
+			_callbacks.push_back(std::move(a_callback));
+			return true;
+		}
+
+		bool Run()
+		{
+			const auto callbackLock = std::scoped_lock(_mutex);
+
+			if (_ran) {
+				return false;
+			}
+
+			for (const auto& callback : _callbacks) {
+				std::invoke(*callback);
+			}
+
+			_callbacks.clear();
+			_callbacks.shrink_to_fit();
+
+			_ran = true;
+			return true;
+		}
+
+		void Clear() noexcept
+		{
+			const auto callbackLock = std::scoped_lock(_mutex);
+
+			_callbacks.clear();
+			_callbacks.shrink_to_fit();
+		}
+
+		void Dispose() noexcept
+		{
+			const auto callbackLock = std::scoped_lock(_mutex);
+
+			_callbacks.clear();
+			_callbacks.shrink_to_fit();
+
+			_ran = false;
+		}
+
+	private:
+		mutable std::mutex _mutex;
+		std::vector<value_type> _callbacks;
+		bool _ran{ false };
+	};
+
+	class API final
+		: public REX::Singleton<API>
+	{
+	public:
+		API() = default;
+		~API() noexcept = default;
+
+		API(const API&) = delete;
+		API(API&&) = delete;
+
+		API& operator=(const API&) = delete;
+		API& operator=(API&&) = delete;
+
+		[[nodiscard]] static auto GetLogDirectoryPath(std::string_view a_saveFolderName) -> std::expected<std::filesystem::path, REX::SystemError>;
+
+		void Init(REX::NotNull<const F4SE::PreLoadInterface*> a_interface, const InitInfo& a_info);
+		void Init(REX::NotNull<const F4SE::LoadInterface*> a_interface, const InitInfo& a_info);
+
+	private:
+		void InitImpl(REX::NotNull<const F4SE::QueryInterface*> a_interface, const InitInfo& a_info);
+		void InitLogger();
+		void InitModule() const;
+		void InitIddb() const;
+		void InitTrampoline();
+		void InitHooks(REL::HookStep a_step) const;
+
+	public:
+		InitInfo info;
+		F4SE::PluginHandle pluginHandle{ INVALID_PLUGIN_HANDLE };
+		std::string_view pluginName;
+		std::string_view pluginAuthor;
+		REX::Version pluginVersion;
+		F4SE::QueryInterface::PluginInfoAccessor pluginInfoAccessor{ nullptr };
+		std::uint32_t releaseIndex{ 0 };
+		REX::Version f4seVersion;
+		REX::Version runtimeVersion;
+		std::string_view saveFolderName;
+		std::filesystem::path logDirectoryPath;
+
+		const F4SE::MessagingInterface* messagingInterface{ nullptr };
+		const F4SE::ScaleformInterface* scaleformInterface{ nullptr };
+		const F4SE::PapyrusInterface* papyrusInterface{ nullptr };
+		const F4SE::SerializationInterface* serializationInterface{ nullptr };
+		const F4SE::TaskInterface* taskInterface{ nullptr };
+		const F4SE::ObjectInterface* objectInterface{ nullptr };
+		const F4SE::DelayFunctorManager* delayFunctorManager{ nullptr };
+		const F4SE::ObjectRegistry* objectRegistry{ nullptr };
+		const F4SE::PersistentObjectStorage* persistentObjectStorage{ nullptr };
+		const F4SE::TrampolineInterface* trampolineInterface{ nullptr };
+
+		CallbackEvent onPreLoadEvent;
+		CallbackEvent onLoadEvent;
+	};
+
+	auto API::GetLogDirectoryPath(std::string_view a_saveFolderName) -> std::expected<std::filesystem::path, REX::SystemError>
+	{
+		auto* knownToken = static_cast<void*>(nullptr);
+		auto* knownBuffer = static_cast<wchar_t*>(nullptr);
+
+		if (REX::W32::SHGetKnownFolderPath(REX::W32::FOLDERID_Documents, REX::W32::KF_FLAG_DEFAULT, knownToken, std::addressof(knownBuffer)) != 0) {
+			return std::unexpected(REX::GetCurrentSystemError());
+		}
+
+		const auto knownPath = std::unique_ptr<wchar_t, decltype(&REX::W32::CoTaskMemFree)>(knownBuffer, REX::W32::CoTaskMemFree);
+		if (!knownPath) {
+			return std::unexpected(REX::GetCurrentSystemError());
+		}
+
+		auto path = std::filesystem::path(knownPath.get(), std::filesystem::path::generic_format);
+		path /= REX::Format("My Games/{}/F4SE"sv, a_saveFolderName);
+		return path;
+	}
+
+	void API::InitImpl(REX::NotNull<const F4SE::QueryInterface*> a_interface, const InitInfo& a_info)
+	{
+		this->info = a_info;
+
+		static constinit auto OnceFlag = std::once_flag();
+		std::call_once(OnceFlag, [this, a_interface]() {
+			const auto pluginInfo = F4SE::PluginVersionData::GetSingleton();
+
+			this->pluginName = pluginInfo->GetPluginName();
+			this->pluginAuthor = pluginInfo->GetPluginName();
+			this->pluginVersion = pluginInfo->GetPluginVersion();
+
+			this->runtimeVersion = a_interface->GetRuntimeVersion();
+			F4SE::Impl::InitRuntime(this->runtimeVersion);
+
+			this->pluginHandle = a_interface->GetPluginHandle();
+			this->pluginInfoAccessor = a_interface->GetPluginInfoAccessor();
+			this->releaseIndex = a_interface->GetReleaseIndex();
+			this->f4seVersion = a_interface->GetF4SEVersion();
+			this->saveFolderName = a_interface->GetSaveFolderName();
+
+			InitLogger();
+			InitModule();
+			InitIddb();
+		});
+	}
+
+	void API::Init(REX::NotNull<const F4SE::PreLoadInterface*> a_interface, const InitInfo& a_info)
+	{
+		static constinit auto OnceFlag = std::once_flag();
+		std::call_once(OnceFlag, [this, a_interface, &a_info]() {
+			InitImpl(a_interface, a_info);
+
+			this->trampolineInterface = a_interface->DoQueryInterface<F4SE::TrampolineInterface>();
+
+			this->onPreLoadEvent.Run();
+			this->onPreLoadEvent.Clear();
+
+			InitTrampoline();
+			InitHooks(REL::HookStep::kPreLoad);
+		});
+	}
+
+	void API::Init(REX::NotNull<const F4SE::LoadInterface*> a_interface, const InitInfo& a_info)
+	{
+		static constinit auto OnceFlag = std::once_flag();
+		std::call_once(OnceFlag, [this, a_interface, &a_info]() {
+			InitImpl(a_interface, a_info);
+
+			this->messagingInterface = a_interface->DoQueryInterface<F4SE::MessagingInterface>();
+			this->scaleformInterface = a_interface->DoQueryInterface<F4SE::ScaleformInterface>();
+			this->papyrusInterface = a_interface->DoQueryInterface<F4SE::PapyrusInterface>();
+			this->serializationInterface = a_interface->DoQueryInterface<F4SE::SerializationInterface>();
+			this->taskInterface = a_interface->DoQueryInterface<F4SE::TaskInterface>();
+			this->trampolineInterface = a_interface->DoQueryInterface<F4SE::TrampolineInterface>();
+			this->objectInterface = a_interface->DoQueryInterface<F4SE::ObjectInterface>();
+			this->delayFunctorManager = std::addressof(objectInterface->GetDelayFunctorManager());
+			this->objectRegistry = std::addressof(objectInterface->GetObjectRegistry());
+			this->persistentObjectStorage = std::addressof(objectInterface->GetPersistentObjectStorage());
+
+			this->onLoadEvent.Run();
+			this->onLoadEvent.Clear();
+
+			InitTrampoline();
+			InitHooks(REL::HookStep::kLoad);
+		});
+	}
+
+	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+	void API::InitModule() const
+	{
+		static constinit auto OnceFlag = std::once_flag();
+		std::call_once(OnceFlag, []() {
+			const auto& module = REL::Module::GetSingleton();
+			module->Load();
+		});
+	}
+
+	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+	void API::InitIddb() const
+	{
+		static constinit auto OnceFlag = std::once_flag();
+		std::call_once(OnceFlag, []() {
+			const auto& iddb = REL::Iddb::GetSingleton();
+			iddb->Load();
+		});
+	}
+
+	void API::InitLogger()
+	{
+		if (this->info.logLevel == REX::LogLevel::kNone) {
+			return;
+		}
+
+		static constinit auto OnceFlag = std::once_flag();
+		std::call_once(OnceFlag, [this]() {
+			auto logDirectoryPath = GetLogDirectoryPath(saveFolderName);
+			if (!logDirectoryPath) [[unlikely]] {
+				const auto& ioError = logDirectoryPath.error();
+				REX::Fail(
+					"Failed to get the log directory.\n"
+					"System Error (0x{:08X}): {}"sv,
+					ioError.value(), ioError.message());
+			}
+
+			const auto versionData = F4SE::PluginVersionData::GetSingleton();
+			const auto logName = !this->info.logName.empty() ? this->info.logName : REX::DEFAULT_LOGGER_NAME;
+			const auto logFileName = !this->info.logFileName.empty() ? this->info.logFileName : versionData->GetPluginName();
+			const auto logFormat = !this->info.logFormat.empty() ? this->info.logFormat : REX::DEFAULT_LOGGER_FORMAT;
+
+			auto logInitInfo = REX::LogInitInfo{
+				.logName = std::string(logName),
+				.logDirectoryPath = *logDirectoryPath,
+				.logFileName = std::string(logFileName),
+				.logFormat = std::string(logFormat),
+				.logLevel = this->info.logLevel,
+				.logFileCount = this->info.logFileCount
+			};
+
+			this->logDirectoryPath = *std::move(logDirectoryPath);
+
+			REX::InitLogger(std::move(logInitInfo));
+			REX::LogInformation("{} v{}"sv, versionData->GetPluginName(), versionData->GetPluginVersion());
+		});
+	}
+
+	void API::InitTrampoline()
+	{
+		if (!this->info.useTrampoline) {
+			return;
+		}
+
+		static constinit auto OnceFlag = std::once_flag();
+		std::call_once(OnceFlag, [this]() {
+			if (this->info.trampolineSize == 0) {
+				const auto& hookStore = REL::GetHookStore();
+				this->info.trampolineSize += hookStore->GetTrampolineSize();
+			}
+
+			if (!this->trampolineInterface) [[unlikely]] {
+				REX::Assert(false);
+				return;
+			}
+
+			auto& trampoline = REL::GetTrampoline();
+
+			auto* mem = this->trampolineInterface->AllocateFromBranchPool(this->info.trampolineSize);
+			if (!mem) {
+				trampoline->Create(this->info.trampolineSize);
+				return;
+			}
+
+			trampoline->Init(mem, this->info.trampolineSize);
+		});
+	}
+
+	void API::InitHooks(REL::HookStep a_step) const
+	{
+		if (!this->info.useHooks) {
+			return;
+		}
+
+		auto& hookStore = REL::GetHookStore();
+		hookStore->Init();
+		hookStore->Enable(a_step);
+	}
+}
 
 namespace F4SE
 {
-	namespace detail
+	void Init(REX::NotNull<const PreLoadInterface*> a_interface, const InitInfo& a_info)
 	{
-		struct APIStorage
-		{
-		public:
-			APIStorage(const APIStorage&) = delete;
-			APIStorage(APIStorage&&) = delete;
-
-			APIStorage& operator=(const APIStorage&) = delete;
-			APIStorage& operator=(APIStorage&&) = delete;
-
-			static APIStorage& get() noexcept
-			{
-				static APIStorage singleton;
-				return singleton;
-			}
-
-			std::string_view pluginName{};
-			std::string_view pluginAuthor{};
-			REL::Version pluginVersion{};
-
-			REL::Version f4seVersion{};
-			PluginHandle pluginHandle{ static_cast<PluginHandle>(-1) };
-			std::uint32_t releaseIndex{ 0 };
-			std::function<const void*(F4SEAPI)(const char*)> pluginInfoAccessor;
-			std::string_view saveFolderName{};
-
-			MessagingInterface* messagingInterface{ nullptr };
-			ScaleformInterface* scaleformInterface{ nullptr };
-			PapyrusInterface* papyrusInterface{ nullptr };
-			SerializationInterface* serializationInterface{ nullptr };
-			TaskInterface* taskInterface{ nullptr };
-			ObjectInterface* objectInterface{ nullptr };
-			TrampolineInterface* trampolineInterface{ nullptr };
-
-		private:
-			APIStorage() noexcept = default;
-			~APIStorage() noexcept = default;
-		};
-
-		template <class T>
-		T* QueryInterface(const LoadInterface* a_intfc, std::uint32_t a_id) noexcept
-		{
-			auto result = static_cast<T*>(a_intfc->QueryInterface(a_id));
-			if (result && result->Version() > T::kVersion) {
-				log::warn("interface definition is out of date"sv);
-			}
-			return result;
-		}
+		Impl::API::GetSingleton()->Init(a_interface, a_info);
 	}
 
-	void Init(const LoadInterface* a_intfc, const bool a_log) noexcept
+	void Init(REX::NotNull<const LoadInterface*> a_interface, const InitInfo& a_info)
 	{
-		if (!a_intfc) {
-			stl::report_and_fail("interface is null"sv);
-		}
-
-		(void)REL::Module::get();
-		(void)REL::IDDB::get();
-
-		auto& storage = detail::APIStorage::get();
-		const auto& intfc = *a_intfc;
-
-		if (const auto pluginVersionData = PluginVersionData::GetSingleton()) {
-			storage.pluginName = pluginVersionData->GetPluginName();
-			storage.pluginAuthor = pluginVersionData->GetAuthorName();
-			storage.pluginVersion = pluginVersionData->GetPluginVersion();
-		}
-
-		storage.f4seVersion = intfc.F4SEVersion();
-		storage.pluginHandle = intfc.GetPluginHandle();
-		storage.releaseIndex = intfc.GetReleaseIndex();
-		storage.pluginInfoAccessor = reinterpret_cast<const detail::F4SEInterface&>(intfc).GetPluginInfo;
-		storage.saveFolderName = intfc.GetSaveFolderName();
-
-		if (a_log) {
-			log::init();
-			log::info("{} v{}"sv, GetPluginName(), GetPluginVersion());
-		}
-
-		storage.messagingInterface = detail::QueryInterface<MessagingInterface>(a_intfc, LoadInterface::kMessaging);
-		storage.scaleformInterface = detail::QueryInterface<ScaleformInterface>(a_intfc, LoadInterface::kScaleform);
-		storage.papyrusInterface = detail::QueryInterface<PapyrusInterface>(a_intfc, LoadInterface::kPapyrus);
-		storage.serializationInterface = detail::QueryInterface<SerializationInterface>(a_intfc, LoadInterface::kSerialization);
-		storage.taskInterface = detail::QueryInterface<TaskInterface>(a_intfc, LoadInterface::kTask);
-		storage.objectInterface = detail::QueryInterface<ObjectInterface>(a_intfc, LoadInterface::kObject);
-		storage.trampolineInterface = detail::QueryInterface<TrampolineInterface>(a_intfc, LoadInterface::kTrampoline);
+		Impl::API::GetSingleton()->Init(a_interface, a_info);
 	}
 
-	std::string_view GetPluginName() noexcept
+	bool RegisterForOnPreLoad(REX::NotNull<std::function<void()>> a_callback)
 	{
-		return detail::APIStorage::get().pluginName;
+		return Impl::API::GetSingleton()->onPreLoadEvent.Register(std::move(a_callback));
 	}
 
-	std::string_view GetPluginAuthor() noexcept
+	bool RegisterForOnLoad(REX::NotNull<std::function<void()>> a_callback)
 	{
-		return detail::APIStorage::get().pluginAuthor;
+		return Impl::API::GetSingleton()->onLoadEvent.Register(std::move(a_callback));
 	}
 
-	REL::Version GetPluginVersion() noexcept
+	const InitInfo& GetInitInfo() noexcept
 	{
-		return detail::APIStorage::get().pluginVersion;
-	}
-
-	REL::Version GetF4SEVersion() noexcept
-	{
-		return detail::APIStorage::get().f4seVersion;
+		return Impl::API::GetSingleton()->info;
 	}
 
 	PluginHandle GetPluginHandle() noexcept
 	{
-		return detail::APIStorage::get().pluginHandle;
+		return Impl::API::GetSingleton()->pluginHandle;
+	}
+
+	std::string_view GetPluginName() noexcept
+	{
+		return Impl::API::GetSingleton()->pluginName;
+	}
+
+	std::string_view GetPluginAuthor() noexcept
+	{
+		return Impl::API::GetSingleton()->pluginAuthor;
+	}
+
+	REX::Version GetPluginVersion() noexcept
+	{
+		return Impl::API::GetSingleton()->pluginVersion;
+	}
+
+	const PluginInfo* GetPluginInfo(const char* a_name) noexcept
+	{
+		auto* pluginInfoAccessor = Impl::API::GetSingleton()->pluginInfoAccessor;
+		return pluginInfoAccessor ? std::invoke(pluginInfoAccessor, a_name) : nullptr;
 	}
 
 	std::uint32_t GetReleaseIndex() noexcept
 	{
-		return detail::APIStorage::get().releaseIndex;
+		return Impl::API::GetSingleton()->releaseIndex;
 	}
 
-	std::optional<PluginInfo> GetPluginInfo(stl::zstring a_plugin) noexcept
+	REX::Version GetF4SEVersion() noexcept
 	{
-		const auto& accessor = detail::APIStorage::get().pluginInfoAccessor;
-		if (accessor) {
-			const auto result = accessor(a_plugin.data());
-			if (result) {
-				return *static_cast<const PluginInfo*>(result);
-			}
-		}
+		return Impl::API::GetSingleton()->f4seVersion;
+	}
 
-		log::warn("failed to get plugin info for {}"sv, a_plugin);
-		return std::nullopt;
+	REX::Version GetRuntimeVersion() noexcept
+	{
+		return Impl::API::GetSingleton()->runtimeVersion;
 	}
 
 	std::string_view GetSaveFolderName() noexcept
 	{
-		return detail::APIStorage::get().saveFolderName;
+		return Impl::API::GetSingleton()->saveFolderName;
 	}
 
-	const MessagingInterface* GetMessagingInterface() noexcept
+	const std::filesystem::path& GetLogDirectoryPath() noexcept
 	{
-		return detail::APIStorage::get().messagingInterface;
+		return Impl::API::GetSingleton()->logDirectoryPath;
 	}
 
-	const ScaleformInterface* GetScaleformInterface() noexcept
+	auto GetMessagingInterface() noexcept -> REX::NotNull<const MessagingInterface*>
 	{
-		return detail::APIStorage::get().scaleformInterface;
+		return Impl::API::GetSingleton()->messagingInterface;
 	}
 
-	const PapyrusInterface* GetPapyrusInterface() noexcept
+	auto GetScaleformInterface() noexcept -> REX::NotNull<const ScaleformInterface*>
 	{
-		return detail::APIStorage::get().papyrusInterface;
+		return Impl::API::GetSingleton()->scaleformInterface;
 	}
 
-	const SerializationInterface* GetSerializationInterface() noexcept
+	auto GetPapyrusInterface() noexcept -> REX::NotNull<const PapyrusInterface*>
 	{
-		return detail::APIStorage::get().serializationInterface;
+		return Impl::API::GetSingleton()->papyrusInterface;
 	}
 
-	const TaskInterface* GetTaskInterface() noexcept
+	auto GetSerializationInterface() noexcept -> REX::NotNull<const SerializationInterface*>
 	{
-		return detail::APIStorage::get().taskInterface;
+		return Impl::API::GetSingleton()->serializationInterface;
 	}
 
-	const ObjectInterface* GetObjectInterface() noexcept
+	auto GetTaskInterface() noexcept -> REX::NotNull<const TaskInterface*>
 	{
-		return detail::APIStorage::get().objectInterface;
+		return Impl::API::GetSingleton()->taskInterface;
 	}
 
-	const TrampolineInterface* GetTrampolineInterface() noexcept
+	auto GetObjectInterface() noexcept -> REX::NotNull<const ObjectInterface*>
 	{
-		return detail::APIStorage::get().trampolineInterface;
+		return Impl::API::GetSingleton()->objectInterface;
 	}
 
-	void AllocTrampoline(std::size_t a_size) noexcept
+	auto GetDelayFunctorManager() noexcept -> REX::NotNull<const DelayFunctorManager*>
 	{
-		auto& trampoline = GetTrampoline();
-		const auto interface = GetTrampolineInterface();
-		const auto mem = interface ? interface->AllocateFromBranchPool(a_size) : nullptr;
-		if (mem) {
-			trampoline.set_trampoline(mem, a_size);
-		}
-		else {
-			trampoline.create(a_size);
-		}
+		return Impl::API::GetSingleton()->delayFunctorManager;
+	}
+
+	auto GetObjectRegistry() noexcept -> REX::NotNull<const ObjectRegistry*>
+	{
+		return Impl::API::GetSingleton()->objectRegistry;
+	}
+
+	auto GetPersistentObjectStorage() noexcept -> REX::NotNull<const PersistentObjectStorage*>
+	{
+		return Impl::API::GetSingleton()->persistentObjectStorage;
+	}
+
+	auto GetTrampolineInterface() noexcept -> REX::NotNull<const TrampolineInterface*>
+	{
+		return Impl::API::GetSingleton()->trampolineInterface;
 	}
 }

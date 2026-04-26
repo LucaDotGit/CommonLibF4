@@ -1,12 +1,12 @@
 {
 	"$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
 	"dependencies": [
-		"rsm-mmio",
+		"fmt",
 		"spdlog",
 		"rapidcsv",
 		"xbyak",
-		"simpleini",
 		"nlohmann-json",
+		"simpleini",
 		"toml11"
 	]
 }

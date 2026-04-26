@@ -1,0 +1,186 @@
+#pragma once
+
+// IWYU pragma: begin_exports
+#include "RE/B/BSScript_ObjectHandle.hpp"
+#include "RE/B/BSScript_StackID.hpp"
+#include "RE/B/BSScript_StaticTag.hpp"
+#include "RE/C/ContainerID.hpp"
+#include "RE/T/TESFormID.hpp"
+// IWYU pragma: end_exports
+
+namespace RE
+{
+	class TESForm;
+	class BGSStoryManagerNodeBase;
+	class BGSStoryManagerTreeForm;
+	class MagicItem;
+	class TESActorBase;
+	class TESBoundAnimObject;
+	class TESBoundObject;
+	class TESObject;
+	class BGSKeyword;
+	class BGSLocationRefType;
+	class BGSAction;
+	class BGSTransform;
+	class BGSComponent;
+	class BGSTextureSet;
+	class BGSMenuIcon;
+	class TESGlobal;
+	class BGSDamageType;
+	class TESClass;
+	class TESFaction;
+	class BGSHeadPart;
+	class TESEyes;
+	class TESRace;
+	class TESSound;
+	class BGSAcousticSpace;
+	class EffectSetting;
+	class Script;
+	class TESLandTexture;
+	class EnchantmentItem;
+	class SpellItem;
+	class ScrollItem;
+	class TESObjectACTI;
+	class BGSTalkingActivator;
+	class TESObjectARMO;
+	class TESObjectBOOK;
+	class TESObjectCONT;
+	class TESObjectDOOR;
+	class IngredientItem;
+	class TESObjectLIGH;
+	class TESObjectMISC;
+	class TESObjectSTAT;
+	class BGSStaticCollection;
+	class BGSMovableStatic;
+	class TESGrass;
+	class TESObjectTREE;
+	class TESFlora;
+	class TESFurniture;
+	class TESObjectWEAP;
+	class TESAmmo;
+	class TESNPC;
+	class TESLevCharacter;
+	class TESKey;
+	class AlchemyItem;
+	class BGSIdleMarker;
+	class BGSNote;
+	class BGSProjectile;
+	class BGSHazard;
+	class BGSBendableSpline;
+	class TESSoulGem;
+	class BGSTerminal;
+	class TESLevItem;
+	class TESWeather;
+	class TESClimate;
+	class BGSShaderParticleGeometryData;
+	class BGSReferenceEffect;
+	class TESRegion;
+	class NavMeshInfoMap;
+	class TESObjectCELL;
+	class TESObjectREFR;
+	class Explosion;
+	class Projectile;
+	class Actor;
+	class PlayerCharacter;
+	class MissileProjectile;
+	class ArrowProjectile;
+	class GrenadeProjectile;
+	class BeamProjectile;
+	class FlameProjectile;
+	class ConeProjectile;
+	class BarrierProjectile;
+	class Hazard;
+	class TESWorldSpace;
+	class TESObjectLAND;
+	class NavMesh;
+	class TESTopic;
+	class TESTopicInfo;
+	class TESQuest;
+	class TESIdleForm;
+	class TESPackage;
+	class AlarmPackage;
+	class DialoguePackage;
+	class FleePackage;
+	class SpectatorPackage;
+	class TrespassPackage;
+	class TESCombatStyle;
+	class TESLoadScreen;
+	class TESLevSpell;
+	class TESObjectANIO;
+	class TESWaterForm;
+	class TESEffectShader;
+	class BGSExplosion;
+	class BGSDebris;
+	class TESImageSpace;
+	class TESImageSpaceModifier;
+	class BGSListForm;
+	class BGSPerk;
+	class BGSBodyPartData;
+	class BGSAddonNode;
+	class ActorValueInfo;
+	class BGSCameraShot;
+	class BGSCameraPath;
+	class BGSVoiceType;
+	class BGSMaterialType;
+	class BGSImpactData;
+	class BGSImpactDataSet;
+	class TESObjectARMA;
+	class BGSEncounterZone;
+	class BGSLocation;
+	class BGSMessage;
+	class BGSDefaultObjectManager;
+	class BGSDefaultObject;
+	class BGSLightingTemplate;
+	class BGSMusicType;
+	class BGSFootstep;
+	class BGSFootstepSet;
+	class BGSStoryManagerBranchNode;
+	class BGSStoryManagerQuestNode;
+	class BGSStoryManagerEventNode;
+	class BGSDialogueBranch;
+	class BGSMusicTrackFormWrapper;
+	class TESWordOfPower;
+	class TESShout;
+	class BGSEquipSlot;
+	class BGSRelationship;
+	class BGSScene;
+	class BGSAssociationType;
+	class BGSOutfit;
+	class BGSArtObject;
+	class BGSMaterialObject;
+	class BGSMovementType;
+	class BGSSoundDescriptorForm;
+	class BGSDualCastData;
+	class BGSSoundCategory;
+	class BGSSoundOutput;
+	class BGSCollisionLayer;
+	class BGSColorForm;
+	class BGSReverbParameters;
+	class BGSPackIn;
+	class BGSReferenceGroup;
+	class BGSAimModel;
+	class BGSConstructibleObject;
+	class BGSMaterialSwap;
+	class BGSZoomData;
+	class BGSInstanceNamingRules;
+	class BGSSoundKeywordMapping;
+	class BGSAudioEffectChain;
+	class BGSAttractionRule;
+	class BGSSoundCategorySnapshot;
+	class BGSSoundTagSet;
+	class NavMeshObstacleCoverManager;
+	class BGSLensFlare;
+	class BGSGodRays;
+	class BGSObjectVisibilityManager;
+	class BGSBaseAlias;
+	class BGSRefAlias;
+	class BGSLocAlias;
+	class ActiveEffect;
+	class BSInputEnableLayer;
+	class BGSRefCollectionAlias;
+}
+
+namespace RE::BGSMod::Attachment
+{
+	class Mod;
+}
