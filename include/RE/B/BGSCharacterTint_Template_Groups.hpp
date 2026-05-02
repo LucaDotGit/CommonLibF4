@@ -9,6 +9,9 @@ namespace RE::BGSCharacterTint::Template
 	class Groups
 	{
 	public:
+		[[nodiscard]] Group* GetGroupByID(std::uint32_t a_id) noexcept;
+		[[nodiscard]] const Group* GetGroupByID(std::uint32_t a_id) const noexcept;
+
 		// members
 		BSTArray<Group*> groups; // 00
 	};

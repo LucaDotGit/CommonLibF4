@@ -2,6 +2,13 @@
 
 namespace RE::CombatFormulas
 {
+	REX::Float32 CalcResistedPercentage(const ActorValueInfo* a_resistance, REX::Float32 a_damage, REX::Float32 a_resistancePoints)
+	{
+		using FuncType = decltype(&CombatFormulas::CalcResistedPercentage);
+		static const auto FUNC = REL::Relocation<FuncType>{ ID::CombatFormulas::CalcResistedPercentage };
+		return std::invoke(FUNC, a_resistance, a_damage, a_resistancePoints);
+	}
+
 	REX::Float32 CalcTargetedLimbDamage(Actor* a_target, const BGSBodyPart* a_bodyPart, REX::Float32 a_physicalDamage, BSTArray<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>>* a_damageTypes)
 	{
 		using FuncType = decltype(&CombatFormulas::CalcTargetedLimbDamage);

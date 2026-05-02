@@ -203,7 +203,7 @@ namespace REX
 		constexpr void set(Args... a_args) noexcept
 			requires((Impl::EnumSetConstraint<Args, enum_type, underlying_type> && ...))
 		{
-			std::exchange(_impl, _impl | (static_cast<underlying_type>(a_args) | ...));
+			std::exchange(_impl, static_cast<underlying_type>(_impl | (static_cast<underlying_type>(a_args) | ...)));
 		}
 
 		template <class... Args>
@@ -220,8 +220,8 @@ namespace REX
 			requires((Impl::EnumSetConstraint<Args, enum_type, underlying_type> && ...))
 		{
 			a_set ?
-				std::exchange(_impl, _impl | (static_cast<underlying_type>(a_args) | ...)) :
-				std::exchange(_impl, _impl & ~(static_cast<underlying_type>(a_args) | ...));
+				std::exchange(_impl, static_cast<underlying_type>(_impl | (static_cast<underlying_type>(a_args) | ...))) :
+				std::exchange(_impl, static_cast<underlying_type>(_impl & ~(static_cast<underlying_type>(a_args) | ...)));
 		}
 
 		template <class... Args>
@@ -240,7 +240,7 @@ namespace REX
 		constexpr void reset(Args... a_args) noexcept
 			requires((Impl::EnumSetConstraint<Args, enum_type, underlying_type> && ...))
 		{
-			std::exchange(_impl, _impl & ~(static_cast<underlying_type>(a_args) | ...));
+			std::exchange(_impl, static_cast<underlying_type>(_impl & ~(static_cast<underlying_type>(a_args) | ...)));
 		}
 
 		template <class... Args>
@@ -257,8 +257,8 @@ namespace REX
 			requires((Impl::EnumSetConstraint<Args, enum_type, underlying_type> && ...))
 		{
 			a_unset ?
-				std::exchange(_impl, _impl & ~(static_cast<underlying_type>(a_args) | ...)) :
-				std::exchange(_impl, _impl | (static_cast<underlying_type>(a_args) | ...));
+				std::exchange(_impl, static_cast<underlying_type>(_impl & ~(static_cast<underlying_type>(a_args) | ...))) :
+				std::exchange(_impl, static_cast<underlying_type>(_impl | (static_cast<underlying_type>(a_args) | ...)));
 		}
 
 		template <class... Args>
@@ -281,7 +281,7 @@ namespace REX
 		constexpr void reset_atomic() noexcept
 		{
 			auto atomicValue = AtomicRef(_impl);
-			atomicValue.exchange(0, std::memory_order_release);
+			atomicValue.exchange(static_cast<underlying_type>(0), std::memory_order_release);
 		}
 
 		template <class... Args>

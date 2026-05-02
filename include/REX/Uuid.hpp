@@ -162,26 +162,25 @@ namespace REX
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 		};
 
-		[[nodiscard]] static constexpr std::optional<value_type> FromHexChar(char a_char) noexcept
+		[[nodiscard]] static constexpr auto FromHexChar(char a_char) noexcept -> std::optional<value_type>
 		{
-			constexpr auto TO_LOWER_MASK = 0x20;
-
-			const auto rawChar = a_char | TO_LOWER_MASK;
+			constexpr auto TO_LOWER_MASK = static_cast<value_type>(0x20);
+			const auto rawChar = static_cast<value_type>(a_char | TO_LOWER_MASK);
 
 			if (rawChar >= '0' && rawChar <= '9') {
-				constexpr auto DECIMAL_CHAR_NUMERIC_OFFSET = '0';
-				return rawChar - DECIMAL_CHAR_NUMERIC_OFFSET;
+				constexpr auto DECIMAL_CHAR_NUMERIC_OFFSET = static_cast<value_type>('0');
+				return static_cast<value_type>(rawChar - DECIMAL_CHAR_NUMERIC_OFFSET);
 			}
 
 			if (rawChar >= 'a' && rawChar <= 'f') {
-				constexpr auto HEX_CHAR_NUMERIC_OFFSET = 'a' - 10;
-				return rawChar - HEX_CHAR_NUMERIC_OFFSET;
+				constexpr auto HEX_CHAR_NUMERIC_OFFSET = static_cast<value_type>('a' - 10);
+				return static_cast<value_type>(rawChar - HEX_CHAR_NUMERIC_OFFSET);
 			}
 
 			return std::nullopt;
 		}
 
-		[[nodiscard]] static constexpr std::optional<value_type> FromHexStringAt(std::string_view a_value, std::size_t a_index) noexcept
+		[[nodiscard]] static constexpr auto FromHexStringAt(std::string_view a_value, std::size_t a_index) noexcept -> std::optional<value_type>
 		{
 			if (a_index + 1 >= a_value.size()) {
 				return std::nullopt;
@@ -194,7 +193,7 @@ namespace REX
 				return std::nullopt;
 			}
 
-			return (*high << 4) | *low;
+			return static_cast<value_type>((*high << 4) | *low);
 		}
 
 	public:

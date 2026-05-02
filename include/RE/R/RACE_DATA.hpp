@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RE/N/NiPoint.hpp"
+#include "RE/S/SEX.hpp"
 
 namespace RE
 {
@@ -11,8 +12,24 @@ namespace RE
 	{
 	public:
 		// members
-		std::array<REX::Float32, 2> height;					// 000
-		std::array<NiPoint3, 2> weight;						// 008
+		union
+		{
+			struct
+			{
+				REX::Float32 maleHeight;
+				REX::Float32 femaleHeight;
+			};
+			std::array<REX::Float32, std::to_underlying(SEX::kTotal)> height{};
+		}; // 00
+		union
+		{
+			struct
+			{
+				NiPoint3 maleWeight;
+				NiPoint3 femaleWeight;
+			};
+			std::array<NiPoint3, std::to_underlying(SEX::kTotal)> weight{};
+		}; // 08
 		std::int32_t flags;									// 020
 		REX::Float32 accelerate;							// 024
 		REX::Float32 decelerate;							// 028

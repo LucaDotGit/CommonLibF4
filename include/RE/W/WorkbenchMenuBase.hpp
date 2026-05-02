@@ -75,10 +75,10 @@ namespace RE
 		void OnMenuStackChanged(const BSFixedString& a_topMenuName, bool a_passesTopMenuTest) override; // 09
 
 		// override (BSInputEventUser)
-		bool ShouldHandleEvent(const InputEvent*) override;		 // 01
-		void OnThumbstickEvent(const ThumbstickEvent*) override; // 04
-		void OnCursorMoveEvent(const CursorMoveEvent*) override; // 05
-		void OnButtonEvent(const ButtonEvent*) override;		 // 08
+		bool ShouldHandleEvent(const InputEvent* a_event) override;		 // 01
+		void OnThumbstickEvent(const ThumbstickEvent* a_event) override; // 04
+		void OnCursorMoveEvent(const CursorMoveEvent* a_event) override; // 05
+		void OnButtonEvent(const ButtonEvent* a_event) override;		 // 08
 
 		// add
 		virtual void OnHideMenu();								  // 14

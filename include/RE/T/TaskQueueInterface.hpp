@@ -5,6 +5,7 @@
 
 namespace RE
 {
+	class BSPackedTask;
 	class BSPackedTaskQueue;
 	class NiAVObject;
 
@@ -57,6 +58,13 @@ namespace RE
 			using FuncType = decltype(&TaskQueueInterface::QueueWeaponFire);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::TaskQueueInterface::QueueWeaponFire };
 			FUNC(this, a_weapon, a_refObject, a_equipIndex, a_ammo);
+		}
+
+		void TaskUnpackFunc(const BSPackedTask& a_task)
+		{
+			using FuncType = decltype(&TaskQueueInterface::TaskUnpackFunc);
+			static const auto FUNC = REL::Relocation<FuncType>{ ID::TaskQueueInterface::TaskUnpackFunc };
+			FUNC(this, a_task);
 		}
 
 		// members

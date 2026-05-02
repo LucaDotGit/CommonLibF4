@@ -127,7 +127,6 @@ target_compile_definitions(
 	PUBLIC
 		"WINVER=0x0A00" # Windows 10
 		"_WIN32_WINNT=0x0A00" # Windows 10
-		"NTDDI_VERSION=0x0A000008" # Windows 10, Version 2004
 		"WIN32_LEAN_AND_MEAN=1"
 		"VC_EXTRALEAN=1"
 		"NOMINMAX=1"
@@ -151,7 +150,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 			"/DEBUG:FULL"
 			"/WX"
 			"$<$<CONFIG:Debug>:/INCREMENTAL:NO;/OPT:NOICF,NOLBR,NOREF>"
-			"$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>>:/INCREMENTAL:NO;/OPT:ICF=4;/OPT:LBR,REF>"
+			"$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>>:/INCREMENTAL:NO;/OPT:ICF=2;/OPT:LBR,REF>"
 	)
 
 	target_compile_options(
@@ -166,11 +165,13 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 			"/external:W0"
 			"/fp:contract"
 			"/fp:except-"
+			"/guard:cf-"
 			"/jumptablerdata"
 			"/MP"
 			"/nologo"
 			"/options:strict"
 			"/permissive-"
+			"/sdl-"
 			"/utf-8"
 			"/volatile:iso"
 			"/W4"
@@ -212,7 +213,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 			"/DEBUG:FULL"
 			"/WX"
 			"$<$<CONFIG:Debug>:/INCREMENTAL:NO;/OPT:NOICF,NOLBR,NOREF>"
-			"$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>>:/INCREMENTAL:NO;/OPT:ICF=4;/OPT:LBR,REF>"
+			"$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>>:/INCREMENTAL:NO;/OPT:ICF=2;/OPT:LBR,REF>"
 	)
 
 	target_compile_options(
@@ -230,6 +231,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 			"/external:W0"
 			"/fp:contract"
 			"/fp:except-"
+			"/guard:cf-"
 			"/permissive-"
 			"/utf-8"
 			"/volatile:iso"

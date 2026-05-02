@@ -147,7 +147,7 @@ namespace REX::W32
 
 	// Originally a struct with several #defines that served as aliases to members.
 	// The defines screwed a lot of things up, so it was made a union.
-	// This means it won't have compatibility with code that uses in_addrs directly and
+	// This means it will not have compatibility with code that uses in_addrs directly and
 	// also refers to it by its full type identifier (i.e. `struct in_addr`).
 	union in_addr
 	{

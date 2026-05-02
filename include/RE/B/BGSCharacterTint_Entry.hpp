@@ -29,9 +29,9 @@ namespace RE::BGSCharacterTint
 		GAME_HEAP_REDEFINE_NEW(Entry);
 
 		// members
-		Entry* templateEntry{ nullptr }; // 08
-		std::uint16_t idLink{ 0 };		 // 10
-		std::uint8_t tingingValue{ 0 };	 // 12
+		Template::Entry* templateEntry{ nullptr }; // 08
+		std::uint16_t idLink{ 0 };				   // 10
+		std::uint8_t tintingValue{ 0 };			   // 12
 	};
 	static_assert(sizeof(Entry) == 0x18);
 }

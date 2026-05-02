@@ -14,6 +14,7 @@ namespace RE::ID
 
 	namespace AIFormulas
 	{
+		inline constexpr auto ComputePickpocketSuccess = F4SE::CreateVariantId(915759, 2208977, 2208977);
 		inline constexpr auto GetBarterValue = F4SE::CreateVariantId(984344, 2208969, 2208969);
 	}
 
@@ -21,6 +22,7 @@ namespace RE::ID
 	{
 		inline constexpr auto AddToProcedureIndexRunning = F4SE::CreateVariantId(134486, 2718412, 2718412);
 		inline constexpr auto ComputeLastTimeProcessed = F4SE::CreateVariantId(941571, 2231541, 2231541);
+		inline constexpr auto GetActorLightLevel = F4SE::CreateVariantId(898888, 2231981, 2231981);
 		inline constexpr auto GetCommandType = F4SE::CreateVariantId(678523, 2231825, 2231825);
 		inline constexpr auto GetCurrentAmmo = F4SE::CreateVariantId(1154936, 2232300, 2232300);
 		inline constexpr auto GetOccupiedFurniture = F4SE::CreateVariantId(1162965, 2232401, 2232401);
@@ -47,8 +49,10 @@ namespace RE::ID
 	namespace Actor
 	{
 		inline constexpr auto AddPerk = F4SE::CreateVariantId(187096, 2230121, 2230121);
+		inline constexpr auto CalculateDetectionFormula = F4SE::CreateVariantId(589441, 2230213, 2230213);
 		inline constexpr auto CanUseIdle = F4SE::CreateVariantId(1223707, 2229592, 2229592);
 		inline constexpr auto ClearAttackStates = F4SE::CreateVariantId(1525555, 2229773, 2229773);
+		inline constexpr auto DoHitMe = F4SE::CreateVariantId(881215, 2231148, 2231148);
 		inline constexpr auto EndInterruptPackage = F4SE::CreateVariantId(575188, 2229892, 2229892);
 		inline constexpr auto ExitCover = F4SE::CreateVariantId(770035, 2231166, 2231166);
 		inline constexpr auto ForceDetect = F4SE::CreateVariantId(131995, 2230194, 2230194);
@@ -197,7 +201,7 @@ namespace RE::ID
 
 	namespace BGSCreatedObjectManager
 	{
-		inline constexpr auto Singleton = F4SE::CreateVariantId(1000678, 2689006, 2697789);
+		inline constexpr auto Singleton = F4SE::CreateVariantId(1000678, 2689006, 4796296);
 		inline constexpr auto DecrementRef = F4SE::CreateVariantId(230928, 2228455, 2228455);
 		inline constexpr auto IncrementRef = F4SE::CreateVariantId(1042515, 2228454, 2228454);
 	}
@@ -631,7 +635,7 @@ namespace RE::ID
 
 	namespace BGSStoryTeller
 	{
-		inline constexpr auto Singleton = F4SE::CreateVariantId(562259, 2689006, 4796296);
+		inline constexpr auto Singleton = F4SE::CreateVariantId(562259, 2689008, 4796298);
 		inline constexpr auto QuestsLock = F4SE::CreateVariantId(315357, 2693510, 4800802);
 		inline constexpr auto FindQuestLock = F4SE::CreateVariantId(534915, 2693512, 4800804);
 	}
@@ -1018,6 +1022,7 @@ namespace RE::ID
 
 	namespace CombatFormulas
 	{
+		inline constexpr auto CalcResistedPercentage = F4SE::CreateVariantId(420470, 2209007, 2209007);
 		inline constexpr auto CalcScopeSteadyActionPointDrain = F4SE::CreateVariantId(380926, 2209045, 2209045);
 		inline constexpr auto CalcTargetedLimbDamage = F4SE::CreateVariantId(1530751, 2209033, 2209033);
 		inline constexpr auto CalculateAimModelWobble = F4SE::CreateVariantId(211411, 2209001, 2209001);
@@ -1617,6 +1622,7 @@ namespace RE::ID
 	{
 		inline constexpr auto CurrentLockRef = F4SE::CreateVariantId(1190207, 2701603, 2701603);
 		inline constexpr auto CurrentLockLevel = F4SE::CreateVariantId(1495416, 2665059, 2665059);
+		inline constexpr auto DamageLockpick = F4SE::CreateVariantId(1118991, 2249275, 2249275);
 		inline constexpr auto OpenLockpickingMenu = F4SE::CreateVariantId(129892, 2249263, 2249263);
 	}
 
@@ -1894,6 +1900,7 @@ namespace RE::ID
 	{
 		inline constexpr auto Singleton = F4SE::CreateVariantId(303410, 2690919, 4798212);
 		inline constexpr auto ClearPrison = F4SE::CreateVariantId(920390, 2233196, 2233196);
+		inline constexpr auto EnableRadio = F4SE::CreateVariantId(741937, 2233211, 2233211);
 		inline constexpr auto GetDifficultyLevel = F4SE::CreateVariantId(922962, 2233056, 2233056);
 		inline constexpr auto GetPlayerHandle = F4SE::CreateVariantId(522947, 2698072, 2698072);
 		inline constexpr auto HasLOSToTarget = F4SE::CreateVariantId(449775, 2233004, 2233004);
@@ -1909,6 +1916,7 @@ namespace RE::ID
 		inline constexpr auto SetEscaping = F4SE::CreateVariantId(25528, 2233142, 2233142);
 		inline constexpr auto SetLastDialogueInput = F4SE::CreateVariantId(696117, 2233190, 2233190);
 		inline constexpr auto SetPerkCount = F4SE::CreateVariantId(616372, 2233187, 2233187);
+		inline constexpr auto SetTintingData = F4SE::CreateVariantId(802946, 2233185, 2233185);
 		inline constexpr auto SetVATSCriticalCount = F4SE::CreateVariantId(327338, 2233219, 2233219);
 		inline constexpr auto ShowPipboyLight = F4SE::CreateVariantId(1304102, 2233203, 2233203);
 		inline constexpr auto StopHolotape = F4SE::CreateVariantId(1021305, 2233209, 2233209);
@@ -2001,6 +2009,13 @@ namespace RE::ID
 		inline constexpr auto AreHostileActorsNear = F4SE::CreateVariantId(1053584, 2234105, 2234105);
 		inline constexpr auto IsActorTargetingREFinPackage = F4SE::CreateVariantId(559542, 2234033, 2234033);
 		inline constexpr auto RequestHighestDetectionLevelAgainstActor = F4SE::CreateVariantId(1036693, 2234111, 2234111);
+	}
+
+	namespace RadioManager
+	{
+		inline constexpr auto QPlayerRadioEnabled = F4SE::CreateVariantId(811921, 2227674, 2227674);
+		inline constexpr auto QCurrentPlayerFreq = F4SE::CreateVariantId(227903, 2227670, 2227670);
+		inline constexpr auto EnablePlayerRadio = F4SE::CreateVariantId(653012, 2227673, 2227673);
 	}
 
 	namespace REFR_LOCK
@@ -2411,6 +2426,7 @@ namespace RE::ID
 		inline constexpr auto AlternateHeadPartListMap = F4SE::CreateVariantId(1306546, 2662364, 2662364);
 		inline constexpr auto GetFacialBoneMorphIntensity = F4SE::CreateVariantId(272217, 2207416, 2207416);
 		inline constexpr auto GetShortName = F4SE::CreateVariantId(1221705, 2207405, 2207405);
+		inline constexpr auto SetTintingData = F4SE::CreateVariantId(452734, 2207493, 2207493);
 	}
 
 	namespace TESObjectARMO
@@ -2685,6 +2701,7 @@ namespace RE::ID
 		inline constexpr auto QueueShowPipboy = F4SE::CreateVariantId(1133684, 2229288, 2229288);
 		inline constexpr auto QueueUpdate3D = F4SE::CreateVariantId(581890, 2229234, 2229234);
 		inline constexpr auto QueueWeaponFire = F4SE::CreateVariantId(15449, 2229186, 2229186);
+		inline constexpr auto TaskUnpackFunc = F4SE::CreateVariantId(1546751, 2229323, 2229323);
 	}
 
 	namespace TerminalHacked

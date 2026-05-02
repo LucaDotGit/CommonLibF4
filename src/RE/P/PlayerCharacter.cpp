@@ -26,6 +26,13 @@ namespace RE
 		FUNC(this);
 	}
 
+	void PlayerCharacter::EnableRadio(bool a_enable)
+	{
+		using FuncType = decltype(&PlayerCharacter::EnableRadio);
+		static const auto FUNC = REL::Relocation<FuncType>{ ID::PlayerCharacter::EnableRadio };
+		FUNC(this, a_enable);
+	}
+
 	DifficultyLevel PlayerCharacter::GetDifficultyLevel() const
 	{
 		using FuncType = decltype(&PlayerCharacter::GetDifficultyLevel);
@@ -33,7 +40,7 @@ namespace RE
 		return std::invoke(FUNC, this);
 	}
 
-	bool PlayerCharacter::HasLOSToTarget(Actor* a_targetRef, bool* a_pickPerformed)
+	bool PlayerCharacter::HasLOSToTarget(Actor* a_targetRef, bool& a_pickPerformed)
 	{
 		using FuncType = decltype(&PlayerCharacter::HasLOSToTarget);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::PlayerCharacter::HasLOSToTarget };
@@ -180,6 +187,13 @@ namespace RE
 		using FuncType = decltype(&PlayerCharacter::SetPerkCount);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::PlayerCharacter::SetPerkCount };
 		FUNC(this, a_count);
+	}
+
+	void PlayerCharacter::SetTintingData(std::uint16_t a_uniqueID, REX::Float32 a_value, std::uint32_t a_color)
+	{
+		using FuncType = decltype(&PlayerCharacter::SetTintingData);
+		static const auto FUNC = REL::Relocation<FuncType>{ ID::PlayerCharacter::SetTintingData };
+		FUNC(this, a_uniqueID, a_value, a_color);
 	}
 
 	void PlayerCharacter::SetVATSCriticalCount(std::uint32_t a_critCount)

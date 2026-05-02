@@ -18,7 +18,7 @@ namespace REX
 			auto bom = L'\0';
 
 			stream.read(reinterpret_cast<char*>(std::addressof(bom)), sizeof(bom));
-			if (!stream.good()) {
+			if (stream.bad()) {
 				return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::io_error));
 			}
 
@@ -36,7 +36,7 @@ namespace REX
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::not_enough_memory));
 		}
 
-		if (!stream.good()) {
+		if (stream.bad()) {
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::io_error));
 		}
 

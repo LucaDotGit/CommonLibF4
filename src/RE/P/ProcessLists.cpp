@@ -30,8 +30,8 @@ namespace RE
 				continue;
 			}
 
-			for (const auto& actorHandle : *processes) {
-				if (actorHandle && std::invoke(*a_predicate, actorHandle.get()) == BSContainer::ForEachResult::kStop) {
+			for (const auto& actor : *processes) {
+				if (actor && std::invoke(*a_predicate, actor.get()) == BSContainer::ForEachResult::kStop) {
 					return BSContainer::ForEachResult::kStop;
 				}
 			}
@@ -52,8 +52,8 @@ namespace RE
 			return BSContainer::ForEachResult::kContinue;
 		}
 
-		for (const auto& actorHandle : *processes) {
-			if (actorHandle && std::invoke(*a_predicate, actorHandle.get()) == BSContainer::ForEachResult::kStop) {
+		for (const auto& actor : *processes) {
+			if (actor && std::invoke(*a_predicate, actor.get()) == BSContainer::ForEachResult::kStop) {
 				return BSContainer::ForEachResult::kStop;
 			}
 		}

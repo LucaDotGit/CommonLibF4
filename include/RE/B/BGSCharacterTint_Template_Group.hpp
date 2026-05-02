@@ -4,6 +4,11 @@
 #include "RE/B/BSTArray.hpp"
 #include "RE/M/MemoryManager.hpp"
 
+namespace RE::BGSCharacterTint
+{
+	enum class EntrySlot : std::int32_t;
+}
+
 namespace RE::BGSCharacterTint::Template
 {
 	class Entry;
@@ -12,6 +17,12 @@ namespace RE::BGSCharacterTint::Template
 	{
 	public:
 		GAME_HEAP_REDEFINE_NEW(Group);
+
+		[[nodiscard]] Entry* GetEntryByID(std::uint16_t a_id) noexcept;
+		[[nodiscard]] const Entry* GetEntryByID(std::uint16_t a_id) const noexcept;
+
+		[[nodiscard]] Entry* GetEntryBySlot(EntrySlot a_slot) noexcept;
+		[[nodiscard]] const Entry* GetEntryBySlot(EntrySlot a_slot) const noexcept;
 
 		// members
 		BGSLocalizedString name;	// 00

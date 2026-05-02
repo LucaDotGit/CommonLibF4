@@ -10,6 +10,7 @@ namespace RE
 
 namespace RE::CombatFormulas
 {
+	[[nodiscard]] REX::Float32 CalcResistedPercentage(const ActorValueInfo* a_resistance, REX::Float32 a_damage, REX::Float32 a_resistancePoints);
 	[[nodiscard]] REX::Float32 CalcTargetedLimbDamage(Actor* a_target, const BGSBodyPart* a_bodyPart, REX::Float32 a_physicalDamage, BSTArray<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>>* a_damageTypes);
 	[[nodiscard]] REX::Float64 CalculateAimModelWobble(Actor* a_actor);
 	[[nodiscard]] REX::Float32 CalcScopeSteadyActionPointDrain(Actor* a_actor, REX::Float32 a_deltaSec);

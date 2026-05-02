@@ -56,6 +56,8 @@ namespace RE
 	class CastPowerItem;
 	class CombatController;
 	class CombatGroup;
+	class DetectionData;
+	class HitData;
 	class MovementControllerNPC;
 	class MovementMessageActorCollision;
 	class MovementMessageNewPath;
@@ -311,8 +313,10 @@ namespace RE
 		virtual void ValidateNewPath(const MovementMessageNewPath& a_newPathMessage);																															   // 132 - { return; }
 
 		void AddPerk(BGSPerk* a_perk, std::uint8_t a_rank = 0);
+		void CalculateDetectionFormula(Actor& a_target, DetectionData& a_detectionData);
 		[[nodiscard]] bool CanUseIdle(TESIdleForm* a_idle) const;
 		void ClearAttackStates();
+		void DoHitMe(const HitData* a_data);
 		void EndInterruptPackage(bool a_notRunOnceDialogue);
 		void ExitCover();
 		void ForceDetect(Actor* a_target, bool a_forceLOS, REX::Float32 a_time);

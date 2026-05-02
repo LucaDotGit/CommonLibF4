@@ -172,8 +172,8 @@ namespace REX::Json
 					Json::ALLOW_EXCEPTIONS,
 					Json::IGNORE_COMMENTS);
 			}
-			catch (const nlohmann::json::exception& error) {
-				std::ignore = error;
+			catch ([[maybe_unused]] const nlohmann::json::exception& error) {
+				output = nlohmann::json();
 			}
 
 			for (const auto& setting : _settings) {

@@ -375,70 +375,71 @@ namespace RE::BSScript
 
 	std::string TypeInfo::ToString() const
 	{
-		return std::string{ static_cast<std::string_view>(GetTypeName()) };
+		const auto typeName = GetTypeName();
+		return std::string{ typeName.begin(), typeName.end() };
 	}
 
-	const BSFixedString& TypeInfo::GetNoneTypeName() noexcept
+	const BSFixedString& TypeInfo::GetNoneTypeName()
 	{
 		static const auto NONE_TYPE_NAME = BSFixedString("None"sv);
 		return NONE_TYPE_NAME;
 	}
 
-	const BSFixedString& TypeInfo::GetStringTypeName() noexcept
+	const BSFixedString& TypeInfo::GetStringTypeName()
 	{
 		static const auto STRING_TYPE_NAME = BSFixedString("String"sv);
 		return STRING_TYPE_NAME;
 	}
 
-	const BSFixedString& TypeInfo::GetIntTypeName() noexcept
+	const BSFixedString& TypeInfo::GetIntTypeName()
 	{
 		static const auto INT_TYPE_NAME = BSFixedString("Int"sv);
 		return INT_TYPE_NAME;
 	}
 
-	const BSFixedString& TypeInfo::GetFloatTypeName() noexcept
+	const BSFixedString& TypeInfo::GetFloatTypeName()
 	{
 		static const auto FLOAT_TYPE_NAME = BSFixedString("Float"sv);
 		return FLOAT_TYPE_NAME;
 	}
 
-	const BSFixedString& TypeInfo::GetBoolTypeName() noexcept
+	const BSFixedString& TypeInfo::GetBoolTypeName()
 	{
 		static const auto BOOL_TYPE_NAME = BSFixedString("Bool"sv);
 		return BOOL_TYPE_NAME;
 	}
 
-	const BSFixedString& TypeInfo::GetVarTypeName() noexcept
+	const BSFixedString& TypeInfo::GetVarTypeName()
 	{
 		static const auto VAR_TYPE_NAME = BSFixedString("Var"sv);
 		return VAR_TYPE_NAME;
 	}
 
-	const BSFixedString& TypeInfo::GetStringArrayTypeName() noexcept
+	const BSFixedString& TypeInfo::GetStringArrayTypeName()
 	{
 		static const auto STRING_ARRAY_TYPE_NAME = BSFixedString("String[]"sv);
 		return STRING_ARRAY_TYPE_NAME;
 	}
 
-	const BSFixedString& TypeInfo::GetIntArrayTypeName() noexcept
+	const BSFixedString& TypeInfo::GetIntArrayTypeName()
 	{
 		static const auto INT_ARRAY_TYPE_NAME = BSFixedString("Int[]"sv);
 		return INT_ARRAY_TYPE_NAME;
 	}
 
-	const BSFixedString& TypeInfo::GetFloatArrayTypeName() noexcept
+	const BSFixedString& TypeInfo::GetFloatArrayTypeName()
 	{
 		static const auto FLOAT_ARRAY_TYPE_NAME = BSFixedString("Float[]"sv);
 		return FLOAT_ARRAY_TYPE_NAME;
 	}
 
-	const BSFixedString& TypeInfo::GetBoolArrayTypeName() noexcept
+	const BSFixedString& TypeInfo::GetBoolArrayTypeName()
 	{
 		static const auto BOOL_ARRAY_TYPE_NAME = BSFixedString("Bool[]"sv);
 		return BOOL_ARRAY_TYPE_NAME;
 	}
 
-	const BSFixedString& TypeInfo::GetVarArrayTypeName() noexcept
+	const BSFixedString& TypeInfo::GetVarArrayTypeName()
 	{
 		static const auto VAR_ARRAY_TYPE_NAME = BSFixedString("Var[]"sv);
 		return VAR_ARRAY_TYPE_NAME;

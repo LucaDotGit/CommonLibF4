@@ -98,19 +98,19 @@ namespace RE::BSScript
 
 		[[nodiscard]] std::string ToString() const;
 
-		[[nodiscard]] static const BSFixedString& GetNoneTypeName() noexcept;
+		[[nodiscard]] static const BSFixedString& GetNoneTypeName();
 
-		[[nodiscard]] static const BSFixedString& GetStringTypeName() noexcept;
-		[[nodiscard]] static const BSFixedString& GetIntTypeName() noexcept;
-		[[nodiscard]] static const BSFixedString& GetFloatTypeName() noexcept;
-		[[nodiscard]] static const BSFixedString& GetBoolTypeName() noexcept;
-		[[nodiscard]] static const BSFixedString& GetVarTypeName() noexcept;
+		[[nodiscard]] static const BSFixedString& GetStringTypeName();
+		[[nodiscard]] static const BSFixedString& GetIntTypeName();
+		[[nodiscard]] static const BSFixedString& GetFloatTypeName();
+		[[nodiscard]] static const BSFixedString& GetBoolTypeName();
+		[[nodiscard]] static const BSFixedString& GetVarTypeName();
 
-		[[nodiscard]] static const BSFixedString& GetStringArrayTypeName() noexcept;
-		[[nodiscard]] static const BSFixedString& GetIntArrayTypeName() noexcept;
-		[[nodiscard]] static const BSFixedString& GetFloatArrayTypeName() noexcept;
-		[[nodiscard]] static const BSFixedString& GetBoolArrayTypeName() noexcept;
-		[[nodiscard]] static const BSFixedString& GetVarArrayTypeName() noexcept;
+		[[nodiscard]] static const BSFixedString& GetStringArrayTypeName();
+		[[nodiscard]] static const BSFixedString& GetIntArrayTypeName();
+		[[nodiscard]] static const BSFixedString& GetFloatArrayTypeName();
+		[[nodiscard]] static const BSFixedString& GetBoolArrayTypeName();
+		[[nodiscard]] static const BSFixedString& GetVarArrayTypeName();
 
 	private:
 		// members

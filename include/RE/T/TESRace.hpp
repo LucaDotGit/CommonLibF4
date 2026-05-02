@@ -16,6 +16,7 @@
 #include "RE/M/Movement_MaxSpeeds.hpp"
 #include "RE/N/NiPoint.hpp"
 #include "RE/R/RACE_DATA.hpp"
+#include "RE/S/SEX.hpp"
 #include "RE/T/TESDescription.hpp"
 #include "RE/T/TESForm.hpp"
 #include "RE/T/TESFullName.hpp"
@@ -115,7 +116,7 @@ namespace RE
 				TESModel maleSkeletonModel;
 				TESModel femaleSkeletonModel;
 			};
-			std::array<TESModel, 2> skeletonModels;
+			std::array<TESModel, std::to_underlying(SEX::kTotal)> skeletonModels;
 		}; // 0C0
 		union
 		{
@@ -124,7 +125,7 @@ namespace RE
 				TESModel maleChargenModel;
 				TESModel femaleChargenModel;
 			};
-			std::array<TESModel, 2> skeletonChargenModel;
+			std::array<TESModel, std::to_underlying(SEX::kTotal)> skeletonChargenModel;
 		}; // 120
 		RACE_DATA data;					  // 180
 		REX::Float32 clampFaceGeoValue;	  // 280
@@ -136,7 +137,7 @@ namespace RE
 				BGSTextureModel maleBodyTextureModel;
 				BGSTextureModel femaleBodyTextureModel;
 			};
-			std::array<BGSTextureModel, 2> bodyTextureModels;
+			std::array<BGSTextureModel, std::to_underlying(SEX::kTotal)> bodyTextureModels;
 		}; // 288
 		union
 		{
@@ -145,7 +146,7 @@ namespace RE
 				BGSBehaviorGraphModel maleBehaviorGraph;
 				BGSBehaviorGraphModel femaleBehaviorGraph;
 			};
-			std::array<BGSBehaviorGraphModel, 2> behaviorGraph;
+			std::array<BGSBehaviorGraphModel, std::to_underlying(SEX::kTotal)> behaviorGraph;
 		}; // 2E8
 		union
 		{
@@ -154,7 +155,7 @@ namespace RE
 				BSFixedString maleRootBehaviorGraphName;
 				BSFixedString femaleRootBehaviorGraphName;
 			};
-			std::array<BSFixedString, 2> rootBehaviorGraphName;
+			std::array<BSFixedString, std::to_underlying(SEX::kTotal)> rootBehaviorGraphName;
 		}; // 348
 		union
 		{
@@ -163,7 +164,7 @@ namespace RE
 				BSFixedString maleBehaviorGraphProjectName;
 				BSFixedString femaleBehaviorGraphProjectName;
 			};
-			std::array<BSFixedString, 2> behaviorGraphProjectName;
+			std::array<BSFixedString, std::to_underlying(SEX::kTotal)> behaviorGraphProjectName;
 		}; // 358
 		union
 		{
@@ -172,7 +173,7 @@ namespace RE
 				BGSVoiceType* maleDefaultVoiceType;
 				BGSVoiceType* femaleDefaultVoiceType;
 			};
-			std::array<BGSVoiceType*, 2> defaultVoiceType;
+			std::array<BGSVoiceType*, std::to_underlying(SEX::kTotal)> defaultVoiceType;
 		}; // 368
 		BGSBodyPartData* bodyPartData;										// 378
 		BGSSoundTagComponent soundTagComponent;								// 380
@@ -203,7 +204,7 @@ namespace RE
 				FaceRelatedData* maleFaceRelatedData;
 				FaceRelatedData* femaleFaceRelatedData;
 			};
-			std::array<FaceRelatedData*, 2> faceRelatedData;
+			std::array<FaceRelatedData*, std::to_underlying(SEX::kTotal)> faceRelatedData;
 		}; // 698
 		union
 		{
@@ -212,7 +213,7 @@ namespace RE
 				BodyMorphData* maleBodyMorphData;
 				BodyMorphData* femaleBodyMorphData;
 			};
-			std::array<BodyMorphData*, 2> bodyMorphData;
+			std::array<BodyMorphData*, std::to_underlying(SEX::kTotal)> bodyMorphData;
 		}; // 6A8
 		TESTexture hairColorLookupTexture;	  // 6B8
 		TESTexture hairColorLookupTextureExt; // 6C8

@@ -11,6 +11,8 @@ namespace RE::BGSCharacterTint
 		inline static constexpr auto RTTI{ RTTI::BGSCharacterTint__PaletteEntry };
 		inline static constexpr auto VTABLE{ VTABLE::BGSCharacterTint__PaletteEntry };
 
+		~PaletteEntry() override; // 00
+
 		// members
 		std::uint32_t tintingColor; // 18
 		std::uint16_t swatchID;		// 1C

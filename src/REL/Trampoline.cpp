@@ -73,7 +73,7 @@ namespace REL::Impl
 				continue;
 			}
 
-			// If rounding didn't advance us into the next region and the region is the required size
+			// if rounding did not advance us into the next region and the region is the required size
 			auto address = RoundUp(baseAddress, granularity);
 			if (address >= minAddress || (minAddress - address) < a_size) {
 				continue;

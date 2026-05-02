@@ -81,7 +81,7 @@ namespace RE
 		[[nodiscard]] BSTSmartPointer<T> GetState()
 		{
 			auto& state = cameraStates[T::CAMERA_STATE];
-			return { state ? static_cast<T*>(state.get()) : nullptr };
+			return { state ? dynamic_pointer_cast<T>(state) : nullptr };
 		}
 
 		// members

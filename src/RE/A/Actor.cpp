@@ -16,6 +16,13 @@ namespace RE
 		FUNC(this, a_perk, a_rank);
 	}
 
+	void Actor::CalculateDetectionFormula(Actor& a_target, DetectionData& a_detectionData)
+	{
+		using FuncType = decltype(&Actor::CalculateDetectionFormula);
+		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::CalculateDetectionFormula };
+		FUNC(this, a_target, a_detectionData);
+	}
+
 	bool Actor::CanUseIdle(TESIdleForm* a_idle) const
 	{
 		using FuncType = decltype(&Actor::CanUseIdle);
@@ -28,6 +35,13 @@ namespace RE
 		using FuncType = decltype(&Actor::ClearAttackStates);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::ClearAttackStates };
 		FUNC(this);
+	}
+
+	void Actor::DoHitMe(const HitData* a_data)
+	{
+		using FuncType = decltype(&Actor::DoHitMe);
+		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::DoHitMe };
+		FUNC(this, a_data);
 	}
 
 	void Actor::EndInterruptPackage(bool a_notRunOnceDialogue)

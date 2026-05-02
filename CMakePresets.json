@@ -19,7 +19,7 @@
 			},
 			"cacheVariables": {
 				"CMAKE_SYSTEM_NAME": "Windows",
-				"CMAKE_SYSTEM_VERSION": "10.0.19041.0"
+				"CMAKE_SYSTEM_VERSION": "10.0.19045.0"
 			}
 		},
 		{

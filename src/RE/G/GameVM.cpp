@@ -22,12 +22,12 @@ namespace RE
 
 	BSTSmartPointer<BSScript::Internal::VirtualMachine> GameVM::GetInternalVM()
 	{
-		auto vm = GetVMInterface();
-		if (!vm) {
+		auto* singleton = GetSingleton();
+		if (!singleton) {
 			return nullptr;
 		}
 
-		return dynamic_pointer_cast<BSScript::Internal::VirtualMachine>(vm);
+		return dynamic_pointer_cast<BSScript::Internal::VirtualMachine>(singleton->impl);
 	}
 
 	GameVM::RuntimeData& GameVM::GetRuntimeData() noexcept

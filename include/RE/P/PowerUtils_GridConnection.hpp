@@ -20,7 +20,7 @@ namespace RE
 	struct BSCRC32<RE::PowerUtils::GridConnection>
 	{
 	public:
-		[[nodiscard]] constexpr std::uint32_t operator()(const RE::PowerUtils::GridConnection& a_key) const noexcept
+		[[nodiscard]] std::uint32_t operator()(const RE::PowerUtils::GridConnection& a_key) const noexcept
 		{
 			const auto bytes = std::span{ reinterpret_cast<const std::byte*>(std::addressof(a_key)), sizeof(PowerUtils::GridConnection) };
 			return RE::Impl::GenerateCRC32Hash(bytes);

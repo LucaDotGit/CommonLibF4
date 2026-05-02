@@ -31,11 +31,6 @@ namespace RE::BGSCharacterTint
 	class Entries;
 }
 
-namespace RE::BGSCharacterTint
-{
-	class Entries;
-}
-
 namespace RE::PerkValueEvents
 {
 	class PerkEntryUpdatedEvent;
@@ -145,8 +140,9 @@ namespace RE
 		[[nodiscard]] static ActorHandle GetPlayerHandle();
 
 		void ClearPrison();
+		void EnableRadio(bool a_enable);
 		[[nodiscard]] DifficultyLevel GetDifficultyLevel() const;
-		[[nodiscard]] bool HasLOSToTarget(Actor* a_targetRef, bool* a_pickPerformed);
+		[[nodiscard]] bool HasLOSToTarget(Actor* a_targetRef, bool& a_pickPerformed);
 		[[nodiscard]] bool IsGodMode() const;
 		[[nodiscard]] bool IsHolotapePlaying(BGSNote* a_holotape) const;
 		[[nodiscard]] bool IsImmortal() const;
@@ -162,6 +158,7 @@ namespace RE
 		void SetEscaping(bool a_set, bool a_escaped);
 		void SetLastDialogueInput(std::uint32_t a_dialogueOption);
 		void SetPerkCount(std::uint8_t a_count);
+		void SetTintingData(std::uint16_t a_uniqueID, REX::Float32 a_value, std::uint32_t a_color);
 		void SetVATSCriticalCount(std::uint32_t a_critCount);
 		void ShowPipboyLight(bool a_show, bool a_skipEffects);
 		void StopHolotape(BGSNote* a_holotape);

@@ -41,12 +41,6 @@ namespace RE
 			kTotal = 2
 		};
 
-		enum class SpellContext : std::int32_t
-		{
-			kApplyOnLightning = 0,
-			kApplyWhenActive = 1
-		};
-
 		enum class TextureType : std::int32_t
 		{
 			kSun = 0,

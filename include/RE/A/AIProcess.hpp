@@ -61,6 +61,13 @@ namespace RE
 			FUNC(this);
 		}
 
+		[[nodiscard]] REX::Float32 GetActorLightLevel()
+		{
+			using FuncType = decltype(&AIProcess::GetActorLightLevel);
+			static const auto FUNC = REL::Relocation<FuncType>{ ID::AIProcess::GetActorLightLevel };
+			return std::invoke(FUNC, this);
+		}
+
 		[[nodiscard]] COMMAND_TYPE GetCommandType() const
 		{
 			using FuncType = decltype(&AIProcess::GetCommandType);

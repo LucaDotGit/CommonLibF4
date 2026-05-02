@@ -230,8 +230,8 @@ namespace REX::Toml
 			try {
 				output = toml::parse(a_path);
 			}
-			catch (const toml::exception& error) {
-				std::ignore = error;
+			catch ([[maybe_unused]] const toml::exception& error) {
+				output = toml::value();
 			}
 
 			for (const auto& setting : _settings) {

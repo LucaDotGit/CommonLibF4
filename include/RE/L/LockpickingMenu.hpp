@@ -31,10 +31,10 @@ namespace RE
 		bool OnButtonEventRelease(const BSFixedString& a_eventName) override;		// 0F
 
 		// override (BSInputEventUser)
-		bool ShouldHandleEvent(const InputEvent*) override;		 // 01
-		void OnThumbstickEvent(const ThumbstickEvent*) override; // 04
-		void OnMouseMoveEvent(const MouseMoveEvent*) override;	 // 06
-		void OnButtonEvent(const ButtonEvent*) override;		 // 08
+		bool ShouldHandleEvent(const InputEvent* a_event) override;		 // 01
+		void OnThumbstickEvent(const ThumbstickEvent* a_event) override; // 04
+		void OnMouseMoveEvent(const MouseMoveEvent* a_event) override;	 // 06
+		void OnButtonEvent(const ButtonEvent* a_event) override;		 // 08
 
 		[[nodiscard]] static TESObjectREFR* GetCurrentLockRef()
 		{
@@ -46,6 +46,13 @@ namespace RE
 		{
 			static const auto CURRENT_LOCK_LEVEL = REL::Relocation<LOCK_LEVEL*>{ ID::LockpickingMenu::CurrentLockLevel };
 			return *CURRENT_LOCK_LEVEL;
+		}
+
+		static void DamageLockpick()
+		{
+			using FuncType = decltype(&LockpickingMenu::DamageLockpick);
+			static const auto FUNC = REL::Relocation<FuncType>{ ID::LockpickingMenu::DamageLockpick };
+			FUNC();
 		}
 
 		static void OpenLockpickingMenu(TESObjectREFR* a_lockedRef)

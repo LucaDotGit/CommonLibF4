@@ -22,14 +22,14 @@ namespace RE
 		~DialogueMenu() override; // 00
 
 		// members
-		std::array<msvc::unique_ptr<BSGFxShaderFXTarget>, 4> dialogueButtonOBJs;		// 0E0
+		std::array<msvc::unique_ptr<BSGFxShaderFXTarget>, 4> dialogueButtonObjs;		// 0E0
 		msvc::unique_ptr<BSGFxShaderFXTarget> speechChallengeAnimObj;					// 100
-		BSTValueEventSink<HUDPerkVaultBoySwfDisplayEvent> CurrentVBPerk;				// 108
-		BSTValueEventSource<ShowingDialogueSpeechChallengeAnim> ShowingSpeechChallenge; // 140
+		BSTValueEventSink<HUDPerkVaultBoySwfDisplayEvent> currentVBPerk;				// 108
+		BSTValueEventSource<ShowingDialogueSpeechChallengeAnim> showingSpeechChallenge; // 140
 		BSTSmartPointer<BSInputEnableLayer> inputLayer;									// 158
-		UserEvents::INPUT_CONTEXT_ID CurrentContext;									// 160
-		bool IsLookingAtPlayer;															// 164
-		bool AreButtonsShown;															// 165
+		UserEvents::INPUT_CONTEXT_ID currentContext;									// 160
+		bool isLookingAtPlayer;															// 164
+		bool areButtonsShown;															// 165
 	};
 	static_assert(sizeof(DialogueMenu) == 0x168);
 }

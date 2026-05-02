@@ -89,31 +89,24 @@ namespace RE
 
 		[[nodiscard]] static auto GetAlternateHeadPartListMap() -> BSTHashMap<const TESNPC*, BSTArray<BGSHeadPart*>>&;
 
-		[[nodiscard]] bool UsesAlternateHeadPartList() const;
-
+		[[nodiscard]] bool HasApplicableKeywordString(std::string_view a_editorID) const;
+		[[nodiscard]] BGSColorForm* GetFacialHairColor() const noexcept;
+		[[nodiscard]] REX::Float32 GetFacialBoneMorphIntensity() const;
+		[[nodiscard]] BGSTextureSet* GetFaceDetails() const noexcept;
+		[[nodiscard]] BGSColorForm* GetHairColor() const noexcept;
 		[[nodiscard]] std::span<BGSHeadPart*> GetHeadParts(bool a_alternate = true);
 		[[nodiscard]] std::span<BGSHeadPart* const> GetHeadParts(bool a_alternate = true) const;
-
-		void SetHeadParts(std::span<BGSHeadPart*> a_headParts, bool a_alternate = true);
-
-		[[nodiscard]] BGSColorForm* GetHairColor() const noexcept;
-		[[nodiscard]] BGSColorForm* GetFacialHairColor() const noexcept;
-		[[nodiscard]] BGSTextureSet* GetFaceDetails() const noexcept;
-
-		void SetHairColor(BGSColorForm* a_hairColor);
-		void SetFacialHairColor(BGSColorForm* a_facialHairColor);
-		void SetFaceDetails(BGSTextureSet* a_faceDetails);
-
-		[[nodiscard]] REX::Float32 GetFacialBoneMorphIntensity() const;
-
-		[[nodiscard]] TESNPC* GetRootFaceNPC() noexcept;
 		[[nodiscard]] const TESNPC* GetRootFaceNPC() const noexcept;
-
+		[[nodiscard]] TESNPC* GetRootFaceNPC() noexcept;
 		[[nodiscard]] SEX GetSex() const noexcept;
 		[[nodiscard]] const char* GetShortName() const;
-
-		[[nodiscard]] bool HasApplicableKeywordString(std::string_view a_editorID) const;
 		[[nodiscard]] bool IsInFaction(const TESFaction* a_faction) const;
+		void SetFaceDetails(BGSTextureSet* a_faceDetails);
+		void SetFacialHairColor(BGSColorForm* a_facialHairColor);
+		void SetHairColor(BGSColorForm* a_hairColor);
+		void SetHeadParts(std::span<BGSHeadPart*> a_headParts, bool a_alternate = true);
+		void SetTintingData(std::uint16_t a_uniqueID, REX::Float32 a_value, std::uint32_t a_color);
+		[[nodiscard]] bool UsesAlternateHeadPartList() const;
 
 		// members
 		BGSAttachParentArray attachParents; // 220
