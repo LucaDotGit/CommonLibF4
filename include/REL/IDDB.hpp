@@ -20,10 +20,10 @@ namespace REL
 		Iddb& operator=(const Iddb&) = delete;
 		Iddb& operator=(Iddb&&) = delete;
 
-		[[nodiscard]] const std::filesystem::path& GetPath() const noexcept { return _path; }
+		[[nodiscard]] const std::filesystem::path& GetFilePath() const noexcept { return _filePath; }
 		[[nodiscard]] std::ptrdiff_t GetOffset(std::uintptr_t a_id) const noexcept;
 
-		void Load();
+		void Init();
 
 	private:
 		enum class FormatVersion : std::int32_t;
@@ -47,7 +47,7 @@ namespace REL
 
 		[[nodiscard]] static std::string GetMemoryMapName(REX::Version a_version);
 
-		std::filesystem::path _path;
+		std::filesystem::path _filePath;
 		std::unordered_map<std::string_view, REX::NotNull<std::shared_ptr<LoaderInfo>>> _loaderInfoMap;
 		std::unordered_map<FormatVersion, REX::NotNull<std::shared_ptr<IFormatInfo>>> _formatInfoMap;
 		std::shared_ptr<LoaderInfo> _currentLoaderInfo;

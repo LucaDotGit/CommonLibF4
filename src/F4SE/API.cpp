@@ -251,7 +251,7 @@ namespace F4SE::Impl
 		static constinit auto OnceFlag = std::once_flag();
 		std::call_once(OnceFlag, []() {
 			const auto& module = REL::Module::GetSingleton();
-			module->Load();
+			module->Init();
 		});
 	}
 
@@ -261,7 +261,7 @@ namespace F4SE::Impl
 		static constinit auto OnceFlag = std::once_flag();
 		std::call_once(OnceFlag, []() {
 			const auto& iddb = REL::Iddb::GetSingleton();
-			iddb->Load();
+			iddb->Init();
 		});
 	}
 
@@ -321,7 +321,7 @@ namespace F4SE::Impl
 				return;
 			}
 
-			auto& trampoline = REL::GetTrampoline();
+			const auto& trampoline = REL::GetTrampoline();
 
 			auto* mem = this->trampolineInterface->AllocateFromBranchPool(this->info.trampolineSize);
 			if (!mem) {
@@ -339,7 +339,7 @@ namespace F4SE::Impl
 			return;
 		}
 
-		auto& hookStore = REL::GetHookStore();
+		const auto& hookStore = REL::GetHookStore();
 		hookStore->Init();
 		hookStore->Enable(a_step);
 	}

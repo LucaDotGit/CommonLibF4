@@ -52,21 +52,22 @@ namespace REL
 		return REX::W32::GetModuleHandleW(a_moduleName.data()) != 0;
 	}
 
-	void Module::Load()
+	void Module::Init()
 	{
-		LoadLocale();
-		LoadFile();
-		LoadVersion();
-		LoadSegments();
+		InitLocale();
+		InitFile();
+		InitVersion();
+		InitSegments();
 	}
 
-	void Module::LoadLocale()
+	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+	void Module::InitLocale()
 	{
 		std::ignore = REX::GetDefaultCLocale();
-		std::locale::global(REX::GetDefaultCppLocale());
+		std::ignore = REX::GetDefaultCppLocale();
 	}
 
-	void Module::LoadFile()
+	void Module::InitFile()
 	{
 		auto moduleHandle = REX::W32::GetModuleHandleA(nullptr);
 
@@ -79,7 +80,7 @@ namespace REL
 		_filePath = std::filesystem::path(filePathBuffer.data(), std::filesystem::path::generic_format);
 	}
 
-	void Module::LoadVersion()
+	void Module::InitVersion()
 	{
 		const auto version = REX::GetFileVersion(_filePath.generic_string());
 		if (!version) [[unlikely]] {
@@ -92,7 +93,7 @@ namespace REL
 		_version = *version;
 	}
 
-	void Module::LoadSegments()
+	void Module::InitSegments()
 	{
 		const auto* dosHeader = std::bit_cast<const REX::W32::IMAGE_DOS_HEADER*>(_baseAddress);
 		const auto* ntHeader = REL::AdjustPointer<REX::W32::IMAGE_NT_HEADERS64>(dosHeader, dosHeader->lfanew);

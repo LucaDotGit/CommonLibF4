@@ -303,12 +303,7 @@ namespace RE
 				return;
 			}
 
-			try {
-				allocator_type::deallocate(a_ptr);
-			}
-			catch (...) {
-				REX::DeallocationFail();
-			}
+			allocator_type::deallocate(a_ptr);
 		}
 
 		constexpr void assign_impl(std::basic_string_view<value_type> a_str)

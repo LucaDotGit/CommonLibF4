@@ -24,7 +24,7 @@ namespace REX
 		}
 	}
 
-	auto GetDefaultCLocale() noexcept -> const CLocale&
+	const CLocale& GetDefaultCLocale() noexcept
 	{
 		static const auto DEFAULT_LOCALE = []() noexcept {
 			auto result = CreateCLocale(DEFAULT_LOCALE_NAME);
@@ -39,7 +39,7 @@ namespace REX
 		return DEFAULT_LOCALE;
 	}
 
-	auto GetDefaultCppLocale() noexcept -> const CppLocale&
+	const CppLocale& GetDefaultCppLocale() noexcept
 	{
 		static const auto DEFAULT_LOCALE = []() noexcept {
 			auto result = CreateCppLocale(DEFAULT_LOCALE_NAME);

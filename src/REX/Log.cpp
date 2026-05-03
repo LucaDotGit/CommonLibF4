@@ -74,7 +74,7 @@ namespace REX
 			spdlog::log(location, static_cast<spdlog::level::level_enum>(a_level), a_format);
 		}
 		catch ([[maybe_unused]] const std::bad_alloc& error) {
-			REX::AllocationFail();
+			REX::AllocationFail("Failed to allocate memory for log message."sv);
 		}
 	}
 
@@ -94,7 +94,7 @@ namespace REX
 			spdlog::log(location, static_cast<spdlog::level::level_enum>(a_level), *u8Format);
 		}
 		catch ([[maybe_unused]] const std::bad_alloc& error) {
-			REX::AllocationFail();
+			REX::AllocationFail("Failed to allocate memory for log message."sv);
 		}
 	}
 }

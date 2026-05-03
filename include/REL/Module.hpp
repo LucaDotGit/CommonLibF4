@@ -24,14 +24,15 @@ namespace REL
 		Module& operator=(Module&&) = delete;
 
 		[[nodiscard]] const std::filesystem::path& GetFilePath() const noexcept { return _filePath; }
-		[[nodiscard]] REL::ModuleSection GetSection(std::string_view a_sectionName) const noexcept;
-		[[nodiscard]] REX::Version GetVersion() const noexcept { return _version; }
 		[[nodiscard]] std::uintptr_t GetBaseAddress() const noexcept { return _baseAddress; }
+		[[nodiscard]] REX::Version GetVersion() const noexcept { return _version; }
 
 		[[nodiscard]] Runtime GetRuntime() const noexcept { return _runtime; }
 		void SetRuntime(Runtime a_runtime) noexcept { _runtime = a_runtime; }
 
 		[[nodiscard]] bool GetIsRuntimeVR() const noexcept { return _runtime.GetType() == RuntimeType::kVR; }
+
+		[[nodiscard]] REL::ModuleSection GetSection(std::string_view a_sectionName) const noexcept;
 
 		[[nodiscard]] std::uintptr_t GetImportFunctionAddress(std::string_view a_library, std::string_view a_function) const;
 
@@ -54,18 +55,18 @@ namespace REL
 		[[nodiscard]] static bool IsModuleLoaded(REX::zstring_view a_moduleName) noexcept;
 		[[nodiscard]] static bool IsModuleLoaded(REX::zwstring_view a_moduleName) noexcept;
 
-		void Load();
+		void Init();
 
 	private:
-		static void LoadLocale();
-		void LoadFile();
-		void LoadVersion();
-		void LoadSegments();
+		void InitLocale();
+		void InitFile();
+		void InitVersion();
+		void InitSegments();
 
 		std::filesystem::path _filePath;
 		std::uintptr_t _baseAddress{ 0 };
 		REX::Version _version;
-		std::unordered_map<std::string_view, REL::ModuleSection> _sections;
 		Runtime _runtime{ Runtime::LATEST };
+		std::unordered_map<std::string_view, REL::ModuleSection> _sections;
 	};
 }

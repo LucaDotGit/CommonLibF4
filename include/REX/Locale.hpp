@@ -7,7 +7,7 @@ namespace REX
 	using CLocale = std::unique_ptr<std::remove_pointer_t<::_locale_t>, decltype(&::_free_locale)>;
 	using CppLocale = std::locale;
 
-	inline constexpr auto DEFAULT_LOCALE_NAME = "en_US.UTF-8"sv;
+	inline constexpr auto DEFAULT_LOCALE_NAME = ".UTF-8"sv;
 
 	template <REX::win32_character T>
 	inline constexpr auto MIN_ASCII_CHAR = static_cast<T>(0);

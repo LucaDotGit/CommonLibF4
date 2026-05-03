@@ -722,7 +722,7 @@ namespace REL
 		return _currentFormatInfo->GetOffset(a_id);
 	}
 
-	void Iddb::Load()
+	void Iddb::Init()
 	{
 		auto pluginPathBuffer = std::array<wchar_t, REX::W32::MAX_PATH>();
 		REX::W32::GetModuleFileNameW(REX::W32::GetCurrentModule(), pluginPathBuffer.data(), static_cast<std::uint32_t>(pluginPathBuffer.size()));
@@ -754,11 +754,11 @@ namespace REL
 				continue;
 			}
 
-			_path = std::move(fullLoaderPath);
+			_filePath = std::move(fullLoaderPath);
 			break;
 		}
 
-		if (_path.empty()) [[unlikely]] {
+		if (_filePath.empty()) [[unlikely]] {
 			REX::Fail(
 				"Failed to determine Address Library path.\n"
 				"File Loader: \"{}\"\n"
@@ -788,7 +788,7 @@ namespace REL
 		}
 		else {
 			try {
-				stream.Open(_path, std::ios::in | std::ios::binary);
+				stream.Open(_filePath, std::ios::in | std::ios::binary);
 				formatVersion = static_cast<FormatVersion>(stream.ReadOut<std::uint32_t>());
 			}
 			catch (const std::ios::failure& error) {
@@ -817,7 +817,7 @@ namespace REL
 		_currentFormatInfo = formatIt->second.get();
 
 		auto loadContext = IFormatInfo::LoadContext{
-			.path = _path,
+			.path = _filePath,
 			.stream = std::move(stream),
 			.loaderInfo = _currentLoaderInfo,
 			.memoryMap = _memoryMap

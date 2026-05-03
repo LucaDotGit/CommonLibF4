@@ -48,12 +48,7 @@ namespace F4SE::Menus
 
 	auto MenuInfo::CreateMenuInstance() const -> REX::NotNull<std::unique_ptr<RE::GameMenuBase>>
 	{
-		auto menuImpl = std::make_unique<RE::GameMenuBase>();
-		if (!menuImpl) [[unlikely]] {
-			REX::AllocationFail();
-		}
-
-		return menuImpl;
+		return std::make_unique<RE::GameMenuBase>();
 	}
 
 	void MenuInfo::OnMenuLoadSuccess([[maybe_unused]] const REX::NotNull<std::unique_ptr<RE::GameMenuBase>>& a_menuInstance) const

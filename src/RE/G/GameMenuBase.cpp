@@ -90,15 +90,17 @@ namespace RE
 			return;
 		}
 
-		filterHolder = msvc::make_unique<BSGFxShaderFXTarget>(menuObj);
-		if (!filterHolder) [[unlikely]] {
+		auto newFilterHolder = msvc::make_unique<BSGFxShaderFXTarget>(menuObj);
+		if (!newFilterHolder) [[unlikely]] {
 			REX::AllocationFail();
 		}
 
-		filterHolder->CreateAndSetFiltersToHUD(a_colorType, a_scale);
+		newFilterHolder->CreateAndSetFiltersToHUD(a_colorType, a_scale);
 
 		if (menuFlags.any(UI_MENU_FLAGS::kCustomRendering)) {
-			shaderFXObjects.push_back(filterHolder.get());
+			shaderFXObjects.push_back(newFilterHolder.get());
 		}
+
+		filterHolder = std::move(newFilterHolder);
 	}
 }

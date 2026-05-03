@@ -552,13 +552,13 @@ namespace RE
 			free(_value.string);
 		}
 
-		auto* newString = calloc<char>(a_value.size() + sizeof(char));
-		if (!newString) [[unlikely]] {
+		auto* newValue = calloc<char>(a_value.size() + sizeof(char));
+		if (!newValue) [[unlikely]] {
 			REX::AllocationFail();
 		}
 
-		std::ranges::copy(a_value, newString);
-		_value.string = newString;
+		std::ranges::copy(a_value, newValue);
+		_value.string = newValue;
 	}
 
 	void Setting::SetRGB(std::span<const std::uint8_t, 3> a_value) noexcept
