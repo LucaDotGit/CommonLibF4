@@ -7,7 +7,8 @@ namespace RE
 	class FORM_ENUM_STRING
 	{
 	public:
-		[[nodiscard]] static auto GetFormTypeStrings() -> std::span<FORM_ENUM_STRING, std::to_underlying(FormType::kTotal)>;
+		[[nodiscard]] static auto GetFormTypeStrings()
+			-> std::span<FORM_ENUM_STRING, std::to_underlying(FormType::kTotal)>;
 
 		[[nodiscard]] static FormType GetFormTypeByString(std::string_view a_typeString);
 		[[nodiscard]] static std::string_view GetFormStringByType(FormType a_formType);
@@ -29,17 +30,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::FormType& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::FormType& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, RE::FORM_ENUM_STRING::GetFormStringByType(a_value));
+			return format_to(a_context.out(), "{}"sv, RE::FORM_ENUM_STRING::GetFormStringByType(a_value));
 		}
 	};
 }
@@ -54,17 +55,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::FormType& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::FormType& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, RE::FORM_ENUM_STRING::GetFormStringByType(a_value));
+			return format_to(a_context.out(), "{}"sv, RE::FORM_ENUM_STRING::GetFormStringByType(a_value));
 		}
 	};
 }

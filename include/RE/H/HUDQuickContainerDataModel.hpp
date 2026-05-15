@@ -63,7 +63,7 @@ namespace RE
 		{
 			using FuncType = decltype(&HUDQuickContainerDataModel::TakeSelectedItem);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::HUDQuickContainerDataModel::TakeSelectedItem };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

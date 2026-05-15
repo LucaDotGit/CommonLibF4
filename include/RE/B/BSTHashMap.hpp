@@ -449,7 +449,7 @@ namespace RE
 			const auto oldCapacity = _capacity;
 			auto* oldEntries = get_entries();
 
-			auto&& [newCapacity, newEntries] = [this, a_count]() {
+			auto&& [newCapacity, newEntries] = [this, a_count]() -> std::pair<size_type, entry_type*> {
 				constexpr auto MIN = static_cast<std::size_t>(allocator_type::min_size());
 				static_assert(MIN > 0 && std::has_single_bit(MIN));
 
@@ -462,13 +462,13 @@ namespace RE
 
 				auto* entries = allocate(static_cast<size_type>(capacity));
 				if (!entries) [[unlikely]] {
-					REX::AllocationFail();
+					throw std::bad_alloc();
 				}
 
 				return std::make_pair(static_cast<size_type>(capacity), entries);
 			}();
 
-			const auto setCapacity = [this](size_type a_newCap) {
+			const auto setCapacity = [this](size_type a_newCap) noexcept -> void {
 				_capacity = a_newCap;
 				_free = _capacity;
 				_good = 0;
@@ -524,7 +524,6 @@ namespace RE
 			std::swap(_capacity, a_other._capacity);
 			std::swap(_free, a_other._free);
 			std::swap(_good, a_other._good);
-			std::swap(_sentinel, a_other._sentinel);
 			std::swap(_allocator, a_other._allocator);
 		}
 
@@ -593,7 +592,7 @@ namespace RE
 				REX::Assert(_free > 0);
 			}
 
-			const auto decrement = REX::ScopeExit([this]() noexcept { --_free; });
+			const auto decrement = REX::ScopeExit([this]() noexcept -> void { --_free; });
 
 			auto* entry = std::addressof(get_entry_for(unwrap_key(a_value)));
 			if (entry->has_value()) { // slot is taken, resolve conflict
@@ -701,10 +700,10 @@ namespace RE
 			REX::Assert(_free > 0);
 			REX::Assert(get_entries() != nullptr);
 			REX::Assert(std::has_single_bit(_capacity));
-			REX::Assert([this]() noexcept {
+			REX::Assert([this]() noexcept -> bool {
 				const auto begin = get_entries();
 				const auto end = get_entries() + _capacity;
-				return std::find_if(begin, end, [](const entry_type& a_entry) noexcept {
+				return std::find_if(begin, end, [](const entry_type& a_entry) noexcept -> bool {
 					return !a_entry.has_value();
 				}) != end;
 			}());
@@ -811,13 +810,7 @@ namespace RE
 		[[nodiscard]] __declspec(allocator) __declspec(restrict) void* allocate_bytes(size_type a_count) noexcept
 		{
 			REX::Assert(a_count % SIZE == 0);
-
-			auto* mem = calloc<std::byte>(a_count);
-			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
-			}
-
-			return mem;
+			return calloc<std::byte>(a_count);
 		}
 
 		__declspec(noalias) void deallocate_bytes(void* a_ptr) noexcept
@@ -845,7 +838,7 @@ namespace RE
 		BSTScatterTableScrapAllocator()
 			: _allocator(MemoryManager::GetSingleton().GetThreadScrapHeap())
 		{
-			REX::Ensure(_allocator != nullptr);
+			REX::Assert(_allocator != nullptr);
 		}
 
 		~BSTScatterTableScrapAllocator() noexcept = default;
@@ -880,14 +873,7 @@ namespace RE
 		{
 			REX::Assert(a_count % SIZE == 0);
 			REX::Assert(_allocator != nullptr);
-
-			auto* mem = _allocator->Allocate(a_count, ALIGNMENT_SIZE);
-			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
-			}
-
-			REL::MemWriteZero(mem, a_count);
-			return mem;
+			return _allocator->CountedAllocate<std::byte>(a_count, ALIGNMENT_SIZE);
 		}
 
 		__declspec(noalias) void deallocate_bytes(void* a_ptr) noexcept
@@ -960,7 +946,12 @@ namespace RE
 			[[nodiscard]] __declspec(allocator) void* allocate_bytes(size_type a_count) noexcept
 			{
 				REX::Assert(a_count % SIZE == 0);
-				return a_count <= MAX_SIZE * SIZE ? _buffer.data() : nullptr;
+
+				if (a_count > MAX_SIZE * SIZE) {
+					return nullptr;
+				}
+
+				return _buffer.data();
 			}
 
 			__declspec(noalias) void deallocate_bytes([[maybe_unused]] void* a_ptr) noexcept

@@ -34,7 +34,7 @@ namespace RE
 		{
 			using FuncType = decltype(&PipboyMenu::RefreshMapMarkers);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyMenu::RefreshMapMarkers };
-			FUNC(this, a_markerID);
+			std::invoke(FUNC, this, a_markerID);
 		}
 
 		// members

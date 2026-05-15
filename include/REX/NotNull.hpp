@@ -3,6 +3,7 @@
 #include "REX/Concepts.hpp"
 #include "REX/Contract.hpp"
 #include "REX/Hash.hpp"
+#include "REX/SourceLocation.hpp"
 
 namespace REX::Impl
 {
@@ -30,7 +31,7 @@ namespace REX
 		constexpr NotNull(std::nullptr_t) = delete;
 
 		template <class U>
-		constexpr NotNull(const U& a_ptr, std::source_location a_location = std::source_location::current()) //
+		constexpr NotNull(const U& a_ptr, REX::SourceLocation a_location = REX::SourceLocation::GetCurrent()) //
 			noexcept(std::is_nothrow_convertible_v<U, value_type> &&
 					 std::is_nothrow_copy_constructible_v<value_type>)
 			requires(std::is_convertible_v<U, value_type> &&
@@ -41,7 +42,7 @@ namespace REX
 		}
 
 		template <class U>
-		constexpr NotNull(U&& a_ptr, std::source_location a_location = std::source_location::current()) //
+		constexpr NotNull(U&& a_ptr, REX::SourceLocation a_location = REX::SourceLocation::GetCurrent()) //
 			noexcept(std::is_nothrow_convertible_v<U, value_type> &&
 					 std::is_nothrow_move_constructible_v<value_type>)
 			requires(std::is_convertible_v<U, value_type> &&
@@ -225,7 +226,6 @@ namespace REX
 
 	static_assert(std::is_trivially_destructible_v<NotNull<void*>>);
 	static_assert(std::is_trivially_copyable_v<NotNull<void*>>);
-	;
 
 	template <class T>
 	[[nodiscard]] constexpr bool operator==(const NotNull<T>& a_lhs, const NotNull<T>& a_rhs) //

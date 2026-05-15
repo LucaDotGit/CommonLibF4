@@ -22,7 +22,7 @@ namespace RE::BSGraphics
 		{
 			using FuncType = decltype(&RenderTargetManager::SetEnableDynamicResolution);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSGraphics::RenderTargetManager::SetEnableDynamicResolution };
-			FUNC(this, a_enableDynamicResolution);
+			std::invoke(FUNC, this, a_enableDynamicResolution);
 		}
 
 		// members

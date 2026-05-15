@@ -83,7 +83,7 @@ namespace RE
 		[[nodiscard]] constexpr pointer data() noexcept { return _data; }
 		[[nodiscard]] constexpr const_pointer data() const noexcept { return _data; }
 
-		constexpr void allocate_bytes(size_type a_count) noexcept
+		constexpr void allocate_bytes(size_type a_count)
 		{
 			Allocator::deallocate_bytes(_data);
 
@@ -92,8 +92,8 @@ namespace RE
 			}
 
 			auto* newData = calloc<value_type>(a_count);
-			if (!newData) [[unlikely]] {
-				REX::AllocationFail();
+			if (!newData) {
+				throw std::bad_alloc();
 			}
 
 			_data = newData;
@@ -144,12 +144,7 @@ namespace RE
 
 		[[nodiscard]] __declspec(allocator) __declspec(restrict) static void* allocate_bytes(size_type a_bytes) noexcept
 		{
-			auto* ptr = calloc<std::byte>(a_bytes);
-			if (!ptr) [[unlikely]] {
-				REX::AllocationFail();
-			}
-
-			return ptr;
+			return calloc<std::byte>(a_bytes);
 		}
 
 		__declspec(noalias) static void deallocate_bytes(void* a_ptr) noexcept
@@ -176,12 +171,7 @@ namespace RE
 
 		[[nodiscard]] __declspec(allocator) __declspec(restrict) static void* allocate_bytes(size_type a_bytes) noexcept
 		{
-			auto* ptr = aligned_alloc<std::byte>(a_bytes, static_cast<std::align_val_t>(N));
-			if (!ptr) [[unlikely]] {
-				REX::AllocationFail();
-			}
-
-			return ptr;
+			return aligned_alloc<std::byte>(a_bytes, static_cast<std::align_val_t>(N));
 		}
 
 		__declspec(noalias) static void deallocate_bytes(void* a_ptr) noexcept
@@ -209,28 +199,12 @@ namespace RE
 
 		[[nodiscard]] __declspec(allocator) __declspec(restrict) static void* allocate_bytes(size_type a_bytes) noexcept
 		{
-			auto* allocator = MemoryManager::GetSingleton().GetThreadScrapHeap();
-			REX::Ensure(allocator != nullptr);
-
-			auto* ptr = allocator->Allocate(a_bytes, SCRAP_HEAP_ALIGNMENT);
-			if (!ptr) [[unlikely]] {
-				REX::AllocationFail();
-			}
-
-			REL::MemWriteZero(ptr, a_bytes);
-			return ptr;
+			return scrap_calloc<std::byte>(a_bytes, SCRAP_HEAP_ALIGNMENT);
 		}
 
 		__declspec(noalias) static void deallocate_bytes(void* a_ptr) noexcept
 		{
-			if (!a_ptr) {
-				return;
-			}
-
-			auto* allocator = MemoryManager::GetSingleton().GetThreadScrapHeap();
-			REX::Ensure(allocator != nullptr);
-
-			allocator->Deallocate(a_ptr);
+			scrap_free(a_ptr);
 		}
 	};
 	static_assert(std::is_empty_v<SimpleArrayScrapAllocator>);

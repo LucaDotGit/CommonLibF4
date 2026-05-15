@@ -21,8 +21,9 @@ namespace RE
 		void CopyComponent(BaseFormComponent* a_copy) override;					  // 05
 		void CopyComponent(BaseFormComponent* a_copy, TESForm* a_owner) override; // 06
 
-		[[nodiscard]] static auto GetFormValue(const TESForm* a_form) -> std::optional<std::int32_t>;
-		static bool SetFormValue(TESForm* a_form, std::int32_t a_value);
+		[[nodiscard]] static auto GetFormValue(const TESForm* a_form)
+			-> std::optional<std::int32_t>;
+		static bool SetFormValue(TESForm* a_form, std::int32_t a_value, bool a_addChange = true);
 
 		// members
 		std::int32_t value; // 08

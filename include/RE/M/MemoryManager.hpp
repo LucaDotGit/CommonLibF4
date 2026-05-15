@@ -50,8 +50,8 @@ namespace RE
 				return mem;
 			}
 
-			[[nodiscard]] static void* allocate(std::size_t a_size, std::align_val_t a_alignment) noexcept;
-			static void deallocate(void* a_mem) noexcept;
+			[[nodiscard]] __declspec(allocator) __declspec(restrict) static void* allocate_bytes(std::size_t a_size, std::align_val_t a_alignment) noexcept;
+			__declspec(noalias) static void deallocate_bytes(void* a_mem) noexcept;
 
 		private:
 			// members
@@ -127,14 +127,6 @@ namespace RE
 		return static_cast<T*>(aligned_alloc(a_size, a_alignment));
 	}
 
-	[[nodiscard]] __declspec(allocator) __declspec(restrict) void* scrap_alloc(std::size_t a_size, std::align_val_t a_alignment) noexcept;
-
-	template <class T>
-	[[nodiscard]] __declspec(allocator) __declspec(restrict) T* scrap_alloc(std::align_val_t a_alignment = static_cast<std::align_val_t>(alignof(T))) noexcept
-	{
-		return static_cast<T*>(scrap_alloc(sizeof(T), a_alignment));
-	}
-
 	[[nodiscard]] __declspec(allocator) __declspec(restrict) void* calloc(std::size_t a_count, std::size_t a_size) noexcept;
 
 	template <class T>
@@ -159,6 +151,22 @@ namespace RE
 		return static_cast<T*>(aligned_realloc(static_cast<void*>(a_ptr), a_newSize, a_alignment));
 	}
 
+	[[nodiscard]] __declspec(allocator) __declspec(restrict) void* scrap_alloc(std::size_t a_size, std::align_val_t a_alignment) noexcept;
+
+	template <class T>
+	[[nodiscard]] __declspec(allocator) __declspec(restrict) T* scrap_alloc(std::align_val_t a_alignment = static_cast<std::align_val_t>(alignof(T))) noexcept
+	{
+		return static_cast<T*>(scrap_alloc(sizeof(T), a_alignment));
+	}
+
+	[[nodiscard]] __declspec(allocator) __declspec(restrict) void* scrap_calloc(std::size_t a_count, std::size_t a_size, std::align_val_t a_alignment) noexcept;
+
+	template <class T>
+	[[nodiscard]] __declspec(allocator) __declspec(restrict) T* scrap_calloc(std::size_t a_count, std::align_val_t a_alignment = static_cast<std::align_val_t>(alignof(T))) noexcept
+	{
+		return static_cast<T*>(scrap_calloc(a_count, sizeof(T), a_alignment));
+	}
+
 	__declspec(noalias) void free(void* a_ptr) noexcept;
 	__declspec(noalias) void aligned_free(void* a_ptr) noexcept;
 	__declspec(noalias) void scrap_free(void* a_ptr) noexcept;
@@ -169,92 +177,161 @@ namespace RE
 
 	template <class T>
 	struct StlAllocator
-		: public std::allocator<T>
 	{
 	public:
 		using value_type = T;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
+		using propagate_on_container_move_assignment = std::true_type;
 
-		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(std::size_t a_count) noexcept
+		constexpr StlAllocator() noexcept = default;
+		constexpr ~StlAllocator() noexcept = default;
+
+		constexpr StlAllocator(const StlAllocator&) noexcept = default;
+		constexpr StlAllocator(StlAllocator&&) noexcept = default;
+
+		constexpr StlAllocator& operator=(const StlAllocator&) noexcept = default;
+		constexpr StlAllocator& operator=(StlAllocator&&) noexcept = default;
+
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(size_type a_count)
 		{
 			auto* mem = malloc<value_type>(a_count * sizeof(value_type));
 			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
+				throw std::bad_alloc();
 			}
 
 			return mem;
 		}
 
-		__declspec(noalias) void deallocate(value_type* a_ptr, [[maybe_unused]] std::size_t a_count) noexcept
+		__declspec(noalias) void deallocate(value_type* a_ptr, [[maybe_unused]] size_type a_count) noexcept
 		{
 			free(static_cast<void*>(a_ptr));
 		}
 	};
 
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator==([[maybe_unused]] const StlAllocator<T1>& a_lhs, [[maybe_unused]] const StlAllocator<T2>& a_rhs) noexcept
+	{
+		return true;
+	}
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator!=([[maybe_unused]] const StlAllocator<T1>& a_lhs, [[maybe_unused]] const StlAllocator<T2>& a_rhs) noexcept
+	{
+		return false;
+	}
+
 	template <class T>
 	struct StlAlignedAllocator
-		: public std::allocator<T>
 	{
 	public:
 		using value_type = T;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
+		using propagate_on_container_move_assignment = std::true_type;
 
-		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(std::size_t a_count) noexcept
+		constexpr StlAlignedAllocator() noexcept = default;
+		constexpr ~StlAlignedAllocator() noexcept = default;
+
+		constexpr StlAlignedAllocator(const StlAlignedAllocator&) noexcept = default;
+		constexpr StlAlignedAllocator(StlAlignedAllocator&&) noexcept = default;
+
+		constexpr StlAlignedAllocator& operator=(const StlAlignedAllocator&) noexcept = default;
+		constexpr StlAlignedAllocator& operator=(StlAlignedAllocator&&) noexcept = default;
+
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(size_type a_count)
 		{
 			auto* mem = aligned_alloc<value_type>(a_count * sizeof(value_type), static_cast<std::align_val_t>(alignof(value_type)));
 			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
+				throw std::bad_alloc();
 			}
 
 			return mem;
 		}
 
-		__declspec(noalias) void deallocate(value_type* a_ptr, [[maybe_unused]] std::size_t a_count) noexcept
+		__declspec(noalias) void deallocate(value_type* a_ptr, [[maybe_unused]] size_type a_count) noexcept
 		{
 			aligned_free(static_cast<void*>(a_ptr));
 		}
 	};
 
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator==([[maybe_unused]] const StlAlignedAllocator<T1>& a_lhs, [[maybe_unused]] const StlAlignedAllocator<T2>& a_rhs) noexcept
+	{
+		return true;
+	}
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator!=([[maybe_unused]] const StlAlignedAllocator<T1>& a_lhs, [[maybe_unused]] const StlAlignedAllocator<T2>& a_rhs) noexcept
+	{
+		return false;
+	}
+
 	template <class T>
 	struct StlScrapAllocator
-		: public std::allocator<T>
 	{
 	public:
 		using value_type = T;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
+		using propagate_on_container_move_assignment = std::false_type;
 
-		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(std::size_t a_count) noexcept
+		constexpr StlScrapAllocator() noexcept = default;
+		constexpr ~StlScrapAllocator() noexcept = default;
+
+		constexpr StlScrapAllocator(const StlScrapAllocator&) noexcept = default;
+		constexpr StlScrapAllocator(StlScrapAllocator&&) noexcept = default;
+
+		constexpr StlScrapAllocator& operator=(const StlScrapAllocator&) noexcept = default;
+		constexpr StlScrapAllocator& operator=(StlScrapAllocator&&) noexcept = default;
+
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(size_type a_count)
 		{
 			auto* mem = scrap_alloc<value_type>(a_count * sizeof(value_type), static_cast<std::align_val_t>(alignof(value_type)));
 			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
+				throw std::bad_alloc();
 			}
 
 			return mem;
 		}
 
-		__declspec(noalias) void deallocate(value_type* a_ptr, [[maybe_unused]] std::size_t a_count) noexcept
+		__declspec(noalias) void deallocate(value_type* a_ptr, [[maybe_unused]] size_type a_count) noexcept
 		{
 			scrap_free(static_cast<void*>(a_ptr));
 		}
 	};
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator==([[maybe_unused]] const StlScrapAllocator<T1>& a_lhs, [[maybe_unused]] const StlScrapAllocator<T2>& a_rhs) noexcept
+	{
+		return true;
+	}
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator!=([[maybe_unused]] const StlScrapAllocator<T1>& a_lhs, [[maybe_unused]] const StlScrapAllocator<T2>& a_rhs) noexcept
+	{
+		return false;
+	}
 }
 
 #define GAME_HEAP_REDEFINE_HELPER(a_type)                                                                               \
 	static_assert(std::is_class_v<a_type>);                                                                             \
                                                                                                                         \
-	[[nodiscard]] void* operator new(std::size_t a_size, std::align_val_t a_alignment) noexcept                         \
+	[[nodiscard]] void* operator new(std::size_t a_size, std::align_val_t a_alignment)                                  \
 	{                                                                                                                   \
 		auto* mem = RE::aligned_alloc(a_size, a_alignment);                                                             \
 		if (!mem) [[unlikely]] {                                                                                        \
-			REX::AllocationFail();                                                                                      \
+			throw std::bad_alloc();                                                                                     \
 		}                                                                                                               \
                                                                                                                         \
 		return mem;                                                                                                     \
 	}                                                                                                                   \
                                                                                                                         \
-	[[nodiscard]] void* operator new[](std::size_t a_size, std::align_val_t a_alignment) noexcept                       \
+	[[nodiscard]] void* operator new[](std::size_t a_size, std::align_val_t a_alignment)                                \
 	{                                                                                                                   \
 		auto* mem = RE::aligned_alloc(a_size, a_alignment);                                                             \
 		if (!mem) [[unlikely]] {                                                                                        \
-			REX::AllocationFail();                                                                                      \
+			throw std::bad_alloc();                                                                                     \
 		}                                                                                                               \
                                                                                                                         \
 		return mem;                                                                                                     \
@@ -274,21 +351,21 @@ namespace RE
 	void operator delete[](void* a_ptr, std::size_t, std::align_val_t) noexcept { RE::aligned_free(a_ptr); }
 
 #define GAME_HEAP_REDEFINE_NEW(a_type)                                             \
-	[[nodiscard]] void* operator new(std::size_t a_size) noexcept                  \
+	[[nodiscard]] void* operator new(std::size_t a_size)                           \
 	{                                                                              \
 		auto* mem = RE::malloc(a_size);                                            \
 		if (!mem) [[unlikely]] {                                                   \
-			REX::AllocationFail();                                                 \
+			throw std::bad_alloc();                                                \
 		}                                                                          \
                                                                                    \
 		return mem;                                                                \
 	}                                                                              \
                                                                                    \
-	[[nodiscard]] void* operator new[](std::size_t a_size) noexcept                \
+	[[nodiscard]] void* operator new[](std::size_t a_size)                         \
 	{                                                                              \
 		auto* mem = RE::malloc(a_size);                                            \
 		if (!mem) [[unlikely]] {                                                   \
-			REX::AllocationFail();                                                 \
+			throw std::bad_alloc();                                                \
 		}                                                                          \
                                                                                    \
 		return mem;                                                                \
@@ -302,21 +379,21 @@ namespace RE
 	GAME_HEAP_REDEFINE_HELPER(a_type)
 
 #define GAME_HEAP_REDEFINE_ALIGNED_NEW(a_type)                                                 \
-	[[nodiscard]] void* operator new(std::size_t a_size) noexcept                              \
+	[[nodiscard]] void* operator new(std::size_t a_size)                                       \
 	{                                                                                          \
 		auto* mem = RE::aligned_alloc(a_size, static_cast<std::align_val_t>(alignof(a_type))); \
 		if (!mem) [[unlikely]] {                                                               \
-			REX::AllocationFail();                                                             \
+			throw std::bad_alloc();                                                            \
 		}                                                                                      \
                                                                                                \
 		return mem;                                                                            \
 	}                                                                                          \
                                                                                                \
-	[[nodiscard]] void* operator new[](std::size_t a_size) noexcept                            \
+	[[nodiscard]] void* operator new[](std::size_t a_size)                                     \
 	{                                                                                          \
 		auto* mem = RE::aligned_alloc(a_size, static_cast<std::align_val_t>(alignof(a_type))); \
 		if (!mem) [[unlikely]] {                                                               \
-			REX::AllocationFail();                                                             \
+			throw std::bad_alloc();                                                            \
 		}                                                                                      \
                                                                                                \
 		return mem;                                                                            \

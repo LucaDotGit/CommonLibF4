@@ -11,7 +11,8 @@ namespace REX::Impl
 	inline constexpr auto LOW_PART_MASK = static_cast<std::uint64_t>(std::numeric_limits<std::uint32_t>::max());
 	inline constexpr auto HIGH_PART_SHIFT = static_cast<std::uint64_t>(sizeof(std::int32_t) * CHAR_BIT);
 
-	[[nodiscard]] auto GetLgammaMutex() noexcept -> REX::NotAssignable<std::mutex>&;
+	[[nodiscard]] auto GetLgammaMutex() noexcept
+		-> REX::NotAssignable<std::mutex>&;
 }
 
 namespace REX
@@ -32,7 +33,7 @@ namespace REX
 	template <>
 	inline constexpr auto FIBONACCI_SIZE<std::uint64_t> = 94ui32;
 
-	inline constexpr auto FIBONACCI_NUMBERS = []() noexcept {
+	inline constexpr auto FIBONACCI_NUMBERS = []() consteval noexcept {
 		auto numbers = std::array<std::uint64_t, FIBONACCI_SIZE<std::uint64_t>>();
 		numbers[0] = 0ui64;
 		numbers[1] = 1ui64;
@@ -44,7 +45,7 @@ namespace REX
 		return numbers;
 	}();
 
-	inline constexpr auto FACTORIAL_NUMBERS = []() noexcept {
+	inline constexpr auto FACTORIAL_NUMBERS = []() consteval noexcept {
 		auto numbers = std::array<std::uint64_t, FIBONACCI_SIZE<std::uint64_t>>();
 		auto value = 1ui64;
 

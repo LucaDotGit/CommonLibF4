@@ -62,7 +62,8 @@ namespace RE::BSScript
 		return type;
 	}
 
-	auto Object::GetTypeInfoName() const noexcept -> std::optional<BSFixedString>
+	auto Object::GetTypeInfoName() const noexcept
+		-> std::optional<BSFixedString>
 	{
 		if (!type) {
 			return std::nullopt;
@@ -102,7 +103,8 @@ namespace RE::BSScript
 		return handlePolicy.GetObjectForHandle(a_typeID, handle);
 	}
 
-	auto Object::GetVariables() noexcept -> std::span<Variable>
+	auto Object::GetVariables() noexcept
+		-> std::span<Variable>
 	{
 		if (!type) {
 			return {};
@@ -111,7 +113,8 @@ namespace RE::BSScript
 		return { static_cast<Variable*>(variables), type->GetNumVariables() };
 	}
 
-	auto Object::GetVariables() const noexcept -> std::span<const Variable>
+	auto Object::GetVariables() const noexcept
+		-> std::span<const Variable>
 	{
 		if (!type) {
 			return {};
@@ -255,10 +258,10 @@ namespace RE::BSScript
 		try {
 			using FuncType = decltype(&Object::IncRef);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSScript::Object::IncRef };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 		catch (...) {
-			REX::QuickFail("Failed to increment script object ref count."sv);
+			REX::Fail("Failed to increment script object ref count."sv);
 		}
 	}
 
@@ -270,7 +273,7 @@ namespace RE::BSScript
 			return std::invoke(FUNC, this);
 		}
 		catch (...) {
-			REX::QuickFail("Failed to decrement script object ref count."sv);
+			REX::Fail("Failed to decrement script object ref count."sv);
 		}
 	}
 }

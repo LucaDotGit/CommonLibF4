@@ -39,35 +39,35 @@ namespace RE
 	{
 		using FuncType = decltype(&BSGFxShaderFXTarget::AppendShaderFXInfos);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSGFxShaderFXTarget::AppendShaderFXInfos };
-		FUNC(this, a_colorFXInfo, a_backgroundFXInfo);
+		std::invoke(FUNC, this, a_colorFXInfo, a_backgroundFXInfo);
 	}
 
 	void BSGFxShaderFXTarget::CreateAndSetFiltersToColor(const NiColor& a_color, REX::Float32 a_brightness)
 	{
 		using FuncType = void (BSGFxShaderFXTarget::*)(const NiColor&, REX::Float32);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSGFxShaderFXTarget::CreateAndSetFiltersToColor01 };
-		FUNC(this, a_color, a_brightness);
+		std::invoke(FUNC, this, a_color, a_brightness);
 	}
 
 	void BSGFxShaderFXTarget::CreateAndSetFiltersToColor(std::uint8_t a_r, std::uint8_t a_g, std::uint8_t a_b, REX::Float32 a_brightness)
 	{
 		using FuncType = void (BSGFxShaderFXTarget::*)(std::uint8_t, std::uint8_t, std::uint8_t, REX::Float32);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSGFxShaderFXTarget::CreateAndSetFiltersToColor02 };
-		FUNC(this, a_r, a_g, a_b, a_brightness);
+		std::invoke(FUNC, this, a_r, a_g, a_b, a_brightness);
 	}
 
 	void BSGFxShaderFXTarget::CreateAndSetFiltersToHUD(HUDColorTypes a_colorType, REX::Float32 a_scale)
 	{
 		using FuncType = decltype(&BSGFxShaderFXTarget::CreateAndSetFiltersToHUD);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSGFxShaderFXTarget::CreateAndSetFiltersToHUD };
-		FUNC(this, a_colorType, a_scale);
+		std::invoke(FUNC, this, a_colorType, a_scale);
 	}
 
 	void BSGFxShaderFXTarget::EnableShadedBackground(HUDColorTypes a_colorType, REX::Float32 a_scale)
 	{
 		using FuncType = decltype(&BSGFxShaderFXTarget::EnableShadedBackground);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSGFxShaderFXTarget::EnableShadedBackground };
-		FUNC(this, a_colorType, a_scale);
+		std::invoke(FUNC, this, a_colorType, a_scale);
 	}
 
 	void BSGFxShaderFXTarget::SetToHUDColor(bool a_useWarningColor)
@@ -78,7 +78,7 @@ namespace RE
 
 	void BSGFxShaderFXTarget::ctor_shared()
 	{
-		REL::EmplaceVtable(this);
+		// REL::EmplaceVtable(this);
 
 		auto useShadedBackground = ::Scaleform::GFx::Value();
 		if (GetMember(USE_SHADED_BACKGROUND_VAR_NAME.data(), std::addressof(useShadedBackground)) && useShadedBackground.IsBoolean() && useShadedBackground.GetBoolean()) {

@@ -165,13 +165,14 @@ namespace RE
 		void assign(ForwardIt a_first, ForwardIt a_last)
 		{
 			auto out = begin();
-			const auto out_last = end();
-			for (; out != out_last && a_first != a_last; a_first++, out++) {
+			const auto outLast = end();
+
+			for (; out != outLast && a_first != a_last; a_first++, out++) {
 				*out = *a_first;
 			}
 
-			if (out != out_last) {
-				erase(out, out_last);
+			if (out != outLast) {
+				erase(out, outLast);
 			}
 
 			if (a_first != a_last) {
@@ -312,7 +313,6 @@ namespace RE
 				return;
 			}
 
-			std::swap_ranges(begin(), end(), a_other.begin());
 			std::swap(_allocator, a_other._allocator);
 			std::swap(_size, a_other._size);
 		}
@@ -342,8 +342,11 @@ namespace RE
 			}
 
 			auto* newData = static_cast<pointer>(_allocator.allocate_bytes(a_capacity * sizeof(value_type)));
-			auto* oldData = data();
+			if (!newData) [[unlikely]] {
+				throw std::bad_alloc();
+			}
 
+			auto* oldData = data();
 			if (newData == oldData) {
 				return;
 			}
@@ -433,12 +436,7 @@ namespace RE
 
 		[[nodiscard]] __declspec(allocator) __declspec(restrict) static void* allocate_bytes(size_type a_count) noexcept
 		{
-			auto* mem = calloc<std::byte>(a_count);
-			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
-			}
-
-			return mem;
+			return calloc<std::byte>(a_count);
 		}
 
 		__declspec(noalias) static void deallocate_bytes(void* a_ptr) noexcept
@@ -495,12 +493,7 @@ namespace RE
 
 		[[nodiscard]] __declspec(allocator) __declspec(restrict) static void* allocate_bytes(size_type a_count) noexcept
 		{
-			auto* mem = aligned_alloc(a_count, ALIGNMENT_SIZE);
-			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
-			}
-
-			return mem;
+			return aligned_alloc(a_count, ALIGNMENT_SIZE);
 		}
 
 		__declspec(noalias) static void deallocate_bytes(void* a_ptr) noexcept
@@ -560,16 +553,10 @@ namespace RE
 		{
 			if (!_allocator) {
 				_allocator = MemoryManager::GetSingleton().GetThreadScrapHeap();
-				REX::Ensure(_allocator != nullptr);
 			}
 
-			auto* mem = _allocator->Allocate(a_count, SCRAP_HEAP_ALIGNMENT);
-			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
-			}
-
-			REL::MemWriteZero(mem, a_count);
-			return mem;
+			REX::Assert(_allocator != nullptr);
+			return _allocator->CountedAllocate<std::byte>(a_count, SCRAP_HEAP_ALIGNMENT);
 		}
 
 		__declspec(noalias) void deallocate_bytes(void* a_ptr) noexcept
@@ -580,9 +567,9 @@ namespace RE
 
 			if (!_allocator) {
 				_allocator = MemoryManager::GetSingleton().GetThreadScrapHeap();
-				REX::Ensure(_allocator != nullptr);
 			}
 
+			REX::Assert(_allocator != nullptr);
 			_allocator->Deallocate(a_ptr);
 		}
 
@@ -666,12 +653,7 @@ namespace RE
 				return _stack.data();
 			}
 
-			auto* mem = calloc<std::byte>(a_count);
-			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
-			}
-
-			return mem;
+			return calloc<std::byte>(a_count);
 		}
 
 		__declspec(noalias) void deallocate_bytes(void* a_ptr) noexcept
@@ -767,7 +749,7 @@ namespace RE
 				return;
 			}
 
-			std::swap_ranges(begin(), end(), a_other.begin());
+			std::swap(_data, a_other._data);
 			std::swap(_size, a_other._size);
 		}
 
@@ -887,7 +869,13 @@ namespace RE
 				return;
 			}
 
-			std::swap_ranges(begin(), end(), a_other.begin());
+			if (is_heap()) {
+				std::swap(heap, a_other.heap);
+			}
+			else {
+				std::swap(local, a_other.local);
+			}
+
 			std::swap(_size, a_other._size);
 		}
 

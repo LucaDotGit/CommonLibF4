@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RE/H/hkArray.hpp"
+#include "RE/H/hkInplaceArray.hpp"
 
 namespace RE
 {

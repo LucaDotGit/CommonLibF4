@@ -311,26 +311,26 @@ namespace RE
 			}
 		}
 
-		static bool GetSmartPointer(const BSPointerHandle<T>& a_in, NiPointer<T>& a_out) noexcept
+		static bool GetSmartPointer(const BSPointerHandle<T>& a_inHandle, NiPointer<T>& a_outHandle) noexcept
 		{
 			try {
 				using FuncType = bool (*)(const BSPointerHandle<T>&, NiPointer<T>&);
 				static const auto FUNC = REL::Relocation<FuncType>{ ID::BSPointerHandle::BSPointerHandleManagerInterface::GetSmartPointer };
-				return std::invoke(FUNC, a_in, a_out);
+				return std::invoke(FUNC, a_inHandle, a_outHandle);
 			}
 			catch (...) {
 				return false;
 			}
 		}
 
-		[[nodiscard]] static constexpr NiPointer<T> GetSmartPointer(const BSPointerHandle<T>& a_in) noexcept
+		[[nodiscard]] static constexpr NiPointer<T> GetSmartPointer(const BSPointerHandle<T>& a_inHandle) noexcept
 		{
-			if (!a_in) {
+			if (!a_inHandle) {
 				return nullptr;
 			}
 
 			auto out = NiPointer<T>();
-			if (!GetSmartPointer(a_in, out)) {
+			if (!GetSmartPointer(a_inHandle, out)) {
 				return nullptr;
 			}
 

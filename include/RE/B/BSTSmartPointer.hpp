@@ -234,7 +234,7 @@ namespace RE
 				reference_manager::Acquire(_ptr);
 			}
 			catch (...) {
-				REX::QuickFail("Failed to add reference to Bethesda object."sv);
+				REX::Fail("Failed to increment ref count."sv);
 			}
 		}
 
@@ -249,7 +249,7 @@ namespace RE
 				_ptr = nullptr;
 			}
 			catch (...) {
-				REX::QuickFail("Failed to release reference to Bethesda object."sv);
+				REX::Fail("Failed to decrement ref count."sv);
 			}
 		}
 

@@ -6,6 +6,7 @@
 #include "RE/G/GameMenuBase.hpp"
 #include "RE/S/Setting.hpp"
 #include "RE/S/SettingUtil.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 namespace RE
 {

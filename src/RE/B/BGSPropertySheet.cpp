@@ -2,7 +2,8 @@
 
 namespace RE
 {
-	auto BGSPropertySheet::GetProperties() const noexcept -> std::optional<std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>>>
+	auto BGSPropertySheet::GetProperties() const noexcept
+		-> std::optional<std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>>>
 	{
 		if (!properties) {
 			return std::nullopt;

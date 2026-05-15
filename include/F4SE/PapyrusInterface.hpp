@@ -35,7 +35,7 @@ namespace F4SE
 
 		[[nodiscard]] std::uint32_t GetVersion() const noexcept;
 
-		bool Register(REX::NotNull<REX::Observer<RegisterFunctions*>> a_callback) const;
+		void Register(REX::NotNull<REX::Observer<RegisterFunctions*>> a_callback) const;
 		void GetExternalEventRegistrations(const char* a_eventName, void* a_data, REX::NotNull<REX::Observer<RegistrantFunctor*>> a_functor) const;
 	};
 	static_assert(std::is_empty_v<PapyrusInterface>);

@@ -45,7 +45,8 @@ namespace RE
 		[[nodiscard]] std::vector<BGSKeyword*> GetRecipeKeywords() const;
 		void SetRecipeKeywords(std::span<BGSKeyword*> a_keywords);
 
-		[[nodiscard]] auto GetComponents() const noexcept -> std::optional<std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>>>;
+		[[nodiscard]] auto GetComponents() const noexcept
+			-> std::optional<std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>>>;
 		void SetComponents(std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>> a_components);
 
 		// members

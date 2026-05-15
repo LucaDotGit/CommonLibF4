@@ -14,34 +14,34 @@ namespace RE::Offset
 
 	namespace BGSLocalizedStringDL
 	{
-		inline constexpr auto StringInfoMap = F4SE::CreateVariantOffset(-0x8, 0x0, 0x0);
+		inline constexpr auto StringInfoMap = F4SE::CreateVariantOffset(-0x08, 0x00, 0x00);
 	}
 
 	namespace BGSLocalizedStringIL
 	{
-		inline constexpr auto StringInfoMap = F4SE::CreateVariantOffset(-0x8, 0x0, 0x0);
+		inline constexpr auto StringInfoMap = F4SE::CreateVariantOffset(-0x08, 0x00, 0x00);
 	}
 
 	namespace BGSLocalizedStringPL
 	{
-		inline constexpr auto StringInfoMap = F4SE::CreateVariantOffset(-0x8, 0x0, 0x0);
+		inline constexpr auto StringInfoMap = F4SE::CreateVariantOffset(-0x08, 0x00, 0x00);
 	}
 
 	namespace BGSLocation
 	{
-		inline constexpr auto LinkedLocations = F4SE::CreateVariantOffset(-0x8, 0x0, 0x0);
+		inline constexpr auto LinkedLocations = F4SE::CreateVariantOffset(-0x08, 0x00, 0x00);
 	}
 
 	namespace BGSMaterialType
 	{
-		inline constexpr auto MaterialIDMap = F4SE::CreateVariantOffset(-0x8, 0x0, 0x0);
+		inline constexpr auto MaterialIDMap = F4SE::CreateVariantOffset(-0x08, 0x00, 0x00);
 	}
 
 	namespace BGSMod
 	{
 		namespace Attachment
 		{
-			inline constexpr auto LooseModMap = F4SE::CreateVariantOffset(-0x8, 0x0, 0x0);
+			inline constexpr auto LooseModMap = F4SE::CreateVariantOffset(-0x08, 0x00, 0x00);
 		}
 	}
 
@@ -57,8 +57,8 @@ namespace RE::Offset
 
 	namespace NiAlphaProperty
 	{
-		inline constexpr auto SetTestMode = F4SE::CreateVariantOffset(0x20, 0x0, 0x0);
-		inline constexpr auto SetAlphaTesting = F4SE::CreateVariantOffset(0x20, 0x0, 0x0);
+		inline constexpr auto SetTestMode = F4SE::CreateVariantOffset(0x20, 0x00, 0x00);
+		inline constexpr auto SetAlphaTesting = F4SE::CreateVariantOffset(0x20, 0x00, 0x00);
 	}
 
 	namespace NiNode
@@ -69,29 +69,29 @@ namespace RE::Offset
 	namespace TESDataHandler
 	{
 		inline constexpr auto RuntimeData = F4SE::CreateVariantOffset(0xFF0, 0xFF0, 0xFF0);
-		inline constexpr auto VRModData = F4SE::CreateVRVariantOffset(0xFC0, 0x0, 0x0, 0x0);
-		inline constexpr auto CompiledFileCollection = F4SE::CreateVRVariantOffset(0x0, 0xFC0, 0xFC0, 0xFC0);
+		inline constexpr auto VRModData = F4SE::CreateVRVariantOffset(0xFC0, 0x00, 0x00, 0x00);
+		inline constexpr auto CompiledFileCollection = F4SE::CreateVRVariantOffset(0x00, 0xFC0, 0xFC0, 0xFC0);
 		inline constexpr auto RegionDataManager = F4SE::CreateVRVariantOffset(0x17E8, 0x1018, 0x1018, 0x1018);
 	}
 
 	namespace TESFullName
 	{
-		inline constexpr auto SparseFullNameMap = F4SE::CreateVariantOffset(-0x8, 0x0, 0x0);
+		inline constexpr auto SparseFullNameMap = F4SE::CreateVariantOffset(-0x08, 0x00, 0x00);
 	}
 
 	namespace TESLeveledList
 	{
-		inline constexpr auto SpecialChanceGlobalMap = F4SE::CreateVariantOffset(-0x8, 0x0, 0x0);
+		inline constexpr auto SpecialChanceGlobalMap = F4SE::CreateVariantOffset(-0x08, 0x00, 0x00);
 	}
 
 	namespace TESLevItem
 	{
-		inline constexpr auto OverrideNameMap = F4SE::CreateVariantOffset(-0x8, 0x0, 0x0);
+		inline constexpr auto OverrideNameMap = F4SE::CreateVariantOffset(-0x08, 0x00, 0x00);
 	}
 
 	namespace TESNPC
 	{
-		inline constexpr auto AlternateHeadPartListMap = F4SE::CreateVariantOffset(-0x8, 0x0, 0x0);
+		inline constexpr auto AlternateHeadPartListMap = F4SE::CreateVariantOffset(-0x08, 0x00, 0x00);
 	}
 
 	namespace UI

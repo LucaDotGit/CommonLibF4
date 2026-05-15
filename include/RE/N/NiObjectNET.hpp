@@ -28,7 +28,10 @@ namespace RE
 
 		~NiObjectNET() override; // 00
 
+		bool AddExtraData(NiPointer<NiExtraData> a_extraData) const;
 		[[nodiscard]] NiPointer<NiExtraData> GetExtraData(const BSFixedString& a_key) const noexcept;
+		[[nodiscard]] bool HasExtraData(const BSFixedString& a_key) const noexcept;
+		bool RemoveExtraData(const BSFixedString& a_key) const;
 
 		// members
 		BSFixedString name;						 // 10

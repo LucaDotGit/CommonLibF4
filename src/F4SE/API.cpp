@@ -24,7 +24,7 @@
 #include "REL/Trampoline.hpp"
 
 #include "REX/Contract.hpp"
-#include "REX/ErrorCode.hpp"
+#include "REX/Error.hpp"
 #include "REX/Format.hpp"
 #include "REX/Log.hpp"
 #include "REX/Message.hpp"
@@ -117,7 +117,8 @@ namespace F4SE::Impl
 		API& operator=(const API&) = delete;
 		API& operator=(API&&) = delete;
 
-		[[nodiscard]] static auto GetLogDirectoryPath(std::string_view a_saveFolderName) -> std::expected<std::filesystem::path, REX::SystemError>;
+		[[nodiscard]] static auto GetLogDirectoryPath(std::string_view a_saveFolderName)
+			-> std::expected<std::filesystem::path, REX::SystemError>;
 
 		void Init(REX::NotNull<const F4SE::PreLoadInterface*> a_interface, const InitInfo& a_info);
 		void Init(REX::NotNull<const F4SE::LoadInterface*> a_interface, const InitInfo& a_info);
@@ -158,21 +159,19 @@ namespace F4SE::Impl
 		CallbackEvent onLoadEvent;
 	};
 
-	auto API::GetLogDirectoryPath(std::string_view a_saveFolderName) -> std::expected<std::filesystem::path, REX::SystemError>
+	auto API::GetLogDirectoryPath(std::string_view a_saveFolderName)
+		-> std::expected<std::filesystem::path, REX::SystemError>
 	{
 		auto* knownToken = static_cast<void*>(nullptr);
-		auto* knownBuffer = static_cast<wchar_t*>(nullptr);
+		auto* knownPathBuffer = static_cast<wchar_t*>(nullptr);
 
-		if (REX::W32::SHGetKnownFolderPath(REX::W32::FOLDERID_Documents, REX::W32::KF_FLAG_DEFAULT, knownToken, std::addressof(knownBuffer)) != 0) {
+		if (REX::W32::SHGetKnownFolderPath(REX::W32::FOLDERID_Documents, REX::W32::KF_FLAG_DEFAULT, knownToken, std::addressof(knownPathBuffer)) != 0) {
 			return std::unexpected(REX::GetCurrentSystemError());
 		}
 
-		const auto knownPath = std::unique_ptr<wchar_t, decltype(&REX::W32::CoTaskMemFree)>(knownBuffer, REX::W32::CoTaskMemFree);
-		if (!knownPath) {
-			return std::unexpected(REX::GetCurrentSystemError());
-		}
+		const auto knownPathDeleter = REX::NotNull(std::unique_ptr<wchar_t, decltype(&REX::W32::CoTaskMemFree)>(knownPathBuffer, REX::W32::CoTaskMemFree));
 
-		auto path = std::filesystem::path(knownPath.get(), std::filesystem::path::generic_format);
+		auto path = std::filesystem::path(knownPathBuffer, std::filesystem::path::generic_format);
 		path /= REX::Format("My Games/{}/F4SE"sv, a_saveFolderName);
 		return path;
 	}
@@ -182,7 +181,7 @@ namespace F4SE::Impl
 		this->info = a_info;
 
 		static constinit auto OnceFlag = std::once_flag();
-		std::call_once(OnceFlag, [this, a_interface]() {
+		std::call_once(OnceFlag, [this, a_interface]() -> void {
 			const auto pluginInfo = F4SE::PluginVersionData::GetSingleton();
 
 			this->pluginName = pluginInfo->GetPluginName();
@@ -198,6 +197,8 @@ namespace F4SE::Impl
 			this->f4seVersion = a_interface->GetF4SEVersion();
 			this->saveFolderName = a_interface->GetSaveFolderName();
 
+			REX::Assert(this->pluginInfoAccessor != nullptr);
+
 			InitLogger();
 			InitModule();
 			InitIddb();
@@ -207,13 +208,15 @@ namespace F4SE::Impl
 	void API::Init(REX::NotNull<const F4SE::PreLoadInterface*> a_interface, const InitInfo& a_info)
 	{
 		static constinit auto OnceFlag = std::once_flag();
-		std::call_once(OnceFlag, [this, a_interface, &a_info]() {
+		std::call_once(OnceFlag, [this, a_interface, &a_info]() -> void {
 			InitImpl(a_interface, a_info);
 
-			this->trampolineInterface = a_interface->DoQueryInterface<F4SE::TrampolineInterface>();
+			this->trampolineInterface = a_interface->Query<F4SE::TrampolineInterface>();
 
 			this->onPreLoadEvent.Run();
 			this->onPreLoadEvent.Clear();
+
+			REX::Assert(this->trampolineInterface != nullptr);
 
 			InitTrampoline();
 			InitHooks(REL::HookStep::kPreLoad);
@@ -223,22 +226,33 @@ namespace F4SE::Impl
 	void API::Init(REX::NotNull<const F4SE::LoadInterface*> a_interface, const InitInfo& a_info)
 	{
 		static constinit auto OnceFlag = std::once_flag();
-		std::call_once(OnceFlag, [this, a_interface, &a_info]() {
+		std::call_once(OnceFlag, [this, a_interface, &a_info]() -> void {
 			InitImpl(a_interface, a_info);
 
-			this->messagingInterface = a_interface->DoQueryInterface<F4SE::MessagingInterface>();
-			this->scaleformInterface = a_interface->DoQueryInterface<F4SE::ScaleformInterface>();
-			this->papyrusInterface = a_interface->DoQueryInterface<F4SE::PapyrusInterface>();
-			this->serializationInterface = a_interface->DoQueryInterface<F4SE::SerializationInterface>();
-			this->taskInterface = a_interface->DoQueryInterface<F4SE::TaskInterface>();
-			this->trampolineInterface = a_interface->DoQueryInterface<F4SE::TrampolineInterface>();
-			this->objectInterface = a_interface->DoQueryInterface<F4SE::ObjectInterface>();
+			this->messagingInterface = a_interface->Query<F4SE::MessagingInterface>();
+			this->scaleformInterface = a_interface->Query<F4SE::ScaleformInterface>();
+			this->papyrusInterface = a_interface->Query<F4SE::PapyrusInterface>();
+			this->serializationInterface = a_interface->Query<F4SE::SerializationInterface>();
+			this->taskInterface = a_interface->Query<F4SE::TaskInterface>();
+			this->trampolineInterface = a_interface->Query<F4SE::TrampolineInterface>();
+			this->objectInterface = a_interface->Query<F4SE::ObjectInterface>();
 			this->delayFunctorManager = std::addressof(objectInterface->GetDelayFunctorManager());
 			this->objectRegistry = std::addressof(objectInterface->GetObjectRegistry());
 			this->persistentObjectStorage = std::addressof(objectInterface->GetPersistentObjectStorage());
 
 			this->onLoadEvent.Run();
 			this->onLoadEvent.Clear();
+
+			REX::Assert(this->messagingInterface != nullptr);
+			REX::Assert(this->scaleformInterface != nullptr);
+			REX::Assert(this->papyrusInterface != nullptr);
+			REX::Assert(this->serializationInterface != nullptr);
+			REX::Assert(this->taskInterface != nullptr);
+			REX::Assert(this->trampolineInterface != nullptr);
+			REX::Assert(this->objectInterface != nullptr);
+			REX::Assert(this->delayFunctorManager != nullptr);
+			REX::Assert(this->objectRegistry != nullptr);
+			REX::Assert(this->persistentObjectStorage != nullptr);
 
 			InitTrampoline();
 			InitHooks(REL::HookStep::kLoad);
@@ -249,7 +263,7 @@ namespace F4SE::Impl
 	void API::InitModule() const
 	{
 		static constinit auto OnceFlag = std::once_flag();
-		std::call_once(OnceFlag, []() {
+		std::call_once(OnceFlag, []() -> void {
 			const auto& module = REL::Module::GetSingleton();
 			module->Init();
 		});
@@ -259,7 +273,7 @@ namespace F4SE::Impl
 	void API::InitIddb() const
 	{
 		static constinit auto OnceFlag = std::once_flag();
-		std::call_once(OnceFlag, []() {
+		std::call_once(OnceFlag, []() -> void {
 			const auto& iddb = REL::Iddb::GetSingleton();
 			iddb->Init();
 		});
@@ -272,7 +286,7 @@ namespace F4SE::Impl
 		}
 
 		static constinit auto OnceFlag = std::once_flag();
-		std::call_once(OnceFlag, [this]() {
+		std::call_once(OnceFlag, [this]() -> void {
 			auto logDirectoryPath = GetLogDirectoryPath(saveFolderName);
 			if (!logDirectoryPath) [[unlikely]] {
 				const auto& ioError = logDirectoryPath.error();
@@ -298,7 +312,7 @@ namespace F4SE::Impl
 
 			this->logDirectoryPath = *std::move(logDirectoryPath);
 
-			REX::InitLogger(std::move(logInitInfo));
+			REX::InitDefaultLogger(std::move(logInitInfo));
 			REX::LogInformation("{} v{}"sv, versionData->GetPluginName(), versionData->GetPluginVersion());
 		});
 	}
@@ -310,7 +324,7 @@ namespace F4SE::Impl
 		}
 
 		static constinit auto OnceFlag = std::once_flag();
-		std::call_once(OnceFlag, [this]() {
+		std::call_once(OnceFlag, [this]() -> void {
 			if (this->info.trampolineSize == 0) {
 				const auto& hookStore = REL::GetHookStore();
 				this->info.trampolineSize += hookStore->GetTrampolineSize();
@@ -367,108 +381,129 @@ namespace F4SE
 		return Impl::API::GetSingleton()->onLoadEvent.Register(std::move(a_callback));
 	}
 
-	const InitInfo& GetInitInfo() noexcept
+	auto GetInitInfo() noexcept
+		-> const InitInfo&
 	{
 		return Impl::API::GetSingleton()->info;
 	}
 
-	PluginHandle GetPluginHandle() noexcept
+	auto GetPluginHandle() noexcept
+		-> PluginHandle
 	{
 		return Impl::API::GetSingleton()->pluginHandle;
 	}
 
-	std::string_view GetPluginName() noexcept
+	auto GetPluginName() noexcept
+		-> std::string_view
 	{
 		return Impl::API::GetSingleton()->pluginName;
 	}
 
-	std::string_view GetPluginAuthor() noexcept
+	auto GetPluginAuthor() noexcept
+		-> std::string_view
 	{
 		return Impl::API::GetSingleton()->pluginAuthor;
 	}
 
-	REX::Version GetPluginVersion() noexcept
+	auto GetPluginVersion() noexcept
+		-> REX::Version
 	{
 		return Impl::API::GetSingleton()->pluginVersion;
 	}
 
-	const PluginInfo* GetPluginInfo(const char* a_name) noexcept
+	auto GetPluginInfo(const char* a_name) noexcept
+		-> const PluginInfo*
 	{
 		auto* pluginInfoAccessor = Impl::API::GetSingleton()->pluginInfoAccessor;
 		return pluginInfoAccessor ? std::invoke(pluginInfoAccessor, a_name) : nullptr;
 	}
 
-	std::uint32_t GetReleaseIndex() noexcept
+	auto GetReleaseIndex() noexcept
+		-> std::uint32_t
 	{
 		return Impl::API::GetSingleton()->releaseIndex;
 	}
 
-	REX::Version GetF4SEVersion() noexcept
+	auto GetF4SEVersion() noexcept
+		-> REX::Version
 	{
 		return Impl::API::GetSingleton()->f4seVersion;
 	}
 
-	REX::Version GetRuntimeVersion() noexcept
+	auto GetRuntimeVersion() noexcept
+		-> REX::Version
 	{
 		return Impl::API::GetSingleton()->runtimeVersion;
 	}
 
-	std::string_view GetSaveFolderName() noexcept
+	auto GetSaveFolderName() noexcept
+		-> std::string_view
 	{
 		return Impl::API::GetSingleton()->saveFolderName;
 	}
 
-	const std::filesystem::path& GetLogDirectoryPath() noexcept
+	auto GetLogDirectoryPath() noexcept
+		-> const std::filesystem::path&
 	{
 		return Impl::API::GetSingleton()->logDirectoryPath;
 	}
 
-	auto GetMessagingInterface() noexcept -> REX::NotNull<const MessagingInterface*>
+	auto GetMessagingInterface() noexcept
+		-> REX::NotNull<const MessagingInterface*>
 	{
 		return Impl::API::GetSingleton()->messagingInterface;
 	}
 
-	auto GetScaleformInterface() noexcept -> REX::NotNull<const ScaleformInterface*>
+	auto GetScaleformInterface() noexcept
+		-> REX::NotNull<const ScaleformInterface*>
 	{
 		return Impl::API::GetSingleton()->scaleformInterface;
 	}
 
-	auto GetPapyrusInterface() noexcept -> REX::NotNull<const PapyrusInterface*>
+	auto GetPapyrusInterface() noexcept
+		-> REX::NotNull<const PapyrusInterface*>
 	{
 		return Impl::API::GetSingleton()->papyrusInterface;
 	}
 
-	auto GetSerializationInterface() noexcept -> REX::NotNull<const SerializationInterface*>
+	auto GetSerializationInterface() noexcept
+		-> REX::NotNull<const SerializationInterface*>
 	{
 		return Impl::API::GetSingleton()->serializationInterface;
 	}
 
-	auto GetTaskInterface() noexcept -> REX::NotNull<const TaskInterface*>
+	auto GetTaskInterface() noexcept
+		-> REX::NotNull<const TaskInterface*>
 	{
 		return Impl::API::GetSingleton()->taskInterface;
 	}
 
-	auto GetObjectInterface() noexcept -> REX::NotNull<const ObjectInterface*>
+	auto GetObjectInterface() noexcept
+		-> REX::NotNull<const ObjectInterface*>
 	{
 		return Impl::API::GetSingleton()->objectInterface;
 	}
 
-	auto GetDelayFunctorManager() noexcept -> REX::NotNull<const DelayFunctorManager*>
+	auto GetDelayFunctorManager() noexcept
+		-> REX::NotNull<const DelayFunctorManager*>
 	{
 		return Impl::API::GetSingleton()->delayFunctorManager;
 	}
 
-	auto GetObjectRegistry() noexcept -> REX::NotNull<const ObjectRegistry*>
+	auto GetObjectRegistry() noexcept
+		-> REX::NotNull<const ObjectRegistry*>
 	{
 		return Impl::API::GetSingleton()->objectRegistry;
 	}
 
-	auto GetPersistentObjectStorage() noexcept -> REX::NotNull<const PersistentObjectStorage*>
+	auto GetPersistentObjectStorage() noexcept
+		-> REX::NotNull<const PersistentObjectStorage*>
 	{
 		return Impl::API::GetSingleton()->persistentObjectStorage;
 	}
 
-	auto GetTrampolineInterface() noexcept -> REX::NotNull<const TrampolineInterface*>
+	auto GetTrampolineInterface() noexcept
+		-> REX::NotNull<const TrampolineInterface*>
 	{
 		return Impl::API::GetSingleton()->trampolineInterface;
 	}

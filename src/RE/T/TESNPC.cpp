@@ -7,7 +7,8 @@
 
 namespace RE
 {
-	auto TESNPC::GetAlternateHeadPartListMap() -> BSTHashMap<const TESNPC*, BSTArray<BGSHeadPart*>>&
+	auto TESNPC::GetAlternateHeadPartListMap()
+		-> BSTHashMap<const TESNPC*, BSTArray<BGSHeadPart*>>&
 	{
 		static const auto ALTERNATIVE_HEAD_PART_LIST_MAP = REL::Relocation<BSTHashMap<const TESNPC*, BSTArray<BGSHeadPart*>>*>{ ID::TESNPC::AlternateHeadPartListMap, Offset::TESNPC::AlternateHeadPartListMap };
 		return *ALTERNATIVE_HEAD_PART_LIST_MAP;
@@ -114,7 +115,7 @@ namespace RE
 
 	bool TESNPC::IsInFaction(const TESFaction* a_faction) const
 	{
-		return std::ranges::any_of(factions, [a_faction](const FACTION_RANK& a_factionRank) {
+		return std::ranges::any_of(factions, [a_faction](const FACTION_RANK& a_factionRank) -> bool {
 			return a_factionRank.faction == a_faction && a_factionRank.rank > -1;
 		});
 	}
@@ -130,7 +131,6 @@ namespace RE
 		}
 
 		headRelatedData->faceDetails = a_faceDetails;
-		AddChange(ChangeFlags::kFace);
 	}
 
 	void TESNPC::SetFacialHairColor(BGSColorForm* a_facialHairColor)
@@ -144,7 +144,6 @@ namespace RE
 		}
 
 		headRelatedData->facialHairColor = a_facialHairColor;
-		AddChange(ChangeFlags::kFace);
 	}
 
 	void TESNPC::SetHairColor(BGSColorForm* a_hairColor)
@@ -158,7 +157,6 @@ namespace RE
 		}
 
 		headRelatedData->hairColor = a_hairColor;
-		AddChange(ChangeFlags::kFace);
 	}
 
 	void TESNPC::SetHeadParts(std::span<BGSHeadPart*> a_headParts, bool a_alternate)
@@ -173,8 +171,6 @@ namespace RE
 
 		auto& headPartMap = GetAlternateHeadPartListMap();
 		headPartMap.insert_or_assign(this, BSTArray<BGSHeadPart*>{ a_headParts.begin(), a_headParts.end() });
-
-		AddChange(ChangeFlags::kFace);
 	}
 
 	void TESNPC::SetTintingData(std::uint16_t a_uniqueID, REX::Float32 a_value, std::uint32_t a_color)

@@ -9,7 +9,8 @@ namespace RE::Impl
 		return BGSKeyword::GetTypedKeywordByIndex(a_type, a_index);
 	}
 
-	auto GetIndexForTypedKeyword(const BGSKeyword* a_keyword, KeywordType a_type) -> std::optional<std::uint16_t>
+	auto GetIndexForTypedKeyword(const BGSKeyword* a_keyword, KeywordType a_type)
+		-> std::optional<std::uint16_t>
 	{
 		return BGSKeyword::GetIndexForTypedKeyword(a_keyword, a_type);
 	}

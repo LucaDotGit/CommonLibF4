@@ -17,7 +17,7 @@ namespace RE::BSScript
 			return false;
 		}
 
-		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) {
+		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
 			const auto& arg = a_args[a_index];
 			if (arg != paramTypeInfo) {
 				return BSContainer::ForEachResult::kStop;
@@ -33,7 +33,7 @@ namespace RE::BSScript
 			return false;
 		}
 
-		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) {
+		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
 			const auto& arg = a_args[a_index];
 			if (arg.GetTypeInfo() != paramTypeInfo) {
 				return BSContainer::ForEachResult::kStop;
@@ -49,7 +49,7 @@ namespace RE::BSScript
 			return false;
 		}
 
-		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) {
+		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
 			const auto& arg = a_args[a_index];
 			if (!arg.IsVar()) {
 				return arg.GetTypeInfo() == paramTypeInfo ?
@@ -76,7 +76,7 @@ namespace RE::BSScript
 			return false;
 		}
 
-		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) {
+		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
 			const auto* arg = a_args[a_index];
 			if (!arg) {
 				return paramTypeInfo.IsNone() ?
@@ -109,7 +109,7 @@ namespace RE::BSScript
 			return false;
 		}
 
-		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) {
+		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
 			const auto& arg = a_args[a_index];
 			if (!arg) {
 				return paramTypeInfo.IsNone() ?
@@ -136,12 +136,13 @@ namespace RE::BSScript
 		}) == BSContainer::ForEachResult::kContinue;
 	}
 
-	auto IFunction::GetParamNames() const -> std::vector<BSFixedString>
+	auto IFunction::GetParamNames() const
+		-> std::vector<BSFixedString>
 	{
 		auto paramNames = std::vector<BSFixedString>();
 		paramNames.reserve(GetParamCount());
 
-		ForEachParam([&paramNames](std::uint32_t, const BSFixedString& paramName, [[maybe_unused]] const TypeInfo&) {
+		ForEachParam([&paramNames](std::uint32_t, const BSFixedString& paramName, [[maybe_unused]] const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
 			paramNames.push_back(paramName);
 			return BSContainer::ForEachResult::kContinue;
 		});
@@ -149,12 +150,13 @@ namespace RE::BSScript
 		return paramNames;
 	}
 
-	auto IFunction::GetParamTypes() const -> std::vector<TypeInfo>
+	auto IFunction::GetParamTypes() const
+		-> std::vector<TypeInfo>
 	{
 		auto paramTypes = std::vector<TypeInfo>();
 		paramTypes.reserve(GetParamCount());
 
-		ForEachParam([&paramTypes](std::uint32_t, [[maybe_unused]] const BSFixedString&, const TypeInfo& paramTypeInfo) {
+		ForEachParam([&paramTypes](std::uint32_t, [[maybe_unused]] const BSFixedString&, const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
 			paramTypes.push_back(paramTypeInfo);
 			return BSContainer::ForEachResult::kContinue;
 		});
@@ -162,12 +164,13 @@ namespace RE::BSScript
 		return paramTypes;
 	}
 
-	auto IFunction::GetParams() const -> std::vector<std::pair<BSFixedString, TypeInfo>>
+	auto IFunction::GetParams() const
+		-> std::vector<std::pair<BSFixedString, TypeInfo>>
 	{
 		auto params = std::vector<std::pair<BSFixedString, TypeInfo>>();
 		params.reserve(GetParamCount());
 
-		ForEachParam([&params](std::uint32_t, const BSFixedString& paramName, const TypeInfo& paramTypeInfo) {
+		ForEachParam([&params](std::uint32_t, const BSFixedString& paramName, const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
 			params.emplace_back(paramName, paramTypeInfo);
 			return BSContainer::ForEachResult::kContinue;
 		});

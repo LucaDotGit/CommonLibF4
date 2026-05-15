@@ -6,6 +6,6 @@ namespace RE::BSSystemFileStreamer
 	{
 		using FuncType = decltype(&BSSystemFileStreamer::UncacheAll);
 		static const auto FUNC = REL::Relocation<FuncType>{ RE::ID::BSSystemFileStreamer::UncacheAll };
-		FUNC(a_block);
+		std::invoke(FUNC, a_block);
 	}
 }

@@ -13,13 +13,13 @@ namespace RE::PipboyInventoryUtils
 	{
 		using FuncType = decltype(&PipboyInventoryUtils::FillDamageTypeInfo);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyInventoryUtils::FillDamageTypeInfo };
-		FUNC(a_item, a_stack, a_damageValuesPerType);
+		std::invoke(FUNC, a_item, a_stack, a_damageValuesPerType);
 	}
 
 	void FillResistTypeInfo(const BGSInventoryItem& a_item, const BGSInventoryItem::Stack* a_stack, BSScrapArray<BSTPair<std::uint32_t, REX::Float32>>& a_resistValuesPerType, REX::Float32 a_scale)
 	{
 		using FuncType = decltype(&PipboyInventoryUtils::FillResistTypeInfo);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyInventoryUtils::FillResistTypeInfo };
-		FUNC(a_item, a_stack, a_resistValuesPerType, a_scale);
+		std::invoke(FUNC, a_item, a_stack, a_resistValuesPerType, a_scale);
 	}
 }

@@ -7,7 +7,10 @@
 #include "RE/M/MenuOpenCloseEvent.hpp"
 #include "RE/U/UI.hpp"
 #include "RE/U/UIMessageQueue.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
+#include "RE/U/UI_MENU_FLAGS.hpp"
 #include "RE/U/UI_MESSAGE_TYPE.hpp"
+#include "RE/U/UserEvents.hpp"
 
 #include "REX/Contract.hpp"
 #include "REX/Log.hpp"
@@ -24,9 +27,12 @@ namespace F4SE::Menus
 		std::string a_menuName,
 		std::filesystem::path a_menuFilePath,
 		std::string a_rootVarPath)
-		: menuName(std::move(a_menuName)),
-		  menuFilePath(std::move(a_menuFilePath)),
-		  rootVarPath(std::move(a_rootVarPath))
+		: _menuName(std::move(a_menuName)),
+		  _menuFilePath(std::move(a_menuFilePath)),
+		  _rootVarPath(std::move(a_rootVarPath)),
+		  _menuFlags(RE::UI_MENU_FLAGS::kNone),
+		  _menuDepth(RE::UI_DEPTH_PRIORITY::kStandard),
+		  _menuInputContext(RE::UserEvents::INPUT_CONTEXT_ID::kNone)
 	{
 	}
 
@@ -34,19 +40,51 @@ namespace F4SE::Menus
 		std::string a_menuName,
 		std::filesystem::path a_menuFilePath,
 		std::string a_rootVarPath,
-		REX::EnumSet<RE::UI_MENU_FLAGS, std::uint32_t> a_menuFlags,
-		REX::Enum<RE::UI_DEPTH_PRIORITY, std::int32_t> a_menuDepth)
-		: menuName(std::move(a_menuName)),
-		  menuFilePath(std::move(a_menuFilePath)),
-		  rootVarPath(std::move(a_rootVarPath)),
-		  menuFlags(a_menuFlags),
-		  menuDepth(a_menuDepth)
+		RE::UI_MENU_FLAGS a_menuFlags)
+		: _menuName(std::move(a_menuName)),
+		  _menuFilePath(std::move(a_menuFilePath)),
+		  _rootVarPath(std::move(a_rootVarPath)),
+		  _menuFlags(a_menuFlags),
+		  _menuDepth(RE::UI_DEPTH_PRIORITY::kStandard),
+		  _menuInputContext(RE::UserEvents::INPUT_CONTEXT_ID::kNone)
+	{
+	}
+
+	MenuInfo::MenuInfo(
+		std::string a_menuName,
+		std::filesystem::path a_menuFilePath,
+		std::string a_rootVarPath,
+		RE::UI_MENU_FLAGS a_menuFlags,
+		RE::UI_DEPTH_PRIORITY a_menuDepth)
+		: _menuName(std::move(a_menuName)),
+		  _menuFilePath(std::move(a_menuFilePath)),
+		  _rootVarPath(std::move(a_rootVarPath)),
+		  _menuFlags(a_menuFlags),
+		  _menuDepth(a_menuDepth),
+		  _menuInputContext(RE::UserEvents::INPUT_CONTEXT_ID::kNone)
+	{
+	}
+
+	MenuInfo::MenuInfo(
+		std::string a_menuName,
+		std::filesystem::path a_menuFilePath,
+		std::string a_rootVarPath,
+		RE::UI_MENU_FLAGS a_menuFlags,
+		RE::UI_DEPTH_PRIORITY a_menuDepth,
+		RE::UserEvents::INPUT_CONTEXT_ID a_inputContext)
+		: _menuName(std::move(a_menuName)),
+		  _menuFilePath(std::move(a_menuFilePath)),
+		  _rootVarPath(std::move(a_rootVarPath)),
+		  _menuFlags(a_menuFlags),
+		  _menuDepth(a_menuDepth),
+		  _menuInputContext(a_inputContext)
 	{
 	}
 
 	MenuInfo::~MenuInfo() noexcept = default;
 
-	auto MenuInfo::CreateMenuInstance() const -> REX::NotNull<std::unique_ptr<RE::GameMenuBase>>
+	auto MenuInfo::CreateMenuInstance() const
+		-> REX::NotNull<std::unique_ptr<RE::GameMenuBase>>
 	{
 		return std::make_unique<RE::GameMenuBase>();
 	}
@@ -65,9 +103,9 @@ namespace F4SE::Menus
 		std::string a_menuName,
 		std::filesystem::path a_assetFilePath,
 		std::string a_rootVarPath)
-		: menuName(std::move(a_menuName)),
-		  assetFilePath(std::move(a_assetFilePath)),
-		  rootVarPath(std::move(a_rootVarPath))
+		: _menuName(std::move(a_menuName)),
+		  _assetFilePath(std::move(a_assetFilePath)),
+		  _rootVarPath(std::move(a_rootVarPath))
 	{
 	}
 
@@ -88,7 +126,7 @@ namespace F4SE::Menus
 
 	MenuAssetLoader::~MenuAssetLoader() noexcept
 	{
-		REX::TryOrFail<std::exception>([this]() {
+		REX::TryOrFail<std::exception>([this]() -> void {
 			UnregisterEvents();
 		});
 	}
@@ -102,7 +140,7 @@ namespace F4SE::Menus
 		}
 
 		const auto& menuName = a_event.menuName;
-		if (menuName != _assetInfo->menuName) {
+		if (menuName != _assetInfo->GetMenuName()) {
 			return RE::BSEventNotifyControl::kContinue;
 		}
 
@@ -116,22 +154,22 @@ namespace F4SE::Menus
 			return RE::BSEventNotifyControl::kContinue;
 		}
 
-		const auto& assetFilePath = _assetInfo->assetFilePath;
-		const auto& assetRootVarPath = _assetInfo->rootVarPath;
+		const auto& assetFilePath = _assetInfo->GetAssetFilePath();
+		const auto assetRootVarPath = _assetInfo->GetRootVarPath();
 
-		if (RE::BSScaleformManager::LoadAsset(*menuInstance, assetFilePath.generic_string().data(), assetRootVarPath.data())) {
-			if (menuInstance->menuFlags.any(RE::UI_MENU_FLAGS::kAlwaysOpen)) {
-				a_eventSource->UnregisterSink(this);
-			}
+		if (!RE::BSScaleformManager::LoadAsset(*menuInstance, assetFilePath.generic_string().data(), assetRootVarPath.data())) {
+			REX::LogError(R"(Failed to load asset "{}" into menu "{}" and root "{}")"sv,
+				assetFilePath.generic_string(), menuName, assetRootVarPath);
 
-			_assetInfo->OnAssetLoadSuccess(menuInstance);
+			_assetInfo->OnAssetLoadFailure(menuInstance);
 			return RE::BSEventNotifyControl::kContinue;
 		}
 
-		REX::LogError(R"(Failed to load asset "{}" into menu "{}" and root "{}")"sv,
-			assetFilePath.generic_string(), menuName, assetRootVarPath);
+		if (menuInstance->menuFlags.any(RE::UI_MENU_FLAGS::kAlwaysOpen)) {
+			a_eventSource->UnregisterSink(this);
+		}
 
-		_assetInfo->OnAssetLoadFailure(menuInstance);
+		_assetInfo->OnAssetLoadSuccess(menuInstance);
 		return RE::BSEventNotifyControl::kContinue;
 	}
 
@@ -190,7 +228,7 @@ namespace F4SE::Menus
 			return false;
 		}
 
-		const auto menuName = RE::BSFixedString(a_menuInfo->menuName);
+		const auto menuName = RE::BSFixedString(a_menuInfo->GetMenuName());
 		if (!ui->RegisterMenu(menuName, Impl::CreateMenu)) {
 			return false;
 		}
@@ -237,20 +275,15 @@ namespace F4SE::Menus
 		return ui->IsMenuOpen(a_menuName).value_or(false);
 	}
 
-	auto GetMenuInstance(std::string_view a_menuName) -> ::Scaleform::Ptr<RE::IMenu>
+	auto GetMenuInstance(std::string_view a_menuName)
+		-> ::Scaleform::Ptr<RE::IMenu>
 	{
 		const auto menuName = RE::BSFixedString(a_menuName);
-
-		auto* ui = RE::UI::GetSingleton();
-		if (!ui) [[unlikely]] {
-			REX::Assert(false);
-			return nullptr;
-		}
-
-		return ui->GetMenu(menuName);
+		return GetMenuInstance(menuName);
 	}
 
-	auto GetMenuInstance(const RE::BSFixedString& a_menuName) -> ::Scaleform::Ptr<RE::IMenu>
+	auto GetMenuInstance(const RE::BSFixedString& a_menuName)
+		-> ::Scaleform::Ptr<RE::IMenu>
 	{
 		auto* ui = RE::UI::GetSingleton();
 		if (!ui) [[unlikely]] {
@@ -261,15 +294,15 @@ namespace F4SE::Menus
 		return ui->GetMenu(a_menuName);
 	}
 
-	bool OpenMenu(std::string_view a_menuName)
+	bool OpenMenuAsync(std::string_view a_menuName)
 	{
 		const auto menuName = RE::BSFixedString(a_menuName);
-		return OpenMenu(menuName);
+		return OpenMenuAsync(menuName);
 	}
 
-	bool OpenMenu(const RE::BSFixedString& a_menuName)
+	bool OpenMenuAsync(const RE::BSFixedString& a_menuName)
 	{
-		if (IsMenuOpen(a_menuName)) {
+		if (!IsMenuRegistered(a_menuName)) {
 			return false;
 		}
 
@@ -283,15 +316,15 @@ namespace F4SE::Menus
 		return true;
 	}
 
-	bool CloseMenu(std::string_view a_menuName)
+	bool CloseMenuAsync(std::string_view a_menuName)
 	{
 		const auto menuName = RE::BSFixedString(a_menuName);
-		return CloseMenu(menuName);
+		return CloseMenuAsync(menuName);
 	}
 
-	bool CloseMenu(const RE::BSFixedString& a_menuName)
+	bool CloseMenuAsync(const RE::BSFixedString& a_menuName)
 	{
-		if (!IsMenuOpen(a_menuName)) {
+		if (!IsMenuRegistered(a_menuName)) {
 			return false;
 		}
 
@@ -305,17 +338,15 @@ namespace F4SE::Menus
 		return true;
 	}
 
-	bool ForceCloseMenu(std::string_view a_menuName)
+	bool ForceCloseMenuAsync(std::string_view a_menuName)
 	{
 		const auto menuName = RE::BSFixedString(a_menuName);
-		return ForceCloseMenu(menuName);
+		return ForceCloseMenuAsync(menuName);
 	}
 
-	bool ForceCloseMenu(const RE::BSFixedString& a_menuName)
+	bool ForceCloseMenuAsync(const RE::BSFixedString& a_menuName)
 	{
-		auto* ui = RE::UI::GetSingleton();
-		if (!ui) [[unlikely]] {
-			REX::Assert(false);
+		if (!IsMenuRegistered(a_menuName)) {
 			return false;
 		}
 
@@ -329,7 +360,8 @@ namespace F4SE::Menus
 		return true;
 	}
 
-	auto CreateMenuAssetLoader(const REX::NotNull<std::shared_ptr<MenuAssetInfo>>& a_assetInfo) -> REX::NotNull<std::shared_ptr<MenuAssetLoader>>
+	auto CreateMenuAssetLoader(const REX::NotNull<std::shared_ptr<MenuAssetInfo>>& a_assetInfo)
+		-> REX::NotNull<std::shared_ptr<MenuAssetLoader>>
 	{
 		auto assetLoader = REX::NotNull(std::make_shared<MenuAssetLoader>(a_assetInfo));
 		RegisterMenuAssetLoader(assetLoader);
@@ -357,13 +389,15 @@ namespace F4SE::Menus::Impl
 		return _menuMap.contains(a_menuName);
 	}
 
-	auto MenuInfoMap::GetValue(std::string_view a_menuName) noexcept -> std::shared_ptr<MenuInfo>
+	auto MenuInfoMap::GetValue(std::string_view a_menuName) noexcept
+		-> std::shared_ptr<MenuInfo>
 	{
 		const auto menuName = RE::BSFixedString(a_menuName);
 		return GetValue(menuName);
 	}
 
-	auto MenuInfoMap::GetValue(const RE::BSFixedString& a_menuName) noexcept -> std::shared_ptr<MenuInfo>
+	auto MenuInfoMap::GetValue(const RE::BSFixedString& a_menuName) noexcept
+		-> std::shared_ptr<MenuInfo>
 	{
 		const auto mapLock = std::shared_lock(_mapMutex);
 
@@ -379,7 +413,7 @@ namespace F4SE::Menus::Impl
 	{
 		const auto mapLock = std::scoped_lock(_mapMutex);
 
-		const auto&& [_, inserted] = _menuMap.emplace(a_menu->menuName, a_menu);
+		const auto&& [_, inserted] = _menuMap.emplace(a_menu->GetMenuName(), a_menu);
 		return inserted;
 	}
 
@@ -411,16 +445,18 @@ namespace F4SE::Menus::Impl
 	void MenuAssetLoaderMap::Add(const REX::NotNull<std::shared_ptr<MenuAssetLoader>>& a_loader)
 	{
 		const auto mapLock = std::scoped_lock(_mapMutex);
-		_loaderMap.emplace(a_loader->GetMenuAssetInfo()->menuName, a_loader);
+		_loaderMap.emplace(a_loader->GetMenuAssetInfo()->GetMenuName(), a_loader);
 	}
 
-	auto GetMenuInfoMap() -> const REX::NotNull<std::unique_ptr<MenuInfoMap>>&
+	auto GetMenuInfoMap()
+		-> const REX::NotNull<std::unique_ptr<MenuInfoMap>>&
 	{
 		static const auto INSTANCE = REX::NotNull(std::make_unique<MenuInfoMap>());
 		return INSTANCE;
 	}
 
-	auto GetMenuAssetLoaderMap() -> const REX::NotNull<std::unique_ptr<MenuAssetLoaderMap>>&
+	auto GetMenuAssetLoaderMap()
+		-> const REX::NotNull<std::unique_ptr<MenuAssetLoaderMap>>&
 	{
 		static const auto INSTANCE = REX::NotNull(std::make_unique<MenuAssetLoaderMap>());
 		return INSTANCE;
@@ -432,7 +468,7 @@ namespace F4SE::Menus::Impl
 
 		auto* scaleformManager = RE::BSScaleformManager::GetSingleton();
 		if (!scaleformManager) [[unlikely]] {
-			REX::Fail("Failed to get the game's scaleform manager."sv);
+			REX::Fail("Failed to get the game's Scaleform manager."sv);
 		}
 
 		const auto menuInfo = GetMenuInfoMap()->GetValue(menuName);
@@ -444,11 +480,12 @@ namespace F4SE::Menus::Impl
 		auto menuInstance = menuInfo->CreateMenuInstance();
 
 		menuInstance->menuName = menuName;
-		menuInstance->menuFlags = menuInfo->menuFlags;
-		menuInstance->depthPriority = menuInfo->menuDepth;
+		menuInstance->menuFlags = menuInfo->GetMenuFlags();
+		menuInstance->depthPriority = menuInfo->GetMenuDepth();
+		menuInstance->inputContext = menuInfo->GetMenuInputContext();
 
-		const auto& menuFilePath = menuInfo->menuFilePath;
-		const auto& menuRootVarPath = menuInfo->rootVarPath;
+		const auto& menuFilePath = menuInfo->GetMenuFilePath();
+		const auto& menuRootVarPath = menuInfo->GetRootVarPath();
 
 		auto rawMenuFilePath = menuFilePath;
 		rawMenuFilePath.replace_extension();
@@ -462,7 +499,10 @@ namespace F4SE::Menus::Impl
 		REX::LogError(R"(Failed to load menu "{}" from file path "{}")"sv,
 			menuName, menuFilePath.generic_string());
 
-		ForceCloseMenu(menuName);
+		if (!ForceCloseMenuAsync(menuName)) [[unlikely]] {
+			REX::Assert(false);
+		}
+
 		menuInfo->OnMenuLoadFailure(menuInstance);
 		return (*menuInstance).release();
 	}

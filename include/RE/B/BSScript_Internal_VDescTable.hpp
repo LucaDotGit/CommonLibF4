@@ -34,17 +34,26 @@ namespace RE::BSScript::Internal
 		[[nodiscard]] size_type GetLocalCount() const noexcept { return _totalEntryCount - _paramCount; }
 		[[nodiscard]] size_type GetTotalEntryCount() const noexcept { return _totalEntryCount; }
 
-		[[nodiscard]] auto GetNthParamPair(size_type a_index) const -> std::optional<value_type>;
-		[[nodiscard]] auto GetNthLocalPair(size_type a_index) const -> std::optional<value_type>;
-		[[nodiscard]] auto GetNthEntryPair(size_type a_index) const -> std::optional<value_type>;
+		[[nodiscard]] auto GetNthParamPair(size_type a_index) const
+			-> std::optional<value_type>;
+		[[nodiscard]] auto GetNthLocalPair(size_type a_index) const
+			-> std::optional<value_type>;
+		[[nodiscard]] auto GetNthEntryPair(size_type a_index) const
+			-> std::optional<value_type>;
 
-		[[nodiscard]] auto GetNthParamName(size_type a_index) const -> std::optional<BSFixedString>;
-		[[nodiscard]] auto GetNthLocalName(size_type a_index) const -> std::optional<BSFixedString>;
-		[[nodiscard]] auto GetNthEntryName(size_type a_index) const -> std::optional<BSFixedString>;
+		[[nodiscard]] auto GetNthParamName(size_type a_index) const
+			-> std::optional<BSFixedString>;
+		[[nodiscard]] auto GetNthLocalName(size_type a_index) const
+			-> std::optional<BSFixedString>;
+		[[nodiscard]] auto GetNthEntryName(size_type a_index) const
+			-> std::optional<BSFixedString>;
 
-		[[nodiscard]] auto GetNthParamType(size_type a_index) const -> std::optional<TypeInfo>;
-		[[nodiscard]] auto GetNthLocalType(size_type a_index) const -> std::optional<TypeInfo>;
-		[[nodiscard]] auto GetNthEntryType(size_type a_index) const -> std::optional<TypeInfo>;
+		[[nodiscard]] auto GetNthParamType(size_type a_index) const
+			-> std::optional<TypeInfo>;
+		[[nodiscard]] auto GetNthLocalType(size_type a_index) const
+			-> std::optional<TypeInfo>;
+		[[nodiscard]] auto GetNthEntryType(size_type a_index) const
+			-> std::optional<TypeInfo>;
 
 		bool SetNthParamPair(size_type a_index, const value_type& a_pair);
 		bool SetNthLocalPair(size_type a_index, const value_type& a_pair);

@@ -54,7 +54,7 @@ namespace RE
 			{
 				using FuncType = decltype(&ItemSorter::IncrementSort);
 				static const auto FUNC = REL::Relocation<FuncType>{ ID::ContainerMenuBase::ItemSorter::IncrementSort };
-				FUNC(this);
+				std::invoke(FUNC, this);
 			}
 
 			void SetTab(std::uint32_t a_tab)

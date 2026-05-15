@@ -385,7 +385,7 @@ namespace RE::BSScript
 		auto* varBegin = GetThisVariableIt();
 		auto* varEnd = varBegin + GetThisNumVariables();
 
-		auto* varIt = std::lower_bound(varBegin, varEnd, a_name, [](const VariableInfo& a_varInfo, const BSFixedString& a_varName) {
+		auto* varIt = std::lower_bound(varBegin, varEnd, a_name, [](const VariableInfo& a_varInfo, const BSFixedString& a_varName) -> bool {
 			return a_varInfo.name < a_varName;
 		});
 
@@ -409,7 +409,7 @@ namespace RE::BSScript
 		const auto* varBegin = GetThisVariableIt();
 		const auto* varEnd = varBegin + GetThisNumVariables();
 
-		const auto* varIt = std::lower_bound(varBegin, varEnd, a_name, [](const VariableInfo& a_varInfo, const BSFixedString& a_varName) {
+		const auto* varIt = std::lower_bound(varBegin, varEnd, a_name, [](const VariableInfo& a_varInfo, const BSFixedString& a_varName) -> bool {
 			return a_varInfo.name < a_varName;
 		});
 
@@ -473,7 +473,7 @@ namespace RE::BSScript
 		auto* propBegin = GetThisPropertyIt();
 		auto* propEnd = propBegin + GetThisNumProperties();
 
-		auto* propIt = std::lower_bound(propBegin, propEnd, a_name, [](const PropertyInfo& a_propInfo, const BSFixedString& a_propName) {
+		auto* propIt = std::lower_bound(propBegin, propEnd, a_name, [](const PropertyInfo& a_propInfo, const BSFixedString& a_propName) -> bool {
 			return a_propInfo.name < a_propName;
 		});
 
@@ -497,7 +497,7 @@ namespace RE::BSScript
 		const auto* propBegin = GetThisPropertyIt();
 		const auto* propEnd = propBegin + GetThisNumProperties();
 
-		const auto* propIt = std::lower_bound(propBegin, propEnd, a_name, [](const PropertyInfo& a_propInfo, const BSFixedString& a_propName) {
+		const auto* propIt = std::lower_bound(propBegin, propEnd, a_name, [](const PropertyInfo& a_propInfo, const BSFixedString& a_propName) -> bool {
 			return a_propInfo.name < a_propName;
 		});
 
@@ -741,7 +741,7 @@ namespace RE::BSScript
 		auto* funcBegin = GetThisStaticFunctionIt();
 		auto* funcEnd = funcBegin + GetThisNumStaticFunctions();
 
-		auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_name, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) {
+		auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_name, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) -> bool {
 			const auto& func = a_funcInfo.func;
 			return func ? func->GetName() < a_funcName : false;
 		});
@@ -771,7 +771,7 @@ namespace RE::BSScript
 		const auto* funcBegin = GetThisStaticFunctionIt();
 		const auto* funcEnd = funcBegin + GetThisNumStaticFunctions();
 
-		const auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_name, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) {
+		const auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_name, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) -> bool {
 			const auto& func = a_funcInfo.func;
 			return func ? func->GetName() < a_funcName : false;
 		});
@@ -841,7 +841,7 @@ namespace RE::BSScript
 		auto* funcBegin = GetThisMemberFunctionIt();
 		auto* funcEnd = funcBegin + GetThisNumMemberFunctions();
 
-		auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_name, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) {
+		auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_name, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) -> bool {
 			const auto& func = a_funcInfo.func;
 			return func ? func->GetName() < a_funcName : false;
 		});
@@ -871,7 +871,7 @@ namespace RE::BSScript
 		const auto* funcBegin = GetThisMemberFunctionIt();
 		const auto* funcEnd = funcBegin + GetThisNumMemberFunctions();
 
-		const auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_name, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) {
+		const auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_name, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) -> bool {
 			const auto& func = a_funcInfo.func;
 			return func ? func->GetName() < a_funcName : false;
 		});
@@ -945,7 +945,7 @@ namespace RE::BSScript
 		auto* stateBegin = GetThisNamedStateIt();
 		auto* stateEnd = stateBegin + GetThisNumNamedStates();
 
-		auto* stateIt = std::lower_bound(stateBegin, stateEnd, a_stateName, [](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) {
+		auto* stateIt = std::lower_bound(stateBegin, stateEnd, a_stateName, [](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) -> bool {
 			return a_stateInfo.name < a_stateName;
 		});
 
@@ -956,7 +956,7 @@ namespace RE::BSScript
 		auto* funcBegin = stateIt->GetMemberFunctionIt();
 		auto* funcEnd = funcBegin + stateIt->GetNumMemberFunctions();
 
-		auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_funcName, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) {
+		auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_funcName, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) -> bool {
 			const auto& func = a_funcInfo.func;
 			return func ? func->GetName() < a_funcName : false;
 		});
@@ -990,7 +990,7 @@ namespace RE::BSScript
 		const auto* stateBegin = GetThisNamedStateIt();
 		const auto* stateEnd = stateBegin + GetThisNumNamedStates();
 
-		const auto* stateIt = std::lower_bound(stateBegin, stateEnd, a_stateName, [](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) {
+		const auto* stateIt = std::lower_bound(stateBegin, stateEnd, a_stateName, [](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) -> bool {
 			return a_stateInfo.name < a_stateName;
 		});
 
@@ -1001,7 +1001,7 @@ namespace RE::BSScript
 		const auto* funcBegin = stateIt->GetMemberFunctionIt();
 		const auto* funcEnd = funcBegin + stateIt->GetNumMemberFunctions();
 
-		const auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_funcName, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) {
+		const auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_funcName, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) -> bool {
 			const auto& func = a_funcInfo.func;
 			return func ? func->GetName() < a_funcName : false;
 		});
@@ -1071,7 +1071,7 @@ namespace RE::BSScript
 		auto* stateBegin = GetThisNamedStateIt();
 		auto* stateEnd = stateBegin + GetThisNumNamedStates();
 
-		auto* stateIt = std::lower_bound(stateBegin, stateEnd, a_name, [](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) {
+		auto* stateIt = std::lower_bound(stateBegin, stateEnd, a_name, [](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) -> bool {
 			return a_stateInfo.name < a_stateName;
 		});
 
@@ -1095,7 +1095,7 @@ namespace RE::BSScript
 		const auto* stateBegin = GetThisNamedStateIt();
 		const auto* stateEnd = stateBegin + GetThisNumNamedStates();
 
-		const auto* stateIt = std::lower_bound(stateBegin, stateEnd, a_name, [](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) {
+		const auto* stateIt = std::lower_bound(stateBegin, stateEnd, a_name, [](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) -> bool {
 			return a_stateInfo.name < a_stateName;
 		});
 
@@ -1106,7 +1106,8 @@ namespace RE::BSScript
 		return stateIt;
 	}
 
-	auto ObjectTypeInfo::GetVariableIndex(const BSFixedString& a_name) const -> std::optional<std::uint32_t>
+	auto ObjectTypeInfo::GetVariableIndex(const BSFixedString& a_name) const
+		-> std::optional<std::uint32_t>
 	{
 		if (a_name.empty()) {
 			return std::nullopt;
@@ -1129,7 +1130,8 @@ namespace RE::BSScript
 		return std::nullopt;
 	}
 
-	auto ObjectTypeInfo::GetThisVariableIndex(const BSFixedString& a_name) const -> std::optional<std::uint32_t>
+	auto ObjectTypeInfo::GetThisVariableIndex(const BSFixedString& a_name) const
+		-> std::optional<std::uint32_t>
 	{
 		if (a_name.empty()) {
 			return std::nullopt;
@@ -1138,7 +1140,7 @@ namespace RE::BSScript
 		const auto* varBegin = GetThisVariableIt();
 		const auto* varEnd = varBegin + GetThisNumVariables();
 
-		const auto* varIt = std::lower_bound(varBegin, varEnd, a_name, [](const VariableInfo& a_varInfo, const BSFixedString& a_varName) {
+		const auto* varIt = std::lower_bound(varBegin, varEnd, a_name, [](const VariableInfo& a_varInfo, const BSFixedString& a_varName) -> bool {
 			return a_varInfo.name < a_varName;
 		});
 
@@ -1149,7 +1151,8 @@ namespace RE::BSScript
 		return static_cast<std::uint32_t>(std::distance(varBegin, varIt));
 	}
 
-	auto ObjectTypeInfo::GetPropertyIndex(const BSFixedString& a_name) const -> std::optional<std::uint32_t>
+	auto ObjectTypeInfo::GetPropertyIndex(const BSFixedString& a_name) const
+		-> std::optional<std::uint32_t>
 	{
 		if (a_name.empty()) {
 			return std::nullopt;
@@ -1172,7 +1175,8 @@ namespace RE::BSScript
 		return std::nullopt;
 	}
 
-	auto ObjectTypeInfo::GetThisPropertyIndex(const BSFixedString& a_name) const -> std::optional<std::uint32_t>
+	auto ObjectTypeInfo::GetThisPropertyIndex(const BSFixedString& a_name) const
+		-> std::optional<std::uint32_t>
 	{
 		if (a_name.empty()) {
 			return std::nullopt;
@@ -1181,7 +1185,7 @@ namespace RE::BSScript
 		const auto* propBegin = GetThisPropertyIt();
 		const auto* propEnd = propBegin + GetThisNumProperties();
 
-		const auto* propIt = std::lower_bound(propBegin, propEnd, a_name, [](const PropertyInfo& a_propInfo, const BSFixedString& a_propName) {
+		const auto* propIt = std::lower_bound(propBegin, propEnd, a_name, [](const PropertyInfo& a_propInfo, const BSFixedString& a_propName) -> bool {
 			return a_propInfo.name < a_propName;
 		});
 

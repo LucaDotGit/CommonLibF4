@@ -30,7 +30,7 @@ namespace RE::TESAudio
 		{
 			using FuncType = decltype(&ScriptedMusicState::Remove);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::TESAudio::ScriptedMusicState::Remove };
-			FUNC(this, a_toRemove);
+			std::invoke(FUNC, this, a_toRemove);
 		}
 
 		// members

@@ -28,7 +28,8 @@ namespace REX::Impl
 	[[nodiscard]] static auto ForEachDirectoryEntry(
 		const std::filesystem::path& a_directoryPath,
 		const REX::NotNull<std::function<bool(const std::filesystem::directory_entry&)>>& a_predicate,
-		bool a_recursive) -> std::expected<bool, REX::SystemError>
+		bool a_recursive)
+		-> std::expected<bool, REX::SystemError>
 	{
 		auto isDirError = REX::SystemError();
 		if (!std::filesystem::is_directory(a_directoryPath, isDirError)) {
@@ -37,7 +38,7 @@ namespace REX::Impl
 
 		auto dirItError = REX::SystemError();
 
-		const auto iterateContent = [&](REX::SystemError& a_dirItError, const auto& a_dirItBegin) {
+		const auto iterateContent = [&](REX::SystemError& a_dirItError, const auto& a_dirItBegin) -> bool {
 			if (a_dirItError.value() != REX::ERROR_NUMBER_SUCCESS) {
 				return false;
 			}
@@ -84,9 +85,9 @@ namespace REX::Impl
 	{
 		auto entries = std::vector<std::filesystem::path>();
 
-		auto forEachEntryResult = ForEachDirectoryEntry(
+		const auto forEachEntryResult = ForEachDirectoryEntry(
 			a_directoryPath,
-			[&a_predicate, &a_entryNamePattern, &entries](const std::filesystem::directory_entry& a_dirEntry) {
+			[&a_predicate, &a_entryNamePattern, &entries](const std::filesystem::directory_entry& a_dirEntry) -> bool {
 				if (!std::invoke(*a_predicate, a_dirEntry)) {
 					return true;
 				}
@@ -102,7 +103,7 @@ namespace REX::Impl
 			a_recursive);
 
 		if (!forEachEntryResult) {
-			return std::unexpected(std::move(forEachEntryResult).error());
+			return std::unexpected(forEachEntryResult.error());
 		}
 
 		return entries;
@@ -111,10 +112,50 @@ namespace REX::Impl
 
 namespace REX
 {
-	[[nodiscard]] auto GetFilesInDirectory(
+	bool CreateParentDirectories(const std::filesystem::path& a_filePath)
+	{
+		if (a_filePath.empty()) {
+			return false;
+		}
+
+		const auto parentPath = a_filePath.parent_path();
+		if (parentPath.empty()) {
+			return false;
+		}
+
+		return std::filesystem::create_directories(parentPath);
+	}
+
+	bool CreateParentDirectories(const std::filesystem::path& a_filePath, REX::SystemError& a_outError) noexcept
+	{
+		if (a_filePath.empty()) {
+			a_outError = REX::CreateSystemError(REX::ERROR_NUMBER_SUCCESS);
+			return false;
+		}
+
+		auto parentPath = std::filesystem::path();
+
+		try {
+			parentPath = a_filePath.parent_path();
+		}
+		catch ([[maybe_unused]] const std::bad_alloc& error) {
+			a_outError = REX::CreateSystemError(REX::PosixErrorCode::not_enough_memory);
+			return false;
+		}
+
+		if (parentPath.empty()) {
+			a_outError = REX::CreateSystemError(REX::ERROR_NUMBER_SUCCESS);
+			return false;
+		}
+
+		return std::filesystem::create_directories(parentPath, a_outError);
+	}
+
+	auto GetFilesInDirectory(
 		const std::filesystem::path& a_directoryPath,
 		const std::filesystem::path& a_fileNamePattern,
-		bool a_recursive) -> std::expected<std::vector<std::filesystem::path>, REX::SystemError>
+		bool a_recursive)
+		-> std::expected<std::vector<std::filesystem::path>, REX::SystemError>
 	{
 		return Impl::GetDirectoryEntries(
 			a_directoryPath,
@@ -126,10 +167,11 @@ namespace REX
 			});
 	}
 
-	[[nodiscard]] auto GetDirectoriesInDirectory(
+	auto GetDirectoriesInDirectory(
 		const std::filesystem::path& a_directoryPath,
 		const std::filesystem::path& a_directoryNamePattern,
-		bool a_recursive) -> std::expected<std::vector<std::filesystem::path>, REX::SystemError>
+		bool a_recursive)
+		-> std::expected<std::vector<std::filesystem::path>, REX::SystemError>
 	{
 		return Impl::GetDirectoryEntries(
 			a_directoryPath,
@@ -141,15 +183,16 @@ namespace REX
 			});
 	}
 
-	[[nodiscard]] auto ForEachEntryInDirectory(
+	auto ForEachEntryInDirectory(
 		const std::filesystem::path& a_directoryPath,
 		const REX::NotNull<std::function<bool(const std::filesystem::directory_entry&)>>& a_predicate,
 		const std::filesystem::path& a_entryNamePattern,
-		bool a_recursive) -> std::expected<bool, REX::SystemError>
+		bool a_recursive)
+		-> std::expected<bool, REX::SystemError>
 	{
 		return Impl::ForEachDirectoryEntry(
 			a_directoryPath,
-			[&a_predicate, &a_entryNamePattern](const std::filesystem::directory_entry& a_dirEntry) {
+			[&a_predicate, &a_entryNamePattern](const std::filesystem::directory_entry& a_dirEntry) -> bool {
 				const auto& entryPath = a_dirEntry.path();
 				if (!Impl::MatchEntryNamePattern(entryPath, a_entryNamePattern)) {
 					return true;
@@ -160,15 +203,16 @@ namespace REX
 			a_recursive);
 	}
 
-	[[nodiscard]] auto ForEachFileInDirectory(
+	auto ForEachFileInDirectory(
 		const std::filesystem::path& a_directoryPath,
 		const REX::NotNull<std::function<bool(const std::filesystem::directory_entry&)>>& a_predicate,
 		const std::filesystem::path& a_fileNamePattern,
-		bool a_recursive) -> std::expected<bool, REX::SystemError>
+		bool a_recursive)
+		-> std::expected<bool, REX::SystemError>
 	{
 		return Impl::ForEachDirectoryEntry(
 			a_directoryPath,
-			[&a_predicate, &a_fileNamePattern](const std::filesystem::directory_entry& a_dirEntry) {
+			[&a_predicate, &a_fileNamePattern](const std::filesystem::directory_entry& a_dirEntry) -> bool {
 				auto isFileError = REX::SystemError();
 				if (!a_dirEntry.is_regular_file(isFileError)) {
 					return true;
@@ -184,15 +228,16 @@ namespace REX
 			a_recursive);
 	}
 
-	[[nodiscard]] auto ForEachDirectoryInDirectory(
+	auto ForEachDirectoryInDirectory(
 		const std::filesystem::path& a_directoryPath,
 		const REX::NotNull<std::function<bool(const std::filesystem::directory_entry&)>>& a_predicate,
 		const std::filesystem::path& a_directoryNamePattern,
-		bool a_recursive) -> std::expected<bool, REX::SystemError>
+		bool a_recursive)
+		-> std::expected<bool, REX::SystemError>
 	{
 		return Impl::ForEachDirectoryEntry(
 			a_directoryPath,
-			[&a_predicate, &a_directoryNamePattern](const std::filesystem::directory_entry& a_dirEntry) {
+			[&a_predicate, &a_directoryNamePattern](const std::filesystem::directory_entry& a_dirEntry) -> bool {
 				auto isDirError = REX::SystemError();
 				if (!a_dirEntry.is_directory(isDirError)) {
 					return true;

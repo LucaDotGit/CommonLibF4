@@ -22,7 +22,7 @@ namespace RE
 			return std::invoke(FUNC, this);
 		}
 		catch (...) {
-			REX::QuickFail("Failed to decrement input enable layer ref count."sv);
+			REX::Fail("Failed to decrement ref count."sv);
 		}
 	}
 }

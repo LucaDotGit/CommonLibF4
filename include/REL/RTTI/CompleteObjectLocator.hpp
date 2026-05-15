@@ -10,7 +10,7 @@ namespace REL::RTTI
 	class ClassHierarchyDescriptor;
 
 	template <class TypeDescriptor>
-	class CompleteObjectLocator
+	class CompleteObjectLocator final
 	{
 	public:
 		enum class Signature : std::int32_t

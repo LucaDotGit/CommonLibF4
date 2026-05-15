@@ -151,9 +151,16 @@ namespace RE
 			: _capacity(a_maxSize),
 			  _growthSize(a_growBy)
 		{
-			if (capacity() > 0) {
-				_data = allocator_type::allocate(capacity());
+			if (capacity() == 0) {
+				return;
 			}
+
+			auto* newData = allocator_type::allocate(capacity());
+			if (!newData) {
+				throw std::bad_alloc();
+			}
+
+			_data = newData;
 		}
 
 		virtual ~NiTArray() // 00

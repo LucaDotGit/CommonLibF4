@@ -25,7 +25,7 @@ namespace Scaleform
 			delete this;
 		}
 		catch (...) {
-			REX::QuickFail("Failed to delete scaleform ref object."sv);
+			REX::Fail("Failed to delete ref object."sv);
 		}
 	}
 }

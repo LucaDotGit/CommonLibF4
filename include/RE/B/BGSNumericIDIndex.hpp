@@ -22,7 +22,7 @@ namespace RE
 		{
 			using FuncType = decltype(&BGSNumericIDIndex::SetNumericID);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSNumericIDIndex::SetNumericID };
-			FUNC(this, a_formID);
+			std::invoke(FUNC, this, a_formID);
 		}
 
 		// members

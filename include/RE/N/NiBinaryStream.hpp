@@ -22,7 +22,7 @@ namespace RE
 		};
 		static_assert(sizeof(BufferInfo) == 0x30);
 
-		NiBinaryStream();
+		NiBinaryStream() = default;
 
 		NiBinaryStream(const NiBinaryStream&) = delete;
 		NiBinaryStream(NiBinaryStream&&) noexcept = default;

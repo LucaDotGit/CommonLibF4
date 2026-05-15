@@ -2,6 +2,39 @@
 
 #include "REX/W32/KERNEL32.hpp"
 
+namespace REX::Impl
+{
+	[[nodiscard]] static std::int32_t Utf8ToUtf16(std::string_view a_source, std::span<wchar_t> a_target) noexcept
+	{
+		constexpr auto FLAGS = static_cast<std::uint32_t>(0);
+
+		return REX::W32::MultiByteToWideChar(
+			REX::W32::CP_UTF8,
+			FLAGS,
+			a_source.data(),
+			static_cast<std::int32_t>(a_source.size()),
+			a_target.data(),
+			static_cast<std::int32_t>(a_target.size()));
+	}
+
+	[[nodiscard]] static std::int32_t Utf16ToUtf8(std::wstring_view a_source, std::span<char> a_target) noexcept
+	{
+		constexpr auto FLAGS = static_cast<std::uint32_t>(0);
+		constexpr auto DEFAULT_STRING = static_cast<const char*>(nullptr);
+		constexpr auto DEFAULT_LENGTH = static_cast<std::int32_t*>(nullptr);
+
+		return REX::W32::WideCharToMultiByte(
+			REX::W32::CP_UTF8,
+			FLAGS,
+			a_source.data(),
+			static_cast<std::int32_t>(a_source.size()),
+			a_target.data(),
+			static_cast<std::int32_t>(a_target.size()),
+			DEFAULT_STRING,
+			DEFAULT_LENGTH);
+	}
+}
+
 namespace REX
 {
 	static_assert(TRUE_STRING.size() == CAPITAL_TRUE_STRING.size());
@@ -27,23 +60,44 @@ namespace REX
 	static_assert(CAPITAL_BOOL_FORMAT_STRINGS[std::countr_zero(std::to_underlying(BoolFormat::kOnOff))] == std::make_pair(CAPITAL_ON_STRING, CAPITAL_OFF_STRING));
 	static_assert(CAPITAL_BOOL_FORMAT_STRINGS[std::countr_zero(std::to_underlying(BoolFormat::kOneZero))] == std::make_pair(ONE_STRING, ZERO_STRING));
 
-	auto Utf8ToUtf16(std::string_view a_value) noexcept -> std::expected<std::wstring, REX::SystemError>
+	auto Utf8ToUtf16(std::string_view a_source, std::span<wchar_t> a_buffer) noexcept
+		-> std::expected<std::wstring_view, REX::SystemError>
 	{
-		if (a_value.empty()) {
+		if (a_source.empty()) {
+			return std::wstring_view();
+		}
+
+		const auto writeSize = Impl::Utf8ToUtf16(a_source, a_buffer);
+		if (writeSize == 0) {
+			return std::unexpected(REX::GetCurrentSystemError());
+		}
+
+		return std::wstring_view{ a_buffer.data(), static_cast<std::size_t>(writeSize) };
+	}
+
+	auto Utf16ToUtf8(std::wstring_view a_source, std::span<char> a_buffer) noexcept
+		-> std::expected<std::string_view, REX::SystemError>
+	{
+		if (a_source.empty()) {
+			return std::string_view();
+		}
+
+		const auto writeSize = Impl::Utf16ToUtf8(a_source, a_buffer);
+		if (writeSize == 0) {
+			return std::unexpected(REX::GetCurrentSystemError());
+		}
+
+		return std::string_view{ a_buffer.data(), static_cast<std::size_t>(writeSize) };
+	}
+
+	auto Utf8ToUtf16(std::string_view a_source) noexcept
+		-> std::expected<std::wstring, REX::SystemError>
+	{
+		if (a_source.empty()) {
 			return std::wstring();
 		}
 
-		const auto doConvert = [a_value](wchar_t* a_target, std::size_t a_length) -> std::int32_t {
-			return REX::W32::MultiByteToWideChar(
-				REX::W32::CP_UTF8,
-				0,
-				a_value.data(),
-				static_cast<std::int32_t>(a_value.size()),
-				a_target,
-				static_cast<std::int32_t>(a_length));
-		};
-
-		const auto readSize = doConvert(nullptr, 0);
+		const auto readSize = Impl::Utf8ToUtf16(a_source, {});
 		if (readSize == 0) {
 			return std::unexpected(REX::GetCurrentSystemError());
 		}
@@ -57,7 +111,7 @@ namespace REX
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::not_enough_memory));
 		}
 
-		const auto writeSize = doConvert(result.data(), result.size());
+		const auto writeSize = Impl::Utf8ToUtf16(a_source, std::span{ result.data(), result.size() });
 		if (writeSize == 0) {
 			return std::unexpected(REX::GetCurrentSystemError());
 		}
@@ -72,29 +126,14 @@ namespace REX
 		return result;
 	}
 
-	auto Utf16ToUtf8(std::wstring_view a_value) noexcept -> std::expected<std::string, REX::SystemError>
+	auto Utf16ToUtf8(std::wstring_view a_source) noexcept
+		-> std::expected<std::string, REX::SystemError>
 	{
-		if (a_value.empty()) {
+		if (a_source.empty()) {
 			return std::string();
 		}
 
-		const auto doConvert = [a_value](char* a_target, std::size_t a_length) -> std::int32_t {
-			constexpr auto FLAGS = static_cast<std::uint32_t>(0);
-			constexpr auto DEFAULT_STRING = static_cast<const char*>(nullptr);
-			constexpr auto DEFAULT_LENGTH = static_cast<std::int32_t*>(nullptr);
-
-			return REX::W32::WideCharToMultiByte(
-				REX::W32::CP_UTF8,
-				FLAGS,
-				a_value.data(),
-				static_cast<std::int32_t>(a_value.size()),
-				a_target,
-				static_cast<std::int32_t>(a_length),
-				DEFAULT_STRING,
-				DEFAULT_LENGTH);
-		};
-
-		const auto readSize = doConvert(nullptr, 0);
+		const auto readSize = Impl::Utf16ToUtf8(a_source, {});
 		if (readSize == 0) {
 			return std::unexpected(REX::GetCurrentSystemError());
 		}
@@ -108,7 +147,7 @@ namespace REX
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::not_enough_memory));
 		}
 
-		const auto writeSize = doConvert(result.data(), result.size());
+		const auto writeSize = Impl::Utf16ToUtf8(a_source, std::span{ result.data(), result.size() });
 		if (writeSize == 0) {
 			return std::unexpected(REX::GetCurrentSystemError());
 		}
@@ -123,19 +162,32 @@ namespace REX
 		return result;
 	}
 
-	template auto FromString<bool>(std::string_view, BoolFormat) noexcept -> std::expected<bool, REX::PosixErrorCode>;
-	template auto FromString<char>(std::string_view) noexcept -> std::expected<char, REX::PosixErrorCode>;
-	template auto FromString<std::int8_t>(std::string_view, IntFormat) noexcept -> std::expected<std::int8_t, REX::PosixErrorCode>;
-	template auto FromString<std::uint8_t>(std::string_view, IntFormat) noexcept -> std::expected<std::uint8_t, REX::PosixErrorCode>;
-	template auto FromString<std::int16_t>(std::string_view, IntFormat) noexcept -> std::expected<std::int16_t, REX::PosixErrorCode>;
-	template auto FromString<std::uint16_t>(std::string_view, IntFormat) noexcept -> std::expected<std::uint16_t, REX::PosixErrorCode>;
-	template auto FromString<std::int32_t>(std::string_view, IntFormat) noexcept -> std::expected<std::int32_t, REX::PosixErrorCode>;
-	template auto FromString<std::uint32_t>(std::string_view, IntFormat) noexcept -> std::expected<std::uint32_t, REX::PosixErrorCode>;
-	template auto FromString<std::int64_t>(std::string_view, IntFormat) noexcept -> std::expected<std::int64_t, REX::PosixErrorCode>;
-	template auto FromString<std::uint64_t>(std::string_view, IntFormat) noexcept -> std::expected<std::uint64_t, REX::PosixErrorCode>;
-	template auto FromString<REX::Float32>(std::string_view, FloatFormat) noexcept -> std::expected<REX::Float32, REX::PosixErrorCode>;
-	template auto FromString<REX::Float64>(std::string_view, FloatFormat) noexcept -> std::expected<REX::Float64, REX::PosixErrorCode>;
-	template auto FromString<REX::Float128>(std::string_view, FloatFormat) noexcept -> std::expected<REX::Float128, REX::PosixErrorCode>;
+	template auto FromString<bool>(std::string_view, BoolFormat) noexcept
+		-> std::expected<bool, REX::PosixErrorCode>;
+	template auto FromString<char>(std::string_view) noexcept
+		-> std::expected<char, REX::PosixErrorCode>;
+	template auto FromString<std::int8_t>(std::string_view, IntFormat) noexcept
+		-> std::expected<std::int8_t, REX::PosixErrorCode>;
+	template auto FromString<std::uint8_t>(std::string_view, IntFormat) noexcept
+		-> std::expected<std::uint8_t, REX::PosixErrorCode>;
+	template auto FromString<std::int16_t>(std::string_view, IntFormat) noexcept
+		-> std::expected<std::int16_t, REX::PosixErrorCode>;
+	template auto FromString<std::uint16_t>(std::string_view, IntFormat) noexcept
+		-> std::expected<std::uint16_t, REX::PosixErrorCode>;
+	template auto FromString<std::int32_t>(std::string_view, IntFormat) noexcept
+		-> std::expected<std::int32_t, REX::PosixErrorCode>;
+	template auto FromString<std::uint32_t>(std::string_view, IntFormat) noexcept
+		-> std::expected<std::uint32_t, REX::PosixErrorCode>;
+	template auto FromString<std::int64_t>(std::string_view, IntFormat) noexcept
+		-> std::expected<std::int64_t, REX::PosixErrorCode>;
+	template auto FromString<std::uint64_t>(std::string_view, IntFormat) noexcept
+		-> std::expected<std::uint64_t, REX::PosixErrorCode>;
+	template auto FromString<REX::Float32>(std::string_view, FloatFormat) noexcept
+		-> std::expected<REX::Float32, REX::PosixErrorCode>;
+	template auto FromString<REX::Float64>(std::string_view, FloatFormat) noexcept
+		-> std::expected<REX::Float64, REX::PosixErrorCode>;
+	template auto FromString<REX::Float128>(std::string_view, FloatFormat) noexcept
+		-> std::expected<REX::Float128, REX::PosixErrorCode>;
 
 	static_assert(FromString<bool>(TRUE_STRING, BoolFormat::kTrueFalse).value());
 	static_assert(!FromString<bool>(FALSE_STRING, BoolFormat::kTrueFalse).value());
@@ -160,19 +212,32 @@ namespace REX
 	static_assert(FromString<std::int64_t>("-1000000000000000000000000000000000000000000000000000000000000000"sv, IntFormat::kBinary).value() == std::numeric_limits<std::int64_t>::min());
 	static_assert(FromString<std::uint64_t>("1111111111111111111111111111111111111111111111111111111111111111"sv, IntFormat::kBinary).value() == std::numeric_limits<std::uint64_t>::max());
 
-	template auto ToString<bool>(bool, BoolFormat) noexcept -> std::expected<std::string, REX::PosixErrorCode>;
-	template auto ToString<char>(char) noexcept -> std::expected<std::string, REX::PosixErrorCode>;
-	template auto ToString<std::int8_t>(std::int8_t, IntFormat) noexcept -> std::expected<std::string, REX::PosixErrorCode>;
-	template auto ToString<std::uint8_t>(std::uint8_t, IntFormat) noexcept -> std::expected<std::string, REX::PosixErrorCode>;
-	template auto ToString<std::int16_t>(std::int16_t, IntFormat) noexcept -> std::expected<std::string, REX::PosixErrorCode>;
-	template auto ToString<std::uint16_t>(std::uint16_t, IntFormat) noexcept -> std::expected<std::string, REX::PosixErrorCode>;
-	template auto ToString<std::int32_t>(std::int32_t, IntFormat) noexcept -> std::expected<std::string, REX::PosixErrorCode>;
-	template auto ToString<std::uint32_t>(std::uint32_t, IntFormat) noexcept -> std::expected<std::string, REX::PosixErrorCode>;
-	template auto ToString<std::int64_t>(std::int64_t, IntFormat) noexcept -> std::expected<std::string, REX::PosixErrorCode>;
-	template auto ToString<std::uint64_t>(std::uint64_t, IntFormat) noexcept -> std::expected<std::string, REX::PosixErrorCode>;
-	template auto ToString<REX::Float32>(REX::Float32, FloatFormat, std::int32_t) noexcept -> std::expected<std::string, REX::PosixErrorCode>;
-	template auto ToString<REX::Float64>(REX::Float64, FloatFormat, std::int32_t) noexcept -> std::expected<std::string, REX::PosixErrorCode>;
-	template auto ToString<REX::Float128>(REX::Float128, FloatFormat, std::int32_t) noexcept -> std::expected<std::string, REX::PosixErrorCode>;
+	template auto ToString<bool>(bool, BoolFormat) noexcept
+		-> std::expected<std::string, REX::PosixErrorCode>;
+	template auto ToString<char>(char) noexcept
+		-> std::expected<std::string, REX::PosixErrorCode>;
+	template auto ToString<std::int8_t>(std::int8_t, IntFormat) noexcept
+		-> std::expected<std::string, REX::PosixErrorCode>;
+	template auto ToString<std::uint8_t>(std::uint8_t, IntFormat) noexcept
+		-> std::expected<std::string, REX::PosixErrorCode>;
+	template auto ToString<std::int16_t>(std::int16_t, IntFormat) noexcept
+		-> std::expected<std::string, REX::PosixErrorCode>;
+	template auto ToString<std::uint16_t>(std::uint16_t, IntFormat) noexcept
+		-> std::expected<std::string, REX::PosixErrorCode>;
+	template auto ToString<std::int32_t>(std::int32_t, IntFormat) noexcept
+		-> std::expected<std::string, REX::PosixErrorCode>;
+	template auto ToString<std::uint32_t>(std::uint32_t, IntFormat) noexcept
+		-> std::expected<std::string, REX::PosixErrorCode>;
+	template auto ToString<std::int64_t>(std::int64_t, IntFormat) noexcept
+		-> std::expected<std::string, REX::PosixErrorCode>;
+	template auto ToString<std::uint64_t>(std::uint64_t, IntFormat) noexcept
+		-> std::expected<std::string, REX::PosixErrorCode>;
+	template auto ToString<REX::Float32>(REX::Float32, FloatFormat, std::int32_t) noexcept
+		-> std::expected<std::string, REX::PosixErrorCode>;
+	template auto ToString<REX::Float64>(REX::Float64, FloatFormat, std::int32_t) noexcept
+		-> std::expected<std::string, REX::PosixErrorCode>;
+	template auto ToString<REX::Float128>(REX::Float128, FloatFormat, std::int32_t) noexcept
+		-> std::expected<std::string, REX::PosixErrorCode>;
 
 	static_assert(ToString(true, BoolFormat::kTrueFalse).value() == TRUE_STRING);
 	static_assert(ToString(false, BoolFormat::kTrueFalse).value() == FALSE_STRING);

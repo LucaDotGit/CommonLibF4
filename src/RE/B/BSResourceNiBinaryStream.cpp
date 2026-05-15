@@ -11,28 +11,28 @@ namespace RE
 	{
 		using FuncType = void (BSResourceNiBinaryStream::*)(const char*, bool, BSResource::Location*, bool);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSResourceNiBinaryStream::ctor };
-		FUNC(this, a_name, a_writeable, a_optionalStart, a_fullReadHint);
+		std::invoke(FUNC, this, a_name, a_writeable, a_optionalStart, a_fullReadHint);
 	}
 
 	BSResourceNiBinaryStream::~BSResourceNiBinaryStream()
 	{
 		using FuncType = void (BSResourceNiBinaryStream::*)();
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSResourceNiBinaryStream::dtor };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void BSResourceNiBinaryStream::Seek(std::ptrdiff_t a_numBytes)
 	{
 		using FuncType = decltype(&BSResourceNiBinaryStream::Seek);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSResourceNiBinaryStream::Seek };
-		FUNC(this, a_numBytes);
+		std::invoke(FUNC, this, a_numBytes);
 	}
 
 	void BSResourceNiBinaryStream::GetBufferInfo(BufferInfo& a_buffer)
 	{
 		using FuncType = decltype(&BSResourceNiBinaryStream::GetBufferInfo);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSResourceNiBinaryStream::GetBufferInfo };
-		FUNC(this, a_buffer);
+		std::invoke(FUNC, this, a_buffer);
 	}
 
 	std::size_t BSResourceNiBinaryStream::DoRead(void* a_buffer, std::size_t a_toRead)

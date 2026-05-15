@@ -3,7 +3,7 @@
 #include "REL/Memory.hpp"
 
 #include "REX/Contract.hpp"
-#include "REX/ErrorCode.hpp"
+#include "REX/Error.hpp"
 #include "REX/Log.hpp"
 #include "REX/Message.hpp"
 #include "REX/W32/KERNEL32.hpp"
@@ -127,7 +127,7 @@ namespace REL
 			REX::Fail("Failed to allocate memory for trampoline."sv);
 		}
 
-		Init(mem, a_size, [](void* a_mem, [[maybe_unused]] std::size_t a_size) noexcept {
+		Init(mem, a_size, [](void* a_mem, [[maybe_unused]] std::size_t a_size) noexcept -> void {
 			REX::W32::VirtualFree(a_mem, 0, REX::W32::MEM_RELEASE);
 		});
 	}
@@ -281,15 +281,8 @@ namespace REL
 			try {
 				std::invoke(_deleter, _data, _capacity);
 			}
-			catch ([[maybe_unused]] const std::bad_alloc& error) {
-				REX::AllocationFail("Failed to allocate memory for xSE trampoline deleter."sv);
-			}
-			catch (const std::exception& error) {
-				REX::Fail("Failed to invoke trampoline deleter: {}"sv,
-					error.what());
-			}
-			catch (...) {
-				REX::Fail("Failed to invoke trampoline deleter due to an unknown error."sv);
+			catch ([[maybe_unused]] const std::exception& error) {
+				REX::Assert(false);
 			}
 		}
 
@@ -307,7 +300,8 @@ namespace REL
 			_name, _size, _capacity, percentage);
 	}
 
-	auto GetTrampoline() -> const REX::NotNull<std::unique_ptr<Trampoline>>&
+	auto GetTrampoline()
+		-> const REX::NotNull<std::unique_ptr<Trampoline>>&
 	{
 		static const auto INSTANCE = REX::NotNull(std::make_unique<Trampoline>());
 		return INSTANCE;

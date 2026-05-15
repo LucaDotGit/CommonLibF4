@@ -6,14 +6,14 @@ namespace RE::BSGraphics::Utility
 	{
 		using FuncType = decltype(&BSGraphics::Utility::ConvertHALFToNiPoint3Stream);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSGraphics::Utility::ConvertHALFToNiPoint3Stream };
-		FUNC(a_src, a_dst, a_count, a_stride);
+		std::invoke(FUNC, a_src, a_dst, a_count, a_stride);
 	}
 
 	void ConvertNiPoint3ToHALFStream(const NiPoint3* a_src, std::uint16_t* a_dst, std::uint32_t a_count)
 	{
 		using FuncType = decltype(&BSGraphics::Utility::ConvertNiPoint3ToHALFStream);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSGraphics::Utility::ConvertNiPoint3ToHALFStream };
-		FUNC(a_src, a_dst, a_count);
+		std::invoke(FUNC, a_src, a_dst, a_count);
 	}
 
 	std::uint64_t PackVertexData(
@@ -61,6 +61,6 @@ namespace RE::BSGraphics::Utility
 	{
 		using FuncType = decltype(&BSGraphics::Utility::UnpackVertexData);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSGraphics::Utility::UnpackVertexData };
-		FUNC(a_vertices, a_index, a_vertexDesc, a_position, a_texCoord0, a_texCoord1, a_normal, a_binormal, a_tangent, a_color, a_skinBoneWeights, a_boneIndex0, a_boneIndex1, a_boneIndex2, a_boneIndex3);
+		std::invoke(FUNC, a_vertices, a_index, a_vertexDesc, a_position, a_texCoord0, a_texCoord1, a_normal, a_binormal, a_tangent, a_color, a_skinBoneWeights, a_boneIndex0, a_boneIndex1, a_boneIndex2, a_boneIndex3);
 	}
 }

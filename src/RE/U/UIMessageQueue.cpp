@@ -11,7 +11,7 @@ namespace RE
 	bool UIMessageQueue::HasMessage(const BSFixedString& a_menuName) const
 	{
 		const auto messageLock = BSAutoLock(messagesLock);
-		return std::ranges::any_of(messages, [&a_menuName](const msvc::unique_ptr<UIMessage>& a_message) {
+		return std::ranges::any_of(messages, [&a_menuName](const msvc::unique_ptr<UIMessage>& a_message) -> bool {
 			return a_message && a_message->menuName == a_menuName;
 		});
 	}

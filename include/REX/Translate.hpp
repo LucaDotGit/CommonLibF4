@@ -1,11 +1,15 @@
 #pragma once
 
-#include "REX/ErrorCode.hpp"
+#include "REX/Concepts.hpp"
+#include "REX/Error.hpp"
 
 namespace REX
 {
-	inline constexpr auto TRANSLATION_KEY_PREFIX = L'$';
-	inline constexpr auto TRANSLATION_PAIR_SEPARATOR = L'\t';
+	template <REX::win32_character CharT>
+	inline constexpr auto TRANSLATION_KEY_PREFIX = static_cast<CharT>('$');
+
+	template <REX::win32_character CharT>
+	inline constexpr auto TRANSLATION_PAIR_SEPARATOR = static_cast<CharT>('\t');
 
 	[[nodiscard]] auto ReadTranslationFile(const std::filesystem::path& a_filePath) noexcept
 		-> std::expected<std::vector<std::pair<std::wstring, std::wstring>>, REX::SystemError>;

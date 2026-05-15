@@ -8,7 +8,7 @@ namespace RE::BSResource
 {
 	enum class StreamFlags : std::uint32_t;
 
-	class __declspec(novtable) StreamBase
+	class StreamBase
 	{
 	public:
 		inline static constexpr auto RTTI{ RTTI::BSResource__StreamBase };

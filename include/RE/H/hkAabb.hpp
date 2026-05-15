@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RE/H/hkVector4f.hpp"
+#include "RE/H/hkVector4.hpp"
 
 namespace RE
 {
@@ -8,8 +8,8 @@ namespace RE
 	{
 	public:
 		// members
-		hkVector4f min; // 00
-		hkVector4f max; // 10
+		hkVector4 min; // 00
+		hkVector4 max; // 10
 	};
 	static_assert(sizeof(hkAabb) == 0x20);
 }

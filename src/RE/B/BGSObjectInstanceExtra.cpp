@@ -15,14 +15,14 @@ namespace RE
 	{
 		using FuncType = void (BGSObjectInstanceExtra::*)(const BGSMod::Template::Item*, TESForm*, const INSTANCE_FILTER*);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSObjectInstanceExtra::ctor };
-		FUNC(this, a_item, a_parentForm, a_filter);
+		std::invoke(FUNC, this, a_item, a_parentForm, a_filter);
 	}
 
 	void BGSObjectInstanceExtra::AddMod(const BGSMod::Attachment::Mod& a_newMod, std::uint8_t a_attachIndex, std::uint8_t a_rank, bool a_removeInvalidMods)
 	{
 		using FuncType = decltype(&BGSObjectInstanceExtra::AddMod);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSObjectInstanceExtra::AddMod };
-		FUNC(this, a_newMod, a_attachIndex, a_rank, a_removeInvalidMods);
+		std::invoke(FUNC, this, a_newMod, a_attachIndex, a_rank, a_removeInvalidMods);
 	}
 
 	bool BGSObjectInstanceExtra::AttachModToReference(TESObjectREFR& a_ref, BGSMod::Attachment::Mod& a_mod, std::uint8_t a_attachIndex, std::uint8_t a_rank)

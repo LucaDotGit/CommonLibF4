@@ -9,7 +9,8 @@ namespace RE
 	class DEFAULT_OBJECT_DATA
 	{
 	public:
-		[[nodiscard]] static auto GetDefaultObjects() -> std::span<DEFAULT_OBJECT_DATA, std::to_underlying(DEFAULT_OBJECT::kTotal)>
+		[[nodiscard]] static auto GetDefaultObjects()
+			-> std::span<DEFAULT_OBJECT_DATA, std::to_underlying(DEFAULT_OBJECT::kTotal)>
 		{
 			static const auto DEFAULT_OBJECT_DATA = REL::Relocation<std::array<RE::DEFAULT_OBJECT_DATA, std::to_underlying(DEFAULT_OBJECT::kTotal)>*>{ ID::DEFAULT_OBJECT_DATA::DefaultObjects };
 			return { *DEFAULT_OBJECT_DATA };

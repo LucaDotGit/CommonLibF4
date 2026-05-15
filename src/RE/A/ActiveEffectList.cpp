@@ -8,7 +8,7 @@ namespace RE
 	[[nodiscard]] BSTSmartPointer<ActiveEffect> ActiveEffectList::GetActiveEffectByID(std::uint16_t a_id) const
 	{
 		auto result = BSTSmartPointer<ActiveEffect>();
-		ForEachActiveEffect([&result, a_id](const BSTSmartPointer<ActiveEffect>& a_activeEffect) {
+		ForEachActiveEffect([&result, a_id](const BSTSmartPointer<ActiveEffect>& a_activeEffect) -> BSContainer::ForEachResult {
 			if (a_activeEffect && a_activeEffect->GetUniqueID() == a_id) {
 				result = a_activeEffect;
 				return BSContainer::ForEachResult::kStop;

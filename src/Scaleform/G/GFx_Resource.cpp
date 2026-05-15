@@ -19,7 +19,7 @@ namespace Scaleform::GFx
 			delete this;
 		}
 		catch (...) {
-			REX::QuickFail("Failed to release Scaleform resource."sv);
+			REX::Fail("Failed to delete ref resource."sv);
 		}
 	}
 }

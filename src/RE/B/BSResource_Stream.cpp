@@ -4,15 +4,11 @@
 
 namespace RE::BSResource
 {
-	Stream::Stream()
-	{
-		REL::EmplaceVtable(this);
-	}
+	Stream::Stream() = default;
 
 	Stream::Stream(std::uint32_t a_totalSize, bool writable)
 		: StreamBase(a_totalSize, writable)
 	{
-		REL::EmplaceVtable(this);
 	}
 
 	bool Stream::GetName(BSFixedString& a_dst) const
@@ -77,13 +73,13 @@ namespace RE::BSResource
 		return DoPrefetchAll(a_priority);
 	}
 
-	ErrorCode Stream::PrefetchAt(std::size_t a_bytes, std::size_t a_offset, std::uint32_t a_priority) const
+	ErrorCode Stream::PrefetchAt(std::size_t a_numBytes, std::size_t a_offset, std::uint32_t a_priority) const
 	{
 		if (flags.any_atomic(StreamFlags::kWritable)) {
 			return ErrorCode::kUnsupported;
 		}
 
-		return DoPrefetchAt(a_bytes, a_offset, a_priority);
+		return DoPrefetchAt(a_numBytes, a_offset, a_priority);
 	}
 
 	std::uint32_t Stream::QFullReadHint() const
@@ -96,14 +92,13 @@ namespace RE::BSResource
 		return DoQTaggedPrioritizedReadSupported();
 	}
 
-	ErrorCode Stream::StartTaggedPrioritizedRead(void* a_buffer, std::size_t a_bytes, std::size_t a_offset, std::uint32_t a_priority, volatile std::uint32_t* a_completionTag, std::uint32_t& a_completionTagWaitValue, BSEventFlag* a_eventFlag) const
+	ErrorCode Stream::StartTaggedPrioritizedRead(void* a_buffer, std::size_t a_numBytes, std::size_t a_offset, std::uint32_t a_priority, volatile std::uint32_t* a_completionTag, std::uint32_t& a_completionTagWaitValue, BSEventFlag* a_eventFlag) const
 	{
 		if (flags.any_atomic(StreamFlags::kWritable)) {
 			return ErrorCode::kUnsupported;
 		}
 
-		return DoStartTaggedPrioritizedRead(
-			a_buffer, a_bytes, a_offset, a_priority, a_completionTag, a_completionTagWaitValue, a_eventFlag);
+		return DoStartTaggedPrioritizedRead(a_buffer, a_numBytes, a_offset, a_priority, a_completionTag, a_completionTagWaitValue, a_eventFlag);
 	}
 
 	ErrorCode Stream::WaitTags(volatile std::uint32_t* a_completionTag, std::uint32_t a_completionTagWaitValue, BSEventFlag* a_eventFlag) const

@@ -28,7 +28,7 @@ namespace RE
 			REX::Float32 ryAxisNormVal; // 14
 		};
 
-		// override(BSInputDevice)
+		// override (BSInputDevice)
 		bool IsConnected() const override; // 03 - { return connected; }
 		~BSGamepadDevice() override;	   // 04
 

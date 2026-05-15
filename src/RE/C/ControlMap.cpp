@@ -24,7 +24,7 @@ namespace RE
 		}
 
 		const auto& deviceMappings = controlMap->deviceMappings[std::to_underlying(a_deviceType)];
-		return std::ranges::any_of(deviceMappings, [&a_controlName](const UserEventMapping& a_eventMapping) {
+		return std::ranges::any_of(deviceMappings, [&a_controlName](const UserEventMapping& a_eventMapping) -> bool {
 			return a_eventMapping.eventID == a_controlName;
 		});
 	}
@@ -86,7 +86,7 @@ namespace RE
 	{
 		using FuncType = decltype(&ControlMap::PushInputContext);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::ControlMap::PushInputContext };
-		FUNC(this, a_inputContext);
+		std::invoke(FUNC, this, a_inputContext);
 	}
 
 	bool ControlMap::RemapButton(const BSFixedString& a_id, INPUT_DEVICE a_deviceType, std::int32_t a_buttonID)
@@ -100,13 +100,13 @@ namespace RE
 	{
 		using FuncType = decltype(&ControlMap::SaveRemappings);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::ControlMap::SaveRemappings };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void ControlMap::SetTextEntryMode(bool a_enable)
 	{
 		using FuncType = decltype(&ControlMap::SetTextEntryMode);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::ControlMap::SetTextEntryMode };
-		FUNC(this, a_enable);
+		std::invoke(FUNC, this, a_enable);
 	}
 }

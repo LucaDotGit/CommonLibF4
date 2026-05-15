@@ -25,6 +25,7 @@ namespace Scaleform::GFx
 			: State(STATE_TYPE),
 			  actionFlags(a_actionFlags)
 		{
+			// REL::EmplaceVtable(this);
 		}
 
 		~ActionControl() override; // 01

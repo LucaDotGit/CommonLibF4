@@ -33,7 +33,7 @@ namespace F4SE
 
 		[[nodiscard]] std::uint32_t GetVersion() const noexcept;
 
-		bool Register(const char* a_name, REX::NotNull<REX::Observer<RegisterCallback*>> a_callback) const;
+		void Register(const char* a_name, REX::NotNull<REX::Observer<RegisterCallback*>> a_callback) const;
 	};
 	static_assert(std::is_empty_v<ScaleformInterface>);
 }

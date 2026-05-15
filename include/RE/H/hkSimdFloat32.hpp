@@ -2,11 +2,6 @@
 
 namespace RE
 {
-	class hkSimdFloat32
-	{
-	public:
-		// members
-		__m128 real; // 00
-	};
+	using hkSimdFloat32 = __m128;
 	static_assert(sizeof(hkSimdFloat32) == 0x10);
 }

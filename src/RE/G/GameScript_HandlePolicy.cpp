@@ -16,28 +16,28 @@ namespace RE::GameScript
 	{
 		using FuncType = decltype(&HandlePolicy::DropSaveLoadRemapData);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::HandlePolicy::DropSaveLoadRemapData };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void HandlePolicy::GetInventoryObjFromHandle(BSScript::ObjectHandle a_cobject, TESObjectREFR*& a_container, ContainerID& a_uniqueID, TESObjectREFR*& a_inWorldRef) const
 	{
 		using FuncType = decltype(&HandlePolicy::GetInventoryObjFromHandle);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::HandlePolicy::GetInventoryObjFromHandle };
-		FUNC(this, a_cobject, a_container, a_uniqueID, a_inWorldRef);
+		std::invoke(FUNC, this, a_cobject, a_container, a_uniqueID, a_inWorldRef);
 	}
 
 	void HandlePolicy::GetInventoryObjOrFormFromHandle(BSScript::ObjectHandle a_cobject, TESObjectREFR*& a_container, ContainerID& a_uniqueID) const
 	{
 		using FuncType = decltype(&HandlePolicy::GetInventoryObjOrFormFromHandle);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::HandlePolicy::GetInventoryObjOrFormFromHandle };
-		FUNC(this, a_cobject, a_container, a_uniqueID);
+		std::invoke(FUNC, this, a_cobject, a_container, a_uniqueID);
 	}
 
 	void HandlePolicy::UpdatePersistence()
 	{
 		using FuncType = decltype(&HandlePolicy::UpdatePersistence);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::HandlePolicy::UpdatePersistence };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	BSScript::ObjectHandle HandlePolicy::GetHandleForAlias(const BGSBaseAlias* a_alias)

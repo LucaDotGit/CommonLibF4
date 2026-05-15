@@ -33,7 +33,7 @@ namespace RE
 		auto atomicLock = REX::AtomicRef(_lock);
 
 		auto expectedLock = 1ui32;
-		atomicLock.compare_exchange_strong(expectedLock, 0,
+		std::ignore = atomicLock.compare_exchange_strong(expectedLock, 0,
 			std::memory_order_acq_rel, std::memory_order_relaxed);
 	}
 

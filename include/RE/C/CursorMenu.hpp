@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RE/G/GameMenuBase.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 #include "msvc/memory.hpp"
 

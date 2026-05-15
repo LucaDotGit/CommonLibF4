@@ -53,15 +53,17 @@ namespace REX
 	template class BasicRandom<Impl::default_random_engine_32>;
 	template class BasicRandom<Impl::default_random_engine_64>;
 
-	auto GetSharedRandom32() noexcept -> const REX::NotNull<std::unique_ptr<Random32>>&
+	auto GetSharedRandom32() noexcept
+		-> const REX::NotNull<std::unique_ptr<Random32>>&
 	{
-		static const thread_local auto Instance = REX::NotNull(std::make_unique<Random32>());
+		thread_local static const auto Instance = REX::NotNull(std::make_unique<Random32>());
 		return Instance;
 	}
 
-	auto GetSharedRandom64() noexcept -> const REX::NotNull<std::unique_ptr<Random64>>&
+	auto GetSharedRandom64() noexcept
+		-> const REX::NotNull<std::unique_ptr<Random64>>&
 	{
-		static const thread_local auto Instance = REX::NotNull(std::make_unique<Random64>());
+		thread_local static const auto Instance = REX::NotNull(std::make_unique<Random64>());
 		return Instance;
 	}
 }

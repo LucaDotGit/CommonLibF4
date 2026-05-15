@@ -4,7 +4,7 @@
 
 namespace RE
 {
-	template <class CharT, std::uint16_t N, template <class, std::uint16_t> class Allocator>
+	template <REX::win32_character CharT, std::uint16_t N, template <class, std::uint16_t> class Allocator>
 	class BSStringT
 		: private Allocator<CharT, N>
 	{
@@ -280,6 +280,9 @@ namespace RE
 		}
 
 	private:
+		template <REX::win32_character, std::uint16_t, template <class, std::uint16_t> class>
+		friend class BSStringT;
+
 		inline static constexpr auto EMPTY_BUFFER = std::array<const value_type, 1>{ 0 };
 
 		[[nodiscard]] static constexpr bool equals_impl(std::basic_string_view<value_type> a_lhs, std::basic_string_view<value_type> a_rhs) noexcept
@@ -292,7 +295,7 @@ namespace RE
 			return REX::CompareIgnoreCase(a_lhs, a_rhs);
 		}
 
-		[[nodiscard]] constexpr pointer allocate(std::uint16_t a_count)
+		[[nodiscard]] constexpr pointer allocate(size_type a_count)
 		{
 			return allocator_type::allocate(a_count);
 		}
@@ -344,8 +347,11 @@ namespace RE
 			}
 
 			auto* newData = allocate(a_newCapacity);
-			auto* oldData = data();
+			if (!newData) {
+				throw std::bad_alloc();
+			}
 
+			auto* oldData = data();
 			if (newData == oldData) {
 				return;
 			}
@@ -415,15 +421,10 @@ namespace RE
 		[[nodiscard]] constexpr value_type* allocate(size_type a_count) noexcept
 		{
 			if (a_count > N) {
-				return 0;
+				return nullptr;
 			}
 
-			auto* mem = calloc<value_type>(a_count);
-			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
-			}
-
-			return mem;
+			return calloc<value_type>(a_count);
 		}
 
 		constexpr void deallocate(value_type* a_ptr) noexcept
@@ -466,7 +467,11 @@ namespace RE
 
 		[[nodiscard]] constexpr value_type* allocate(size_type a_count) noexcept
 		{
-			return a_count > N ? 0 : _buffer;
+			if (a_count > N) {
+				return nullptr;
+			}
+
+			return _buffer.data();
 		}
 
 		constexpr void deallocate([[maybe_unused]] value_type* a_ptr) noexcept
@@ -487,7 +492,7 @@ namespace RE
 	template <std::uint16_t N>
 	using BSStaticStringT = BSStringT<char, N, FixedLengthMemoryManagementPol>;
 
-	template <class CharT, std::uint16_t N, template <class, std::uint16_t> class Allocator>
+	template <REX::win32_character CharT, std::uint16_t N, template <class, std::uint16_t> class Allocator>
 	constexpr void swap(BSStringT<CharT, N, Allocator>& a_lhs, BSStringT<CharT, N, Allocator>& a_rhs) noexcept
 	{
 		a_lhs.swap(a_rhs);
@@ -517,7 +522,7 @@ namespace RE::BSScript
 
 namespace std
 {
-	template <class CharT, std::uint16_t N, template <class, std::uint16_t> class Allocator>
+	template <REX::win32_character CharT, std::uint16_t N, template <class, std::uint16_t> class Allocator>
 	struct hash<RE::BSStringT<CharT, N, Allocator>>
 	{
 	public:
@@ -534,21 +539,21 @@ namespace std
 #if __cpp_lib_format > 0l
 namespace std
 {
-	template <class CharT, std::uint16_t N, template <class, std::uint16_t> class Allocator>
+	template <REX::win32_character CharT, std::uint16_t N, template <class, std::uint16_t> class Allocator>
 	struct formatter<RE::BSStringT<CharT, N, Allocator>, CharT>
 		: public formatter<std::basic_string_view<CharT>, CharT>
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::BSStringT<CharT, N, Allocator>& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::BSStringT<CharT, N, Allocator>& a_value, FormatContext& a_context) const
 		{
-			return format_to(a_ctx.out(), "{}"sv, static_cast<std::basic_string_view<CharT>>(a_value));
+			return format_to(a_context.out(), "{}"sv, static_cast<std::basic_string_view<CharT>>(a_value));
 		}
 	};
 
@@ -564,23 +569,23 @@ namespace fmt
 		TODO: Change this to one template specialization when fmt is able to compile it.
 
 		```CPP
-		template <class CharT, std::uint16_t N, template <class, std::uint16_t> class Allocator>
+		template <REX::win32_character CharT, std::uint16_t N, template <class, std::uint16_t> class Allocator>
 		struct formatter<RE::BSStringT<CharT, N, Allocator>, CharT>
 			: public formatter<std::basic_string_view<CharT>, CharT>
 		{
 		public:
 			template <class ParseContext>
-			[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+			[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 			{
-				return a_ctx.begin();
+				return a_context.begin();
 			}
 
 			template <class FormatContext>
-			[[nodiscard]] constexpr auto format(const RE::BSStringT<CharT, N, Allocator>& a_value, FormatContext& a_ctx) const
+			[[nodiscard]] constexpr auto format(const RE::BSStringT<CharT, N, Allocator>& a_value, FormatContext& a_context) const
 			{
 				using namespace std::string_view_literals;
 
-				return format_to(a_ctx.out(), "{}"sv, static_cast<std::basic_string_view<CharT>>(a_value));
+				return format_to(a_context.out(), "{}"sv, static_cast<std::basic_string_view<CharT>>(a_value));
 			}
 		};
 
@@ -595,17 +600,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::BSString& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::BSString& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, static_cast<std::basic_string_view<RE::BSString::value_type>>(a_value));
+			return format_to(a_context.out(), "{}"sv, static_cast<std::basic_string_view<RE::BSString::value_type>>(a_value));
 		}
 	};
 
@@ -615,17 +620,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::BSStringW& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::BSStringW& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, static_cast<std::basic_string_view<RE::BSStringW::value_type>>(a_value));
+			return format_to(a_context.out(), "{}"sv, static_cast<std::basic_string_view<RE::BSStringW::value_type>>(a_value));
 		}
 	};
 }

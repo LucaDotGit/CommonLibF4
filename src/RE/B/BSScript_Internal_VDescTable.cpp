@@ -13,11 +13,11 @@ namespace RE::BSScript::Internal
 		_entries = new value_type[_totalEntryCount];
 
 		for (auto i = static_cast<size_type>(0); i < _paramCount; i++) {
-			_entries[i].first = REX::Format("param{}"sv, i);
+			_entries[i].first = value_type::first_type(REX::Format("param{}"sv, i));
 		}
 
 		for (auto i = _paramCount; i < _totalEntryCount; i++) {
-			_entries[i].first = REX::Format("local{}"sv, i - _paramCount);
+			_entries[i].first = value_type::first_type(REX::Format("local{}"sv, i - _paramCount));
 		}
 	}
 
@@ -65,7 +65,8 @@ namespace RE::BSScript::Internal
 		return *this;
 	}
 
-	auto VDescTable::GetNthParamPair(size_type a_index) const -> std::optional<value_type>
+	auto VDescTable::GetNthParamPair(size_type a_index) const
+		-> std::optional<value_type>
 	{
 		if (a_index >= _paramCount) [[unlikely]] {
 			REX::Assert(false);
@@ -76,7 +77,8 @@ namespace RE::BSScript::Internal
 		return _entries[a_index];
 	}
 
-	auto VDescTable::GetNthLocalPair(size_type a_index) const -> std::optional<value_type>
+	auto VDescTable::GetNthLocalPair(size_type a_index) const
+		-> std::optional<value_type>
 	{
 		if (a_index >= (_totalEntryCount - _paramCount)) [[unlikely]] {
 			REX::Assert(false);
@@ -87,7 +89,8 @@ namespace RE::BSScript::Internal
 		return _entries[_paramCount + a_index];
 	}
 
-	auto VDescTable::GetNthEntryPair(size_type a_index) const -> std::optional<value_type>
+	auto VDescTable::GetNthEntryPair(size_type a_index) const
+		-> std::optional<value_type>
 	{
 		if (a_index >= _totalEntryCount) [[unlikely]] {
 			REX::Assert(false);
@@ -98,7 +101,8 @@ namespace RE::BSScript::Internal
 		return _entries[a_index];
 	}
 
-	auto VDescTable::GetNthParamName(size_type a_index) const -> std::optional<BSFixedString>
+	auto VDescTable::GetNthParamName(size_type a_index) const
+		-> std::optional<BSFixedString>
 	{
 		if (a_index >= _paramCount) [[unlikely]] {
 			REX::Assert(false);
@@ -109,7 +113,8 @@ namespace RE::BSScript::Internal
 		return _entries[a_index].first;
 	}
 
-	auto VDescTable::GetNthLocalName(size_type a_index) const -> std::optional<BSFixedString>
+	auto VDescTable::GetNthLocalName(size_type a_index) const
+		-> std::optional<BSFixedString>
 	{
 		if (a_index >= (_totalEntryCount - _paramCount)) [[unlikely]] {
 			REX::Assert(false);
@@ -120,7 +125,8 @@ namespace RE::BSScript::Internal
 		return _entries[_paramCount + a_index].first;
 	}
 
-	auto VDescTable::GetNthEntryName(size_type a_index) const -> std::optional<BSFixedString>
+	auto VDescTable::GetNthEntryName(size_type a_index) const
+		-> std::optional<BSFixedString>
 	{
 		if (a_index >= _totalEntryCount) [[unlikely]] {
 			REX::Assert(false);
@@ -131,7 +137,8 @@ namespace RE::BSScript::Internal
 		return _entries[a_index].first;
 	}
 
-	auto VDescTable::GetNthParamType(size_type a_index) const -> std::optional<TypeInfo>
+	auto VDescTable::GetNthParamType(size_type a_index) const
+		-> std::optional<TypeInfo>
 	{
 		if (a_index >= _paramCount) [[unlikely]] {
 			REX::Assert(false);
@@ -142,7 +149,8 @@ namespace RE::BSScript::Internal
 		return _entries[a_index].second;
 	}
 
-	auto VDescTable::GetNthLocalType(size_type a_index) const -> std::optional<TypeInfo>
+	auto VDescTable::GetNthLocalType(size_type a_index) const
+		-> std::optional<TypeInfo>
 	{
 		if (a_index >= (_totalEntryCount - _paramCount)) [[unlikely]] {
 			REX::Assert(false);
@@ -153,7 +161,8 @@ namespace RE::BSScript::Internal
 		return _entries[_paramCount + a_index].second;
 	}
 
-	auto VDescTable::GetNthEntryType(size_type a_index) const -> std::optional<TypeInfo>
+	auto VDescTable::GetNthEntryType(size_type a_index) const
+		-> std::optional<TypeInfo>
 	{
 		if (a_index >= _totalEntryCount) [[unlikely]] {
 			REX::Assert(false);

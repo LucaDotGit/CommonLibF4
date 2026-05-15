@@ -46,7 +46,7 @@ namespace F4SE
 
 		[[nodiscard]] std::uint32_t GetVersion() const noexcept;
 
-		bool RegisterListener(REX::NotNull<REX::Observer<EventCallback*>> a_handler) const;
+		void RegisterListener(REX::NotNull<REX::Observer<EventCallback*>> a_handler) const;
 		bool RegisterListener(REX::NotNull<REX::Observer<EventCallback*>> a_handler, const char* a_sender) const;
 		bool Dispatch(MessageType a_messageType, std::byte* a_data, std::uint32_t a_dataSize, const char* a_receiver) const;
 		[[nodiscard]] void* GetEventDispatcher(std::uint32_t a_dispatcherID) const;
@@ -180,7 +180,8 @@ namespace F4SE
 		[[nodiscard]] const_pointer GetData() const noexcept { return _data; }
 
 		template <REX::trivially_writable T>
-		[[nodiscard]] auto GetAsRawValue() const noexcept -> std::optional<T>
+		[[nodiscard]] auto GetAsRawValue() const noexcept
+			-> std::optional<T>
 		{
 			if (_dataSize != sizeof(T)) {
 				return std::nullopt;
@@ -192,7 +193,8 @@ namespace F4SE
 		}
 
 		template <class T>
-		[[nodiscard]] auto GetAsPointer() const noexcept -> std::optional<T*>
+		[[nodiscard]] auto GetAsPointer() const noexcept
+			-> std::optional<T*>
 		{
 			if (_dataSize != sizeof(std::uintptr_t)) {
 				return std::nullopt;
@@ -202,7 +204,8 @@ namespace F4SE
 		}
 
 		template <class T>
-		[[nodiscard]] auto GetAsSpan() noexcept -> std::optional<std::span<T>>
+		[[nodiscard]] auto GetAsSpan() noexcept
+			-> std::optional<std::span<T>>
 		{
 			if ((_dataSize % sizeof(T)) != 0) {
 				return std::nullopt;
@@ -212,7 +215,8 @@ namespace F4SE
 		}
 
 		template <REX::character T>
-		[[nodiscard]] auto GetAsStringView() const noexcept -> std::optional<std::basic_string_view<T>>
+		[[nodiscard]] auto GetAsStringView() const noexcept
+			-> std::optional<std::basic_string_view<T>>
 		{
 			if ((_dataSize % sizeof(T)) != 0) {
 				return std::nullopt;
@@ -240,52 +244,52 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const F4SE::MessagingInterface::MessageType& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const F4SE::MessagingInterface::MessageType& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
 			switch (a_value) {
 				case F4SE::MessagingInterface::MessageType::kPostLoad: {
-					return format_to(a_ctx.out(), "{}"sv, "PostLoad"sv);
+					return format_to(a_context.out(), "{}"sv, "PostLoad"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kPostPostLoad: {
-					return format_to(a_ctx.out(), "{}"sv, "PostPostLoad"sv);
+					return format_to(a_context.out(), "{}"sv, "PostPostLoad"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kPreLoadGame: {
-					return format_to(a_ctx.out(), "{}"sv, "PreLoadGame"sv);
+					return format_to(a_context.out(), "{}"sv, "PreLoadGame"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kPostLoadGame: {
-					return format_to(a_ctx.out(), "{}"sv, "PostLoadGame"sv);
+					return format_to(a_context.out(), "{}"sv, "PostLoadGame"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kPreSaveGame: {
-					return format_to(a_ctx.out(), "{}"sv, "PreSaveGame"sv);
+					return format_to(a_context.out(), "{}"sv, "PreSaveGame"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kPostSaveGame: {
-					return format_to(a_ctx.out(), "{}"sv, "PostSaveGame"sv);
+					return format_to(a_context.out(), "{}"sv, "PostSaveGame"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kDeleteGame: {
-					return format_to(a_ctx.out(), "{}"sv, "DeleteGame"sv);
+					return format_to(a_context.out(), "{}"sv, "DeleteGame"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kInputLoaded: {
-					return format_to(a_ctx.out(), "{}"sv, "InputLoaded"sv);
+					return format_to(a_context.out(), "{}"sv, "InputLoaded"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kNewGame: {
-					return format_to(a_ctx.out(), "{}"sv, "NewGame"sv);
+					return format_to(a_context.out(), "{}"sv, "NewGame"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kGameLoaded: {
-					return format_to(a_ctx.out(), "{}"sv, "GameLoaded"sv);
+					return format_to(a_context.out(), "{}"sv, "GameLoaded"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kGameDataReady: {
-					return format_to(a_ctx.out(), "{}"sv, "GameDataReady"sv);
+					return format_to(a_context.out(), "{}"sv, "GameDataReady"sv);
 				}
 				[[unlikely]] default: {
-					return format_to(a_ctx.out(), "{}"sv, "Unknown"sv);
+					return format_to(a_context.out(), "{}"sv, "Unknown"sv);
 				}
 			}
 		}
@@ -302,52 +306,52 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const F4SE::MessagingInterface::MessageType& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const F4SE::MessagingInterface::MessageType& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
 			switch (a_value) {
 				case F4SE::MessagingInterface::MessageType::kPostLoad: {
-					return format_to(a_ctx.out(), "{}"sv, "PostLoad"sv);
+					return format_to(a_context.out(), "{}"sv, "PostLoad"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kPostPostLoad: {
-					return format_to(a_ctx.out(), "{}"sv, "PostPostLoad"sv);
+					return format_to(a_context.out(), "{}"sv, "PostPostLoad"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kPreLoadGame: {
-					return format_to(a_ctx.out(), "{}"sv, "PreLoadGame"sv);
+					return format_to(a_context.out(), "{}"sv, "PreLoadGame"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kPostLoadGame: {
-					return format_to(a_ctx.out(), "{}"sv, "PostLoadGame"sv);
+					return format_to(a_context.out(), "{}"sv, "PostLoadGame"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kPreSaveGame: {
-					return format_to(a_ctx.out(), "{}"sv, "PreSaveGame"sv);
+					return format_to(a_context.out(), "{}"sv, "PreSaveGame"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kPostSaveGame: {
-					return format_to(a_ctx.out(), "{}"sv, "PostSaveGame"sv);
+					return format_to(a_context.out(), "{}"sv, "PostSaveGame"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kDeleteGame: {
-					return format_to(a_ctx.out(), "{}"sv, "DeleteGame"sv);
+					return format_to(a_context.out(), "{}"sv, "DeleteGame"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kInputLoaded: {
-					return format_to(a_ctx.out(), "{}"sv, "InputLoaded"sv);
+					return format_to(a_context.out(), "{}"sv, "InputLoaded"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kNewGame: {
-					return format_to(a_ctx.out(), "{}"sv, "NewGame"sv);
+					return format_to(a_context.out(), "{}"sv, "NewGame"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kGameLoaded: {
-					return format_to(a_ctx.out(), "{}"sv, "GameLoaded"sv);
+					return format_to(a_context.out(), "{}"sv, "GameLoaded"sv);
 				}
 				case F4SE::MessagingInterface::MessageType::kGameDataReady: {
-					return format_to(a_ctx.out(), "{}"sv, "GameDataReady"sv);
+					return format_to(a_context.out(), "{}"sv, "GameDataReady"sv);
 				}
 				[[unlikely]] default: {
-					return format_to(a_ctx.out(), "{}"sv, "Unknown"sv);
+					return format_to(a_context.out(), "{}"sv, "Unknown"sv);
 				}
 			}
 		}

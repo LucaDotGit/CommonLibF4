@@ -9,62 +9,64 @@ namespace REX
 
 	inline constexpr auto DEFAULT_LOCALE_NAME = ".UTF-8"sv;
 
-	template <REX::win32_character T>
-	inline constexpr auto MIN_ASCII_CHAR = static_cast<T>(0);
+	template <REX::win32_character CharT>
+	inline constexpr auto MIN_ASCII_CHAR = static_cast<CharT>(0);
 
-	template <REX::win32_character T>
-	inline constexpr auto MAX_ASCII_CHAR = static_cast<T>(std::numeric_limits<char>::max());
+	template <REX::win32_character CharT>
+	inline constexpr auto MAX_ASCII_CHAR = static_cast<CharT>(std::numeric_limits<char>::max());
 
-	template <REX::win32_character T>
-	inline constexpr auto MIN_DIGIT_CHAR = static_cast<T>('0');
+	template <REX::win32_character CharT>
+	inline constexpr auto MIN_DIGIT_CHAR = static_cast<CharT>('0');
 
-	template <REX::win32_character T>
-	inline constexpr auto MAX_DIGIT_CHAR = static_cast<T>('9');
+	template <REX::win32_character CharT>
+	inline constexpr auto MAX_DIGIT_CHAR = static_cast<CharT>('9');
 
-	template <REX::win32_character T>
-	inline constexpr auto MIN_LOWER_LETTER_CHAR = static_cast<T>('a');
+	template <REX::win32_character CharT>
+	inline constexpr auto MIN_LOWER_LETTER_CHAR = static_cast<CharT>('a');
 
-	template <REX::win32_character T>
-	inline constexpr auto MAX_LOWER_LETTER_CHAR = static_cast<T>('z');
+	template <REX::win32_character CharT>
+	inline constexpr auto MAX_LOWER_LETTER_CHAR = static_cast<CharT>('z');
 
-	template <REX::win32_character T>
-	inline constexpr auto MIN_UPPER_LETTER_CHAR = static_cast<T>('A');
+	template <REX::win32_character CharT>
+	inline constexpr auto MIN_UPPER_LETTER_CHAR = static_cast<CharT>('A');
 
-	template <REX::win32_character T>
-	inline constexpr auto MAX_UPPER_LETTER_CHAR = static_cast<T>('Z');
+	template <REX::win32_character CharT>
+	inline constexpr auto MAX_UPPER_LETTER_CHAR = static_cast<CharT>('Z');
 
-	template <REX::win32_character T>
-	inline constexpr auto MIN_HEXADECIMAL_LOWER_LETTER_CHAR = static_cast<T>('a');
+	template <REX::win32_character CharT>
+	inline constexpr auto MIN_HEXADECIMAL_LOWER_LETTER_CHAR = static_cast<CharT>('a');
 
-	template <REX::win32_character T>
-	inline constexpr auto MAX_HEXADECIMAL_LOWER_LETTER_CHAR = static_cast<T>('f');
+	template <REX::win32_character CharT>
+	inline constexpr auto MAX_HEXADECIMAL_LOWER_LETTER_CHAR = static_cast<CharT>('f');
 
-	template <REX::win32_character T>
-	inline constexpr auto MIN_HEXADECIMAL_UPPER_LETTER_CHAR = static_cast<T>('A');
+	template <REX::win32_character CharT>
+	inline constexpr auto MIN_HEXADECIMAL_UPPER_LETTER_CHAR = static_cast<CharT>('A');
 
-	template <REX::win32_character T>
-	inline constexpr auto MAX_HEXADECIMAL_UPPER_LETTER_CHAR = static_cast<T>('F');
+	template <REX::win32_character CharT>
+	inline constexpr auto MAX_HEXADECIMAL_UPPER_LETTER_CHAR = static_cast<CharT>('F');
 
-	template <REX::win32_character T>
-	inline constexpr auto MIN_CONTROL_CHAR = static_cast<T>(0);
+	template <REX::win32_character CharT>
+	inline constexpr auto MIN_CONTROL_CHAR = static_cast<CharT>(0);
 
-	template <REX::win32_character T>
-	inline constexpr auto MAX_CONTROL_CHAR = static_cast<T>(31);
+	template <REX::win32_character CharT>
+	inline constexpr auto MAX_CONTROL_CHAR = static_cast<CharT>(31);
 
-	template <REX::win32_character T>
-	inline constexpr auto MIN_GRAPHIC_CHAR = static_cast<T>(33);
+	template <REX::win32_character CharT>
+	inline constexpr auto MIN_GRAPHIC_CHAR = static_cast<CharT>(33);
 
-	template <REX::win32_character T>
-	inline constexpr auto MAX_GRAPHIC_CHAR = static_cast<T>(126);
+	template <REX::win32_character CharT>
+	inline constexpr auto MAX_GRAPHIC_CHAR = static_cast<CharT>(126);
 
-	template <REX::win32_character T>
-	inline constexpr auto MIN_PRINTABLE_CHAR = static_cast<T>(32);
+	template <REX::win32_character CharT>
+	inline constexpr auto MIN_PRINTABLE_CHAR = static_cast<CharT>(32);
 
-	template <REX::win32_character T>
-	inline constexpr auto MAX_PRINTABLE_CHAR = static_cast<T>(126);
+	template <REX::win32_character CharT>
+	inline constexpr auto MAX_PRINTABLE_CHAR = static_cast<CharT>(126);
 
-	[[nodiscard]] auto CreateCLocale(std::string_view a_localeName, std::int32_t a_localeCategory = LC_ALL) noexcept -> CLocale;
-	[[nodiscard]] auto CreateCppLocale(std::string_view a_localeName, std::locale::category a_localeCategory = std::locale::all) noexcept -> std::expected<CppLocale, std::runtime_error>;
+	[[nodiscard]] auto CreateCLocale(std::string_view a_localeName, std::int32_t a_localeCategory = LC_ALL) noexcept
+		-> std::optional<CLocale>;
+	[[nodiscard]] auto CreateCppLocale(std::string_view a_localeName, std::locale::category a_localeCategory = std::locale::all) noexcept
+		-> std::optional<CppLocale>;
 
 	[[nodiscard]] const CLocale& GetDefaultCLocale() noexcept;
 	[[nodiscard]] const CppLocale& GetDefaultCppLocale() noexcept;
@@ -259,7 +261,7 @@ namespace REX
 		auto result = std::string();
 		result.resize(a_value.size());
 
-		std::ranges::transform(a_value, result.begin(), [](char a_char) {
+		std::ranges::transform(a_value, result.begin(), [](char a_char) -> char {
 			return ToLower(a_char);
 		});
 
@@ -271,7 +273,7 @@ namespace REX
 		auto result = std::wstring();
 		result.resize(a_value.size());
 
-		std::ranges::transform(a_value, result.begin(), [](wchar_t a_char) {
+		std::ranges::transform(a_value, result.begin(), [](wchar_t a_char) -> wchar_t {
 			return ToLower(a_char);
 		});
 
@@ -283,7 +285,7 @@ namespace REX
 		auto result = std::string();
 		result.resize(a_value.size());
 
-		std::ranges::transform(a_value, result.begin(), [](char a_char) {
+		std::ranges::transform(a_value, result.begin(), [](char a_char) -> char {
 			return ToUpper(a_char);
 		});
 
@@ -295,7 +297,7 @@ namespace REX
 		auto result = std::wstring();
 		result.resize(a_value.size());
 
-		std::ranges::transform(a_value, result.begin(), [](wchar_t a_char) {
+		std::ranges::transform(a_value, result.begin(), [](wchar_t a_char) -> wchar_t {
 			return ToUpper(a_char);
 		});
 

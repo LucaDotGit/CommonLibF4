@@ -26,7 +26,7 @@ namespace RE
 		};
 		static_assert(sizeof(kbInfo) == 0x30);
 
-		// override(BSKeyboardDevice)
+		// override (BSKeyboardDevice)
 		~BSVirtualKeyboardDevice() override; // 04
 
 		// add

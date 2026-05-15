@@ -35,12 +35,11 @@ namespace REX
 
 		constexpr StaticOrderedMap(const_iterator a_first, const_iterator a_last) //
 			noexcept(std::is_nothrow_copy_constructible_v<value_type>)
-			: _data{ a_first, a_last }
 		{
-			REX::Assert(std::distance(a_first, a_last) == size());
+			std::copy_n(a_first, std::min(static_cast<size_type>(std::distance(a_first, a_last)), MAX_SIZE), _data.data());
 
-			REX::Assert(std::for_each(begin(), end(), [this](const value_type& a_entry) {
-				return std::find_if(begin(), end(), [&a_entry, this](const value_type& a_otherEntry) {
+			REX::Assert(std::for_each(begin(), end(), [this](const value_type& a_entry) -> auto {
+				return std::find_if(begin(), end(), [&a_entry, this](const value_type& a_otherEntry) -> auto {
 					return _keyEqual(a_entry.first, a_otherEntry.first);
 				}) == end();
 			}) == end());
@@ -50,8 +49,8 @@ namespace REX
 			noexcept(std::is_nothrow_copy_constructible_v<value_type>)
 			: _data{ a_value.begin(), a_value.end() }
 		{
-			REX::Assert(std::for_each(begin(), end(), [this](const value_type& a_entry) {
-				return std::find_if(begin(), end(), [&a_entry, this](const value_type& a_otherEntry) {
+			REX::Assert(std::for_each(begin(), end(), [this](const value_type& a_entry) -> auto {
+				return std::find_if(begin(), end(), [&a_entry, this](const value_type& a_otherEntry) -> auto {
 					return _keyEqual(a_entry.first, a_otherEntry.first);
 				}) == end();
 			}) == end());
@@ -61,8 +60,8 @@ namespace REX
 			noexcept(std::is_nothrow_copy_constructible_v<value_type>)
 			: _data(std::move(a_value))
 		{
-			REX::Assert(std::for_each(begin(), end(), [this](const value_type& a_entry) {
-				return std::find_if(begin(), end(), [&a_entry, this](const value_type& a_otherEntry) {
+			REX::Assert(std::for_each(begin(), end(), [this](const value_type& a_entry) -> auto {
+				return std::find_if(begin(), end(), [&a_entry, this](const value_type& a_otherEntry) -> auto {
 					return _keyEqual(a_entry.first, a_otherEntry.first);
 				}) == end();
 			}) == end());
@@ -72,12 +71,10 @@ namespace REX
 			noexcept(std::is_default_constructible_v<value_type> &&
 					 std::is_nothrow_copy_constructible_v<value_type>)
 		{
-			REX::Assert(a_value.size() == size());
+			std::copy_n(a_value.begin(), std::min(static_cast<size_type>(a_value.size()), MAX_SIZE), _data.data());
 
-			std::copy_n(a_value.begin(), size(), _data.data());
-
-			REX::Assert(std::for_each(begin(), end(), [this](const value_type& a_entry) {
-				return std::find_if(begin(), end(), [&a_entry, this](const value_type& a_otherEntry) {
+			REX::Assert(std::for_each(begin(), end(), [this](const value_type& a_entry) -> auto {
+				return std::find_if(begin(), end(), [&a_entry, this](const value_type& a_otherEntry) -> auto {
 					return _keyEqual(a_entry.first, a_otherEntry.first);
 				}) == end();
 			}) == end());
@@ -96,8 +93,8 @@ namespace REX
 		{
 			std::copy_n(a_value.begin(), size(), _data.data());
 
-			REX::Assert(std::for_each(begin(), end(), [this](const value_type& a_entry) {
-				return std::find_if(begin(), end(), [&a_entry, this](const value_type& a_otherEntry) {
+			REX::Assert(std::for_each(begin(), end(), [this](const value_type& a_entry) -> auto {
+				return std::find_if(begin(), end(), [&a_entry, this](const value_type& a_otherEntry) -> auto {
 					return _keyEqual(a_entry.first, a_otherEntry.first);
 				}) == end();
 			}) == end());
@@ -110,8 +107,8 @@ namespace REX
 		{
 			_data = std::move(a_value);
 
-			REX::Assert(std::for_each(begin(), end(), [this](const value_type& a_entry) {
-				return std::find_if(begin(), end(), [&a_entry, this](const value_type& a_otherEntry) {
+			REX::Assert(std::for_each(begin(), end(), [this](const value_type& a_entry) -> auto {
+				return std::find_if(begin(), end(), [&a_entry, this](const value_type& a_otherEntry) -> auto {
 					return _keyEqual(a_entry.first, a_otherEntry.first);
 				}) == end();
 			}) == end());
@@ -123,12 +120,10 @@ namespace REX
 			noexcept(std::is_default_constructible_v<value_type> &&
 					 std::is_nothrow_copy_assignable_v<value_type>)
 		{
-			REX::Assert(a_value.size() == size());
+			std::copy_n(a_value.begin(), std::min(static_cast<size_type>(a_value.size()), MAX_SIZE), _data.data());
 
-			std::copy_n(a_value.begin(), size(), _data.data());
-
-			REX::Assert(std::for_each(begin(), end(), [this](const value_type& a_entry) {
-				return std::find_if(begin(), end(), [&a_entry, this](const value_type& a_otherEntry) {
+			REX::Assert(std::for_each(begin(), end(), [this](const value_type& a_entry) -> auto {
+				return std::find_if(begin(), end(), [&a_entry, this](const value_type& a_otherEntry) -> auto {
 					return _keyEqual(a_entry.first, a_otherEntry.first);
 				}) == end();
 			}) == end());
@@ -198,14 +193,14 @@ namespace REX
 
 		[[nodiscard]] constexpr iterator find(const key_type& a_key)
 		{
-			return std::find_if(begin(), end(), [this, &a_key](const value_type& a_entry) {
+			return std::find_if(begin(), end(), [this, &a_key](const value_type& a_entry) -> auto {
 				return _keyEqual(a_entry.first, a_key);
 			});
 		}
 
 		[[nodiscard]] constexpr const_iterator find(const key_type& a_key) const
 		{
-			return std::find_if(begin(), end(), [this, &a_key](const value_type& a_entry) {
+			return std::find_if(begin(), end(), [this, &a_key](const value_type& a_entry) -> auto {
 				return _keyEqual(a_entry.first, a_key);
 			});
 		}
@@ -260,7 +255,7 @@ namespace REX
 				return;
 			}
 
-			std::swap_ranges(begin(), end(), a_other.begin());
+			std::swap(_data, a_other._data);
 			std::swap(_keyEqual, a_other._keyEqual);
 		}
 
@@ -278,6 +273,24 @@ namespace REX
 
 	template <class Key, class T, std::size_t N, class KeyEqual = std::equal_to<Key>>
 	StaticOrderedMap(std::array<std::pair<Key, T>, N>, KeyEqual = KeyEqual()) -> StaticOrderedMap<Key, T, N, KeyEqual>;
+
+	template <class... Args>
+	[[nodiscard]] constexpr auto make_static_ordered_map(Args&&... a_args) //
+		noexcept((std::is_nothrow_convertible_v<std::common_type_t<Args...>, Args> && ...))
+			-> StaticOrderedMap<typename std::common_type_t<Args...>::first_type, typename std::common_type_t<Args...>::second_type, sizeof...(Args)>
+		requires(sizeof...(Args) > 0 && (std::is_convertible_v<Args, std::common_type_t<Args...>> && ...))
+	{
+		return { static_cast<std::common_type_t<Args...>>(std::forward<Args>(a_args))... };
+	}
+
+	template <template <class> class KeyEqual, class... Args>
+	[[nodiscard]] constexpr auto make_static_ordered_map(Args&&... a_args) //
+		noexcept((std::is_nothrow_convertible_v<std::common_type_t<Args...>, Args> && ...))
+			-> StaticOrderedMap<typename std::common_type_t<Args...>::first_type, typename std::common_type_t<Args...>::second_type, sizeof...(Args), KeyEqual<typename std::common_type_t<Args...>::first_type>>
+		requires(sizeof...(Args) > 0 && (std::is_convertible_v<Args, std::common_type_t<Args...>> && ...))
+	{
+		return { static_cast<std::common_type_t<Args...>>(std::forward<Args>(a_args))... };
+	}
 
 	template <class Key, class T, std::size_t N, class KeyEqual = std::equal_to<Key>>
 	constexpr void swap(StaticOrderedMap<Key, T, N, KeyEqual>& a_lhs, StaticOrderedMap<Key, T, N, KeyEqual>& a_rhs) //

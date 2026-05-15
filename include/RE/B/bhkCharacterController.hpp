@@ -6,7 +6,7 @@
 #include "RE/B/bhkNPCollisionObjectUnlinked.hpp"
 #include "RE/H/hkRefPtr.hpp"
 #include "RE/H/hkStepInfo.hpp"
-#include "RE/H/hkVector4f.hpp"
+#include "RE/H/hkVector4.hpp"
 #include "RE/H/hknpCharacterContext.hpp"
 #include "RE/H/hknpCharacterState.hpp"
 #include "RE/H/hknpCharacterSurfaceInfo.hpp"
@@ -59,14 +59,14 @@ namespace RE
 		// add
 		virtual REX::Float32 GetKeepDistanceImpl() const = 0;																	  // 31
 		virtual void InitPhysicsSystemImpl(const bhkCharacterControllerCinfo& a_info) = 0;										  // 32
-		virtual void GetPositionImpl(hkVector4f& a_position, bool a_applyCenterOffset) const = 0;								  // 33
-		virtual void SetPositionImpl(const hkVector4f& a_position, bool a_applyCenterOffset, bool a_forceWarp) = 0;				  // 34
-		virtual void GetPredictedPositionImpl(hkVector4f& a_position, bool a_applyCenterOffset) const = 0;						  // 35
+		virtual void GetPositionImpl(hkVector4& a_position, bool a_applyCenterOffset) const = 0;								  // 33
+		virtual void SetPositionImpl(const hkVector4& a_position, bool a_applyCenterOffset, bool a_forceWarp) = 0;				  // 34
+		virtual void GetPredictedPositionImpl(hkVector4& a_position, bool a_applyCenterOffset) const = 0;						  // 35
 		virtual void ClearPreviousStepCachedDataImpl() = 0;																		  // 36
-		virtual void GetTransformImpl(hkTransformf& a_transform) const = 0;														  // 37
-		virtual void SetTransformImpl(const hkTransformf& a_transform) = 0;														  // 38
-		virtual void GetLinearVelocityImpl(hkVector4f& a_linVel) const = 0;														  // 39
-		virtual void SetLinearVelocityImpl(const hkVector4f& a_linVel) = 0;														  // 3A
+		virtual void GetTransformImpl(hkTransform& a_transform) const = 0;														  // 37
+		virtual void SetTransformImpl(const hkTransform& a_transform) = 0;														  // 38
+		virtual void GetLinearVelocityImpl(hkVector4& a_linVel) const = 0;														  // 39
+		virtual void SetLinearVelocityImpl(const hkVector4& a_linVel) = 0;														  // 3A
 		virtual bool CheckPenetrationImpl() = 0;																				  // 3B
 		virtual bool IntegrateStepImpl(BSTArray<NiPointer<bhkNPCollisionObject>>* a_deferredReleaseColObjs) = 0;				  // 3C
 		virtual void FinishMoveImpl(const MoveData& a_moveData) = 0;															  // 3D
@@ -75,13 +75,13 @@ namespace RE
 		virtual bhkWorld* GetWorldImpl() const = 0;																				  // 40
 		virtual hknpBodyId GetBodyIdImpl() const = 0;																			  // 41
 		virtual const hknpBody* GetBodyImpl() const = 0;																		  // 42
-		virtual bool SetShapeImpl(hknpShape* a_shape, const hkVector4f&) = 0;													  // 43
+		virtual bool SetShapeImpl(hknpShape* a_shape, const hkVector4&) = 0;													  // 43
 		virtual REX::Float32 GetVDBAlpha() const = 0;																			  // 44
 		virtual bool GetCurrentCollisionsImpl(BSScrapArray<const hknpBody*>& a_cols) = 0;										  // 45
 		virtual bool HasPhysicsStepSubscriptionsImpl() const = 0;																  // 46
 		virtual bool AddPhysicsStepSubscriptionsImpl() = 0;																		  // 47
 		virtual bool RemovePhysicsStepSubscriptionsImpl() = 0;																	  // 48
-		virtual void RotateImpl(const hkTransformf& a_transf, bool a_forceWarp) = 0;											  // 49
+		virtual void RotateImpl(const hkTransform& a_transf, bool a_forceWarp) = 0;												  // 49
 		virtual void SendEventOnNonSupportContactsImpl(BSTEventSink<bhkNonSupportContactEvent>& a_sink, bool a_receiveEvent) = 0; // 4A
 		virtual void ApplyMoveImmediately() = 0;																				  // 4B
 		virtual void ClearCollectorDataImpl() = 0;																				  // 4C
@@ -90,21 +90,21 @@ namespace RE
 		{
 			using FuncType = decltype(&bhkCharacterController::Jump);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::bhkCharacterController::Jump };
-			FUNC(this, a_height);
+			std::invoke(FUNC, this, a_height);
 		}
 
 		// members
-		hkVector4f forwardVec;														   // 140
+		hkVector4 forwardVec;														   // 140
 		hkStepInfo stepInfo;														   // 150
-		hkVector4f outVelocity;														   // 160
-		hkVector4f initialVelocity;													   // 170
-		hkVector4f velocityMod;														   // 180
-		hkVector4f direction;														   // 190
-		hkVector4f rotCenter;														   // 1A0
-		hkVector4f pushDelta;														   // 1B0
-		hkVector4f fakeSupportStart;												   // 1C0
-		hkVector4f up;																   // 1D0
-		hkVector4f supportNorm;														   // 1E0
+		hkVector4 outVelocity;														   // 160
+		hkVector4 initialVelocity;													   // 170
+		hkVector4 velocityMod;														   // 180
+		hkVector4 direction;														   // 190
+		hkVector4 rotCenter;														   // 1A0
+		hkVector4 pushDelta;														   // 1B0
+		hkVector4 fakeSupportStart;													   // 1C0
+		hkVector4 up;																   // 1D0
+		hkVector4 supportNorm;														   // 1E0
 		BSBound collisionBound;														   // 1F0
 		BSBound bumperCollisionBound;												   // 220
 		NiPoint3 cachedLinearVelocity;												   // 250

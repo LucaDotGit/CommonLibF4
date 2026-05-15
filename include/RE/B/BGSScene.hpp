@@ -95,14 +95,14 @@ namespace RE
 		{
 			using FuncType = decltype(&BGSScene::ResetAllSceneActions);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSScene::ResetAllSceneActions };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void SetSceneActive(bool a_set)
 		{
 			using FuncType = decltype(&BGSScene::SetSceneActive);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSScene::SetSceneActive };
-			FUNC(this, a_set);
+			std::invoke(FUNC, this, a_set);
 		}
 
 		// members

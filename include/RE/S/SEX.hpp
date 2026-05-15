@@ -21,28 +21,28 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::SEX& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::SEX& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
 			switch (a_value) {
 				case RE::SEX::kNone: {
-					return format_to(a_ctx.out(), "{}"sv, "None"sv);
+					return format_to(a_context.out(), "{}"sv, "None"sv);
 				}
 				case RE::SEX::kMale: {
-					return format_to(a_ctx.out(), "{}"sv, "Male"sv);
+					return format_to(a_context.out(), "{}"sv, "Male"sv);
 				}
 				case RE::SEX::kFemale: {
-					return format_to(a_ctx.out(), "{}"sv, "Female"sv);
+					return format_to(a_context.out(), "{}"sv, "Female"sv);
 				}
 				[[unlikely]] default: {
-					return format_to(a_ctx.out(), "{}"sv, "Unknown"sv);
+					return format_to(a_context.out(), "{}"sv, "Unknown"sv);
 				}
 			}
 		}
@@ -59,28 +59,28 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::SEX& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::SEX& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
 			switch (a_value) {
 				case RE::SEX::kNone: {
-					return format_to(a_ctx.out(), "{}"sv, "None"sv);
+					return format_to(a_context.out(), "{}"sv, "None"sv);
 				}
 				case RE::SEX::kMale: {
-					return format_to(a_ctx.out(), "{}"sv, "Male"sv);
+					return format_to(a_context.out(), "{}"sv, "Male"sv);
 				}
 				case RE::SEX::kFemale: {
-					return format_to(a_ctx.out(), "{}"sv, "Female"sv);
+					return format_to(a_context.out(), "{}"sv, "Female"sv);
 				}
 				[[unlikely]] default: {
-					return format_to(a_ctx.out(), "{}"sv, "Unknown"sv);
+					return format_to(a_context.out(), "{}"sv, "Unknown"sv);
 				}
 			}
 		}

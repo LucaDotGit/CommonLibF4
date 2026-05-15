@@ -2,13 +2,15 @@
 
 namespace RE
 {
-	auto BGSKeyword::GetTypedKeywords() -> std::span<BSTArray<BGSKeyword*>, std::to_underlying(KeywordType::kTotal)>
+	auto BGSKeyword::GetTypedKeywords()
+		-> std::span<BSTArray<BGSKeyword*>, std::to_underlying(KeywordType::kTotal)>
 	{
 		static const auto TYPED_KEYWORDS = REL::Relocation<std::array<BSTArray<BGSKeyword*>, std::to_underlying(KeywordType::kTotal)>*>{ ID::BGSKeyword::TypedKeywords };
 		return { *TYPED_KEYWORDS };
 	}
 
-	auto BGSKeyword::GetIndexForTypedKeyword(const BGSKeyword* a_keyword, KeywordType a_type) -> std::optional<std::uint16_t>
+	auto BGSKeyword::GetIndexForTypedKeyword(const BGSKeyword* a_keyword, KeywordType a_type)
+		-> std::optional<std::uint16_t>
 	{
 		REX::Assert(a_type >= KeywordType::kNone && a_type < KeywordType::kTotal);
 

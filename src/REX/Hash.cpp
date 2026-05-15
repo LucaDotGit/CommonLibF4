@@ -27,6 +27,6 @@ namespace REX
 	template std::size_t Hash(void* const&) noexcept;
 	template std::size_t Hash(const void* const&) noexcept;
 
-	template std::size_t HashIgnoreCase(std::string_view a_value) noexcept;
-	template std::size_t HashIgnoreCase(std::wstring_view a_value) noexcept;
+	template std::size_t HashIgnoreCase(std::string_view) noexcept;
+	template std::size_t HashIgnoreCase(std::wstring_view) noexcept;
 }

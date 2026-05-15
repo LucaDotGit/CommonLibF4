@@ -221,7 +221,7 @@ namespace RE::BSScript::Internal
 		BSTHashMap<BSFixedString, FormType> objectTypeToTypeID;						   // 01F8
 		BSTArray<BSTSmartPointer<ObjectTypeInfo>> typesToUnload;					   // 0228
 		mutable BSSpinLock funcQueueLock;											   // 0240
-		BSTStaticFreeList<FunctionMessage, 1024> funcMsgPool;						   // 0248
+		BSTStaticFreeList<FunctionMessage, 0x400> funcMsgPool;						   // 0248
 		BSTCommonLLMessageQueue<FunctionMessage> funcMsgQueue;						   // 8260
 		BSTArray<FunctionMessage> overflowFuncMsgs;									   // 8288
 		BSTArray<CodeTasklet*> vmTasks;												   // 82A0

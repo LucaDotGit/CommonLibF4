@@ -222,17 +222,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const Scaleform::Render::Matrix2x4<T>& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const Scaleform::Render::Matrix2x4<T>& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "[{}, {}, {}, {}]"sv, a_value[0], a_value[1], a_value[2], a_value[3]);
+			return format_to(a_context.out(), "[{}, {}, {}, {}]"sv, a_value[0], a_value[1], a_value[2], a_value[3]);
 		}
 	};
 
@@ -242,17 +242,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const Scaleform::Render::Matrix3x4<T>& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const Scaleform::Render::Matrix3x4<T>& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "[{}, {}, {}, {}]"sv, a_value[0], a_value[1], a_value[2], a_value[3]);
+			return format_to(a_context.out(), "[{}, {}, {}, {}]"sv, a_value[0], a_value[1], a_value[2], a_value[3]);
 		}
 	};
 
@@ -262,17 +262,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const Scaleform::Render::Matrix4x4<T>& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const Scaleform::Render::Matrix4x4<T>& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "[{}, {}, {}, {}]"sv, a_value[0], a_value[1], a_value[2], a_value[3]);
+			return format_to(a_context.out(), "[{}, {}, {}, {}]"sv, a_value[0], a_value[1], a_value[2], a_value[3]);
 		}
 	};
 
@@ -291,17 +291,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const Scaleform::Render::Matrix2x4<T>& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const Scaleform::Render::Matrix2x4<T>& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "[{}, {}, {}, {}]"sv, a_value[0], a_value[1], a_value[2], a_value[3]);
+			return format_to(a_context.out(), "[{}, {}, {}, {}]"sv, a_value[0], a_value[1], a_value[2], a_value[3]);
 		}
 	};
 
@@ -311,17 +311,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const Scaleform::Render::Matrix3x4<T>& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const Scaleform::Render::Matrix3x4<T>& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "[{}, {}, {}, {}]"sv, a_value[0], a_value[1], a_value[2], a_value[3]);
+			return format_to(a_context.out(), "[{}, {}, {}, {}]"sv, a_value[0], a_value[1], a_value[2], a_value[3]);
 		}
 	};
 
@@ -331,17 +331,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const Scaleform::Render::Matrix4x4<T>& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const Scaleform::Render::Matrix4x4<T>& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "[{}, {}, {}, {}]"sv, a_value[0], a_value[1], a_value[2], a_value[3]);
+			return format_to(a_context.out(), "[{}, {}, {}, {}]"sv, a_value[0], a_value[1], a_value[2], a_value[3]);
 		}
 	};
 

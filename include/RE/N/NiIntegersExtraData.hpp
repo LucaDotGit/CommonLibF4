@@ -17,6 +17,14 @@ namespace RE
 			REL::EmplaceVtable(this);
 		}
 
+		NiIntegersExtraData(BSFixedString a_name, std::uint32_t a_size, std::int32_t* a_data)
+			: NiExtraData(std::move(a_name)),
+			  size(a_size),
+			  data(a_data)
+		{
+			REL::EmplaceVtable(this);
+		}
+
 		~NiIntegersExtraData() override; // 00
 
 		// members

@@ -232,17 +232,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto assign_impl(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto assign_impl(ParseContext& a_context) const
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::BGSLocalizedString& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::BGSLocalizedString& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, static_cast<std::basic_string_view<RE::BGSLocalizedString::value_type>>(a_value));
+			return format_to(a_context.out(), "{}"sv, static_cast<std::basic_string_view<RE::BGSLocalizedString::value_type>>(a_value));
 		}
 	};
 }
@@ -257,17 +257,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto assign_impl(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto assign_impl(ParseContext& a_context) const
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::BGSLocalizedString& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::BGSLocalizedString& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, static_cast<std::basic_string_view<RE::BGSLocalizedString::value_type>>(a_value));
+			return format_to(a_context.out(), "{}"sv, static_cast<std::basic_string_view<RE::BGSLocalizedString::value_type>>(a_value));
 		}
 	};
 }

@@ -74,11 +74,11 @@ namespace RE
 		virtual bool Open();																		// 09
 		virtual bool OpenByFilePointer(BSSystemFile* a_file);										// 0A
 		virtual std::size_t GetSize() const;														// 0B
-		virtual std::size_t ReadString(BSString& a_out, std::size_t a_maxSize);						// 0C
-		virtual std::size_t ReadString(BSStringW& a_out, std::size_t a_maxSize);					// 0D
+		virtual std::size_t ReadString(BSString& a_outValue, std::size_t a_maxSize);				// 0C
+		virtual std::size_t ReadString(BSStringW& a_outValue, std::size_t a_maxSize);				// 0D
 		virtual std::size_t GetLine(char* a_buffer, std::size_t a_bufferSize, wchar_t a_separator); // 0E
-		virtual std::size_t WriteString(const BSString& a_str, bool a_binary);						// 0F
-		virtual std::size_t WriteString(const BSStringW& a_str, bool a_binary);						// 10
+		virtual std::size_t WriteString(const BSString& a_value, bool a_binary);					// 0F
+		virtual std::size_t WriteString(const BSStringW& a_value, bool a_binary);					// 10
 		virtual bool Exist() const;																	// 11
 
 		// members

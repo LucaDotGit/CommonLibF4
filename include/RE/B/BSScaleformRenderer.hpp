@@ -23,7 +23,7 @@ namespace RE
 		{
 			using FuncType = decltype(&BSScaleformRenderer::Initialize);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSScaleformRenderer::Initialize };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

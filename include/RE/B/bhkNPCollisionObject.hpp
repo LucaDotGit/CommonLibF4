@@ -12,7 +12,7 @@ namespace RE
 	class hknpBody;
 	class hknpBodyId;
 	class hknpShape;
-	class hkTransformf;
+	class hkTransform;
 
 	class __declspec(novtable) bhkNPCollisionObject
 		: public bhkNPCollisionObjectBase // 00
@@ -28,14 +28,21 @@ namespace RE
 		virtual void RemoveFromWorld();							   // 2F
 		virtual bool SetCollisionFilterInfo(CFilter a_filterInfo); // 30
 
+		[[nodiscard]] static bhkNPCollisionObject* CreateObject()
+		{
+			using FuncType = decltype(&bhkNPCollisionObject::CreateObject);
+			static const auto FUNC = REL::Relocation<FuncType>{ ID::bhkNPCollisionObject::CreateObject };
+			return std::invoke(FUNC);
+		}
+
 		void CopyMembers(bhkNPCollisionObject* a_dest, NiCloningProcess& a_cloningProcess)
 		{
 			using FuncType = decltype(&bhkNPCollisionObject::CopyMembers);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::bhkNPCollisionObject::CopyMembers };
-			FUNC(this, a_dest, a_cloningProcess);
+			std::invoke(FUNC, this, a_dest, a_cloningProcess);
 		}
 
-		[[nodiscard]] static bhkNPCollisionObject* Getbhk(bhkWorld* a_world, hknpBodyId& a_bodyId)
+		[[nodiscard]] static bhkNPCollisionObject* Getbhk(bhkWorld* a_world, const hknpBodyId& a_bodyId)
 		{
 			using FuncType = decltype(&bhkNPCollisionObject::Getbhk);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::bhkNPCollisionObject::Getbhk };
@@ -49,11 +56,11 @@ namespace RE
 			return std::invoke(FUNC, this);
 		}
 
-		[[nodiscard]] hknpBodyId& GetBodyId(hknpBodyId& a_id) const
+		[[nodiscard]] hknpBodyId& GetBodyId(const hknpBodyId& a_bodyId) const
 		{
 			using FuncType = decltype(&bhkNPCollisionObject::GetBodyId);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::bhkNPCollisionObject::GetBodyId };
-			return std::invoke(FUNC, this, a_id);
+			return std::invoke(FUNC, this, a_bodyId);
 		}
 
 		[[nodiscard]] hknpShape* GetShape() const
@@ -63,21 +70,21 @@ namespace RE
 			return std::invoke(FUNC, this);
 		}
 
-		bool GetTransform(hkTransformf& a_transform)
+		bool GetTransform(hkTransform& a_outTransform)
 		{
 			using FuncType = decltype(&bhkNPCollisionObject::GetTransform);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::bhkNPCollisionObject::GetTransform };
-			return std::invoke(FUNC, this, a_transform);
+			return std::invoke(FUNC, this, a_outTransform);
 		}
 
 		void SetMotionType(hknpMotionPropertiesId::Preset a_type)
 		{
 			using FuncType = decltype(&bhkNPCollisionObject::SetMotionType);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::bhkNPCollisionObject::SetMotionType };
-			FUNC(this, a_type);
+			std::invoke(FUNC, this, a_type);
 		}
 
-		bool SetTransform(hkTransformf& a_transform)
+		bool SetTransform(const hkTransform& a_transform)
 		{
 			using FuncType = decltype(&bhkNPCollisionObject::SetTransform);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::bhkNPCollisionObject::SetTransform };

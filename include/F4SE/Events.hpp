@@ -53,7 +53,8 @@ namespace F4SE::Events
 	};
 
 	[[nodiscard]] bool IsRegisteredForExternalEvent(const RE::BSFixedString& a_eventName, const ExternalEventInfo& a_eventInfo);
-	[[nodiscard]] auto GetExternalEventRegistrations(const RE::BSFixedString& a_eventName) -> std::vector<ExternalEventInfo>;
+	[[nodiscard]] auto GetExternalEventRegistrations(const RE::BSFixedString& a_eventName)
+		-> std::vector<ExternalEventInfo>;
 
 	std::uint32_t SendAppliedExternalEvent(
 		const RE::BSFixedString& a_eventName,

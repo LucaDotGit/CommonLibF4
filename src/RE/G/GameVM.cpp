@@ -69,7 +69,7 @@ namespace RE
 	{
 		using FuncType = decltype(&GameVM::RegisterForAllGameEvents);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::GameVM::RegisterForAllGameEvents };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void GameVM::SendEventToObjectAndRelated(
@@ -81,6 +81,6 @@ namespace RE
 	{
 		using FuncType = decltype(&GameVM::SendEventToObjectAndRelated);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::GameVM::SendEventToObjectAndRelated };
-		FUNC(this, a_object, a_eventName, a_args, a_filter, a_callbackFunctor);
+		std::invoke(FUNC, this, a_object, a_eventName, a_args, a_filter, a_callbackFunctor);
 	}
 }

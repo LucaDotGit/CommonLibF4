@@ -3,6 +3,7 @@
 #include "RE/B/BSTHashMap.hpp"
 #include "RE/B/BarterMenuTentativeInventoryUIInterface.hpp"
 #include "RE/C/ContainerMenuBase.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 #include "msvc/memory.hpp"
 
@@ -43,14 +44,14 @@ namespace RE
 		{
 			using FuncType = decltype(&BarterMenu::ClearTradingData);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BarterMenu::ClearTradingData };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void CompleteTrade()
 		{
 			using FuncType = decltype(&BarterMenu::CompleteTrade);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BarterMenu::CompleteTrade };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		[[nodiscard]] std::int64_t GetCapsOwedByPlayer()

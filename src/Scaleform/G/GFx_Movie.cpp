@@ -181,6 +181,6 @@ namespace Scaleform::GFx
 	{
 		using FuncType = decltype(&Movie::Release);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Movie::Release };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 }

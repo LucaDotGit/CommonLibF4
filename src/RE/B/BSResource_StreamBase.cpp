@@ -8,14 +8,12 @@ namespace RE::BSResource
 		: totalSize(a_totalSize),
 		  flags(writable ? StreamFlags::kWritable : StreamFlags::kNone)
 	{
-		REL::EmplaceVtable(this);
 	}
 
 	StreamBase::StreamBase(StreamBase&& a_rhs) noexcept
 		: totalSize(a_rhs.totalSize),
 		  flags(a_rhs.flags.underlying() & ~std::to_underlying(StreamFlags::kRefCountMask))
 	{
-		REL::EmplaceVtable(this);
 	}
 
 	StreamBase& StreamBase::operator=(StreamBase&& a_rhs) noexcept
@@ -34,7 +32,7 @@ namespace RE::BSResource
 		return 0;
 	}
 
-	ErrorCode StreamBase::DoGetInfo(Info&)
+	ErrorCode StreamBase::DoGetInfo([[maybe_unused]] Info& a_info)
 	{
 		return ErrorCode::kUnsupported;
 	}

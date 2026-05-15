@@ -27,8 +27,8 @@ namespace RE
 		~hkReferencedObject() override = default; // 00
 
 		// add
-		virtual const hkClass* GetClassType() const;														  // 01 - { return 0; }
-		virtual void CalcContentStatistics(hkStatisticsCollector* a_collector, const hkClass* a_class) const; // 02
+		virtual const hkClass* GetClassType() const;	 // 01
+		virtual void DeleteThisReferencedObject() const; // 02
 
 		HK_HEAP_REDEFINE_NEW(hkReferencedObject);
 
@@ -39,8 +39,8 @@ namespace RE
 		void RemoveReference();
 
 		// members
-		std::uint16_t memSize{ 0 };			  // 08
-		volatile std::uint16_t refCount{ 0 }; // 0A
+		std::uint16_t memSize{ std::numeric_limits<std::uint16_t>::max() }; // 08
+		volatile std::uint16_t refCount{ 0 };								// 0A
 	};
 	static_assert(sizeof(hkReferencedObject) == 0x10);
 }

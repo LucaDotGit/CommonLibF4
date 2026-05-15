@@ -35,15 +35,13 @@ namespace REX
 
 		constexpr StaticSortedMap(const_iterator a_first, const_iterator a_last) //
 			noexcept(std::is_nothrow_copy_constructible_v<value_type>)
-			: _data{ a_first, a_last }
 		{
-			REX::Assert(std::distance(a_first, a_last) == size());
-
-			std::sort(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) {
+			std::copy_n(a_first, std::min(static_cast<size_type>(std::distance(a_first, a_last)), MAX_SIZE), _data.data());
+			std::sort(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) -> auto {
 				return _keyCompare(a_lhs.first, a_rhs.first);
 			});
 
-			REX::Assert(std::adjacent_find(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) {
+			REX::Assert(std::adjacent_find(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) -> auto {
 				return !_keyCompare(a_lhs.first, a_rhs.first) && !_keyCompare(a_rhs.first, a_lhs.first);
 			}) == end());
 		}
@@ -52,11 +50,11 @@ namespace REX
 			noexcept(std::is_nothrow_copy_constructible_v<value_type>)
 			: _data{ a_value.begin(), a_value.end() }
 		{
-			std::sort(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) {
+			std::sort(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) -> auto {
 				return _keyCompare(a_lhs.first, a_rhs.first);
 			});
 
-			REX::Assert(std::adjacent_find(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) {
+			REX::Assert(std::adjacent_find(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) -> auto {
 				return !_keyCompare(a_lhs.first, a_rhs.first) && !_keyCompare(a_rhs.first, a_lhs.first);
 			}) == end());
 		}
@@ -65,11 +63,11 @@ namespace REX
 			noexcept(std::is_nothrow_copy_constructible_v<value_type>)
 			: _data(std::move(a_value))
 		{
-			std::sort(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) {
+			std::sort(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) -> auto {
 				return _keyCompare(a_lhs.first, a_rhs.first);
 			});
 
-			REX::Assert(std::adjacent_find(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) {
+			REX::Assert(std::adjacent_find(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) -> auto {
 				return !_keyCompare(a_lhs.first, a_rhs.first) && !_keyCompare(a_rhs.first, a_lhs.first);
 			}) == end());
 		}
@@ -78,14 +76,12 @@ namespace REX
 			noexcept(std::is_default_constructible_v<value_type> &&
 					 std::is_nothrow_copy_constructible_v<value_type>)
 		{
-			REX::Assert(a_value.size() == size());
-
-			std::copy_n(a_value.begin(), size(), _data.data());
-			std::sort(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) {
+			std::copy_n(a_value.begin(), std::min(static_cast<size_type>(a_value.size()), MAX_SIZE), _data.data());
+			std::sort(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) -> auto {
 				return _keyCompare(a_lhs.first, a_rhs.first);
 			});
 
-			REX::Assert(std::adjacent_find(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) {
+			REX::Assert(std::adjacent_find(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) -> auto {
 				return !_keyCompare(a_lhs.first, a_rhs.first) && !_keyCompare(a_rhs.first, a_lhs.first);
 			}) == end());
 		}
@@ -102,11 +98,11 @@ namespace REX
 			noexcept(std::is_nothrow_copy_assignable_v<value_type>)
 		{
 			std::copy_n(a_value.begin(), size(), _data.data());
-			std::sort(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) {
+			std::sort(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) -> auto {
 				return _keyCompare(a_lhs.first, a_rhs.first);
 			});
 
-			REX::Assert(std::adjacent_find(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) {
+			REX::Assert(std::adjacent_find(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) -> auto {
 				return !_keyCompare(a_lhs.first, a_rhs.first) && !_keyCompare(a_rhs.first, a_lhs.first);
 			}) == end());
 
@@ -118,11 +114,11 @@ namespace REX
 		{
 			_data = std::move(a_value);
 
-			std::sort(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) {
+			std::sort(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) -> auto {
 				return _keyCompare(a_lhs.first, a_rhs.first);
 			});
 
-			REX::Assert(std::adjacent_find(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) {
+			REX::Assert(std::adjacent_find(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) -> auto {
 				return !_keyCompare(a_lhs.first, a_rhs.first) && !_keyCompare(a_rhs.first, a_lhs.first);
 			}) == end());
 
@@ -133,14 +129,12 @@ namespace REX
 			noexcept(std::is_default_constructible_v<value_type> &&
 					 std::is_nothrow_copy_assignable_v<value_type>)
 		{
-			REX::Assert(a_value.size() == size());
-
-			std::copy_n(a_value.begin(), size(), _data.data());
-			std::sort(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) {
+			std::copy_n(a_value.begin(), std::min(static_cast<size_type>(a_value.size()), MAX_SIZE), _data.data());
+			std::sort(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) -> auto {
 				return _keyCompare(a_lhs.first, a_rhs.first);
 			});
 
-			REX::Assert(std::adjacent_find(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) {
+			REX::Assert(std::adjacent_find(begin(), end(), [this](const value_type& a_lhs, const value_type& a_rhs) -> auto {
 				return !_keyCompare(a_lhs.first, a_rhs.first) && !_keyCompare(a_rhs.first, a_lhs.first);
 			}) == end());
 
@@ -209,7 +203,7 @@ namespace REX
 
 		[[nodiscard]] constexpr iterator find(const key_type& a_key)
 		{
-			const auto it = std::lower_bound(begin(), end(), a_key, [this](const value_type& a_entry, const key_type& a_key) {
+			const auto it = std::lower_bound(begin(), end(), a_key, [this](const value_type& a_entry, const key_type& a_key) -> auto {
 				return _keyCompare(a_entry.first, a_key);
 			});
 
@@ -226,7 +220,7 @@ namespace REX
 
 		[[nodiscard]] constexpr const_iterator find(const key_type& a_key) const
 		{
-			const auto it = std::lower_bound(begin(), end(), a_key, [this](const value_type& a_entry, const key_type& a_key) {
+			const auto it = std::lower_bound(begin(), end(), a_key, [this](const value_type& a_entry, const key_type& a_key) -> auto {
 				return _keyCompare(a_entry.first, a_key);
 			});
 
@@ -243,42 +237,42 @@ namespace REX
 
 		[[nodiscard]] constexpr std::pair<iterator, iterator> equal_range(const key_type& a_key)
 		{
-			return std::equal_range(begin(), end(), a_key, [this](const value_type& a_entry, const key_type& a_key) {
+			return std::equal_range(begin(), end(), a_key, [this](const value_type& a_entry, const key_type& a_key) -> auto {
 				return _keyCompare(a_entry.first, a_key);
 			});
 		}
 
 		[[nodiscard]] constexpr std::pair<const_iterator, const_iterator> equal_range(const key_type& a_key) const
 		{
-			return std::equal_range(begin(), end(), a_key, [this](const value_type& a_entry, const key_type& a_key) {
+			return std::equal_range(begin(), end(), a_key, [this](const value_type& a_entry, const key_type& a_key) -> auto {
 				return _keyCompare(a_entry.first, a_key);
 			});
 		}
 
 		[[nodiscard]] constexpr iterator lower_bound(const key_type& a_key)
 		{
-			return std::lower_bound(begin(), end(), a_key, [this](const value_type& a_entry, const key_type& a_key) {
+			return std::lower_bound(begin(), end(), a_key, [this](const value_type& a_entry, const key_type& a_key) -> auto {
 				return _keyCompare(a_entry.first, a_key);
 			});
 		}
 
 		[[nodiscard]] constexpr const_iterator lower_bound(const key_type& a_key) const
 		{
-			return std::lower_bound(begin(), end(), a_key, [this](const value_type& a_entry, const key_type& a_key) {
+			return std::lower_bound(begin(), end(), a_key, [this](const value_type& a_entry, const key_type& a_key) -> auto {
 				return _keyCompare(a_entry.first, a_key);
 			});
 		}
 
 		[[nodiscard]] constexpr iterator upper_bound(const key_type& a_key)
 		{
-			return std::upper_bound(begin(), end(), a_key, [this](const key_type& a_key, const value_type& a_entry) {
+			return std::upper_bound(begin(), end(), a_key, [this](const key_type& a_key, const value_type& a_entry) -> auto {
 				return _keyCompare(a_key, a_entry.first);
 			});
 		}
 
 		[[nodiscard]] constexpr const_iterator upper_bound(const key_type& a_key) const
 		{
-			return std::upper_bound(begin(), end(), a_key, [this](const key_type& a_key, const value_type& a_entry) {
+			return std::upper_bound(begin(), end(), a_key, [this](const key_type& a_key, const value_type& a_entry) -> auto {
 				return _keyCompare(a_key, a_entry.first);
 			});
 		}
@@ -303,7 +297,7 @@ namespace REX
 				return;
 			}
 
-			std::swap_ranges(begin(), end(), a_other.begin());
+			std::swap(_data, a_other._data);
 			std::swap(_keyCompare, a_other._keyCompare);
 		}
 
@@ -321,6 +315,24 @@ namespace REX
 
 	template <class Key, class T, std::size_t N, class KeyCompare = std::equal_to<Key>>
 	StaticSortedMap(std::array<std::pair<Key, T>, N>, KeyCompare = KeyCompare()) -> StaticSortedMap<Key, T, N, KeyCompare>;
+
+	template <class... Args>
+	[[nodiscard]] constexpr auto make_static_sorted_map(Args&&... a_args) //
+		noexcept((std::is_nothrow_convertible_v<std::common_type_t<Args...>, Args> && ...))
+			-> StaticSortedMap<typename std::common_type_t<Args...>::first_type, typename std::common_type_t<Args...>::second_type, sizeof...(Args)>
+		requires(sizeof...(Args) > 0 && (std::is_convertible_v<Args, std::common_type_t<Args...>> && ...))
+	{
+		return { static_cast<std::common_type_t<Args...>>(std::forward<Args>(a_args))... };
+	}
+
+	template <template <class> class KeyCompare, class... Args>
+	[[nodiscard]] constexpr auto make_static_sorted_map(Args&&... a_args) //
+		noexcept((std::is_nothrow_convertible_v<std::common_type_t<Args...>, Args> && ...))
+			-> StaticSortedMap<typename std::common_type_t<Args...>::first_type, typename std::common_type_t<Args...>::second_type, sizeof...(Args), KeyCompare<typename std::common_type_t<Args...>::first_type>>
+		requires(sizeof...(Args) > 0 && (std::is_convertible_v<Args, std::common_type_t<Args...>> && ...))
+	{
+		return { static_cast<std::common_type_t<Args...>>(std::forward<Args>(a_args))... };
+	}
 
 	template <class Key, class T, std::size_t N, class KeyCompare = std::equal_to<Key>>
 	constexpr void swap(StaticSortedMap<Key, T, N, KeyCompare>& a_lhs, StaticSortedMap<Key, T, N, KeyCompare>& a_rhs) //

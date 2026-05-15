@@ -34,7 +34,8 @@ namespace RE::BSScript
 			return Impl::GetObjectTypeID<element_type>();
 		}
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			using element_type = std::add_pointer_t<typename T::element_type>;
 			return Impl::GetTypeInfo<element_type>();
@@ -45,7 +46,8 @@ namespace RE::BSScript
 			Impl::PackVariable(a_var, a_val.get());
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			using element_type = std::add_pointer_t<typename T::element_type>;
 
@@ -74,7 +76,8 @@ namespace RE::BSScript
 			return Impl::GetObjectTypeID<element_type>();
 		}
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			using element_type = std::add_pointer_t<typename T::element_type>;
 			return Impl::GetTypeInfo<element_type>();
@@ -85,7 +88,8 @@ namespace RE::BSScript
 			Impl::PackVariable(a_var, a_val.get());
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			using element_type = std::add_pointer_t<typename T::element_type>;
 
@@ -114,7 +118,8 @@ namespace RE::BSScript
 			return Impl::GetObjectTypeID<element_type>();
 		}
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			using element_type = std::add_pointer_t<typename T::element_type>;
 			return Impl::GetTypeInfo<element_type>();
@@ -125,7 +130,8 @@ namespace RE::BSScript
 			Impl::PackVariable(a_var, a_val.get());
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			using element_type = std::add_pointer_t<typename T::element_type>;
 
@@ -154,7 +160,8 @@ namespace RE::BSScript
 			return value_type::FORM_TYPE;
 		}
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			const auto scriptVM = GameVM::GetVMInterface();
 			if (!scriptVM) [[unlikely]] {
@@ -216,7 +223,8 @@ namespace RE::BSScript
 			a_var.SetComplexType(objectTypeInfo);
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			if (!a_var.IsObject()) [[unlikely]] {
 				REX::Assert(a_var.IsNone());
@@ -256,7 +264,8 @@ namespace RE::BSScript
 			return T::FORM_TYPE;
 		}
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			const auto scriptVM = GameVM::GetVMInterface();
 			if (!scriptVM) [[unlikely]] {
@@ -318,7 +327,8 @@ namespace RE::BSScript
 			a_var.SetComplexType(objectTypeInfo);
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			if (!a_var.IsObject()) [[unlikely]] {
 				REX::Assert(a_var.IsNone());
@@ -362,7 +372,8 @@ namespace RE::BSScript
 			return element_type::FORM_TYPE;
 		}
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			const auto scriptVM = GameVM::GetVMInterface();
 			if (!scriptVM) [[unlikely]] {
@@ -397,7 +408,8 @@ namespace RE::BSScript
 			a_var.SetComplexType(objectTypeInfo);
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			if (!a_var.IsObject()) [[unlikely]] {
 				REX::Assert(a_var.IsNone());
@@ -420,17 +432,19 @@ namespace RE::BSScript
 	public:
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			return TypeInfo::RawType::kString;
 		}
 
 		static void PackVariable(Variable& a_var, T a_val)
 		{
-			a_var.SetString(RE::BSFixedString(std::move(a_val)));
+			a_var.SetString(BSFixedString(std::move(a_val)));
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			if (!a_var.IsString()) [[unlikely]] {
 				REX::Assert(a_var.IsNone());
@@ -448,7 +462,8 @@ namespace RE::BSScript
 	public:
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			return TypeInfo::RawType::kString;
 		}
@@ -464,7 +479,8 @@ namespace RE::BSScript
 			a_var.SetString(BSFixedString(*std::move(u8String)));
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			if (!a_var.IsString()) [[unlikely]] {
 				REX::Assert(a_var.IsNone());
@@ -487,7 +503,8 @@ namespace RE::BSScript
 	public:
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			return TypeInfo::RawType::kString;
 		}
@@ -498,7 +515,8 @@ namespace RE::BSScript
 			a_var.SetString(BSFixedString(std::move(u8String)));
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			if (!a_var.IsString()) [[unlikely]] {
 				REX::Assert(a_var.IsNone());
@@ -511,13 +529,14 @@ namespace RE::BSScript
 	};
 
 	template <class T>
-		requires(Impl::integral<T>)
+		requires(Impl::integer<T>)
 	struct variable_packer<T>
 	{
 	public:
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			return TypeInfo::RawType::kInt;
 		}
@@ -527,7 +546,8 @@ namespace RE::BSScript
 			a_var.SetInt(static_cast<std::int32_t>(a_val));
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			if (!a_var.IsInt()) [[unlikely]] {
 				REX::Assert(a_var.IsNone());
@@ -545,7 +565,8 @@ namespace RE::BSScript
 	public:
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			return TypeInfo::RawType::kFloat;
 		}
@@ -555,7 +576,8 @@ namespace RE::BSScript
 			a_var.SetFloat(static_cast<REX::Float32>(a_val));
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			if (!a_var.IsFloat()) [[unlikely]] {
 				REX::Assert(a_var.IsNone());
@@ -573,7 +595,8 @@ namespace RE::BSScript
 	public:
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			return TypeInfo::RawType::kBool;
 		}
@@ -583,7 +606,8 @@ namespace RE::BSScript
 			a_var.SetBool(static_cast<bool>(a_val));
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			if (!a_var.IsBool()) [[unlikely]] {
 				REX::Assert(a_var.IsNone());
@@ -601,7 +625,8 @@ namespace RE::BSScript
 	public:
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			return TypeInfo::RawType::kVar;
 		}
@@ -611,7 +636,8 @@ namespace RE::BSScript
 			a_var.SetVar(a_val);
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			if (!a_var.IsVar()) [[unlikely]] {
 				REX::Assert(a_var.IsNone());
@@ -629,7 +655,8 @@ namespace RE::BSScript
 	public:
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			return TypeInfo::RawType::kVar;
 		}
@@ -639,7 +666,8 @@ namespace RE::BSScript
 			a_var.SetVar(std::move(a_val));
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			if (!a_var.IsVar()) [[unlikely]] {
 				REX::Assert(a_var.IsNone());
@@ -662,7 +690,8 @@ namespace RE::BSScript
 	public:
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			using value_type = T::value_type;
 
@@ -717,7 +746,8 @@ namespace RE::BSScript
 			a_var.SetArray(std::move(result));
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			using value_type = T::value_type;
 			using size_type = T::size_type;
@@ -757,7 +787,8 @@ namespace RE::BSScript
 	public:
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			const auto scriptVM = GameVM::GetVMInterface();
 			if (!scriptVM) [[unlikely]] {
@@ -779,7 +810,8 @@ namespace RE::BSScript
 			a_var.SetObject(std::move(a_val).get());
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			if (!a_var.IsObject()) [[unlikely]] {
 				REX::Assert(a_var.IsNone());
@@ -802,7 +834,8 @@ namespace RE::BSScript
 	public:
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			const auto scriptVM = GameVM::GetVMInterface();
 			if (!scriptVM) [[unlikely]] {
@@ -824,7 +857,8 @@ namespace RE::BSScript
 			a_var.SetStruct(std::move(a_val).get());
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			if (!a_var.IsStruct()) [[unlikely]] {
 				REX::Assert(a_var.IsNone());
@@ -847,7 +881,8 @@ namespace RE::BSScript
 	public:
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			using element_type = T::element_type;
 
@@ -866,7 +901,8 @@ namespace RE::BSScript
 			a_var.SetArray(std::move(a_val).get());
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			if (!a_var.IsArray()) [[unlikely]] {
 				REX::Assert(a_var.IsNone());
@@ -889,7 +925,8 @@ namespace RE::BSScript
 	public:
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			using value_type = T::value_type;
 			return Impl::GetTypeInfo<value_type>();
@@ -905,7 +942,8 @@ namespace RE::BSScript
 			Impl::PackVariable(a_var, *std::move(a_val));
 		}
 
-		[[nodiscard]] static auto UnpackVariable(const Variable& a_var) -> std::remove_cv_t<T>
+		[[nodiscard]] static auto UnpackVariable(const Variable& a_var)
+			-> std::remove_cv_t<T>
 		{
 			using value_type = T::value_type;
 
@@ -924,7 +962,8 @@ namespace RE::BSScript
 	public:
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo>
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo>
 		{
 			return TypeInfo::RawType::kNone;
 		}
@@ -945,7 +984,8 @@ namespace RE::BSScript
 	}
 
 	template <class T>
-	[[nodiscard]] __forceinline std::optional<TypeInfo> GetTypeInfo()
+	[[nodiscard]] __forceinline auto GetTypeInfo()
+		-> std::optional<TypeInfo>
 		requires(requires { BSScript::variable_packer<T>::GetTypeInfo(); })
 	{
 		return Impl::GetTypeInfo<T>();
@@ -982,27 +1022,30 @@ namespace RE::BSScript
 	}
 
 	template <class... Args>
-	[[nodiscard]] auto CreateThreadScrapFunction(Args&&... a_args) -> BSTThreadScrapFunction<bool(BSScrapArray<Variable>&)>
+	[[nodiscard]] auto CreateThreadScrapFunction(Args&&... a_args)
+		-> BSTThreadScrapFunction<bool(BSScrapArray<Variable>&)>
 		requires((BSScript::ValidateParameter<std::remove_reference_t<Args>>() && ...))
 	{
-		return [... a_args = std::forward<Args>(a_args)](BSScrapArray<Variable>& a_out) mutable {
-			a_out = PackVariables(std::forward<Args>(a_args)...);
+		return [... a_args = std::forward<Args>(a_args)](BSScrapArray<Variable>& a_outArgs) mutable -> bool {
+			a_outArgs = PackVariables(std::forward<Args>(a_args)...);
 			return true;
 		};
 	}
 
-	[[nodiscard]] inline auto CreateAppliedThreadScrapFunction(std::span<const Variable> a_args) -> BSTThreadScrapFunction<bool(BSScrapArray<Variable>&)>
+	[[nodiscard]] inline auto CreateAppliedThreadScrapFunction(std::span<const Variable> a_args)
+		-> BSTThreadScrapFunction<bool(BSScrapArray<Variable>&)>
 	{
-		return [a_args = a_args](BSScrapArray<Variable>& a_out) {
-			a_out = { a_args.begin(), a_args.end() };
+		return [a_args = a_args](BSScrapArray<Variable>& a_outArgs) -> bool {
+			a_outArgs = { a_args.begin(), a_args.end() };
 			return true;
 		};
 	}
 
-	[[nodiscard]] inline auto CreateAppliedThreadScrapFunction(BSScrapArray<Variable>&& a_args) -> BSTThreadScrapFunction<bool(BSScrapArray<Variable>&)>
+	[[nodiscard]] inline auto CreateAppliedThreadScrapFunction(BSScrapArray<Variable>&& a_args)
+		-> BSTThreadScrapFunction<bool(BSScrapArray<Variable>&)>
 	{
-		return [a_args = std::move(a_args)](BSScrapArray<Variable>& a_out) mutable {
-			a_out = std::move(a_args);
+		return [a_args = std::move(a_args)](BSScrapArray<Variable>& a_outArgs) mutable -> bool {
+			a_outArgs = std::move(a_args);
 			return true;
 		};
 	}
@@ -1017,7 +1060,8 @@ namespace RE::BSScript::Impl
 	}
 
 	template <class T>
-	[[nodiscard]] __forceinline std::optional<TypeInfo> GetTypeInfo()
+	[[nodiscard]] __forceinline auto GetTypeInfo()
+		-> std::optional<TypeInfo>
 	{
 		return BSScript::variable_packer<T>::GetTypeInfo();
 	}

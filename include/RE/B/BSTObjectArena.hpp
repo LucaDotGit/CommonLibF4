@@ -162,7 +162,7 @@ namespace RE
 
 		~BSTObjectArena()
 		{
-			const auto doDelete = [this](Page*& a_page) {
+			const auto doDelete = [this](Page*& a_page) -> void {
 				while (a_page != nullptr) {
 					auto* next = a_page->next;
 					allocator_type::deallocate_bytes(a_page);
@@ -182,8 +182,8 @@ namespace RE
 
 		BSTObjectArena(const BSTObjectArena& a_rhs)
 		{
-			for (const auto& elem : a_rhs) {
-				emplace_back(elem);
+			for (const auto& element : a_rhs) {
+				emplace_back(element);
 			}
 		}
 
@@ -200,8 +200,8 @@ namespace RE
 				_size = std::exchange(a_rhs._size, 0);
 			}
 			else {
-				for (auto& elem : a_rhs) {
-					emplace_back(std::move(elem));
+				for (auto& element : a_rhs) {
+					push_back(std::move(element));
 				}
 
 				a_rhs.clear();
@@ -216,8 +216,8 @@ namespace RE
 
 			clear();
 
-			for (const auto& elem : a_rhs) {
-				emplace_back(elem);
+			for (const auto& element : a_rhs) {
+				emplace_back(element);
 			}
 
 			return *this;
@@ -242,8 +242,8 @@ namespace RE
 				_size = std::exchange(a_rhs._size, 0);
 			}
 			else {
-				for (auto& elem : a_rhs) {
-					emplace_back(std::move(elem));
+				for (auto& element : a_rhs) {
+					push_back(std::move(element));
 				}
 
 				a_rhs.clear();
@@ -365,7 +365,7 @@ namespace RE
 		[[nodiscard]] auto allocate_buffer() -> std::span<std::byte>
 		{
 			if (!_tail || _end == _tail->cend()) {
-				const auto page =
+				auto* page =
 					_free ?
 						std::exchange(_free, _free->next) :									   // pull from free list
 						std::construct_at<Page>(allocator_type::allocate_bytes(sizeof(Page))); // go to heap
@@ -424,12 +424,7 @@ namespace RE
 
 		[[nodiscard]] __declspec(allocator) __declspec(restrict) static void* allocate_bytes(size_type a_count) noexcept
 		{
-			auto* mem = calloc<std::byte>(a_count);
-			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
-			}
-
-			return mem;
+			return calloc<std::byte>(a_count);
 		}
 
 		__declspec(noalias) static void deallocate_bytes(void* a_ptr) noexcept
@@ -464,12 +459,7 @@ namespace RE
 
 		[[nodiscard]] __declspec(allocator) __declspec(restrict) static void* allocate_bytes(size_type a_count) noexcept
 		{
-			auto* mem = aligned_alloc<std::byte>(a_count, ALIGNMENT_SIZE);
-			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
-			}
-
-			return mem;
+			return aligned_alloc<std::byte>(a_count, ALIGNMENT_SIZE);
 		}
 
 		__declspec(noalias) static void deallocate_bytes(void* a_ptr) noexcept
@@ -495,7 +485,7 @@ namespace RE
 		BSTObjectArenaScrapAlloc()
 			: _allocator(MemoryManager::GetSingleton().GetThreadScrapHeap())
 		{
-			REX::Ensure(_allocator != nullptr);
+			REX::Assert(_allocator != nullptr);
 		}
 
 		~BSTObjectArenaScrapAlloc() noexcept = default;
@@ -522,14 +512,7 @@ namespace RE
 		[[nodiscard]] __declspec(allocator) __declspec(restrict) void* allocate_bytes(size_type a_count) noexcept
 		{
 			REX::Assert(_allocator != nullptr);
-
-			auto* mem = _allocator->Allocate(a_count, SCRAP_HEAP_ALIGNMENT);
-			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
-			}
-
-			REL::MemWriteZero(mem, a_count);
-			return mem;
+			return _allocator->CountedAllocate<std::byte>(a_count, SCRAP_HEAP_ALIGNMENT);
 		}
 
 		__declspec(noalias) void deallocate_bytes(void* a_ptr) noexcept

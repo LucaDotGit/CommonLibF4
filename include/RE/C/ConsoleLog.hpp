@@ -23,19 +23,22 @@ namespace RE
 		void Print(REX::FormatString<Args...> a_format, Args&&... a_args)
 			requires((REX::formattable<Args, char> && ...))
 		{
-			const auto string = REX::Format(a_format, std::forward<Args>(a_args)...);
-			Print(string);
+			const auto formatData = REX::FixedFormat(a_format, std::forward<Args>(a_args)...);
+			Print(REX::zstring_view{ formatData.buffer.data(), formatData.size });
 		}
 
 		template <class... Args>
 		void PrintLine(REX::FormatString<Args...> a_format, Args&&... a_args)
 			requires((REX::formattable<Args, char> && ...))
 		{
-			const auto string = REX::Format(a_format, std::forward<Args>(a_args)...);
-			PrintLine(string);
+			auto formatData = REX::FixedFormat(a_format, std::forward<Args>(a_args)...);
+			auto formatResult = REX::FixedFormat(std::span(formatData.buffer), "{}\n"sv, std::string_view{ formatData.buffer.data(), formatData.size });
+
+			Print(formatResult);
 		}
 
-		[[nodiscard]] auto GetHistory() const -> std::optional<std::string>;
+		[[nodiscard]] auto GetHistory() const
+			-> std::optional<std::string>;
 		bool SetHistory(REX::zstring_view a_history);
 		bool Clear();
 

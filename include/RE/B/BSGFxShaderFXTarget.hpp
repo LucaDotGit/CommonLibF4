@@ -5,12 +5,13 @@
 #include "RE/B/BSTArray.hpp"
 #include "RE/B/BSTEvent.hpp"
 #include "RE/H/HUDColorTypes.hpp"
+#include "RE/M/MemoryManager.hpp"
 #include "RE/U/UIShaderColors.hpp"
 #include "RE/U/UIShaderFXInfo.hpp"
 
 namespace RE
 {
-	class __declspec(novtable) BSGFxShaderFXTarget
+	class /*__declspec(novtable)*/ BSGFxShaderFXTarget
 		: public BSGFxDisplayObject,				 // 00
 		  public BSTEventSink<ApplyColorUpdateEvent> // 50
 	{
@@ -32,6 +33,8 @@ namespace RE
 
 		// add
 		virtual void AppendShaderFXInfos(BSTArray<UIShaderFXInfo>& a_colorFXInfo, BSTArray<UIShaderFXInfo>& a_backgroundFXInfo); // 02
+
+		GAME_HEAP_REDEFINE_NEW(BSGFxShaderFXTarget);
 
 		void CreateAndSetFiltersToColor(const NiColor& a_color, REX::Float32 a_brightness = 1.0_f32);
 		void CreateAndSetFiltersToColor(std::uint8_t a_r, std::uint8_t a_g, std::uint8_t a_b, REX::Float32 a_brightness = 1.0_f32);

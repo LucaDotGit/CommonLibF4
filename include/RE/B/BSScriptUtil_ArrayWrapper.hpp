@@ -139,7 +139,7 @@ namespace RE::BSScript
 		{
 			const auto scriptVM = GameVM::GetVMInterface();
 			if (!scriptVM) [[unlikely]] {
-				REX::Fail("Failed to get script VM."sv);
+				REX::Fail("Failed to get the game's script VM."sv);
 			}
 
 			auto array = BSTSmartPointer<Array>();

@@ -6,7 +6,7 @@ namespace RE::BGSCharacterTint
 {
 	Entry* Entries::GetEntryByID(std::uint16_t a_id) noexcept
 	{
-		const auto* entryIt = std::ranges::find_if(entries, [a_id](const Entry* a_entry) {
+		const auto* entryIt = std::ranges::find_if(entries, [a_id](const Entry* a_entry) -> bool {
 			return a_entry && a_entry->idLink == a_id;
 		});
 
@@ -19,7 +19,7 @@ namespace RE::BGSCharacterTint
 
 	const Entry* Entries::GetEntryByID(std::uint16_t a_id) const noexcept
 	{
-		const auto* entryIt = std::ranges::find_if(entries, [a_id](const Entry* a_entry) {
+		const auto* entryIt = std::ranges::find_if(entries, [a_id](const Entry* a_entry) -> bool {
 			return a_entry && a_entry->idLink == a_id;
 		});
 

@@ -325,11 +325,11 @@ namespace RE
 
 		iterator insert_after(const_iterator a_position, size_type a_count, const_reference a_value)
 		{
-			const auto gen = [&a_value]() noexcept -> const_reference { return a_value; };
+			const auto generate = [&a_value]() noexcept -> const_reference { return a_value; };
 			return insert_after(
 				a_position,
-				counted_function_iterator{ gen, a_count },
-				counted_function_iterator<decltype(gen)>());
+				counted_function_iterator{ generate, a_count },
+				counted_function_iterator<decltype(generate)>());
 		}
 
 		template <class InputIt>
@@ -363,7 +363,7 @@ namespace RE
 		{
 			REX::Assert(a_first != cend());
 			if (a_first != a_last) {
-				const auto delRange = [](node_type* a_first, node_type* a_last) {
+				const auto delRange = [](node_type* a_first, node_type* a_last) -> void {
 					while (a_first != a_last) {
 						auto prev = a_first;
 						a_first = a_first->next;

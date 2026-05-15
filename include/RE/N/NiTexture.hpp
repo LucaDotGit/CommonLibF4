@@ -34,7 +34,7 @@ namespace RE
 		{
 			using FuncType = decltype(&NiTexture::SetAllowDegrade);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::NiTexture::SetAllowDegrade };
-			FUNC(a_set);
+			std::invoke(FUNC, a_set);
 		}
 
 		// members

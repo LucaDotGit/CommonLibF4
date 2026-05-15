@@ -86,13 +86,13 @@ namespace RE
 	std::uint32_t currentGameTime;																   /* 0624 */ \
 	bool updateHasBeenRun;																		   /* 0628 */ \
 	bool saveLoad;																				   /* 0629 */ \
-	BSTStaticFreeList<BSTSmartPointer<GameScript::DelayFunctor>, 512> renderSafeFunctorPool01;	   /* 0630 */ \
+	BSTStaticFreeList<BSTSmartPointer<GameScript::DelayFunctor>, 0x200> renderSafeFunctorPool01;   /* 0630 */ \
 	BSTCommonLLMessageQueue<BSTSmartPointer<GameScript::DelayFunctor>> renderSafeFunctorQueue01;   /* 2648 */ \
-	BSTStaticFreeList<BSTSmartPointer<GameScript::DelayFunctor>, 512> renderSafeFunctorPool02;	   /* 2670 */ \
+	BSTStaticFreeList<BSTSmartPointer<GameScript::DelayFunctor>, 0x200> renderSafeFunctorPool02;   /* 2670 */ \
 	BSTCommonLLMessageQueue<BSTSmartPointer<GameScript::DelayFunctor>> renderSafeFunctorQueue02;   /* 4688 */ \
-	BSTStaticFreeList<BSTSmartPointer<GameScript::DelayFunctor>, 512> postRenderFunctorPool01;	   /* 46B0 */ \
+	BSTStaticFreeList<BSTSmartPointer<GameScript::DelayFunctor>, 0x200> postRenderFunctorPool01;   /* 46B0 */ \
 	BSTCommonLLMessageQueue<BSTSmartPointer<GameScript::DelayFunctor>> postRenderFunctorQueue01;   /* 66C8 */ \
-	BSTStaticFreeList<BSTSmartPointer<GameScript::DelayFunctor>, 512> postRenderFunctorPool02;	   /* 66F0 */ \
+	BSTStaticFreeList<BSTSmartPointer<GameScript::DelayFunctor>, 0x200> postRenderFunctorPool02;   /* 66F0 */ \
 	BSTCommonLLMessageQueue<BSTSmartPointer<GameScript::DelayFunctor>> postRenderFunctorQueue02;   /* 8708 */ \
 	mutable BSSpinLock renderSafeQueueLock;														   /* 8730 */ \
 	BSTCommonLLMessageQueue<BSTSmartPointer<GameScript::DelayFunctor>>* renderSafeQueueToReadFrom; /* 8738 */ \

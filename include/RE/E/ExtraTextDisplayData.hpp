@@ -34,7 +34,8 @@ namespace RE
 
 		[[nodiscard]] BSFixedStringCS GetDisplayName(TESBoundObject* a_baseObject = nullptr) const;
 
-		[[nodiscard]] auto GetCustomName() const -> std::optional<BSFixedStringCS>;
+		[[nodiscard]] auto GetCustomName() const
+			-> std::optional<BSFixedStringCS>;
 		void SetCustomName(const BSFixedStringCS& a_name);
 
 		// members

@@ -6,7 +6,6 @@
 
 #include "REX/Singleton.hpp"
 #include "REX/Version.hpp"
-#include "REX/ZString.hpp"
 
 namespace REL
 {
@@ -51,9 +50,6 @@ namespace REL
 		{
 			return SetImportFunctionPointer(a_library, a_function, REL::UnrestrictedCast<std::uintptr_t>(a_newFunc));
 		}
-
-		[[nodiscard]] static bool IsModuleLoaded(REX::zstring_view a_moduleName) noexcept;
-		[[nodiscard]] static bool IsModuleLoaded(REX::zwstring_view a_moduleName) noexcept;
 
 		void Init();
 

@@ -61,14 +61,14 @@ namespace RE
 		{
 			using FuncType = decltype(&PowerArmorGeometry::HidePipboyPAGeometry);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PowerArmorGeometry::HidePipboyPAGeometry };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void ShowPipboyPAGeometry()
 		{
 			using FuncType = decltype(&PowerArmorGeometry::ShowPipboyPAGeometry);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PowerArmorGeometry::ShowPipboyPAGeometry };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

@@ -31,7 +31,7 @@ namespace RE
 		{
 			using FuncType = decltype(&BGSOpenCloseForm::AutoCloseRef);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSOpenCloseForm::AutoCloseRef };
-			FUNC(a_ref);
+			std::invoke(FUNC, a_ref);
 		}
 
 		[[nodiscard]] inline static OPEN_STATE GetOpenState(const TESObjectREFR* a_ref)

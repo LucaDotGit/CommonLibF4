@@ -46,7 +46,7 @@ namespace RE
 			DeleteThis();
 		}
 		catch (...) {
-			REX::QuickFail("Failed to delete NetImmerse ref object."sv);
+			REX::Fail("Failed to delete ref object."sv);
 		}
 
 		return 0;

@@ -9,7 +9,8 @@ namespace REX
 	inline constexpr auto CRC_TABLE_SIZE = static_cast<std::size_t>(0x100);
 
 	template <REX::integer T>
-	[[nodiscard]] constexpr auto CreateCrcTable(T a_polynomial) noexcept -> std::array<T, CRC_TABLE_SIZE>
+	[[nodiscard]] constexpr auto CreateCrcTable(T a_polynomial) noexcept
+		-> std::array<T, CRC_TABLE_SIZE>
 	{
 		auto table = std::array<T, CRC_TABLE_SIZE>();
 		for (auto i = static_cast<std::size_t>(0); i < table.size(); i++) {
@@ -24,8 +25,10 @@ namespace REX
 		return table;
 	}
 
-	extern template auto CreateCrcTable<std::uint32_t>(std::uint32_t a_polynomial) noexcept -> std::array<std::uint32_t, CRC_TABLE_SIZE>;
-	extern template auto CreateCrcTable<std::uint64_t>(std::uint64_t a_polynomial) noexcept -> std::array<std::uint64_t, CRC_TABLE_SIZE>;
+	extern template auto CreateCrcTable<std::uint32_t>(std::uint32_t a_polynomial) noexcept
+		-> std::array<std::uint32_t, CRC_TABLE_SIZE>;
+	extern template auto CreateCrcTable<std::uint64_t>(std::uint64_t a_polynomial) noexcept
+		-> std::array<std::uint64_t, CRC_TABLE_SIZE>;
 
 	template <class T, REX::integer U>
 	[[nodiscard]] constexpr U GenerateCrcHash(std::span<const T> a_data, std::span<const U, CRC_TABLE_SIZE> a_table, U a_initValue, U a_xorOut) noexcept
@@ -115,8 +118,8 @@ namespace REX
 	public:
 		[[nodiscard]] constexpr std::uint32_t operator()(std::nullptr_t) const noexcept
 		{
-			static constexpr auto HASH = std::invoke(Crc32<std::uintptr_t>(), 0);
-			return HASH;
+			static constexpr auto EMPTY_HASH = std::invoke(Crc32<std::uintptr_t>(), 0);
+			return EMPTY_HASH;
 		}
 	};
 
@@ -280,8 +283,8 @@ namespace REX
 	public:
 		[[nodiscard]] constexpr std::uint64_t operator()(std::nullptr_t) const noexcept
 		{
-			static constexpr auto HASH = std::invoke(Crc64<std::uintptr_t>(), 0);
-			return HASH;
+			static constexpr auto EMPTY_HASH = std::invoke(Crc64<std::uintptr_t>(), 0);
+			return EMPTY_HASH;
 		}
 	};
 

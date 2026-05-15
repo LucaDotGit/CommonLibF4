@@ -335,14 +335,14 @@ namespace Scaleform::GFx
 	{
 		using FuncType = decltype(&ObjectInterface::ObjectRelease);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::ObjectAddRef };
-		FUNC(this, a_value, a_object);
+		std::invoke(FUNC, this, a_value, a_object);
 	}
 
 	void Value::ObjectInterface::ObjectRelease(Value* a_value, void* a_object)
 	{
 		using FuncType = decltype(&ObjectInterface::ObjectRelease);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::ObjectRelease };
-		FUNC(this, a_value, a_object);
+		std::invoke(FUNC, this, a_value, a_object);
 	}
 
 	bool Value::ObjectInterface::IsInstanceOf(void* a_data, const char* a_className) const
@@ -391,7 +391,7 @@ namespace Scaleform::GFx
 	{
 		using FuncType = decltype(&ObjectInterface::VisitMembers);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::VisitMembers };
-		FUNC(this, a_data, a_visitor, a_isDisplayObject);
+		std::invoke(FUNC, this, a_data, a_visitor, a_isDisplayObject);
 	}
 
 	std::uint32_t Value::ObjectInterface::GetArraySize(void* a_data) const
@@ -447,7 +447,7 @@ namespace Scaleform::GFx
 	{
 		using FuncType = decltype(&ObjectInterface::VisitElements);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::VisitElements };
-		FUNC(this, a_data, a_visitor, a_startIndex, a_count);
+		std::invoke(FUNC, this, a_data, a_visitor, a_startIndex, a_count);
 	}
 
 	bool Value::ObjectInterface::GetDisplayInfo(void* a_data, DisplayInfo* a_info) const
@@ -1629,7 +1629,7 @@ namespace Scaleform::GFx
 			_objectInterface->ObjectAddRef(this, _value.data);
 		}
 		catch (...) {
-			REX::QuickFail("Failed to acquire managed Scaleform value."sv);
+			REX::Fail("Failed to acquire ref value."sv);
 		}
 	}
 
@@ -1643,7 +1643,7 @@ namespace Scaleform::GFx
 			_objectInterface = nullptr;
 		}
 		catch (...) {
-			REX::QuickFail("Failed to release managed Scaleform value."sv);
+			REX::Fail("Failed to release ref value."sv);
 		}
 	}
 

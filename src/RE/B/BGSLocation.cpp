@@ -2,7 +2,8 @@
 
 namespace RE
 {
-	auto BGSLocation::GetLinkedLocations() -> BSTHashMap<TESFormID, BSTArray<BSTPair<TESFormID, TESFormID>>*>&
+	auto BGSLocation::GetLinkedLocations()
+		-> BSTHashMap<TESFormID, BSTArray<BSTPair<TESFormID, TESFormID>>*>&
 	{
 		static const auto LINKED_LOCATIONS = REL::Relocation<BSTHashMap<TESFormID, BSTArray<BSTPair<TESFormID, TESFormID>>*>*>{ ID::BGSLocation::LinkedLocations, Offset::BGSLocation::LinkedLocations };
 		return *LINKED_LOCATIONS;

@@ -19,12 +19,14 @@ namespace F4SE::Translations
 
 	Translator::~Translator() noexcept = default;
 
-	auto Translator::GetLanguageCode() const noexcept -> std::string_view
+	auto Translator::GetLanguageCode() const noexcept
+		-> std::string_view
 	{
 		return static_cast<std::string_view>(_languageCode);
 	}
 
-	auto Translator::GetGameTranslator() const noexcept -> REX::NotNull<::Scaleform::Ptr<RE::BSScaleformTranslator>>
+	auto Translator::GetGameTranslator() const noexcept
+		-> REX::NotNull<::Scaleform::Ptr<RE::BSScaleformTranslator>>
 	{
 		return _gameTranslator;
 	}
@@ -96,7 +98,8 @@ namespace F4SE::Translations
 		return translationMap.contains(a_key);
 	}
 
-	auto Translator::GetValue(std::string_view a_key) const -> std::optional<std::string>
+	auto Translator::GetValue(std::string_view a_key) const
+		-> std::optional<std::string>
 	{
 		if (!RE::BSScaleformTranslator::IsKeyValid(a_key)) {
 			return std::nullopt;
@@ -120,7 +123,8 @@ namespace F4SE::Translations
 		return *std::move(u8Value);
 	}
 
-	auto Translator::GetValue(std::wstring_view a_key) const -> std::optional<std::wstring>
+	auto Translator::GetValue(std::wstring_view a_key) const
+		-> std::optional<std::wstring>
 	{
 		if (!RE::BSScaleformTranslator::IsKeyValid(a_key)) {
 			return std::nullopt;
@@ -134,7 +138,8 @@ namespace F4SE::Translations
 		return std::wstring(*value);
 	}
 
-	auto Translator::GetValue(const RE::BSFixedStringCS& a_key) const -> std::optional<RE::BSFixedStringCS>
+	auto Translator::GetValue(const RE::BSFixedStringCS& a_key) const
+		-> std::optional<RE::BSFixedStringCS>
 	{
 		if (!RE::BSScaleformTranslator::IsKeyValid(static_cast<std::string_view>(a_key))) {
 			return std::nullopt;
@@ -158,7 +163,8 @@ namespace F4SE::Translations
 		return RE::BSFixedStringCS(*u8Value);
 	}
 
-	auto Translator::GetValue(const RE::BSFixedStringWCS& a_key) const -> std::optional<RE::BSFixedStringWCS>
+	auto Translator::GetValue(const RE::BSFixedStringWCS& a_key) const
+		-> std::optional<RE::BSFixedStringWCS>
 	{
 		if (!RE::BSScaleformTranslator::IsKeyValid(static_cast<std::wstring_view>(a_key))) {
 			return std::nullopt;
@@ -268,7 +274,8 @@ namespace F4SE::Translations
 		}
 	}
 
-	auto Translator::GetOrAdd(std::string_view a_key, std::string_view a_value) -> std::optional<std::string>
+	auto Translator::GetOrAdd(std::string_view a_key, std::string_view a_value)
+		-> std::optional<std::string>
 	{
 		if (!RE::BSScaleformTranslator::IsKeyValid(a_key)) {
 			return std::nullopt;
@@ -297,7 +304,8 @@ namespace F4SE::Translations
 		return *std::move(u8Result);
 	}
 
-	auto Translator::GetOrAdd(std::wstring_view a_key, std::wstring_view a_value) -> std::optional<std::wstring>
+	auto Translator::GetOrAdd(std::wstring_view a_key, std::wstring_view a_value)
+		-> std::optional<std::wstring>
 	{
 		if (!RE::BSScaleformTranslator::IsKeyValid(a_key)) {
 			return std::nullopt;
@@ -311,7 +319,8 @@ namespace F4SE::Translations
 		return std::wstring(*value);
 	}
 
-	auto Translator::GetOrAdd(const RE::BSFixedStringCS& a_key, const RE::BSFixedStringCS& a_value) -> std::optional<RE::BSFixedStringCS>
+	auto Translator::GetOrAdd(const RE::BSFixedStringCS& a_key, const RE::BSFixedStringCS& a_value)
+		-> std::optional<RE::BSFixedStringCS>
 	{
 		if (!RE::BSScaleformTranslator::IsKeyValid(static_cast<std::string_view>(a_key))) {
 			return std::nullopt;
@@ -340,7 +349,8 @@ namespace F4SE::Translations
 		return RE::BSFixedStringCS(*u8Result);
 	}
 
-	auto Translator::GetOrAdd(const RE::BSFixedStringWCS& a_key, const RE::BSFixedStringWCS& a_value) -> std::optional<RE::BSFixedStringWCS>
+	auto Translator::GetOrAdd(const RE::BSFixedStringWCS& a_key, const RE::BSFixedStringWCS& a_value)
+		-> std::optional<RE::BSFixedStringWCS>
 	{
 		if (!RE::BSScaleformTranslator::IsKeyValid(static_cast<std::wstring_view>(a_key))) {
 			return std::nullopt;
@@ -522,9 +532,9 @@ namespace F4SE::Translations
 	{
 		const auto translationFilePath = RE::BSScaleformTranslator::GetTranslationFilePath(a_rawName, a_languageCode);
 
-		auto translations = REX::ReadTranslationFile(translationFilePath);
+		const auto translations = REX::ReadTranslationFile(translationFilePath);
 		if (!translations) {
-			return std::move(translations).error();
+			return translations.error();
 		}
 
 		auto& translationMap = _gameTranslator->translator.translationMap;
@@ -536,7 +546,8 @@ namespace F4SE::Translations
 		return REX::CreateSystemError(REX::ERROR_NUMBER_SUCCESS);
 	}
 
-	auto GetTranslator() -> const REX::NotNull<std::unique_ptr<Translator>>&
+	auto GetTranslator()
+		-> const REX::NotNull<std::unique_ptr<Translator>>&
 	{
 		static const auto INSTANCE = REX::NotNull(std::make_unique<Translator>());
 		return INSTANCE;
@@ -545,7 +556,8 @@ namespace F4SE::Translations
 
 namespace F4SE::Translations::Impl
 {
-	auto GetGameTranslator() -> ::Scaleform::Ptr<RE::BSScaleformTranslator>
+	auto GetGameTranslator()
+		-> ::Scaleform::Ptr<RE::BSScaleformTranslator>
 	{
 		auto* scaleformManager = RE::BSScaleformManager::GetSingleton();
 		if (!scaleformManager) [[unlikely]] {

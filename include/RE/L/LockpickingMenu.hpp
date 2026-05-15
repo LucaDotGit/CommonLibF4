@@ -5,6 +5,7 @@
 #include "RE/N/NiMatrix3.hpp"
 #include "RE/N/NiPoint.hpp"
 #include "RE/N/NiPointer.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 namespace RE
 {
@@ -52,14 +53,14 @@ namespace RE
 		{
 			using FuncType = decltype(&LockpickingMenu::DamageLockpick);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::LockpickingMenu::DamageLockpick };
-			FUNC();
+			std::invoke(FUNC);
 		}
 
 		static void OpenLockpickingMenu(TESObjectREFR* a_lockedRef)
 		{
 			using FuncType = decltype(&LockpickingMenu::OpenLockpickingMenu);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::LockpickingMenu::OpenLockpickingMenu };
-			FUNC(a_lockedRef);
+			std::invoke(FUNC, a_lockedRef);
 		}
 
 		// members

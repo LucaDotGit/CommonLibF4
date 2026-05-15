@@ -22,8 +22,8 @@ namespace RE
 		virtual bool ReadSettings() { return handle != 0; }				   // 09
 
 		// members
-		std::array<char, REX::W32::MAX_PATH> settingFile{ '\0' }; // 008
-		REX::W32::HANDLE handle{ 0 };							  // 110
+		std::array<char, REX::W32::MAX_PATH> settingFile; // 008
+		REX::W32::HANDLE handle{ 0 };					  // 110
 	};
 
 	extern template class SettingCollection<Setting>;

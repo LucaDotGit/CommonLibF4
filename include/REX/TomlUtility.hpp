@@ -11,10 +11,12 @@ namespace REX::Toml
 
 	inline constexpr auto SPECIFICATION_VERSION = toml::spec::v(1, 1, 0);
 
-	[[nodiscard]] auto SplitSetting(std::string_view a_setting) -> std::pair<std::string_view, std::string_view>;
+	[[nodiscard]] auto SplitSetting(std::string_view a_setting)
+		-> std::pair<std::string_view, std::string_view>;
 
 	template <class TypeConfig>
-	[[nodiscard]] auto GetPointer(toml::basic_value<TypeConfig>& a_toml, std::string_view a_tableName) -> toml::basic_value<TypeConfig>*
+	[[nodiscard]] auto GetPointer(toml::basic_value<TypeConfig>& a_toml, std::string_view a_tableName)
+		-> toml::basic_value<TypeConfig>*
 	{
 		auto* currentValue = std::addressof(a_toml);
 		if (!currentValue->is_table()) {
@@ -45,10 +47,12 @@ namespace REX::Toml
 		return currentValue;
 	}
 
-	extern template auto GetPointer(toml::basic_value<toml::type_config>&, std::string_view) -> toml::basic_value<toml::type_config>*;
+	extern template auto GetPointer(toml::basic_value<toml::type_config>&, std::string_view)
+		-> toml::basic_value<toml::type_config>*;
 
 	template <class TypeConfig>
-	[[nodiscard]] auto GetPointer(const toml::basic_value<TypeConfig>& a_toml, std::string_view a_tableName) -> const toml::basic_value<TypeConfig>*
+	[[nodiscard]] auto GetPointer(const toml::basic_value<TypeConfig>& a_toml, std::string_view a_tableName)
+		-> const toml::basic_value<TypeConfig>*
 	{
 		const auto* currentValue = std::addressof(a_toml);
 		if (!currentValue->is_table()) {
@@ -79,10 +83,12 @@ namespace REX::Toml
 		return currentValue;
 	}
 
-	extern template auto GetPointer(const toml::basic_value<toml::type_config>&, std::string_view) -> const toml::basic_value<toml::type_config>*;
+	extern template auto GetPointer(const toml::basic_value<toml::type_config>&, std::string_view)
+		-> const toml::basic_value<toml::type_config>*;
 
 	template <class TypeConfig>
-	[[nodiscard]] auto GetOrCreatePointer(toml::basic_value<TypeConfig>& a_toml, std::string_view a_tableName) -> toml::basic_value<TypeConfig>*
+	[[nodiscard]] auto GetOrCreatePointer(toml::basic_value<TypeConfig>& a_toml, std::string_view a_tableName)
+		-> toml::basic_value<TypeConfig>*
 	{
 		using value_type = toml::basic_value<TypeConfig>;
 
@@ -116,10 +122,12 @@ namespace REX::Toml
 		return currentValue;
 	}
 
-	extern template auto GetOrCreatePointer(toml::basic_value<toml::type_config>&, std::string_view) -> toml::basic_value<toml::type_config>*;
+	extern template auto GetOrCreatePointer(toml::basic_value<toml::type_config>&, std::string_view)
+		-> toml::basic_value<toml::type_config>*;
 
 	template <class TypeConfig>
-	[[nodiscard]] auto Flatten(const toml::basic_value<TypeConfig>& a_toml) -> std::optional<toml::basic_value<TypeConfig>>
+	[[nodiscard]] auto Flatten(const toml::basic_value<TypeConfig>& a_toml)
+		-> std::optional<toml::basic_value<TypeConfig>>
 	{
 		using value_type = toml::basic_value<TypeConfig>;
 
@@ -155,7 +163,8 @@ namespace REX::Toml
 		return flatTable;
 	}
 
-	extern template auto Flatten(const toml::basic_value<toml::type_config>&) -> std::optional<toml::basic_value<toml::type_config>>;
+	extern template auto Flatten(const toml::basic_value<toml::type_config>&)
+		-> std::optional<toml::basic_value<toml::type_config>>;
 }
 
 #endif

@@ -30,6 +30,7 @@ namespace Scaleform::GFx
 		MultitouchInterface()
 			: State(STATE_TYPE)
 		{
+			// REL::EmplaceVtable(this);
 		}
 
 		~MultitouchInterface() override; // 01

@@ -11,37 +11,37 @@ namespace REX
 	static_assert(std::numeric_limits<Float128>::is_iec559);
 }
 
-namespace REX::Literals
+namespace REX::NumericLiterals
 {
-	[[nodiscard]] constexpr REX::Float32 operator""_f32(long double a_value) noexcept
+	[[nodiscard]] constexpr Float32 operator""_f32(Float128 a_value) noexcept
 	{
-		return static_cast<REX::Float32>(a_value);
+		return static_cast<Float32>(a_value);
 	}
 
-	[[nodiscard]] constexpr REX::Float32 operator""_F32(long double a_value) noexcept
+	[[nodiscard]] constexpr Float32 operator""_F32(Float128 a_value) noexcept
 	{
-		return static_cast<REX::Float32>(a_value);
+		return static_cast<Float32>(a_value);
 	}
 
-	[[nodiscard]] constexpr REX::Float64 operator""_f64(long double a_value) noexcept
+	[[nodiscard]] constexpr Float64 operator""_f64(Float128 a_value) noexcept
 	{
-		return static_cast<REX::Float64>(a_value);
+		return static_cast<Float64>(a_value);
 	}
 
-	[[nodiscard]] constexpr REX::Float64 operator""_F64(long double a_value) noexcept
+	[[nodiscard]] constexpr Float64 operator""_F64(Float128 a_value) noexcept
 	{
-		return static_cast<REX::Float64>(a_value);
+		return static_cast<Float64>(a_value);
 	}
 
-	[[nodiscard]] constexpr REX::Float128 operator""_f128(long double a_value) noexcept
+	[[nodiscard]] constexpr Float128 operator""_f128(Float128 a_value) noexcept
 	{
-		return static_cast<REX::Float128>(a_value);
+		return a_value;
 	}
 
-	[[nodiscard]] constexpr REX::Float128 operator""_F128(long double a_value) noexcept
+	[[nodiscard]] constexpr Float128 operator""_F128(Float128 a_value) noexcept
 	{
-		return static_cast<REX::Float128>(a_value);
+		return a_value;
 	}
 }
 
-using namespace REX::Literals;
+using namespace REX::NumericLiterals;

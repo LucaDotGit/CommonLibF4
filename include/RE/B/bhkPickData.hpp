@@ -20,11 +20,12 @@ namespace RE
 		{
 		};
 
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
 		bhkPickData()
 		{
 			using FuncType = void (bhkPickData::*)();
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::bhkPickData::ctor };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		bool GetAllCollectorRayHitAt(std::uint32_t a_index, hknpCollisionResult& a_result) const
@@ -73,21 +74,21 @@ namespace RE
 		{
 			using FuncType = decltype(&bhkPickData::Reset);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::bhkPickData::Reset };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void SetStartEnd(const NiPoint3& a_start, const NiPoint3& a_end)
 		{
 			using FuncType = decltype(&bhkPickData::SetStartEnd);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::bhkPickData::SetStartEnd };
-			FUNC(this, a_start, a_end);
+			std::invoke(FUNC, this, a_start, a_end);
 		}
 
 		void SortAllCollectorHits()
 		{
 			using FuncType = decltype(&bhkPickData::SortAllCollectorHits);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::bhkPickData::SortAllCollectorHits };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		GAME_HEAP_REDEFINE_NEW(bhkPickData);
@@ -96,12 +97,12 @@ namespace RE
 		hknpRayCastQuery castQuery;							   // 00
 		hknpRayCastQueryResult result;						   // 60
 		hkRefPtr<hknpBSWorld> castWorld;					   // C0
-		std::uint64_t customCollideLayers{ 0 };				   // C8
-		hknpCollisionQueryCollector* collector{ nullptr };	   // D0
+		std::uint64_t customCollideLayers;					   // C8
+		hknpCollisionQueryCollector* collector;				   // D0
 		REX::Enum<COLLECTOR_TYPE, std::int32_t> collectorType; // D8
-		bool incrementPickTime{ false };					   // DC
-		bool allowFailedPicks{ false };						   // DD
-		bool pickFailed{ false };							   // DE
+		bool incrementPickTime;								   // DC
+		bool allowFailedPicks;								   // DD
+		bool pickFailed;									   // DE
 	};
 	static_assert(sizeof(bhkPickData) == 0xE0);
 };

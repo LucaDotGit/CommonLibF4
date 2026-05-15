@@ -35,12 +35,12 @@ namespace RE
 		virtual void PostChangeAnimationManager(const BSTSmartPointer<BSAnimationGraphManager>& a_newAnimGraphMgr, const BSTSmartPointer<BSAnimationGraphManager>& a_oldAnimGraphMgr); // 0D - { return; }
 		virtual bool ShouldUpdateAnimation();																																		   // 0E - { return true; }
 		virtual std::uint32_t GetGraphVariableCacheSize() const;																													   // 0F - { return 0; }
-		virtual bool GetGraphVariableImpl(std::uint32_t a_graphVarID, REX::Float32& a_out) const;																					   // 10 - { return false; }
-		virtual bool GetGraphVariableImpl(std::uint32_t a_graphVarID, bool& a_out) const;																							   // 11 - { return false; }
-		virtual bool GetGraphVariableImpl(std::uint32_t a_graphVarID, std::int32_t& a_out) const;																					   // 12 - { return false; }
-		virtual bool GetGraphVariableImplFloat(const BSFixedString& a_variable, REX::Float32& a_out) const;																			   // 13
-		virtual bool GetGraphVariableImplInt(const BSFixedString& a_variable, std::int32_t& a_out) const;																			   // 14
-		virtual bool GetGraphVariableImplBool(const BSFixedString& a_variable, bool& a_out) const;																					   // 15
+		virtual bool GetGraphVariableImpl(std::uint32_t a_graphVarID, REX::Float32& a_outValue) const;																				   // 10 - { return false; }
+		virtual bool GetGraphVariableImpl(std::uint32_t a_graphVarID, bool& a_outValue) const;																						   // 11 - { return false; }
+		virtual bool GetGraphVariableImpl(std::uint32_t a_graphVarID, std::int32_t& a_outValue) const;																				   // 12 - { return false; }
+		virtual bool GetGraphVariableImplFloat(const BSFixedString& a_variable, REX::Float32& a_outValue) const;																	   // 13
+		virtual bool GetGraphVariableImplInt(const BSFixedString& a_variable, std::int32_t& a_outValue) const;																		   // 14
+		virtual bool GetGraphVariableImplBool(const BSFixedString& a_variable, bool& a_outValue) const;																				   // 15
 		virtual void PreUpdateAnimationGraphManager(const BSTSmartPointer<BSAnimationGraphManager>& a_animGraphMgr) const;															   // 16 - { return; }
 		virtual void PostUpdateAnimationGraphManager(const BSTSmartPointer<BSAnimationGraphManager>& a_animGraphMgr) const;															   // 17 - { return; }
 		virtual void PreLoadAnimationGraphManager(const BSTSmartPointer<BSAnimationGraphManager>& a_animGraphMgr);																	   // 18 - { return; }

@@ -7,7 +7,8 @@
 namespace RE::Impl
 {
 	[[nodiscard]] BGSKeyword* GetTypedKeywordByIndex(KeywordType a_type, std::uint16_t a_index);
-	[[nodiscard]] auto GetIndexForTypedKeyword(const BGSKeyword* a_keyword, KeywordType a_type) -> std::optional<std::uint16_t>;
+	[[nodiscard]] auto GetIndexForTypedKeyword(const BGSKeyword* a_keyword, KeywordType a_type)
+		-> std::optional<std::uint16_t>;
 }
 
 namespace RE
@@ -64,7 +65,8 @@ namespace RE
 			return false;
 		}
 
-		[[nodiscard]] auto GetKeywords() const -> std::optional<std::vector<BGSKeyword*>>
+		[[nodiscard]] auto GetKeywords() const
+			-> std::optional<std::vector<BGSKeyword*>>
 		{
 			if (!array) {
 				return std::nullopt;

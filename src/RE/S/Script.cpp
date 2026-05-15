@@ -31,9 +31,9 @@ namespace RE
 			text = nullptr;
 		}
 
-		auto* newText = calloc<char>(a_text.size() + 1);
+		auto* newText = calloc<char>(a_text.size() + sizeof(char));
 		if (!newText) [[unlikely]] {
-			REX::AllocationFail();
+			throw std::bad_alloc();
 		}
 
 		std::copy_n(a_text.data(), a_text.size(), newText);
@@ -123,6 +123,6 @@ namespace RE
 	{
 		using FuncType = decltype(&Script::CompileAndRunImpl);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Script::CompileAndRunImpl };
-		FUNC(this, a_compiler, a_compilerIndex, a_ownerObject);
+		std::invoke(FUNC, this, a_compiler, a_compilerIndex, a_ownerObject);
 	}
 }

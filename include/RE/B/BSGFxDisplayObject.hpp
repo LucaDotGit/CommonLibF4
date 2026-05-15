@@ -4,7 +4,7 @@
 
 namespace RE
 {
-	class __declspec(novtable) BSGFxDisplayObject
+	class /*__declspec(novtable)*/ BSGFxDisplayObject
 		: public BSGFxObject // 00
 	{
 	public:

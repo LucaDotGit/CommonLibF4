@@ -46,11 +46,11 @@ namespace Scaleform::GFx
 	static_assert(sizeof(FunctionHandler) == 0x10);
 }
 
-#define RE_REGISTER_SF_FUNCTION(a_menuRoot, a_codeObject, a_func, ...)                    \
-	{                                                                                     \
-		auto a_func##Val = ::Scaleform::GFx::Value();                                     \
-		a_menuRoot->CreateFunction(std::addressof(a_func##Val), new a_func(__VA_ARGS__)); \
-		if (!a_codeObject->SetMember(#a_func, a_func##Val)) [[unlikely]] {                \
-			REX::Assert(false);                                                           \
-		}                                                                                 \
+#define RE_REGISTER_SF_FUNCTION(a_menuRoot, a_codeObject, a_func, ...)                   \
+	{                                                                                    \
+		auto a_func##Val = ::Scaleform::GFx::Value();                                    \
+		a_menuRoot.CreateFunction(std::addressof(a_func##Val), new a_func(__VA_ARGS__)); \
+		if (!a_codeObject.SetMember(#a_func, a_func##Val)) [[unlikely]] {                \
+			REX::Assert(false);                                                          \
+		}                                                                                \
 	}

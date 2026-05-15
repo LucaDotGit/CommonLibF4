@@ -58,7 +58,8 @@ namespace RE
 		};
 		static_assert(sizeof(KEYWORD_DATA) == 0x10);
 
-		[[nodiscard]] static auto GetLinkedLocations() -> BSTHashMap<TESFormID, BSTArray<BSTPair<TESFormID, TESFormID>>*>&;
+		[[nodiscard]] static auto GetLinkedLocations()
+			-> BSTHashMap<TESFormID, BSTArray<BSTPair<TESFormID, TESFormID>>*>&;
 
 		[[nodiscard]] bool IsChildOf(const BGSLocation* a_parent) const;
 		[[nodiscard]] bool IsParentOf(const BGSLocation* a_child) const;

@@ -7,7 +7,7 @@
 #include "REL/Offset.hpp"
 #include "REL/Size.hpp"
 
-#include "REX/ErrorCode.hpp"
+#include "REX/Error.hpp"
 #include "REX/Log.hpp"
 #include "REX/Message.hpp"
 

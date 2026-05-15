@@ -57,26 +57,47 @@ namespace F4SE
 	bool RegisterForOnPreLoad(REX::NotNull<std::function<void()>> a_callback);
 	bool RegisterForOnLoad(REX::NotNull<std::function<void()>> a_callback);
 
-	[[nodiscard]] const InitInfo& GetInitInfo() noexcept;
-	[[nodiscard]] PluginHandle GetPluginHandle() noexcept;
-	[[nodiscard]] std::string_view GetPluginName() noexcept;
-	[[nodiscard]] std::string_view GetPluginAuthor() noexcept;
-	[[nodiscard]] REX::Version GetPluginVersion() noexcept;
-	[[nodiscard]] const PluginInfo* GetPluginInfo(const char* a_name) noexcept;
-	[[nodiscard]] std::uint32_t GetReleaseIndex() noexcept;
-	[[nodiscard]] REX::Version GetF4SEVersion() noexcept;
-	[[nodiscard]] REX::Version GetRuntimeVersion() noexcept;
-	[[nodiscard]] std::string_view GetSaveFolderName() noexcept;
-	[[nodiscard]] const std::filesystem::path& GetLogDirectoryPath() noexcept;
+	[[nodiscard]] auto GetInitInfo() noexcept
+		-> const InitInfo&;
+	[[nodiscard]] auto GetPluginHandle() noexcept
+		-> PluginHandle;
+	[[nodiscard]] auto GetPluginName() noexcept
+		-> std::string_view;
+	[[nodiscard]] auto GetPluginAuthor() noexcept
+		-> std::string_view;
+	[[nodiscard]] auto GetPluginVersion() noexcept
+		-> REX::Version;
+	[[nodiscard]] auto GetPluginInfo(const char* a_name) noexcept
+		-> const PluginInfo*;
+	[[nodiscard]] auto GetReleaseIndex() noexcept
+		-> std::uint32_t;
+	[[nodiscard]] auto GetF4SEVersion() noexcept
+		-> REX::Version;
+	[[nodiscard]] auto GetRuntimeVersion() noexcept
+		-> REX::Version;
+	[[nodiscard]] auto GetSaveFolderName() noexcept
+		-> std::string_view;
+	[[nodiscard]] auto GetLogDirectoryPath() noexcept
+		-> const std::filesystem::path&;
 
-	[[nodiscard]] auto GetMessagingInterface() noexcept -> REX::NotNull<const MessagingInterface*>;
-	[[nodiscard]] auto GetScaleformInterface() noexcept -> REX::NotNull<const ScaleformInterface*>;
-	[[nodiscard]] auto GetPapyrusInterface() noexcept -> REX::NotNull<const PapyrusInterface*>;
-	[[nodiscard]] auto GetSerializationInterface() noexcept -> REX::NotNull<const SerializationInterface*>;
-	[[nodiscard]] auto GetTaskInterface() noexcept -> REX::NotNull<const TaskInterface*>;
-	[[nodiscard]] auto GetObjectInterface() noexcept -> REX::NotNull<const ObjectInterface*>;
-	[[nodiscard]] auto GetDelayFunctorManager() noexcept -> REX::NotNull<const DelayFunctorManager*>;
-	[[nodiscard]] auto GetObjectRegistry() noexcept -> REX::NotNull<const ObjectRegistry*>;
-	[[nodiscard]] auto GetPersistentObjectStorage() noexcept -> REX::NotNull<const PersistentObjectStorage*>;
-	[[nodiscard]] auto GetTrampolineInterface() noexcept -> REX::NotNull<const TrampolineInterface*>;
+	[[nodiscard]] auto GetMessagingInterface() noexcept
+		-> REX::NotNull<const MessagingInterface*>;
+	[[nodiscard]] auto GetScaleformInterface() noexcept
+		-> REX::NotNull<const ScaleformInterface*>;
+	[[nodiscard]] auto GetPapyrusInterface() noexcept
+		-> REX::NotNull<const PapyrusInterface*>;
+	[[nodiscard]] auto GetSerializationInterface() noexcept
+		-> REX::NotNull<const SerializationInterface*>;
+	[[nodiscard]] auto GetTaskInterface() noexcept
+		-> REX::NotNull<const TaskInterface*>;
+	[[nodiscard]] auto GetObjectInterface() noexcept
+		-> REX::NotNull<const ObjectInterface*>;
+	[[nodiscard]] auto GetDelayFunctorManager() noexcept
+		-> REX::NotNull<const DelayFunctorManager*>;
+	[[nodiscard]] auto GetObjectRegistry() noexcept
+		-> REX::NotNull<const ObjectRegistry*>;
+	[[nodiscard]] auto GetPersistentObjectStorage() noexcept
+		-> REX::NotNull<const PersistentObjectStorage*>;
+	[[nodiscard]] auto GetTrampolineInterface() noexcept
+		-> REX::NotNull<const TrampolineInterface*>;
 }

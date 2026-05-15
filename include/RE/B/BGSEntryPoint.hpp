@@ -171,6 +171,6 @@ namespace RE::BGSEntryPoint
 	{
 		using FuncType = decltype(&BGSEntryPoint::HandleEntryPoint<Args...>);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSEntryPoint::HandleEntryPoint };
-		FUNC(a_entryPoint, a_perkOwner, a_args...);
+		std::invoke(FUNC, a_entryPoint, a_perkOwner, a_args...);
 	}
 }

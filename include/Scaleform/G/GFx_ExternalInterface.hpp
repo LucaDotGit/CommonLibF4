@@ -16,6 +16,7 @@ namespace Scaleform::GFx
 		ExternalInterface()
 			: State(STATE_TYPE)
 		{
+			// REL::EmplaceVtable(this);
 		}
 
 		~ExternalInterface() override; // 00

@@ -36,7 +36,7 @@ namespace RE
 		REX::Float32 g{ 0.0_f32 }; // 04
 		REX::Float32 b{ 0.0_f32 }; // 08
 	};
-	static_assert(sizeof(NiColor) == 0xC);
+	static_assert(sizeof(NiColor) == 0x0C);
 
 	constexpr void swap(NiColor& a_lhs, NiColor& a_rhs) noexcept
 	{
@@ -96,17 +96,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::NiColor& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::NiColor& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "({}, {}, {})"sv, a_value.r, a_value.g, a_value.b);
+			return format_to(a_context.out(), "({}, {}, {})"sv, a_value.r, a_value.g, a_value.b);
 		}
 	};
 
@@ -116,17 +116,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::NiColorA& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::NiColorA& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "({}, {}, {}, {})"sv, a_value.r, a_value.g, a_value.b, a_value.a);
+			return format_to(a_context.out(), "({}, {}, {}, {})"sv, a_value.r, a_value.g, a_value.b, a_value.a);
 		}
 	};
 }
@@ -141,17 +141,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::NiColor& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::NiColor& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "({}, {}, {})"sv, a_value.r, a_value.g, a_value.b);
+			return format_to(a_context.out(), "({}, {}, {})"sv, a_value.r, a_value.g, a_value.b);
 		}
 	};
 
@@ -161,17 +161,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::NiColorA& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::NiColorA& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "({}, {}, {}, {})"sv, a_value.r, a_value.g, a_value.b, a_value.a);
+			return format_to(a_context.out(), "({}, {}, {}, {})"sv, a_value.r, a_value.g, a_value.b, a_value.a);
 		}
 	};
 }

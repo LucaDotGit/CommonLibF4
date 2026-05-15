@@ -16,7 +16,7 @@ namespace RE
 		{
 			using FuncType = decltype(&EffectItem::GetDescription);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::EffectItem::GetDescription };
-			FUNC(this, a_buffer, a_beginTagFormat, a_endTagFormat, a_magnitude, a_duration);
+			std::invoke(FUNC, this, a_buffer, a_beginTagFormat, a_endTagFormat, a_magnitude, a_duration);
 		}
 
 		// members

@@ -39,64 +39,16 @@ namespace RE
 		~TESObjectARMA() override; // 00
 
 		// members
-		OBJ_ARMA data; // 040
-		union
-		{
-			struct
-			{
-				BGSModelMaterialSwap maleBipedModel;
-				BGSModelMaterialSwap femaleBipedModel;
-			};
-			std::array<BGSModelMaterialSwap, std::to_underlying(SEX::kTotal)> bipedModels;
-		}; // 050
-		union
-		{
-			struct
-			{
-				BGSModelMaterialSwap maleModelFacebones;
-				BGSModelMaterialSwap femaleModelFacebones;
-			};
-			std::array<BGSModelMaterialSwap, std::to_underlying(SEX::kTotal)> bipedModelFacebones;
-		}; // 0D0
-		union
-		{
-			struct
-			{
-				BGSModelMaterialSwap maleBipedModel1stPerson;
-				BGSModelMaterialSwap femaleBipedModel1stPerson;
-			};
-			std::array<BGSModelMaterialSwap, std::to_underlying(SEX::kTotal)> bipedModel1stPerson;
-		}; // 150
-		union
-		{
-			struct
-			{
-				BGSTextureSet* maleSkinTexture;
-				BGSTextureSet* femaleSkinTexture;
-			};
-			std::array<BGSTextureSet*, std::to_underlying(SEX::kTotal)> skinTextures;
-		}; // 1D0
-		union
-		{
-			struct
-			{
-				BGSListForm* maleSkinTextureSwapList;
-				BGSListForm* femaleSkinTextureSwapList;
-			};
-			std::array<BGSListForm*, std::to_underlying(SEX::kTotal)> skinTextureSwapLists;
-		}; // 1E0
-		BSTArray<TESRace*> additionalRaces; // 1F0
-		BGSFootstepSet* footstepSet;		// 208
-		BGSArtObject* artObject;			// 210
-		union
-		{
-			struct
-			{
-				BSTHashMap<BSFixedString, NiPoint3>* maleBoneScaleModifiers;
-				BSTHashMap<BSFixedString, NiPoint3>* femaleBoneScaleModifiers;
-			};
-			std::array<BSTHashMap<BSFixedString, NiPoint3>*, std::to_underlying(SEX::kTotal)> boneScaleModifiers;
-		}; // 218
+		OBJ_ARMA data;																						  // 040
+		std::array<BGSModelMaterialSwap, std::to_underlying(SEX::kTotal)> bipedModels;						  // 050
+		std::array<BGSModelMaterialSwap, std::to_underlying(SEX::kTotal)> bipedModelFacebones;				  // 0D0
+		std::array<BGSModelMaterialSwap, std::to_underlying(SEX::kTotal)> bipedModel1stPerson;				  // 150
+		std::array<BGSTextureSet*, std::to_underlying(SEX::kTotal)> skinTextures;							  // 1D0
+		std::array<BGSListForm*, std::to_underlying(SEX::kTotal)> skinTextureSwapLists;						  // 1E0
+		BSTArray<TESRace*> additionalRaces;																	  // 1F0
+		BGSFootstepSet* footstepSet;																		  // 208
+		BGSArtObject* artObject;																			  // 210
+		std::array<BSTHashMap<BSFixedString, NiPoint3>*, std::to_underlying(SEX::kTotal)> boneScaleModifiers; // 218
 	};
 	static_assert(sizeof(TESObjectARMA) == 0x228);
 }

@@ -28,7 +28,7 @@ namespace RE
 		{
 			using FuncType = decltype(&EquippedWeaponData::SetupFireSounds);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::EquippedWeaponData::SetupFireSounds };
-			FUNC(this, a_actor, a_weapon);
+			std::invoke(FUNC, this, a_actor, a_weapon);
 		}
 
 		// members

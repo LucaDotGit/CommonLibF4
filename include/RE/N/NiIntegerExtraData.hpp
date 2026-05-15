@@ -17,10 +17,17 @@ namespace RE
 			REL::EmplaceVtable(this);
 		}
 
+		NiIntegerExtraData(BSFixedString a_name, std::int32_t a_value)
+			: NiExtraData(std::move(a_name)),
+			  value(a_value)
+		{
+			REL::EmplaceVtable(this);
+		}
+
 		~NiIntegerExtraData() override; // 00
 
 		// members
-		std::int32_t data{ 0 }; // 18
+		std::int32_t value{ 0 }; // 18
 	};
 	static_assert(sizeof(NiIntegerExtraData) == 0x20);
 }

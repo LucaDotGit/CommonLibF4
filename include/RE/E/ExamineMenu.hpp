@@ -2,6 +2,7 @@
 
 #include "RE/E/ExamineConfirmMenu.hpp"
 #include "RE/I/InventoryUserUIInterface.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 #include "RE/W/WorkbenchMenuBase.hpp"
 
 namespace RE
@@ -104,7 +105,7 @@ namespace RE
 		{
 			using FuncType = decltype(&ExamineMenu::BuildWeaponScrappingArray);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::ExamineMenu::BuildWeaponScrappingArray };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		[[nodiscard]] std::uint32_t GetSelectedIndex()
@@ -118,14 +119,14 @@ namespace RE
 		{
 			using FuncType = decltype(&ExamineMenu::ShowConfirmMenu);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::ExamineMenu::ShowConfirmMenu };
-			FUNC(this, a_data, a_callback);
+			std::invoke(FUNC, this, a_data, a_callback);
 		}
 
 		void ConsumeSelectedItems(bool a_autoBuild, const BGSSoundDescriptorForm* a_consumeSound)
 		{
 			using FuncType = decltype(&ExamineMenu::ConsumeSelectedItems);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::ExamineMenu::ConsumeSelectedItems };
-			FUNC(this, a_autoBuild, a_consumeSound);
+			std::invoke(FUNC, this, a_autoBuild, a_consumeSound);
 		}
 
 		// members

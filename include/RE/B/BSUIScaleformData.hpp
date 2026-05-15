@@ -16,6 +16,14 @@ namespace RE
 		inline static constexpr auto RTTI{ RTTI::BSUIScaleformData };
 		inline static constexpr auto VTABLE{ VTABLE::BSUIScaleformData };
 
+		BSUIScaleformData(BSFixedString a_menuName, UI_MESSAGE_TYPE a_type)
+			: IUIMessageData(std::move(a_menuName), a_type)
+		{
+			REL::EmplaceVtable(this);
+		}
+
+		~BSUIScaleformData() override = default; // 00
+
 		// members
 		::Scaleform::GFx::Event* scaleformEvent{ nullptr }; // 18
 	};

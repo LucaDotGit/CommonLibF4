@@ -14,6 +14,7 @@ namespace RE
 		: public hkHandle<std::uint32_t, std::numeric_limits<std::int32_t>::max(), hknpMotionIdBaseDiscriminant>
 	{
 	public:
+		using hkHandle::hkHandle;
 	};
 	static_assert(sizeof(hknpMotionId) == 0x04);
 }

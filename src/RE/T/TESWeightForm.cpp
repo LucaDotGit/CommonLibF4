@@ -6,7 +6,8 @@
 
 namespace RE
 {
-	auto TESWeightForm::GetFormWeight(const TESForm* a_form) -> std::optional<REX::Float32>
+	auto TESWeightForm::GetFormWeight(const TESForm* a_form)
+		-> std::optional<REX::Float32>
 	{
 		if (!a_form) {
 			return std::nullopt;

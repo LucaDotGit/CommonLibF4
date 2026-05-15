@@ -9,7 +9,8 @@ namespace RE
 		return std::invoke(FUNC, this, a_baseObject);
 	}
 
-	auto ExtraTextDisplayData::GetCustomName() const -> std::optional<BSFixedStringCS>
+	auto ExtraTextDisplayData::GetCustomName() const
+		-> std::optional<BSFixedStringCS>
 	{
 		if (ownerInstance != DisplayDataType::kCustomName) {
 			return std::nullopt;

@@ -2,13 +2,14 @@
 
 #if COMMONLIB_OPTION_TOML == 1
 
+#include "REX/IO.hpp"
 #include "REX/Log.hpp"
 #include "REX/TomlUtility.hpp"
 
 namespace REX::Toml::Impl
 {
 	template <class T>
-	bool SettingLoad(
+	bool LoadSetting(
 		const std::any& a_data,
 		const sec_t& a_section,
 		const key_t& a_key,
@@ -83,7 +84,7 @@ namespace REX::Toml::Impl
 				}
 
 				const auto& array = valueIt->second.as_array();
-				a_value = std::vector<toml::value>(array.begin(), array.end());
+				a_value = std::vector<toml::value>{ array.begin(), array.end() };
 				return true;
 			}
 			else {
@@ -97,39 +98,39 @@ namespace REX::Toml::Impl
 		}
 	}
 
-	template bool SettingLoad<bool>(const std::any&, const sec_t&, const key_t&, bool&, const bool&);
-	template bool SettingLoad<std::int8_t>(const std::any&, const sec_t&, const key_t&, std::int8_t&, const std::int8_t&);
-	template bool SettingLoad<std::uint8_t>(const std::any&, const sec_t&, const key_t&, std::uint8_t&, const std::uint8_t&);
-	template bool SettingLoad<std::int16_t>(const std::any&, const sec_t&, const key_t&, std::int16_t&, const std::int16_t&);
-	template bool SettingLoad<std::uint16_t>(const std::any&, const sec_t&, const key_t&, std::uint16_t&, const std::uint16_t&);
-	template bool SettingLoad<std::int32_t>(const std::any&, const sec_t&, const key_t&, std::int32_t&, const std::int32_t&);
-	template bool SettingLoad<std::uint32_t>(const std::any&, const sec_t&, const key_t&, std::uint32_t&, const std::uint32_t&);
-	template bool SettingLoad<std::int64_t>(const std::any&, const sec_t&, const key_t&, std::int64_t&, const std::int64_t&);
-	template bool SettingLoad<std::uint64_t>(const std::any&, const sec_t&, const key_t&, std::uint64_t&, const std::uint64_t&);
-	template bool SettingLoad<REX::Float32>(const std::any&, const sec_t&, const key_t&, REX::Float32&, const REX::Float32&);
-	template bool SettingLoad<REX::Float64>(const std::any&, const sec_t&, const key_t&, REX::Float64&, const REX::Float64&);
-	template bool SettingLoad<REX::Float128>(const std::any&, const sec_t&, const key_t&, REX::Float128&, const REX::Float128&);
-	template bool SettingLoad<std::string>(const std::any&, const sec_t&, const key_t&, std::string&, const std::string&);
-	template bool SettingLoad<std::filesystem::path>(const std::any&, const sec_t&, const key_t&, std::filesystem::path&, const std::filesystem::path&);
-	template bool SettingLoad<toml::value>(const std::any&, const sec_t&, const key_t&, toml::value&, const toml::value&);
-	template bool SettingLoad<std::vector<bool>>(const std::any&, const sec_t&, const key_t&, std::vector<bool>&, const std::vector<bool>&);
-	template bool SettingLoad<std::vector<std::int8_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::int8_t>&, const std::vector<std::int8_t>&);
-	template bool SettingLoad<std::vector<std::uint8_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint8_t>&, const std::vector<std::uint8_t>&);
-	template bool SettingLoad<std::vector<std::int16_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::int16_t>&, const std::vector<std::int16_t>&);
-	template bool SettingLoad<std::vector<std::uint16_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint16_t>&, const std::vector<std::uint16_t>&);
-	template bool SettingLoad<std::vector<std::int32_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::int32_t>&, const std::vector<std::int32_t>&);
-	template bool SettingLoad<std::vector<std::uint32_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint32_t>&, const std::vector<std::uint32_t>&);
-	template bool SettingLoad<std::vector<std::int64_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::int64_t>&, const std::vector<std::int64_t>&);
-	template bool SettingLoad<std::vector<std::uint64_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint64_t>&, const std::vector<std::uint64_t>&);
-	template bool SettingLoad<std::vector<REX::Float32>>(const std::any&, const sec_t&, const key_t&, std::vector<REX::Float32>&, const std::vector<REX::Float32>&);
-	template bool SettingLoad<std::vector<REX::Float64>>(const std::any&, const sec_t&, const key_t&, std::vector<REX::Float64>&, const std::vector<REX::Float64>&);
-	template bool SettingLoad<std::vector<REX::Float128>>(const std::any&, const sec_t&, const key_t&, std::vector<REX::Float128>&, const std::vector<REX::Float128>&);
-	template bool SettingLoad<std::vector<std::string>>(const std::any&, const sec_t&, const key_t&, std::vector<std::string>&, const std::vector<std::string>&);
-	template bool SettingLoad<std::vector<std::filesystem::path>>(const std::any&, const sec_t&, const key_t&, std::vector<std::filesystem::path>&, const std::vector<std::filesystem::path>&);
-	template bool SettingLoad<std::vector<toml::value>>(const std::any&, const sec_t&, const key_t&, std::vector<toml::value>&, const std::vector<toml::value>&);
+	template bool LoadSetting<bool>(const std::any&, const sec_t&, const key_t&, bool&, const bool&);
+	template bool LoadSetting<std::int8_t>(const std::any&, const sec_t&, const key_t&, std::int8_t&, const std::int8_t&);
+	template bool LoadSetting<std::uint8_t>(const std::any&, const sec_t&, const key_t&, std::uint8_t&, const std::uint8_t&);
+	template bool LoadSetting<std::int16_t>(const std::any&, const sec_t&, const key_t&, std::int16_t&, const std::int16_t&);
+	template bool LoadSetting<std::uint16_t>(const std::any&, const sec_t&, const key_t&, std::uint16_t&, const std::uint16_t&);
+	template bool LoadSetting<std::int32_t>(const std::any&, const sec_t&, const key_t&, std::int32_t&, const std::int32_t&);
+	template bool LoadSetting<std::uint32_t>(const std::any&, const sec_t&, const key_t&, std::uint32_t&, const std::uint32_t&);
+	template bool LoadSetting<std::int64_t>(const std::any&, const sec_t&, const key_t&, std::int64_t&, const std::int64_t&);
+	template bool LoadSetting<std::uint64_t>(const std::any&, const sec_t&, const key_t&, std::uint64_t&, const std::uint64_t&);
+	template bool LoadSetting<REX::Float32>(const std::any&, const sec_t&, const key_t&, REX::Float32&, const REX::Float32&);
+	template bool LoadSetting<REX::Float64>(const std::any&, const sec_t&, const key_t&, REX::Float64&, const REX::Float64&);
+	template bool LoadSetting<REX::Float128>(const std::any&, const sec_t&, const key_t&, REX::Float128&, const REX::Float128&);
+	template bool LoadSetting<std::string>(const std::any&, const sec_t&, const key_t&, std::string&, const std::string&);
+	template bool LoadSetting<std::filesystem::path>(const std::any&, const sec_t&, const key_t&, std::filesystem::path&, const std::filesystem::path&);
+	template bool LoadSetting<toml::value>(const std::any&, const sec_t&, const key_t&, toml::value&, const toml::value&);
+	template bool LoadSetting<std::vector<bool>>(const std::any&, const sec_t&, const key_t&, std::vector<bool>&, const std::vector<bool>&);
+	template bool LoadSetting<std::vector<std::int8_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::int8_t>&, const std::vector<std::int8_t>&);
+	template bool LoadSetting<std::vector<std::uint8_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint8_t>&, const std::vector<std::uint8_t>&);
+	template bool LoadSetting<std::vector<std::int16_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::int16_t>&, const std::vector<std::int16_t>&);
+	template bool LoadSetting<std::vector<std::uint16_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint16_t>&, const std::vector<std::uint16_t>&);
+	template bool LoadSetting<std::vector<std::int32_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::int32_t>&, const std::vector<std::int32_t>&);
+	template bool LoadSetting<std::vector<std::uint32_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint32_t>&, const std::vector<std::uint32_t>&);
+	template bool LoadSetting<std::vector<std::int64_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::int64_t>&, const std::vector<std::int64_t>&);
+	template bool LoadSetting<std::vector<std::uint64_t>>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint64_t>&, const std::vector<std::uint64_t>&);
+	template bool LoadSetting<std::vector<REX::Float32>>(const std::any&, const sec_t&, const key_t&, std::vector<REX::Float32>&, const std::vector<REX::Float32>&);
+	template bool LoadSetting<std::vector<REX::Float64>>(const std::any&, const sec_t&, const key_t&, std::vector<REX::Float64>&, const std::vector<REX::Float64>&);
+	template bool LoadSetting<std::vector<REX::Float128>>(const std::any&, const sec_t&, const key_t&, std::vector<REX::Float128>&, const std::vector<REX::Float128>&);
+	template bool LoadSetting<std::vector<std::string>>(const std::any&, const sec_t&, const key_t&, std::vector<std::string>&, const std::vector<std::string>&);
+	template bool LoadSetting<std::vector<std::filesystem::path>>(const std::any&, const sec_t&, const key_t&, std::vector<std::filesystem::path>&, const std::vector<std::filesystem::path>&);
+	template bool LoadSetting<std::vector<toml::value>>(const std::any&, const sec_t&, const key_t&, std::vector<toml::value>&, const std::vector<toml::value>&);
 
 	template <class T>
-	bool SettingSave(
+	bool SaveSetting(
 		const std::any& a_data,
 		const sec_t& a_section,
 		const key_t& a_key,
@@ -150,43 +151,43 @@ namespace REX::Toml::Impl
 		return true;
 	}
 
-	template bool SettingSave<bool&>(const std::any&, const sec_t&, const key_t&, bool&);
-	template bool SettingSave<std::int8_t&>(const std::any&, const sec_t&, const key_t&, std::int8_t&);
-	template bool SettingSave<std::uint8_t&>(const std::any&, const sec_t&, const key_t&, std::uint8_t&);
-	template bool SettingSave<std::int16_t&>(const std::any&, const sec_t&, const key_t&, std::int16_t&);
-	template bool SettingSave<std::uint16_t&>(const std::any&, const sec_t&, const key_t&, std::uint16_t&);
-	template bool SettingSave<std::int32_t&>(const std::any&, const sec_t&, const key_t&, std::int32_t&);
-	template bool SettingSave<std::uint32_t&>(const std::any&, const sec_t&, const key_t&, std::uint32_t&);
-	template bool SettingSave<std::int64_t&>(const std::any&, const sec_t&, const key_t&, std::int64_t&);
-	template bool SettingSave<std::uint64_t&>(const std::any&, const sec_t&, const key_t&, std::uint64_t&);
-	template bool SettingSave<REX::Float32&>(const std::any&, const sec_t&, const key_t&, REX::Float32&);
-	template bool SettingSave<REX::Float64&>(const std::any&, const sec_t&, const key_t&, REX::Float64&);
-	template bool SettingSave<REX::Float128&>(const std::any&, const sec_t&, const key_t&, REX::Float128&);
-	template bool SettingSave<std::string&>(const std::any&, const sec_t&, const key_t&, std::string&);
-	template bool SettingSave<std::filesystem::path&>(const std::any&, const sec_t&, const key_t&, std::filesystem::path&);
-	template bool SettingSave<toml::value&>(const std::any&, const sec_t&, const key_t&, toml::value&);
-	template bool SettingSave<std::vector<bool>&>(const std::any&, const sec_t&, const key_t&, std::vector<bool>&);
-	template bool SettingSave<std::vector<std::int8_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::int8_t>&);
-	template bool SettingSave<std::vector<std::uint8_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint8_t>&);
-	template bool SettingSave<std::vector<std::int16_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::int16_t>&);
-	template bool SettingSave<std::vector<std::uint16_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint16_t>&);
-	template bool SettingSave<std::vector<std::int32_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::int32_t>&);
-	template bool SettingSave<std::vector<std::uint32_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint32_t>&);
-	template bool SettingSave<std::vector<std::int64_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::int64_t>&);
-	template bool SettingSave<std::vector<std::uint64_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint64_t>&);
-	template bool SettingSave<std::vector<REX::Float32>&>(const std::any&, const sec_t&, const key_t&, std::vector<REX::Float32>&);
-	template bool SettingSave<std::vector<REX::Float64>&>(const std::any&, const sec_t&, const key_t&, std::vector<REX::Float64>&);
-	template bool SettingSave<std::vector<REX::Float128>&>(const std::any&, const sec_t&, const key_t&, std::vector<REX::Float128>&);
-	template bool SettingSave<std::vector<std::string>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::string>&);
-	template bool SettingSave<std::vector<std::filesystem::path>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::filesystem::path>&);
-	template bool SettingSave<std::vector<toml::value>&>(const std::any&, const sec_t&, const key_t&, std::vector<toml::value>&);
+	template bool SaveSetting<bool&>(const std::any&, const sec_t&, const key_t&, bool&);
+	template bool SaveSetting<std::int8_t&>(const std::any&, const sec_t&, const key_t&, std::int8_t&);
+	template bool SaveSetting<std::uint8_t&>(const std::any&, const sec_t&, const key_t&, std::uint8_t&);
+	template bool SaveSetting<std::int16_t&>(const std::any&, const sec_t&, const key_t&, std::int16_t&);
+	template bool SaveSetting<std::uint16_t&>(const std::any&, const sec_t&, const key_t&, std::uint16_t&);
+	template bool SaveSetting<std::int32_t&>(const std::any&, const sec_t&, const key_t&, std::int32_t&);
+	template bool SaveSetting<std::uint32_t&>(const std::any&, const sec_t&, const key_t&, std::uint32_t&);
+	template bool SaveSetting<std::int64_t&>(const std::any&, const sec_t&, const key_t&, std::int64_t&);
+	template bool SaveSetting<std::uint64_t&>(const std::any&, const sec_t&, const key_t&, std::uint64_t&);
+	template bool SaveSetting<REX::Float32&>(const std::any&, const sec_t&, const key_t&, REX::Float32&);
+	template bool SaveSetting<REX::Float64&>(const std::any&, const sec_t&, const key_t&, REX::Float64&);
+	template bool SaveSetting<REX::Float128&>(const std::any&, const sec_t&, const key_t&, REX::Float128&);
+	template bool SaveSetting<std::string&>(const std::any&, const sec_t&, const key_t&, std::string&);
+	template bool SaveSetting<std::filesystem::path&>(const std::any&, const sec_t&, const key_t&, std::filesystem::path&);
+	template bool SaveSetting<toml::value&>(const std::any&, const sec_t&, const key_t&, toml::value&);
+	template bool SaveSetting<std::vector<bool>&>(const std::any&, const sec_t&, const key_t&, std::vector<bool>&);
+	template bool SaveSetting<std::vector<std::int8_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::int8_t>&);
+	template bool SaveSetting<std::vector<std::uint8_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint8_t>&);
+	template bool SaveSetting<std::vector<std::int16_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::int16_t>&);
+	template bool SaveSetting<std::vector<std::uint16_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint16_t>&);
+	template bool SaveSetting<std::vector<std::int32_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::int32_t>&);
+	template bool SaveSetting<std::vector<std::uint32_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint32_t>&);
+	template bool SaveSetting<std::vector<std::int64_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::int64_t>&);
+	template bool SaveSetting<std::vector<std::uint64_t>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::uint64_t>&);
+	template bool SaveSetting<std::vector<REX::Float32>&>(const std::any&, const sec_t&, const key_t&, std::vector<REX::Float32>&);
+	template bool SaveSetting<std::vector<REX::Float64>&>(const std::any&, const sec_t&, const key_t&, std::vector<REX::Float64>&);
+	template bool SaveSetting<std::vector<REX::Float128>&>(const std::any&, const sec_t&, const key_t&, std::vector<REX::Float128>&);
+	template bool SaveSetting<std::vector<std::string>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::string>&);
+	template bool SaveSetting<std::vector<std::filesystem::path>&>(const std::any&, const sec_t&, const key_t&, std::vector<std::filesystem::path>&);
+	template bool SaveSetting<std::vector<toml::value>&>(const std::any&, const sec_t&, const key_t&, std::vector<toml::value>&);
 }
 
 namespace REX::Toml
 {
 	bool SettingStore::Load()
 	{
-		const auto doLoad = [this](const std::filesystem::path& a_path, bool a_isMain) -> std::optional<toml::exception> {
+		const auto doLoad = [this](const std::filesystem::path& a_path, bool a_isMain) -> std::optional<std::string> {
 			if (a_path.empty()) {
 				return std::nullopt;
 			}
@@ -194,10 +195,17 @@ namespace REX::Toml
 			auto root = toml::value();
 
 			try {
-				root = toml::parse(a_path);
+				auto fileStream = std::fstream(a_path, std::ios::in);
+				fileStream.exceptions(std::ios::failbit | std::ios::badbit);
+
+				auto fileContent = std::string{ std::istreambuf_iterator<char>(fileStream), std::istreambuf_iterator<char>() };
+				root = toml::parse_str(std::move(fileContent), REX::Toml::SPECIFICATION_VERSION);
+			}
+			catch (const std::ios::failure& error) {
+				return error.what();
 			}
 			catch (const toml::exception& error) {
-				return error;
+				return error.what();
 			}
 
 			for (const auto& setting : _settings) {
@@ -210,7 +218,7 @@ namespace REX::Toml
 		const auto loadError = doLoad(_mainPath, true);
 		if (loadError) [[unlikely]] {
 			REX::LogError(R"(Failed to load settings from "{}": {})"sv,
-				_mainPath.generic_string(), loadError->what());
+				_mainPath.generic_string(), *loadError);
 			return false;
 		}
 
@@ -220,7 +228,7 @@ namespace REX::Toml
 
 	bool SettingStore::Save()
 	{
-		const auto doSave = [this](const std::filesystem::path& a_path) -> std::optional<toml::exception> {
+		const auto doSave = [this](const std::filesystem::path& a_path) -> std::optional<std::string> {
 			if (a_path.empty()) {
 				return std::nullopt;
 			}
@@ -228,10 +236,17 @@ namespace REX::Toml
 			auto output = toml::value();
 
 			try {
-				output = toml::parse(a_path);
+				auto fileStream = std::fstream(a_path, std::ios::in);
+				fileStream.exceptions(std::ios::failbit | std::ios::badbit);
+
+				auto fileContent = std::string{ std::istreambuf_iterator<char>(fileStream), std::istreambuf_iterator<char>() };
+				output = toml::parse_str(std::move(fileContent), REX::Toml::SPECIFICATION_VERSION);
 			}
-			catch ([[maybe_unused]] const toml::exception& error) {
-				output = toml::value();
+			catch (const std::ios::failure& error) {
+				std::ignore = error;
+			}
+			catch (const toml::exception& error) {
+				std::ignore = error;
 			}
 
 			for (const auto& setting : _settings) {
@@ -239,19 +254,33 @@ namespace REX::Toml
 			}
 
 			try {
-				auto stream = std::fstream(a_path, std::ios::out | std::ios::trunc);
-				REX::Print(stream, "{}"sv, toml::format(output, REX::Toml::SPECIFICATION_VERSION));
+				REX::CreateParentDirectories(a_path);
+			}
+			catch (const std::filesystem::filesystem_error& error) {
+				return error.what();
+			}
+
+			try {
+				auto fileStream = std::fstream(a_path, std::ios::out | std::ios::trunc);
+				fileStream.exceptions(std::ios::failbit | std::ios::badbit);
+
+				auto fileOutput = toml::format(output, REX::Toml::SPECIFICATION_VERSION);
+				REX::Print(fileStream, "{}"sv, std::move(fileOutput));
+
 				return std::nullopt;
 			}
+			catch (const std::ios::failure& error) {
+				return error.what();
+			}
 			catch (const toml::exception& error) {
-				return error;
+				return error.what();
 			}
 		};
 
 		const auto saveError = doSave(_mainPath);
 		if (saveError) [[unlikely]] {
 			REX::LogError(R"(Failed to save settings to "{}": {})"sv,
-				_mainPath.generic_string(), saveError->what());
+				_mainPath.generic_string(), *saveError);
 			return false;
 		}
 

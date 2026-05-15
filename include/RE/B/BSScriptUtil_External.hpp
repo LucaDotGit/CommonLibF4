@@ -185,8 +185,8 @@ namespace RE::BSScript
 		Args&&... a_args) const
 		requires((REX::formattable<Args, char> && ...))
 	{
-		const auto message = REX::Format(a_format, std::forward<Args>(a_args)...);
-		PostMessage(static_cast<REX::zstring_view>(message), a_stackID, a_severity);
+		const auto formatData = REX::FixedFormat(a_format, std::forward<Args>(a_args)...);
+		PostMessage(REX::zstring_view{ formatData.buffer.data(), formatData.size }, a_stackID, a_severity);
 	}
 
 	template <class... Args>
@@ -196,8 +196,8 @@ namespace RE::BSScript
 		Args&&... a_args) const
 		requires((REX::formattable<Args, char> && ...))
 	{
-		const auto message = REX::Format(a_format, std::forward<Args>(a_args)...);
-		PostInfo(static_cast<REX::zstring_view>(message), a_stackID);
+		const auto formatData = REX::FixedFormat(a_format, std::forward<Args>(a_args)...);
+		PostInfo(REX::zstring_view{ formatData.buffer.data(), formatData.size }, a_stackID);
 	}
 
 	template <class... Args>
@@ -207,8 +207,8 @@ namespace RE::BSScript
 		Args&&... a_args) const
 		requires((REX::formattable<Args, char> && ...))
 	{
-		const auto message = REX::Format(a_format, std::forward<Args>(a_args)...);
-		PostWarning(static_cast<REX::zstring_view>(message), a_stackID);
+		const auto formatData = REX::FixedFormat(a_format, std::forward<Args>(a_args)...);
+		PostWarning(REX::zstring_view{ formatData.buffer.data(), formatData.size }, a_stackID);
 	}
 
 	template <class... Args>
@@ -218,8 +218,8 @@ namespace RE::BSScript
 		Args&&... a_args) const
 		requires((REX::formattable<Args, char> && ...))
 	{
-		const auto message = REX::Format(a_format, std::forward<Args>(a_args)...);
-		PostError(static_cast<REX::zstring_view>(message), a_stackID);
+		const auto formatData = REX::FixedFormat(a_format, std::forward<Args>(a_args)...);
+		PostError(REX::zstring_view{ formatData.buffer.data(), formatData.size }, a_stackID);
 	}
 
 	template <class... Args>
@@ -229,12 +229,13 @@ namespace RE::BSScript
 		Args&&... a_args) const
 		requires((REX::formattable<Args, char> && ...))
 	{
-		const auto message = REX::Format(a_format, std::forward<Args>(a_args)...);
-		PostFatal(static_cast<REX::zstring_view>(message), a_stackID);
+		const auto formatData = REX::FixedFormat(a_format, std::forward<Args>(a_args)...);
+		PostFatal(REX::zstring_view{ formatData.buffer.data(), formatData.size }, a_stackID);
 	}
 
 	template <class T>
-	auto Object::FindVariable(REX::zstring_view a_name) const -> std::optional<T>
+	auto Object::FindVariable(REX::zstring_view a_name) const
+		-> std::optional<T>
 		requires(BSScript::ValidateParameter<T>())
 	{
 		const auto* variable = GetVariable(BSFixedString(a_name));
@@ -260,7 +261,8 @@ namespace RE::BSScript
 	}
 
 	template <class T>
-	auto Object::FindProperty(REX::zstring_view a_name) const -> std::optional<T>
+	auto Object::FindProperty(REX::zstring_view a_name) const
+		-> std::optional<T>
 		requires(BSScript::ValidateParameter<T>())
 	{
 		const auto* property = GetProperty(BSFixedString(a_name));
@@ -314,7 +316,8 @@ namespace RE::BSScript
 	}
 
 	template <class T>
-	auto Struct::Find(REX::zstring_view a_name) const -> std::optional<T>
+	auto Struct::Find(REX::zstring_view a_name) const
+		-> std::optional<T>
 		requires(BSScript::ValidateParameter<T>())
 	{
 		const auto* variable = GetVariable(BSFixedString(a_name));
@@ -356,7 +359,7 @@ namespace RE::BSScript
 	bool Struct::Insert(REX::zstring_view a_name, T&& a_value)
 		requires(BSScript::ValidateParameter<std::remove_reference_t<T>>())
 	{
-		const auto* variable = GetVariable(BSFixedString(a_name));
+		auto* variable = GetVariable(BSFixedString(a_name));
 		if (!variable) {
 			return false;
 		}
@@ -381,14 +384,14 @@ namespace RE::BSScript
 	}
 }
 
-#define BASIC_RE_REGISTER_VM_FUNCTION(a_vm, a_scriptName, a_func, a_taskletCallable)                      \
-	if (!(a_vm)->BindNativeFunction(a_scriptName, #a_func##sv, a_func, a_taskletCallable)) [[unlikely]] { \
-		REX::Assert(false);                                                                               \
+#define BASIC_RE_REGISTER_VM_FUNCTION(a_vm, a_scriptName, a_func, a_taskletCallable)                     \
+	if (!(a_vm).BindNativeFunction(a_scriptName, #a_func##sv, a_func, a_taskletCallable)) [[unlikely]] { \
+		REX::Assert(false);                                                                              \
 	}
 
-#define BASIC_REGISTER_VM_LATENT_FUNCTION(a_vm, a_scriptName, a_func, a_taskletCallable)                        \
-	if (!(a_vm)->BindNativeLatentFunction(a_scriptName, #a_func##sv, a_func, a_taskletCallable)) [[unlikely]] { \
-		REX::Assert(false);                                                                                     \
+#define BASIC_REGISTER_VM_LATENT_FUNCTION(a_vm, a_scriptName, a_func, a_taskletCallable)                       \
+	if (!(a_vm).BindNativeLatentFunction(a_scriptName, #a_func##sv, a_func, a_taskletCallable)) [[unlikely]] { \
+		REX::Assert(false);                                                                                    \
 	}
 
 #define RE_REGISTER_VM_FUNCTION(a_vm, a_scriptName, a_func) \

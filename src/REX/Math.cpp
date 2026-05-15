@@ -2,7 +2,8 @@
 
 namespace REX::Impl
 {
-	[[nodiscard]] auto GetLgammaMutex() noexcept -> REX::NotAssignable<std::mutex>&
+	[[nodiscard]] auto GetLgammaMutex() noexcept
+		-> REX::NotAssignable<std::mutex>&
 	{
 		static constinit auto Mutex = REX::NotAssignable<std::mutex>();
 		return Mutex;

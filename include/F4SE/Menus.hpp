@@ -20,6 +20,11 @@ namespace RE
 	class UIMessage;
 }
 
+namespace RE::UserEvents
+{
+	enum class INPUT_CONTEXT_ID : std::int32_t;
+}
+
 namespace F4SE::Menus
 {
 	// This API should only be used after the game data is ready; it is also thread-safe.
@@ -39,8 +44,22 @@ namespace F4SE::Menus
 			std::string a_menuName,
 			std::filesystem::path a_menuFilePath,
 			std::string a_rootVarPath,
-			REX::EnumSet<RE::UI_MENU_FLAGS, std::uint32_t> a_menuFlags,
-			REX::Enum<RE::UI_DEPTH_PRIORITY, std::int32_t> a_menuDepth);
+			RE::UI_MENU_FLAGS a_menuFlags);
+
+		MenuInfo(
+			std::string a_menuName,
+			std::filesystem::path a_menuFilePath,
+			std::string a_rootVarPath,
+			RE::UI_MENU_FLAGS a_menuFlags,
+			RE::UI_DEPTH_PRIORITY a_menuDepth);
+
+		MenuInfo(
+			std::string a_menuName,
+			std::filesystem::path a_menuFilePath,
+			std::string a_rootVarPath,
+			RE::UI_MENU_FLAGS a_menuFlags,
+			RE::UI_DEPTH_PRIORITY a_menuDepth,
+			RE::UserEvents::INPUT_CONTEXT_ID a_inputContext);
 
 		virtual ~MenuInfo() noexcept;
 
@@ -50,16 +69,26 @@ namespace F4SE::Menus
 		MenuInfo& operator=(const MenuInfo&) = default;
 		MenuInfo& operator=(MenuInfo&&) noexcept = default;
 
-		[[nodiscard]] virtual auto CreateMenuInstance() const -> REX::NotNull<std::unique_ptr<RE::GameMenuBase>>;
+		[[nodiscard]] auto GetMenuName() const noexcept { return std::string_view(_menuName); }
+		[[nodiscard]] const auto& GetMenuFilePath() const noexcept { return _menuFilePath; }
+		[[nodiscard]] auto GetRootVarPath() const noexcept { return std::string_view(_rootVarPath); }
+		[[nodiscard]] auto GetMenuFlags() const noexcept { return _menuFlags.get(); }
+		[[nodiscard]] auto GetMenuDepth() const noexcept { return _menuDepth.get(); }
+		[[nodiscard]] auto GetMenuInputContext() const noexcept { return _menuInputContext.get(); }
+
+		[[nodiscard]] virtual auto CreateMenuInstance() const
+			-> REX::NotNull<std::unique_ptr<RE::GameMenuBase>>;
 
 		virtual void OnMenuLoadSuccess(const REX::NotNull<std::unique_ptr<RE::GameMenuBase>>& a_menuInstance) const;
 		virtual void OnMenuLoadFailure(const REX::NotNull<std::unique_ptr<RE::GameMenuBase>>& a_menuInstance) const;
 
-		std::string menuName;
-		std::filesystem::path menuFilePath;
-		std::string rootVarPath;
-		REX::EnumSet<RE::UI_MENU_FLAGS, std::uint32_t> menuFlags;
-		REX::Enum<RE::UI_DEPTH_PRIORITY, std::int32_t> menuDepth;
+	protected:
+		std::string _menuName;
+		std::filesystem::path _menuFilePath;
+		std::string _rootVarPath;
+		REX::EnumSet<RE::UI_MENU_FLAGS, std::uint32_t> _menuFlags;
+		REX::Enum<RE::UI_DEPTH_PRIORITY, std::int32_t> _menuDepth;
+		REX::Enum<RE::UserEvents::INPUT_CONTEXT_ID, std::int32_t> _menuInputContext;
 	};
 
 	class MenuAssetInfo
@@ -81,12 +110,17 @@ namespace F4SE::Menus
 		MenuAssetInfo& operator=(const MenuAssetInfo&) = default;
 		MenuAssetInfo& operator=(MenuAssetInfo&&) noexcept = default;
 
+		[[nodiscard]] auto GetMenuName() const noexcept { return std::string_view(_menuName); }
+		[[nodiscard]] const auto& GetAssetFilePath() const noexcept { return _assetFilePath; }
+		[[nodiscard]] auto GetRootVarPath() const noexcept { return std::string_view(_rootVarPath); }
+
 		virtual void OnAssetLoadSuccess(const REX::NotNull<::Scaleform::Ptr<RE::IMenu>>& a_menuInstance) const;
 		virtual void OnAssetLoadFailure(const REX::NotNull<::Scaleform::Ptr<RE::IMenu>>& a_menuInstance) const;
 
-		std::string menuName;
-		std::filesystem::path assetFilePath;
-		std::string rootVarPath;
+	protected:
+		std::string _menuName;
+		std::filesystem::path _assetFilePath;
+		std::string _rootVarPath;
 	};
 
 	class MenuAssetLoader final
@@ -103,7 +137,7 @@ namespace F4SE::Menus
 		MenuAssetLoader& operator=(const MenuAssetLoader&) = delete;
 		MenuAssetLoader& operator=(MenuAssetLoader&&) = delete;
 
-		[[nodiscard]] auto GetMenuAssetInfo() const noexcept -> REX::NotNull<std::shared_ptr<MenuAssetInfo>> { return _assetInfo; }
+		[[nodiscard]] auto GetMenuAssetInfo() const noexcept { return _assetInfo; }
 
 		RE::BSEventNotifyControl ProcessEvent(
 			const RE::MenuOpenCloseEvent& a_event,
@@ -127,19 +161,22 @@ namespace F4SE::Menus
 	[[nodiscard]] bool IsMenuOpen(std::string_view a_menuName);
 	[[nodiscard]] bool IsMenuOpen(const RE::BSFixedString& a_menuName);
 
-	[[nodiscard]] auto GetMenuInstance(std::string_view a_menuName) -> ::Scaleform::Ptr<RE::IMenu>;
-	[[nodiscard]] auto GetMenuInstance(const RE::BSFixedString& a_menuName) -> ::Scaleform::Ptr<RE::IMenu>;
+	[[nodiscard]] auto GetMenuInstance(std::string_view a_menuName)
+		-> ::Scaleform::Ptr<RE::IMenu>;
+	[[nodiscard]] auto GetMenuInstance(const RE::BSFixedString& a_menuName)
+		-> ::Scaleform::Ptr<RE::IMenu>;
 
-	bool OpenMenu(std::string_view a_menuName);
-	bool OpenMenu(const RE::BSFixedString& a_menuName);
+	bool OpenMenuAsync(std::string_view a_menuName);
+	bool OpenMenuAsync(const RE::BSFixedString& a_menuName);
 
-	bool CloseMenu(std::string_view a_menuName);
-	bool CloseMenu(const RE::BSFixedString& a_menuName);
+	bool CloseMenuAsync(std::string_view a_menuName);
+	bool CloseMenuAsync(const RE::BSFixedString& a_menuName);
 
-	bool ForceCloseMenu(std::string_view a_menuName);
-	bool ForceCloseMenu(const RE::BSFixedString& a_menuName);
+	bool ForceCloseMenuAsync(std::string_view a_menuName);
+	bool ForceCloseMenuAsync(const RE::BSFixedString& a_menuName);
 
-	auto CreateMenuAssetLoader(const REX::NotNull<std::shared_ptr<MenuAssetInfo>>& a_assetInfo) -> REX::NotNull<std::shared_ptr<MenuAssetLoader>>;
+	auto CreateMenuAssetLoader(const REX::NotNull<std::shared_ptr<MenuAssetInfo>>& a_assetInfo)
+		-> REX::NotNull<std::shared_ptr<MenuAssetLoader>>;
 	void RegisterMenuAssetLoader(const REX::NotNull<std::shared_ptr<MenuAssetLoader>>& a_assetLoader);
 }
 
@@ -160,8 +197,10 @@ namespace F4SE::Menus::Impl
 		[[nodiscard]] bool Contains(std::string_view a_menuName);
 		[[nodiscard]] bool Contains(const RE::BSFixedString& a_menuName);
 
-		[[nodiscard]] auto GetValue(std::string_view a_menuName) noexcept -> std::shared_ptr<MenuInfo>;
-		[[nodiscard]] auto GetValue(const RE::BSFixedString& a_menuName) noexcept -> std::shared_ptr<MenuInfo>;
+		[[nodiscard]] auto GetValue(std::string_view a_menuName) noexcept
+			-> std::shared_ptr<MenuInfo>;
+		[[nodiscard]] auto GetValue(const RE::BSFixedString& a_menuName) noexcept
+			-> std::shared_ptr<MenuInfo>;
 
 		bool Add(const REX::NotNull<std::shared_ptr<MenuInfo>>& a_menu);
 
@@ -196,8 +235,10 @@ namespace F4SE::Menus::Impl
 		std::unordered_multimap<RE::BSFixedString, REX::NotNull<std::shared_ptr<MenuAssetLoader>>> _loaderMap;
 	};
 
-	[[nodiscard]] auto GetMenuInfoMap() -> const REX::NotNull<std::unique_ptr<MenuInfoMap>>&;
-	[[nodiscard]] auto GetMenuAssetLoaderMap() -> const REX::NotNull<std::unique_ptr<MenuAssetLoaderMap>>&;
+	[[nodiscard]] auto GetMenuInfoMap()
+		-> const REX::NotNull<std::unique_ptr<MenuInfoMap>>&;
+	[[nodiscard]] auto GetMenuAssetLoaderMap()
+		-> const REX::NotNull<std::unique_ptr<MenuAssetLoaderMap>>&;
 
 	[[nodiscard]] RE::IMenu* CreateMenu(const RE::UIMessage& a_message);
 }

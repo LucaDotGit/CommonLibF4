@@ -39,15 +39,14 @@ namespace REX
 			std::fill_n(data(), size(), a_fillChar);
 		}
 
+		constexpr StaticString(const_iterator a_first, const_iterator a_last) noexcept
+		{
+			std::copy_n(a_first, std::min(static_cast<size_type>(std::distance(a_first, a_last)), size()), data());
+		}
+
 		constexpr StaticString(const value_type (&a_value)[N]) noexcept
 		{
 			std::copy_n(static_cast<const value_type*>(a_value), size(), data());
-		}
-
-		constexpr StaticString(const_iterator a_first, const_iterator a_last) noexcept
-		{
-			REX::Assert(std::distance(a_first, a_last) == size());
-			std::copy_n(a_first, size(), data());
 		}
 
 		constexpr StaticString(std::span<const value_type, MAX_SIZE> a_value) noexcept
@@ -62,8 +61,7 @@ namespace REX
 
 		constexpr StaticString(std::initializer_list<value_type> a_value) noexcept
 		{
-			REX::Assert(a_value.size() == size());
-			std::copy_n(a_value.begin(), size(), data());
+			std::copy_n(a_value.begin(), std::min(static_cast<size_type>(a_value.size()), size()), data());
 		}
 
 		constexpr StaticString(const StaticString&) noexcept = default;
@@ -91,8 +89,7 @@ namespace REX
 
 		constexpr StaticString& operator=(std::initializer_list<value_type> a_rhs) noexcept
 		{
-			REX::Assert(a_rhs.size() == size());
-			std::copy_n(a_rhs.begin(), size(), data());
+			std::copy_n(a_rhs.begin(), std::min(static_cast<size_type>(a_rhs.size()), size()), data());
 			return *this;
 		}
 
@@ -196,6 +193,11 @@ namespace REX
 			auto result = StaticString<value_type, LENGTH>();
 			std::copy_n(data() + Pos, LENGTH, result.data());
 			return result;
+		}
+
+		constexpr void fill(value_type a_fillChar) noexcept
+		{
+			std::fill_n(data(), size(), a_fillChar);
 		}
 
 		constexpr void swap(StaticString& a_other) noexcept
@@ -367,17 +369,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const REX::StaticString<CharT, N>& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const REX::StaticString<CharT, N>& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, static_cast<std::basic_string_view<CharT>>(a_value));
+			return format_to(a_context.out(), "{}"sv, static_cast<std::basic_string_view<CharT>>(a_value));
 		}
 	};
 }
@@ -392,17 +394,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const REX::StaticString<CharT, N>& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const REX::StaticString<CharT, N>& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, static_cast<std::basic_string_view<CharT>>(a_value));
+			return format_to(a_context.out(), "{}"sv, static_cast<std::basic_string_view<CharT>>(a_value));
 		}
 	};
 }

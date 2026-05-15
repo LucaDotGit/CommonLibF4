@@ -3,7 +3,7 @@
 #include "RE/B/BSFixedString.hpp"
 #include "RE/I/INPUT_DEVICE.hpp"
 
-#include "REX/ErrorCode.hpp"
+#include "REX/Error.hpp"
 
 namespace F4SE::Inputs
 {
@@ -115,39 +115,65 @@ namespace F4SE::Inputs
 	[[nodiscard]] bool IsXInputGamepadButtonPressed(std::uint32_t a_keyCode);
 	[[nodiscard]] bool IsOrbisGamepadButtonPressed(std::uint32_t a_keyCode);
 
-	[[nodiscard]] auto GetPressedKeyCodes() -> std::expected<std::vector<std::uint32_t>, REX::SystemError>;
-	[[nodiscard]] auto GetPressedKeyboardKeyCodes() -> std::expected<std::vector<std::uint32_t>, REX::SystemError>;
-	[[nodiscard]] auto GetPressedMouseButtonCodes() -> std::expected<std::vector<std::uint32_t>, REX::SystemError>;
-	[[nodiscard]] auto GetPressedGamepadButtonCodes() -> std::expected<std::vector<std::uint32_t>, REX::SystemError>;
+	[[nodiscard]] auto GetPressedKeyCodes()
+		-> std::expected<std::vector<std::uint32_t>, REX::SystemError>;
+	[[nodiscard]] auto GetPressedKeyboardKeyCodes()
+		-> std::expected<std::vector<std::uint32_t>, REX::SystemError>;
+	[[nodiscard]] auto GetPressedMouseButtonCodes()
+		-> std::expected<std::vector<std::uint32_t>, REX::SystemError>;
+	[[nodiscard]] auto GetPressedGamepadButtonCodes()
+		-> std::expected<std::vector<std::uint32_t>, REX::SystemError>;
 
-	[[nodiscard]] auto GetPressedXInputButtonCodes() -> std::expected<std::vector<std::uint32_t>, REX::SystemError>;
-	[[nodiscard]] auto GetPressedOrbisGamepadButtonCodes() -> std::expected<std::vector<std::uint32_t>, REX::SystemError>;
+	[[nodiscard]] auto GetPressedXInputButtonCodes()
+		-> std::expected<std::vector<std::uint32_t>, REX::SystemError>;
+	[[nodiscard]] auto GetPressedOrbisGamepadButtonCodes()
+		-> std::expected<std::vector<std::uint32_t>, REX::SystemError>;
 
-	[[nodiscard]] auto GetPressedControlNames(RE::INPUT_DEVICE a_deviceType = RE::INPUT_DEVICE::kNone) -> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>;
-	[[nodiscard]] auto GetPressedKeyboardControlNames() -> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>;
-	[[nodiscard]] auto GetPressedMouseButtonControlNames() -> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>;
-	[[nodiscard]] auto GetPressedGamepadButtonControlNames() -> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>;
+	[[nodiscard]] auto GetPressedControlNames(RE::INPUT_DEVICE a_deviceType = RE::INPUT_DEVICE::kNone)
+		-> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>;
+	[[nodiscard]] auto GetPressedKeyboardControlNames()
+		-> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>;
+	[[nodiscard]] auto GetPressedMouseButtonControlNames()
+		-> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>;
+	[[nodiscard]] auto GetPressedGamepadButtonControlNames()
+		-> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>;
 
-	[[nodiscard]] auto GetPressedXInputGamepadButtonControlNames() -> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>;
-	[[nodiscard]] auto GetPressedOrbisGamepadButtonControlNames() -> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>;
+	[[nodiscard]] auto GetPressedXInputGamepadButtonControlNames()
+		-> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>;
+	[[nodiscard]] auto GetPressedOrbisGamepadButtonControlNames()
+		-> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>;
 
-	[[nodiscard]] auto GetKeyName(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedStringCS, REX::SystemError>;
-	[[nodiscard]] auto GetKeyboardKeyName(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedStringCS, REX::SystemError>;
-	[[nodiscard]] auto GetMouseButtonName(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedStringCS, REX::SystemError>;
-	[[nodiscard]] auto GetGamepadButtonName(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedStringCS, REX::SystemError>;
+	[[nodiscard]] auto GetKeyName(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedStringCS, REX::SystemError>;
+	[[nodiscard]] auto GetKeyboardKeyName(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedStringCS, REX::SystemError>;
+	[[nodiscard]] auto GetMouseButtonName(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedStringCS, REX::SystemError>;
+	[[nodiscard]] auto GetGamepadButtonName(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedStringCS, REX::SystemError>;
 
-	[[nodiscard]] auto GetXInputGamepadButtonName(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedStringCS, REX::SystemError>;
-	[[nodiscard]] auto GetOrbisGamepadButtonName(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedStringCS, REX::SystemError>;
+	[[nodiscard]] auto GetXInputGamepadButtonName(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedStringCS, REX::SystemError>;
+	[[nodiscard]] auto GetOrbisGamepadButtonName(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedStringCS, REX::SystemError>;
 
-	[[nodiscard]] auto GetControlNameByKeyCode(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedString, REX::SystemError>;
-	[[nodiscard]] auto GetControlNameByKeyboardKeyCode(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedString, REX::SystemError>;
-	[[nodiscard]] auto GetControlNameByMouseKeyCode(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedString, REX::SystemError>;
-	[[nodiscard]] auto GetControlNameByGamepadKeyCode(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedString, REX::SystemError>;
+	[[nodiscard]] auto GetControlNameByKeyCode(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedString, REX::SystemError>;
+	[[nodiscard]] auto GetControlNameByKeyboardKeyCode(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedString, REX::SystemError>;
+	[[nodiscard]] auto GetControlNameByMouseKeyCode(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedString, REX::SystemError>;
+	[[nodiscard]] auto GetControlNameByGamepadKeyCode(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedString, REX::SystemError>;
 
-	[[nodiscard]] auto GetKeyCodeByControlName(const RE::BSFixedString& a_controlName, RE::INPUT_DEVICE a_deviceType = RE::INPUT_DEVICE::kNone) -> std::expected<std::uint32_t, REX::SystemError>;
-	[[nodiscard]] auto GetKeyCodeByKeyboardControlName(const RE::BSFixedString& a_controlName) -> std::expected<std::uint32_t, REX::SystemError>;
-	[[nodiscard]] auto GetKeyCodeByMouseControlName(const RE::BSFixedString& a_controlName) -> std::expected<std::uint32_t, REX::SystemError>;
-	[[nodiscard]] auto GetKeyCodeByGamepadControlName(const RE::BSFixedString& a_controlName) -> std::expected<std::uint32_t, REX::SystemError>;
+	[[nodiscard]] auto GetKeyCodeByControlName(const RE::BSFixedString& a_controlName, RE::INPUT_DEVICE a_deviceType = RE::INPUT_DEVICE::kNone)
+		-> std::expected<std::uint32_t, REX::SystemError>;
+	[[nodiscard]] auto GetKeyCodeByKeyboardControlName(const RE::BSFixedString& a_controlName)
+		-> std::expected<std::uint32_t, REX::SystemError>;
+	[[nodiscard]] auto GetKeyCodeByMouseControlName(const RE::BSFixedString& a_controlName)
+		-> std::expected<std::uint32_t, REX::SystemError>;
+	[[nodiscard]] auto GetKeyCodeByGamepadControlName(const RE::BSFixedString& a_controlName)
+		-> std::expected<std::uint32_t, REX::SystemError>;
 
 	bool HoldKey(std::uint32_t a_keyCode);
 	bool HoldKeyboardKey(std::uint32_t a_keyCode);
@@ -173,15 +199,23 @@ namespace F4SE::Inputs
 	bool TapXInputGamepadButton(std::uint32_t a_keyCode, REX::Float32 a_durationSeconds = 0.0_f32);
 	bool TapOrbisGamepadButton(std::uint32_t a_keyCode, REX::Float32 a_durationSeconds = 0.0_f32);
 
-	[[nodiscard]] auto GamepadFlagToKeyCode(std::uint32_t a_keyFlag) -> std::expected<std::uint32_t, REX::SystemError>;
-	[[nodiscard]] auto GamepadKeyCodeToFlag(std::uint32_t a_keyCode) -> std::expected<std::uint32_t, REX::SystemError>;
+	[[nodiscard]] auto GamepadFlagToKeyCode(std::uint32_t a_keyFlag)
+		-> std::expected<std::uint32_t, REX::SystemError>;
+	[[nodiscard]] auto GamepadKeyCodeToFlag(std::uint32_t a_keyCode)
+		-> std::expected<std::uint32_t, REX::SystemError>;
 
-	[[nodiscard]] auto XInputGamepadFlagToScePadFlag(std::uint32_t a_keyFlag) noexcept -> std::expected<std::uint32_t, REX::SystemError>;
-	[[nodiscard]] auto ScePadFlagToXInputGamepadFlag(std::uint32_t a_keyFlag) noexcept -> std::expected<std::uint32_t, REX::SystemError>;
+	[[nodiscard]] auto XInputGamepadFlagToScePadFlag(std::uint32_t a_keyFlag) noexcept
+		-> std::expected<std::uint32_t, REX::SystemError>;
+	[[nodiscard]] auto ScePadFlagToXInputGamepadFlag(std::uint32_t a_keyFlag) noexcept
+		-> std::expected<std::uint32_t, REX::SystemError>;
 
-	[[nodiscard]] auto XInputGamepadFlagToKeyCode(std::uint32_t a_keyFlag) noexcept -> std::expected<std::uint32_t, REX::SystemError>;
-	[[nodiscard]] auto XInputGamepadKeyCodeToFlag(std::uint32_t a_keyCode) noexcept -> std::expected<std::uint32_t, REX::SystemError>;
+	[[nodiscard]] auto XInputGamepadFlagToKeyCode(std::uint32_t a_keyFlag) noexcept
+		-> std::expected<std::uint32_t, REX::SystemError>;
+	[[nodiscard]] auto XInputGamepadKeyCodeToFlag(std::uint32_t a_keyCode) noexcept
+		-> std::expected<std::uint32_t, REX::SystemError>;
 
-	[[nodiscard]] auto OrbisGamepadFlagToKeyCode(std::uint32_t a_keyFlag) noexcept -> std::expected<std::uint32_t, REX::SystemError>;
-	[[nodiscard]] auto OrbisGamepadKeyCodeToFlag(std::uint32_t a_keyCode) noexcept -> std::expected<std::uint32_t, REX::SystemError>;
+	[[nodiscard]] auto OrbisGamepadFlagToKeyCode(std::uint32_t a_keyFlag) noexcept
+		-> std::expected<std::uint32_t, REX::SystemError>;
+	[[nodiscard]] auto OrbisGamepadKeyCodeToFlag(std::uint32_t a_keyCode) noexcept
+		-> std::expected<std::uint32_t, REX::SystemError>;
 }

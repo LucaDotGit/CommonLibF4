@@ -109,18 +109,19 @@ namespace RE::BSScript
 
 		[[nodiscard]] static consteval FormType GetObjectTypeID() = delete;
 
-		[[nodiscard]] static auto GetTypeInfo() -> std::optional<TypeInfo> = delete;
+		[[nodiscard]] static auto GetTypeInfo()
+			-> std::optional<TypeInfo> = delete;
 
 		static void PackVariable(Variable& a_var, T&& a_val) = delete;
 
 		[[nodiscard]] static T UnpackVariable(const Variable& a_var) = delete;
 	};
 
-	template <REX::win32_character T>
-	inline constexpr auto SCRIPT_SEPARATOR = static_cast<T>(':');
+	template <REX::win32_character CharT>
+	inline constexpr auto SCRIPT_SEPARATOR = static_cast<CharT>(':');
 
-	template <REX::win32_character T>
-	inline constexpr auto STRUCT_SEPARATOR = static_cast<T>('#');
+	template <REX::win32_character CharT>
+	inline constexpr auto STRUCT_SEPARATOR = static_cast<CharT>('#');
 
 	template <class CharT, std::size_t N1, std::size_t N2>
 	[[nodiscard]] consteval auto CreateScriptTag(
@@ -242,7 +243,7 @@ namespace RE::BSScript::Impl
 		};
 
 	template <class T>
-	concept integral =
+	concept integer =
 		(std::is_integral_v<T> && !std::same_as<std::remove_cv_t<T>, bool>) ||
 		(std::is_enum_v<T> && std::is_integral_v<std::underlying_type_t<T>>);
 
@@ -313,7 +314,8 @@ namespace RE::BSScript::Impl
 	[[nodiscard]] consteval FormType GetObjectTypeID() noexcept;
 
 	template <class T>
-	[[nodiscard]] __forceinline auto GetTypeInfo() -> std::optional<TypeInfo>;
+	[[nodiscard]] __forceinline auto GetTypeInfo()
+		-> std::optional<TypeInfo>;
 
 	template <class T>
 	__forceinline void PackVariable(Variable& a_var, T&& a_val);
@@ -418,13 +420,17 @@ namespace RE::BSScript
 		//				* A `std::string_view`
 		//				* A `std::filesystem::path::format`
 		//			* A method `generic_string` that returns a `std::string`
-		//	* An integral type that is one of (optionally signed/unsigned):
+		//	* An integer type that is one of (optionally signed/unsigned):
 		//		* `char`
+		//		* `wchar_t`
+		//		* `char8_t`
+		//		* `char16_t`
+		//		* `char32_t`
 		//		* `short`
 		//		* `int`
 		//		* `long`
 		//		* `long long`
-		//	* An enumeration type
+		//	* An enumeration type with an integral underlying type
 		//	* A floating point type that is one of:
 		//		* `float`
 		//		* `double`

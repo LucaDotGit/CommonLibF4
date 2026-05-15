@@ -20,14 +20,14 @@ namespace RE::GameScript
 	{
 		using FuncType = void (*)(const BSTSmartPointer<BSScript::Object>&, const FormOrInventoryObj&, BSScript::IVirtualMachine&);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::BindCObject01 };
-		FUNC(a_object, a_inventoryObject, a_vm);
+		std::invoke(FUNC, a_object, a_inventoryObject, a_vm);
 	}
 
 	void BindCObject(const BSTSmartPointer<BSScript::Object>& a_object, const RefrOrInventoryObj& a_inventoryObject, BSScript::IVirtualMachine& a_vm)
 	{
 		using FuncType = void (*)(const BSTSmartPointer<BSScript::Object>&, const RefrOrInventoryObj&, BSScript::IVirtualMachine&);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::BindCObject02 };
-		FUNC(a_object, a_inventoryObject, a_vm);
+		std::invoke(FUNC, a_object, a_inventoryObject, a_vm);
 	}
 
 	NiPointer<TESObjectREFR> GetRefInventoryObjectRef(const NiPointer<TESObjectREFR>& a_ref, ContainerID a_itemUniqueID)
@@ -44,7 +44,7 @@ namespace RE::GameScript
 		const auto containerInventoryLock = BSAutoReadLock(containerInventoryList->rwLock);
 
 		auto result = NiPointer<TESObjectREFR>();
-		containerInventoryList->ForEachStack([&result, a_itemUniqueID](const BSTSmartPointer<BGSInventoryItem::Stack>& a_stack) {
+		containerInventoryList->ForEachStack([&result, a_itemUniqueID](const BSTSmartPointer<BGSInventoryItem::Stack>& a_stack) -> BSContainer::ForEachResult {
 			if (!a_stack) {
 				return BSContainer::ForEachResult::kContinue;
 			}
@@ -80,7 +80,7 @@ namespace RE::GameScript
 		}
 
 		auto result = NiPointer<TESObjectREFR>();
-		a_container->ForEachObject([&result, a_itemUniqueID](ContainerObject* a_object) {
+		a_container->ForEachObject([&result, a_itemUniqueID](ContainerObject* a_object) -> BSContainer::ForEachResult {
 			if (!a_object) {
 				return BSContainer::ForEachResult::kContinue;
 			}

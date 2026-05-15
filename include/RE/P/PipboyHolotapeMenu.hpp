@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RE/H/HolotapeMenu.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 namespace RE
 {

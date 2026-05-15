@@ -16,10 +16,11 @@ namespace RE
 	{
 		try {
 			auto* mem = malloc(a_count * a_size);
-			if (mem) {
-				REL::MemWriteZero(mem, a_count * a_size);
+			if (!mem) {
+				return nullptr;
 			}
 
+			REL::MemWriteZero(mem, a_count * a_size);
 			return mem;
 		}
 		catch (...) {
@@ -37,7 +38,7 @@ namespace RE
 			BlockFree(a_ptr, static_cast<std::int32_t>(a_size));
 		}
 		catch (...) {
-			REX::DeallocationFail();
+			REX::Fail("Failed to free memory."sv);
 		}
 	}
 }

@@ -46,10 +46,13 @@ namespace RE::BSScript
 		[[nodiscard]] std::partial_ordering DeepCompare(const Struct& a_rhs) const noexcept;
 
 		[[nodiscard]] BSTSmartPointer<StructTypeInfo> GetTypeInfo() const noexcept;
-		[[nodiscard]] auto GetTypeInfoName() const noexcept -> std::optional<BSFixedString>;
+		[[nodiscard]] auto GetTypeInfoName() const noexcept
+			-> std::optional<BSFixedString>;
 
-		[[nodiscard]] auto GetVariables() noexcept -> std::span<Variable>;
-		[[nodiscard]] auto GetVariables() const noexcept -> std::span<const Variable>;
+		[[nodiscard]] auto GetVariables() noexcept
+			-> std::span<Variable>;
+		[[nodiscard]] auto GetVariables() const noexcept
+			-> std::span<const Variable>;
 
 		[[nodiscard]] Variable* GetVariable(const BSFixedString& a_name);
 		[[nodiscard]] const Variable* GetVariable(const BSFixedString& a_name) const;
@@ -62,7 +65,8 @@ namespace RE::BSScript
 		[[nodiscard]] std::string ToString() const;
 
 		template <class T>
-		[[nodiscard]] auto Find(REX::zstring_view a_name) const -> std::optional<T>
+		[[nodiscard]] auto Find(REX::zstring_view a_name) const
+			-> std::optional<T>
 			requires(BSScript::ValidateParameter<T>());
 
 		template <class T>
@@ -96,17 +100,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::BSScript::Struct& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::BSScript::Struct& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, a_value.ToString());
+			return format_to(a_context.out(), "{}"sv, a_value.ToString());
 		}
 	};
 }
@@ -121,17 +125,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::BSScript::Struct& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::BSScript::Struct& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, a_value.ToString());
+			return format_to(a_context.out(), "{}"sv, a_value.ToString());
 		}
 	};
 }

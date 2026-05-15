@@ -15,7 +15,6 @@ namespace RE
 		explicit PlayerInputHandler(const PlayerControlsData& a_data) noexcept
 			: data(a_data)
 		{
-			// REL::EmplaceVtable(this);
 		}
 
 		~PlayerInputHandler() override = default; // 00

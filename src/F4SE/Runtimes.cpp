@@ -67,7 +67,7 @@ namespace F4SE::Impl
 		if (runtimeType == RuntimeType::kNone) [[unlikely]] {
 			REX::Fail(
 				"Failed to initialize runtime due to unsupported version.\n"
-				"Runtime version: {}"sv,
+				"Runtime Version: {}"sv,
 				a_runtimeVersion);
 		}
 

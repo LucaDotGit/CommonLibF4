@@ -26,9 +26,11 @@ namespace RE
 		};
 		using RecordFlags = RecordFlag::RecordFlags;
 
-		[[nodiscard]] static auto GetTypedKeywords() -> std::span<BSTArray<BGSKeyword*>, std::to_underlying(KeywordType::kTotal)>;
+		[[nodiscard]] static auto GetTypedKeywords()
+			-> std::span<BSTArray<BGSKeyword*>, std::to_underlying(KeywordType::kTotal)>;
 
-		[[nodiscard]] static auto GetIndexForTypedKeyword(const BGSKeyword* a_keyword, KeywordType a_type) -> std::optional<std::uint16_t>;
+		[[nodiscard]] static auto GetIndexForTypedKeyword(const BGSKeyword* a_keyword, KeywordType a_type)
+			-> std::optional<std::uint16_t>;
 		[[nodiscard]] static BGSKeyword* GetTypedKeywordByIndex(KeywordType a_type, std::uint16_t a_index);
 
 		// members

@@ -86,7 +86,7 @@ namespace RE
 		{
 			using FuncType = decltype(&BGSTerminal::Show);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSTerminal::Show };
-			FUNC(a_ref);
+			std::invoke(FUNC, a_ref);
 		}
 
 		// members

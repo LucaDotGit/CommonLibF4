@@ -6,6 +6,9 @@ namespace RE
 	{
 	public:
 		static const NiPoint2 ZERO;
+		static const NiPoint2 UNIT;
+		static const NiPoint2 UNIT_X;
+		static const NiPoint2 UNIT_Y;
 
 		constexpr NiPoint2() noexcept = default;
 
@@ -146,6 +149,9 @@ namespace RE
 	static_assert(sizeof(NiPoint2) == 0x08);
 
 	inline constexpr auto NiPoint2::ZERO = NiPoint2();
+	inline constexpr auto NiPoint2::UNIT = NiPoint2(1.0_f32, 1.0_f32);
+	inline constexpr auto NiPoint2::UNIT_X = NiPoint2(1.0_f32, 0.0_f32);
+	inline constexpr auto NiPoint2::UNIT_Y = NiPoint2(0.0_f32, 1.0_f32);
 
 	constexpr void swap(NiPoint2& a_lhs, NiPoint2& a_rhs) noexcept
 	{
@@ -159,6 +165,10 @@ namespace RE
 	{
 	public:
 		static const NiPoint3 ZERO;
+		static const NiPoint3 UNIT;
+		static const NiPoint3 UNIT_X;
+		static const NiPoint3 UNIT_Y;
+		static const NiPoint3 UNIT_Z;
 
 		constexpr NiPoint3() noexcept = default;
 
@@ -364,26 +374,182 @@ namespace RE
 		REX::Float32 y{ 0.0_f32 }; // 04
 		REX::Float32 z{ 0.0_f32 }; // 08
 	};
-	static_assert(sizeof(NiPoint3) == 0xC);
+	static_assert(sizeof(NiPoint3) == 0x0C);
 
 	inline constexpr auto NiPoint3::ZERO = NiPoint3();
+	inline constexpr auto NiPoint3::UNIT = NiPoint3(1.0_f32, 1.0_f32, 1.0_f32);
+	inline constexpr auto NiPoint3::UNIT_X = NiPoint3(1.0_f32, 0.0_f32, 0.0_f32);
+	inline constexpr auto NiPoint3::UNIT_Y = NiPoint3(0.0_f32, 1.0_f32, 0.0_f32);
+	inline constexpr auto NiPoint3::UNIT_Z = NiPoint3(0.0_f32, 0.0_f32, 1.0_f32);
 
 	constexpr void swap(NiPoint3& a_lhs, NiPoint3& a_rhs) noexcept
 	{
 		a_lhs.swap(a_rhs);
 	}
+}
 
+namespace RE
+{
 	class alignas(0x10) NiPoint3A
 		: public NiPoint3 // 00
 	{
 	public:
 		static const NiPoint3A ZERO;
+		static const NiPoint3A UNIT;
+		static const NiPoint3A UNIT_X;
+		static const NiPoint3A UNIT_Y;
+		static const NiPoint3A UNIT_Z;
 
-		using NiPoint3::NiPoint3;
+		constexpr NiPoint3A() noexcept = default;
+
+		constexpr NiPoint3A(REX::Float32 a_x, REX::Float32 a_y, REX::Float32 a_z) noexcept
+			: NiPoint3(a_x, a_y, a_z)
+		{
+		}
+
+		constexpr ~NiPoint3A() noexcept = default;
+
+		constexpr NiPoint3A(const NiPoint3A&) noexcept = default;
+		constexpr NiPoint3A(NiPoint3A&&) noexcept = default;
+
+		constexpr NiPoint3A& operator=(const NiPoint3A&) noexcept = default;
+		constexpr NiPoint3A& operator=(NiPoint3A&&) noexcept = default;
+
+		[[nodiscard]] constexpr bool operator==(const NiPoint3A&) const noexcept = default;
+		[[nodiscard]] constexpr bool operator!=(const NiPoint3A&) const noexcept = default;
+		[[nodiscard]] constexpr auto operator<=>(const NiPoint3A&) const noexcept = default;
+
+		[[nodiscard]] constexpr NiPoint3A operator+(const NiPoint3A& a_rhs) const noexcept
+		{
+			return { x + a_rhs.x, y + a_rhs.y, z + a_rhs.z };
+		}
+
+		[[nodiscard]] constexpr NiPoint3A operator-(const NiPoint3A& a_rhs) const noexcept
+		{
+			return { x - a_rhs.x, y - a_rhs.y, z - a_rhs.z };
+		}
+
+		[[nodiscard]] constexpr NiPoint3A operator*(const NiPoint3A& a_rhs) const noexcept
+		{
+			return { x * a_rhs.x, y * a_rhs.y, z * a_rhs.z };
+		}
+
+		[[nodiscard]] constexpr NiPoint3A operator/(const NiPoint3A& a_rhs) const noexcept
+		{
+			return { x / a_rhs.x, y / a_rhs.y, z / a_rhs.z };
+		}
+
+		[[nodiscard]] constexpr NiPoint3A operator*(REX::Float32 a_rhs) const noexcept
+		{
+			return { x * a_rhs, y * a_rhs, z * a_rhs };
+		}
+
+		[[nodiscard]] constexpr NiPoint3A operator/(REX::Float32 a_rhs) const noexcept
+		{
+			return { x / a_rhs, y / a_rhs, z / a_rhs };
+		}
+
+		[[nodiscard]] constexpr NiPoint3A operator-() const noexcept
+		{
+			return { -x, -y, -z };
+		}
+
+		constexpr NiPoint3A& operator+=(const NiPoint3A& a_rhs) noexcept
+		{
+			x += a_rhs.x;
+			y += a_rhs.y;
+			z += a_rhs.z;
+			return *this;
+		}
+
+		constexpr NiPoint3A& operator-=(const NiPoint3A& a_rhs) noexcept
+		{
+			x -= a_rhs.x;
+			y -= a_rhs.y;
+			z -= a_rhs.z;
+			return *this;
+		}
+
+		constexpr NiPoint3A& operator*=(const NiPoint3A& a_rhs) noexcept
+		{
+			x *= a_rhs.x;
+			y *= a_rhs.y;
+			z *= a_rhs.z;
+			return *this;
+		}
+
+		constexpr NiPoint3A& operator/=(const NiPoint3A& a_rhs) noexcept
+		{
+			x /= a_rhs.x;
+			y /= a_rhs.y;
+			z /= a_rhs.z;
+			return *this;
+		}
+
+		constexpr NiPoint3A& operator+=(REX::Float32 a_rhs) noexcept
+		{
+			x += a_rhs;
+			y += a_rhs;
+			z += a_rhs;
+			return *this;
+		}
+
+		constexpr NiPoint3A& operator-=(REX::Float32 a_rhs) noexcept
+		{
+			x -= a_rhs;
+			y -= a_rhs;
+			z -= a_rhs;
+			return *this;
+		}
+
+		constexpr NiPoint3A& operator*=(REX::Float32 a_rhs) noexcept
+		{
+			x *= a_rhs;
+			y *= a_rhs;
+			z *= a_rhs;
+			return *this;
+		}
+
+		constexpr NiPoint3A& operator/=(REX::Float32 a_rhs) noexcept
+		{
+			x /= a_rhs;
+			y /= a_rhs;
+			z /= a_rhs;
+			return *this;
+		}
+
+		[[nodiscard]] constexpr NiPoint3A Cross(const NiPoint3A& a_rhs) const noexcept
+		{
+			return {
+				(y * a_rhs.z) - (z * a_rhs.y),
+				(z * a_rhs.x) - (x * a_rhs.z),
+				(x * a_rhs.y) - (y * a_rhs.x)
+			};
+		}
+
+		constexpr void swap(NiPoint3A& a_other) noexcept
+		{
+			if (this == std::addressof(a_other)) {
+				return;
+			}
+
+			std::swap(x, a_other.x);
+			std::swap(y, a_other.y);
+			std::swap(z, a_other.z);
+		}
 	};
 	static_assert(sizeof(NiPoint3A) == 0x10);
 
 	inline constexpr auto NiPoint3A::ZERO = NiPoint3A();
+	inline constexpr auto NiPoint3A::UNIT = NiPoint3A(1.0_f32, 1.0_f32, 1.0_f32);
+	inline constexpr auto NiPoint3A::UNIT_X = NiPoint3A(1.0_f32, 0.0_f32, 0.0_f32);
+	inline constexpr auto NiPoint3A::UNIT_Y = NiPoint3A(0.0_f32, 1.0_f32, 0.0_f32);
+	inline constexpr auto NiPoint3A::UNIT_Z = NiPoint3A(0.0_f32, 0.0_f32, 1.0_f32);
+
+	constexpr void swap(NiPoint3A& a_lhs, NiPoint3A& a_rhs) noexcept
+	{
+		a_lhs.swap(a_rhs);
+	}
 }
 
 namespace RE
@@ -576,17 +742,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::NiPoint2& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::NiPoint2& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "({}, {})"sv, a_value.x, a_value.y);
+			return format_to(a_context.out(), "({}, {})"sv, a_value.x, a_value.y);
 		}
 	};
 
@@ -596,17 +762,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::NiPoint3& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::NiPoint3& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "({}, {}, {})"sv, a_value.x, a_value.y, a_value.z);
+			return format_to(a_context.out(), "({}, {}, {})"sv, a_value.x, a_value.y, a_value.z);
 		}
 	};
 
@@ -616,17 +782,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::NiPoint4& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::NiPoint4& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "({}, {}, {}, {})"sv, a_value.x, a_value.y, a_value.z, a_value.w);
+			return format_to(a_context.out(), "({}, {}, {}, {})"sv, a_value.x, a_value.y, a_value.z, a_value.w);
 		}
 	};
 }
@@ -641,17 +807,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::NiPoint2& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::NiPoint2& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "({}, {})"sv, a_value.x, a_value.y);
+			return format_to(a_context.out(), "({}, {})"sv, a_value.x, a_value.y);
 		}
 	};
 
@@ -661,17 +827,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::NiPoint3& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::NiPoint3& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "({}, {}, {})"sv, a_value.x, a_value.y, a_value.z);
+			return format_to(a_context.out(), "({}, {}, {})"sv, a_value.x, a_value.y, a_value.z);
 		}
 	};
 
@@ -681,17 +847,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::NiPoint4& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::NiPoint4& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "({}, {}, {}, {})"sv, a_value.x, a_value.y, a_value.z, a_value.w);
+			return format_to(a_context.out(), "({}, {}, {}, {})"sv, a_value.x, a_value.y, a_value.z, a_value.w);
 		}
 	};
 }

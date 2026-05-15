@@ -10,7 +10,7 @@ namespace REL::RTTI
 	class BaseClassDescriptor;
 
 	template <class TypeDescriptor>
-	class ClassHierarchyDescriptor
+	class ClassHierarchyDescriptor final
 	{
 	public:
 		enum class Attribute : std::uint32_t

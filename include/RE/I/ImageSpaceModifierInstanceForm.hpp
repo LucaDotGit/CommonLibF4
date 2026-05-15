@@ -39,14 +39,14 @@ namespace RE
 		{
 			using FuncType = void (*)(TESImageSpaceModifier*);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::ImageSpaceModifierInstanceForm::Stop01 };
-			FUNC(a_mod);
+			std::invoke(FUNC, a_mod);
 		}
 
 		static void Stop(const BSFixedString& a_name)
 		{
 			using FuncType = void (*)(const BSFixedString&);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::ImageSpaceModifierInstanceForm::Stop02 };
-			FUNC(a_name);
+			std::invoke(FUNC, a_name);
 		}
 
 		// members

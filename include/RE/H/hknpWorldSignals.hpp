@@ -20,7 +20,7 @@ namespace RE
 	class hknpSolverData;
 	class hknpStepInput;
 	class hknpWorld;
-	class hkVector4f;
+	class hkVector4;
 
 	class hknpWorldSignals
 	{
@@ -33,7 +33,7 @@ namespace RE
 		static_assert(sizeof(WorldDestroyedSignal) == 0x08);
 
 		class WorldShiftedSignal
-			: public hkSignal2<hknpWorld*, const hkVector4f&>
+			: public hkSignal2<hknpWorld*, const hkVector4&>
 		{
 		public:
 		};

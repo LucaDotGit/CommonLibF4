@@ -6,13 +6,13 @@ namespace RE::SplineUtils
 	{
 		using FuncType = decltype(&SplineUtils::DisconnectSpline);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::SplineUtils::DisconnectSpline };
-		FUNC(a_spline);
+		std::invoke(FUNC, a_spline);
 	}
 
 	void ConnectSpline(TESObjectREFR* akEndpoint1, int32_t linkType1, TESObjectREFR* akEndpoint2, int32_t linkType2, TESObjectREFR* akWireRef)
 	{
 		using FuncType = decltype(&SplineUtils::ConnectSpline);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::SplineUtils::ConnectSpline };
-		FUNC(akEndpoint1, linkType1, akEndpoint2, linkType2, akWireRef);
+		std::invoke(FUNC, akEndpoint1, linkType1, akEndpoint2, linkType2, akWireRef);
 	}
 }

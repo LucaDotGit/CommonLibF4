@@ -2,6 +2,7 @@
 
 #include "RE/B/BSPointerHandle.hpp"
 #include "RE/G/GameMenuBase.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 namespace RE
 {
@@ -26,14 +27,14 @@ namespace RE
 		{
 			using FuncType = decltype(&SitWaitMenu::OnEnterFurniture);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::SitWaitMenu::OnEnterFurniture };
-			FUNC(a_refHandle);
+			std::invoke(FUNC, a_refHandle);
 		}
 
 		static void OnExitFurniture()
 		{
 			using FuncType = decltype(&SitWaitMenu::OnExitFurniture);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::SitWaitMenu::OnExitFurniture };
-			FUNC();
+			std::invoke(FUNC);
 		}
 
 		// members

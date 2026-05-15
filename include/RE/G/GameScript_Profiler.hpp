@@ -44,7 +44,7 @@ namespace RE::GameScript
 		// members
 		mutable BSSpinLock dataLock;												// 008
 		BSLog* globalProfilingLog;													// 010
-		BSTHashMap<RE::BSScript::StackID, BSLog*> watchedStacks;					// 018
+		BSTHashMap<BSScript::StackID, BSLog*> watchedStacks;						// 018
 		BSTHashMap<BSFixedString, BSLog*> watchedScripts;							// 048
 		BSTHashMap<BSScript::ObjectHandle, BSLog*> watchedObjects;					// 078
 		BSTArray<BSTPair<BSFixedString, BSScript::ObjectHandle>> watchedStackRoots; // 0A8

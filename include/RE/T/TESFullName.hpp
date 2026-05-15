@@ -27,13 +27,16 @@ namespace RE
 		virtual std::uint32_t GetFullNameLength() const; // 07 - { return fullName.size(); }
 		virtual const char* GetFullName() const;		 // 08 - { return fullName.data(); }
 
-		[[nodiscard]] static auto GetSparseFullNameMap() -> BSTHashMap<const TESForm*, BGSLocalizedString>&;
+		[[nodiscard]] static auto GetSparseFullNameMap()
+			-> BSTHashMap<const TESForm*, BGSLocalizedString>&;
 
-		[[nodiscard]] static auto GetFormFullName(const TESForm* a_form) -> std::optional<BGSLocalizedString>;
-		static bool SetFormFullName(TESForm* a_form, const BGSLocalizedString& a_fullName);
+		[[nodiscard]] static auto GetFormFullName(const TESForm* a_form)
+			-> std::optional<BGSLocalizedString>;
+		static bool SetFormFullName(TESForm* a_form, const BGSLocalizedString& a_fullName, bool a_addChange = true);
 
-		[[nodiscard]] static auto GetFormFullOrDisplayName(const TESForm* a_form) -> std::optional<BGSLocalizedString>;
-		static bool SetFormFullOrDisplayName(TESForm* a_form, const BGSLocalizedString& a_name);
+		[[nodiscard]] static auto GetFormFullOrDisplayName(const TESForm* a_form)
+			-> std::optional<BGSLocalizedString>;
+		static bool SetFormFullOrDisplayName(TESForm* a_form, const BGSLocalizedString& a_name, bool a_addChange = true);
 
 		// members
 		BGSLocalizedString fullName; // 08

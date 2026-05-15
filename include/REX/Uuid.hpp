@@ -162,7 +162,8 @@ namespace REX
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 		};
 
-		[[nodiscard]] static constexpr auto FromHexChar(char a_char) noexcept -> std::optional<value_type>
+		[[nodiscard]] static constexpr auto FromHexChar(char a_char) noexcept
+			-> std::optional<value_type>
 		{
 			constexpr auto TO_LOWER_MASK = static_cast<value_type>(0x20);
 			const auto rawChar = static_cast<value_type>(a_char | TO_LOWER_MASK);
@@ -180,7 +181,8 @@ namespace REX
 			return std::nullopt;
 		}
 
-		[[nodiscard]] static constexpr auto FromHexStringAt(std::string_view a_value, std::size_t a_index) noexcept -> std::optional<value_type>
+		[[nodiscard]] static constexpr auto FromHexStringAt(std::string_view a_value, std::size_t a_index) noexcept
+			-> std::optional<value_type>
 		{
 			if (a_index + 1 >= a_value.size()) {
 				return std::nullopt;
@@ -232,17 +234,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const REX::Uuid& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const REX::Uuid& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, a_value.ToString());
+			return format_to(a_context.out(), "{}"sv, a_value.ToString());
 		}
 	};
 }
@@ -257,17 +259,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const REX::Uuid& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const REX::Uuid& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, a_value.ToString());
+			return format_to(a_context.out(), "{}"sv, a_value.ToString());
 		}
 	};
 }

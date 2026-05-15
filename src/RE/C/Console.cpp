@@ -11,7 +11,7 @@ namespace RE
 	{
 		using FuncType = decltype(&Console::ExecuteCommand);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Console::ExecuteCommand };
-		FUNC(a_command);
+		std::invoke(FUNC, a_command);
 	}
 
 	std::int32_t& Console::GetCurrentPickIndex()
@@ -51,10 +51,11 @@ namespace RE
 	{
 		using FuncType = decltype(&Console::SetCurrentPickREFR);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Console::SetCurrentPickREFR };
-		FUNC(this, a_ref);
+		std::invoke(FUNC, this, a_ref);
 	}
 
-	auto Console::GetHistory() const -> std::optional<std::string>
+	auto Console::GetHistory() const
+		-> std::optional<std::string>
 	{
 		if (!uiMovie) {
 			return std::nullopt;

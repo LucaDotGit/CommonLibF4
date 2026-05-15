@@ -42,6 +42,6 @@ namespace RE
 	{
 		using FuncType = decltype(&Main::SetCameraFOV);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Main::SetCameraFOV };
-		FUNC(this, a_fov);
+		std::invoke(FUNC, this, a_fov);
 	}
 }

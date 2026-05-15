@@ -1,7 +1,15 @@
 #include "REX/Message.hpp"
 
+#include "REX/Concepts.hpp"
+#include "REX/Contract.hpp"
+#include "REX/EnumSet.hpp"
+#include "REX/Error.hpp"
+#include "REX/Path.hpp"
+#include "REX/Version.hpp"
 #include "REX/W32/CORE.hpp"
 #include "REX/W32/KERNEL32.hpp"
+#include "REX/W32/USER32.hpp"
+#include "REX/Windows.hpp"
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/msvc_sink.h>
@@ -10,222 +18,291 @@
 namespace REX::Impl
 {
 	template <REX::win32_character CharT>
-	static constexpr auto DIRECTORIES = std::array<std::basic_string_view<CharT>, 2>();
+	static constexpr auto EXCLUDED_DIRECTORY_NAMES = std::false_type();
 
 	template <>
-	constexpr auto DIRECTORIES<char> = std::array{
-		"include/"sv,
-		"src/"sv
+	constexpr auto EXCLUDED_DIRECTORY_NAMES<char> = std::array{
+		"include"sv,
+		"src"sv,
+		"source"sv
 	};
 
 	template <>
-	constexpr auto DIRECTORIES<wchar_t> = std::array{
-		L"include/"sv,
-		L"src/"sv
+	constexpr auto EXCLUDED_DIRECTORY_NAMES<wchar_t> = std::array{
+		L"include"sv,
+		L"src"sv,
+		L"source"sv
 	};
 
-	template <REX::win32_character T>
-	[[nodiscard]] static auto FormatHeaderImpl() noexcept -> std::expected<std::basic_string<T>, REX::SystemError>
+	template <REX::win32_character CharT>
+	static constexpr auto MESSAGE_TITLE_FORMAT = std::false_type();
+
+	template <>
+	constexpr auto MESSAGE_TITLE_FORMAT<char> = "{:s} v{:s}"sv;
+
+	template <>
+	constexpr auto MESSAGE_TITLE_FORMAT<wchar_t> = L"{:s} v{:s}"sv;
+
+	template <REX::win32_character CharT>
+	static constexpr auto MESSAGE_BODY_FORMAT = std::false_type();
+
+	template <>
+	constexpr auto MESSAGE_BODY_FORMAT<char> = "[{:s}#{:d}@{:s}]\n\n{}"sv;
+
+	template <>
+	constexpr auto MESSAGE_BODY_FORMAT<wchar_t> = L"[{:s}#{:d}@{:s}]\n\n{}"sv;
+
+	static constexpr auto DEFAULT_MESSAGE_FLAGS =
+		REX::EnumSet(
+			MessageBoxFlags::MB_SYSTEMMODAL,
+			MessageBoxFlags::MB_SETFOREGROUND,
+			MessageBoxFlags::MB_TOPMOST,
+			MessageBoxFlags::MB_OK);
+
+	template <REX::win32_character CharT>
+	[[nodiscard]] static auto GetRelativeFilePath(std::basic_string_view<CharT> a_filePath) noexcept
+		-> std::basic_string_view<CharT>
 	{
-		try {
-			auto buffer = std::vector<T>();
-			buffer.reserve(REX::W32::MAX_PATH);
-			buffer.resize(REX::W32::MAX_PATH / 2);
-
-			auto fileNameLength = 0ui32;
-
-			do {
-				buffer.resize(buffer.size() * 2);
-
-				if constexpr (std::same_as<T, char>) {
-					fileNameLength = REX::W32::GetModuleFileNameA(
-						REX::W32::GetCurrentModule(),
-						buffer.data(),
-						static_cast<std::uint32_t>(buffer.size()));
-				}
-				else {
-					fileNameLength = REX::W32::GetModuleFileNameW(
-						REX::W32::GetCurrentModule(),
-						buffer.data(),
-						static_cast<std::uint32_t>(buffer.size()));
-				}
-
-				if (fileNameLength == 0) {
-					return std::unexpected(REX::GetCurrentSystemError());
+		auto currentFilePath = a_filePath;
+		do {
+			currentFilePath = REX::GetDirectoryPath(currentFilePath);
+			for (const auto excludedDirectoryName : EXCLUDED_DIRECTORY_NAMES<CharT>) {
+				const auto currentDirectoryName = REX::GetFileName(currentFilePath);
+				if (currentDirectoryName == excludedDirectoryName) {
+					return a_filePath.substr(currentFilePath.size() + 1);
 				}
 			}
-			while (fileNameLength != 0 && fileNameLength == buffer.size() && buffer.size() <= std::numeric_limits<std::uint32_t>::max());
-
-			if (fileNameLength == 0 || fileNameLength == buffer.size()) {
-				return {};
-			}
-
-			const auto path = std::filesystem::path(buffer.data(), buffer.data() + fileNameLength, std::filesystem::path::generic_format);
-			return path.filename().generic_string<T>();
 		}
-		catch ([[maybe_unused]] const std::bad_alloc& error) {
-			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::not_enough_memory));
+		while (!currentFilePath.empty());
+
+		return a_filePath;
+	}
+
+	template <REX::win32_character CharT>
+	[[nodiscard]] static auto GetCurrentModuleFileName(std::span<CharT> a_buffer) noexcept
+		-> std::expected<std::basic_string_view<CharT>, REX::SystemError>
+	{
+		return REX::GetCurrentModuleFileName<CharT>(a_buffer);
+	}
+
+	template <REX::win32_character CharT>
+	[[nodiscard]] static auto GetCurrentModuleVersionString(std::basic_string_view<CharT> a_moduleName, std::span<CharT> a_buffer) noexcept
+		-> std::expected<std::basic_string_view<CharT>, REX::SystemError>
+	{
+		const auto version = REX::GetModuleFileVersion(a_moduleName);
+		if (!version) {
+			return std::unexpected(version.error());
 		}
+
+		return version->template ToString<CharT>(a_buffer);
+	}
+
+	template <REX::win32_character CharT>
+	[[nodiscard]] static auto FormatMessageTitle(std::span<CharT> a_buffer) noexcept
+		-> std::expected<std::basic_string_view<CharT>, REX::SystemError>
+	{
+		auto moduleFileNameBuffer = std::array<CharT, REX::W32::MAX_FNAME>();
+
+		const auto moduleFileNameView = GetCurrentModuleFileName<CharT>(moduleFileNameBuffer);
+		if (!moduleFileNameView) {
+			return std::unexpected(moduleFileNameView.error());
+		}
+
+		auto moduleVersionStringBuffer = std::array<CharT, REX::Version::MAX_BUFFER_SIZE>();
+
+		const auto moduleVersionStringView = GetCurrentModuleVersionString<CharT>(*moduleFileNameView, moduleVersionStringBuffer);
+		if (!moduleVersionStringView) {
+			return std::unexpected(moduleVersionStringView.error());
+		}
+
+		return REX::FixedFormat(
+			a_buffer,
+			MESSAGE_TITLE_FORMAT<CharT>,
+			*moduleFileNameView,
+			*moduleVersionStringView);
+	}
+
+	template <REX::win32_character CharT>
+	[[nodiscard]] static auto FormatMessageBody(std::span<CharT> a_buffer, REX::SourceLocation a_location, std::basic_string_view<CharT> a_format) noexcept
+		-> std::expected<std::basic_string_view<CharT>, REX::SystemError>;
+
+	template <>
+	[[nodiscard]] auto FormatMessageBody(std::span<char> a_buffer, REX::SourceLocation a_location, std::string_view a_format) noexcept
+		-> std::expected<std::string_view, REX::SystemError>
+	{
+		const auto relativeFilePath = GetRelativeFilePath(a_location.GetFilePath());
+		return REX::FixedFormat(
+			a_buffer,
+			MESSAGE_BODY_FORMAT<char>,
+			relativeFilePath,
+			a_location.GetLineNumber(),
+			a_location.GetFunctionName(),
+			a_format);
 	}
 
 	template <>
-	auto FormatHeader() noexcept -> std::expected<std::string, REX::SystemError>
+	[[nodiscard]] auto FormatMessageBody(std::span<wchar_t> a_buffer, REX::SourceLocation a_location, std::wstring_view a_format) noexcept
+		-> std::expected<std::wstring_view, REX::SystemError>
 	{
-		return FormatHeaderImpl<char>();
-	}
+		auto filePathBuffer = std::array<wchar_t, REX::W32::MAX_FNAME>();
 
-	template <>
-	auto FormatHeader() noexcept -> std::expected<std::wstring, REX::SystemError>
-	{
-		return FormatHeaderImpl<wchar_t>();
-	}
-
-	template <REX::win32_character T>
-	[[nodiscard]] static auto FormatBodyImpl(std::source_location a_location, std::basic_string_view<T> a_format) noexcept -> std::expected<std::basic_string<T>, REX::SystemError>
-	{
-		try {
-			const auto filePath = std::filesystem::path(a_location.file_name(), std::filesystem::path::generic_format);
-			const auto filePathString = filePath.generic_string<T>();
-
-			auto filePathView = std::basic_string_view<T>(filePathString.data(), filePathString.size());
-			auto filePosition = std::basic_string<T>::npos;
-			auto fileOffset = static_cast<std::size_t>(0);
-
-			for (const auto& directory : DIRECTORIES<T>) {
-				filePosition = filePathView.find(directory);
-				if (filePosition != std::basic_string<T>::npos) {
-					fileOffset = directory.size();
-					break;
-				}
-			}
-
-			if (filePosition != std::basic_string<T>::npos) {
-				filePathView = filePathView.substr(filePosition + fileOffset);
-			}
-
-			if constexpr (std::same_as<T, char>) {
-				return Format(R"("{}" ({}): {})"sv,
-					filePathView, a_location.line(), a_format);
-			}
-			else {
-				return Format(LR"("{}" ({}): {})"sv,
-					filePathView, a_location.line(), a_format);
-			}
+		const auto filePathView = REX::Utf8ToUtf16(a_location.GetFilePath(), filePathBuffer);
+		if (!filePathView) {
+			return std::unexpected(filePathView.error());
 		}
-		catch ([[maybe_unused]] const std::bad_alloc& error) {
-			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::not_enough_memory));
+
+		auto functionNameBuffer = std::array<wchar_t, REX::W32::MAX_FNAME>();
+
+		const auto functionNameView = REX::Utf8ToUtf16(a_location.GetFunctionName(), functionNameBuffer);
+		if (!functionNameView) {
+			return std::unexpected(functionNameView.error());
 		}
+
+		const auto relativeFilePath = GetRelativeFilePath(*filePathView);
+		return REX::FixedFormat(
+			a_buffer,
+			MESSAGE_BODY_FORMAT<wchar_t>,
+			relativeFilePath,
+			a_location.GetLineNumber(),
+			*functionNameView,
+			a_format);
 	}
 
-	template <>
-	auto FormatBody(std::source_location a_location, std::string_view a_format) noexcept -> std::expected<std::string, REX::SystemError>
-	{
-		return FormatBodyImpl<char>(a_location, a_format);
-	}
-
-	template <>
-	auto FormatBody(std::source_location a_location, std::wstring_view a_format) noexcept -> std::expected<std::wstring, REX::SystemError>
-	{
-		return FormatBodyImpl<wchar_t>(a_location, a_format);
-	}
-
-	REX::W32::MB GetMessageSeverityByLogLevel(LogLevel a_logLevel) noexcept
+	[[nodiscard]] static constexpr MessageBoxFlags GetMessageSeverityByLogLevel(LogLevel a_logLevel) noexcept
 	{
 		switch (a_logLevel) {
 			case LogLevel::kWarning: {
-				return REX::W32::MB::MB_ICONWARNING;
+				return MessageBoxFlags::MB_ICONWARNING;
 			}
 			case LogLevel::kError:
 			case LogLevel::kCritical: {
-				return REX::W32::MB::MB_ICONERROR;
+				return MessageBoxFlags::MB_ICONERROR;
 			}
 			default: {
-				return REX::W32::MB::MB_ICONINFORMATION;
+				return MessageBoxFlags::MB_ICONINFORMATION;
 			}
 		}
 	}
 
-	REX::W32::MBID ShowBasicMessage(LogLevel a_logLevel, REX::zstring_view a_title, REX::zstring_view a_message, REX::W32::MB a_messageFlags) noexcept
+	MessageBoxResult ShowBasicMessage(LogLevel a_logLevel, std::string_view a_title, std::string_view a_message, MessageBoxFlags a_messageFlags) noexcept
 	{
-		const auto windowHandle = static_cast<REX::W32::HWND>(0);
-		const auto messageBoxFlags = REX::EnumSet(a_messageFlags, GetMessageSeverityByLogLevel(a_logLevel));
+		constexpr auto WINDOW_HANDLE = static_cast<REX::W32::HWND>(0);
 
-		return static_cast<REX::W32::MBID>(REX::W32::MessageBoxA(
-			windowHandle,
+		const auto messageBoxFlags = REX::EnumSet(a_messageFlags, GetMessageSeverityByLogLevel(a_logLevel));
+		return static_cast<MessageBoxResult>(REX::W32::MessageBoxA(
+			WINDOW_HANDLE,
 			a_message.data(),
 			a_title.data(),
 			messageBoxFlags.get()));
 	}
 
-	REX::W32::MBID ShowBasicMessage(LogLevel a_logLevel, REX::zwstring_view a_title, REX::zwstring_view a_message, REX::W32::MB a_messageFlags) noexcept
+	MessageBoxResult ShowBasicMessage(LogLevel a_logLevel, std::wstring_view a_title, std::wstring_view a_message, MessageBoxFlags a_messageFlags) noexcept
 	{
-		const auto windowHandle = static_cast<REX::W32::HWND>(0);
-		const auto messageBoxFlags = REX::EnumSet(a_messageFlags, GetMessageSeverityByLogLevel(a_logLevel));
+		constexpr auto WINDOW_HANDLE = static_cast<REX::W32::HWND>(0);
 
-		return static_cast<REX::W32::MBID>(REX::W32::MessageBoxW(
-			windowHandle,
+		const auto messageBoxFlags = REX::EnumSet(a_messageFlags, GetMessageSeverityByLogLevel(a_logLevel));
+		return static_cast<MessageBoxResult>(REX::W32::MessageBoxW(
+			WINDOW_HANDLE,
 			a_message.data(),
 			a_title.data(),
 			messageBoxFlags.get()));
 	}
 
-	REX::W32::MBID ShowSourceMessage(LogLevel a_logLevel, std::source_location a_location, std::string_view a_format, REX::W32::MB a_messageFlags) noexcept
+	MessageBoxResult ShowBasicMessage(LogLevel a_logLevel, std::string_view a_message, MessageBoxFlags a_messageFlags) noexcept
 	{
-		const auto messageBody = FormatBody(a_location, a_format);
-		if (!messageBody) [[unlikely]] {
-			REX::QuickFail("Failed to format source message body."sv);
+		auto titleBuffer = std::array<char, REX::TITLE_BUFFER_SIZE>();
+
+		const auto messageTitle = FormatMessageTitle<char>(titleBuffer);
+		if (!messageTitle) [[unlikely]] {
+			REX::Assert(false);
+			return MessageBoxResult::IDABORT;
 		}
 
-		const auto messageHeader = FormatHeader<char>();
-		if (!messageHeader) [[unlikely]] {
-			REX::QuickFail("Failed to format source message header."sv);
+		return ShowBasicMessage(a_logLevel, *messageTitle, a_message, a_messageFlags);
+	}
+
+	MessageBoxResult ShowBasicMessage(LogLevel a_logLevel, std::wstring_view a_message, MessageBoxFlags a_messageFlags) noexcept
+	{
+		auto titleBuffer = std::array<wchar_t, REX::TITLE_BUFFER_SIZE>();
+
+		const auto messageTitle = FormatMessageTitle<wchar_t>(titleBuffer);
+		if (!messageTitle) [[unlikely]] {
+			REX::Assert(false);
+			return MessageBoxResult::IDABORT;
+		}
+
+		return ShowBasicMessage(a_logLevel, *messageTitle, a_message, a_messageFlags);
+	}
+
+	MessageBoxResult ShowSourceMessage(LogLevel a_logLevel, REX::SourceLocation a_location, std::string_view a_format, MessageBoxFlags a_messageFlags) noexcept
+	{
+		auto titleBuffer = std::array<char, REX::TITLE_BUFFER_SIZE>();
+
+		const auto messageTitle = FormatMessageTitle<char>(titleBuffer);
+		if (!messageTitle) [[unlikely]] {
+			REX::Assert(false);
+			return MessageBoxResult::IDABORT;
+		}
+
+		auto messageBuffer = std::array<char, REX::MESSAGE_BUFFER_SIZE>();
+
+		const auto messageBody = FormatMessageBody<char>(messageBuffer, a_location, a_format);
+		if (!messageBody) [[unlikely]] {
+			REX::Assert(false);
+			return MessageBoxResult::IDABORT;
 		}
 
 		Log(a_logLevel, a_location, a_format);
 
-		return Impl::ShowBasicMessage(a_logLevel, *messageHeader, *messageBody, a_messageFlags);
+		return ShowBasicMessage(a_logLevel, *messageTitle, *messageBody, a_messageFlags);
 	}
 
-	REX::W32::MBID ShowSourceMessage(LogLevel a_logLevel, std::source_location a_location, std::wstring_view a_format, REX::W32::MB a_messageFlags) noexcept
+	MessageBoxResult ShowSourceMessage(LogLevel a_logLevel, REX::SourceLocation a_location, std::wstring_view a_format, MessageBoxFlags a_messageFlags) noexcept
 	{
-		const auto messageBody = FormatBody(a_location, a_format);
-		if (!messageBody) [[unlikely]] {
-			REX::QuickFail("Failed to format wide source message body."sv);
+		auto titleBuffer = std::array<wchar_t, REX::TITLE_BUFFER_SIZE>();
+
+		const auto messageTitle = FormatMessageTitle<wchar_t>(titleBuffer);
+		if (!messageTitle) [[unlikely]] {
+			REX::Assert(false);
+			return MessageBoxResult::IDABORT;
 		}
 
-		const auto messageHeader = FormatHeader<wchar_t>();
-		if (!messageHeader) [[unlikely]] {
-			REX::QuickFail("Failed to format wide source message header."sv);
+		auto messageBuffer = std::array<wchar_t, REX::MESSAGE_BUFFER_SIZE>();
+
+		const auto messageBody = FormatMessageBody<wchar_t>(messageBuffer, a_location, a_format);
+		if (!messageBody) [[unlikely]] {
+			REX::Assert(false);
+			return MessageBoxResult::IDABORT;
 		}
 
 		Log(a_logLevel, a_location, a_format);
 
-		return Impl::ShowBasicMessage(a_logLevel, *messageHeader, *messageBody, a_messageFlags);
+		return ShowBasicMessage(a_logLevel, *messageTitle, *messageBody, a_messageFlags);
 	}
 
-	void Inform(std::source_location a_location, std::string_view a_format) noexcept
+	void Inform(std::string_view a_format) noexcept
 	{
-		Impl::ShowSourceMessage(LogLevel::kInformation, a_location, a_format);
+		ShowBasicMessage(LogLevel::kInformation, a_format, DEFAULT_MESSAGE_FLAGS.get());
 	}
 
-	void Inform(std::source_location a_location, std::wstring_view a_format) noexcept
+	void Inform(std::wstring_view a_format) noexcept
 	{
-		Impl::ShowSourceMessage(LogLevel::kInformation, a_location, a_format);
+		ShowBasicMessage(LogLevel::kInformation, a_format, DEFAULT_MESSAGE_FLAGS.get());
 	}
 
-	void Warn(std::source_location a_location, std::string_view a_format) noexcept
+	void Warn(REX::SourceLocation a_location, std::string_view a_format) noexcept
 	{
-		Impl::ShowSourceMessage(LogLevel::kWarning, a_location, a_format);
+		ShowSourceMessage(LogLevel::kWarning, a_location, a_format, DEFAULT_MESSAGE_FLAGS.get());
 	}
 
-	void Warn(std::source_location a_location, std::wstring_view a_format) noexcept
+	void Warn(REX::SourceLocation a_location, std::wstring_view a_format) noexcept
 	{
-		Impl::ShowSourceMessage(LogLevel::kWarning, a_location, a_format);
+		ShowSourceMessage(LogLevel::kWarning, a_location, a_format, DEFAULT_MESSAGE_FLAGS.get());
 	}
 
-	void Fail(std::source_location a_location, std::string_view a_format) noexcept
+	void Fail(REX::SourceLocation a_location, std::string_view a_format) noexcept
 	{
-		Impl::ShowSourceMessage(LogLevel::kCritical, a_location, a_format);
+		ShowSourceMessage(LogLevel::kCritical, a_location, a_format, DEFAULT_MESSAGE_FLAGS.get());
 
 		if (REX::W32::IsDebuggerPresent()) {
 			REX::W32::DebugBreak();
@@ -234,14 +311,47 @@ namespace REX::Impl
 		REX::W32::TerminateCurrentProcess(EXIT_FAILURE);
 	}
 
-	void Fail(std::source_location a_location, std::wstring_view a_format) noexcept
+	void Fail(REX::SourceLocation a_location, std::wstring_view a_format) noexcept
 	{
-		Impl::ShowSourceMessage(LogLevel::kCritical, a_location, a_format);
+		ShowSourceMessage(LogLevel::kCritical, a_location, a_format, DEFAULT_MESSAGE_FLAGS.get());
 
 		if (REX::W32::IsDebuggerPresent()) {
 			REX::W32::DebugBreak();
 		}
 
 		REX::W32::TerminateCurrentProcess(EXIT_FAILURE);
+	}
+}
+
+namespace REX
+{
+	MessageBoxResult ShowBasicMessage(LogLevel a_logLevel, std::string_view a_title, std::string_view a_message) noexcept
+	{
+		return Impl::ShowBasicMessage(a_logLevel, a_title, a_message, Impl::DEFAULT_MESSAGE_FLAGS.get());
+	}
+
+	MessageBoxResult ShowBasicMessage(LogLevel a_logLevel, std::wstring_view a_title, std::wstring_view a_message) noexcept
+	{
+		return Impl::ShowBasicMessage(a_logLevel, a_title, a_message, Impl::DEFAULT_MESSAGE_FLAGS.get());
+	}
+
+	MessageBoxResult ShowBasicMessage(LogLevel a_logLevel, std::string_view a_message) noexcept
+	{
+		return Impl::ShowBasicMessage(a_logLevel, a_message, Impl::DEFAULT_MESSAGE_FLAGS.get());
+	}
+
+	MessageBoxResult ShowBasicMessage(LogLevel a_logLevel, std::wstring_view a_message) noexcept
+	{
+		return Impl::ShowBasicMessage(a_logLevel, a_message, Impl::DEFAULT_MESSAGE_FLAGS.get());
+	}
+
+	MessageBoxResult ShowSourceMessage(LogLevel a_logLevel, REX::SourceLocation a_location, std::string_view a_format) noexcept
+	{
+		return Impl::ShowSourceMessage(a_logLevel, a_location, a_format, Impl::DEFAULT_MESSAGE_FLAGS.get());
+	}
+
+	MessageBoxResult ShowSourceMessage(LogLevel a_logLevel, REX::SourceLocation a_location, std::wstring_view a_format) noexcept
+	{
+		return Impl::ShowSourceMessage(a_logLevel, a_location, a_format, Impl::DEFAULT_MESSAGE_FLAGS.get());
 	}
 }

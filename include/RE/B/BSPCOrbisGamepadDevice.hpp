@@ -12,7 +12,7 @@ namespace RE
 		inline static constexpr auto RTTI{ RTTI::BSPCOrbisGamepadDevice };
 		inline static constexpr auto VTABLE{ VTABLE::BSPCOrbisGamepadDevice };
 
-		// override(BSPCGamepadDeviceDelegate)
+		// override (BSPCGamepadDeviceDelegate)
 		void Initialize() override;																						  // 00
 		void Poll(REX::Float32 a_deltaTime) override;																	  // 01
 		void Shutdown() override;																						  // 02

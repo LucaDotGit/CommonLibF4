@@ -2,7 +2,7 @@
 
 #include "RE/B/BSFixedString.hpp"
 
-#include "REX/ErrorCode.hpp"
+#include "REX/Error.hpp"
 #include "REX/NotNull.hpp"
 
 #include "Scaleform/P/Ptr.hpp"
@@ -28,8 +28,10 @@ namespace F4SE::Translations
 		Translator& operator=(const Translator&) = delete;
 		Translator& operator=(Translator&&) = delete;
 
-		[[nodiscard]] auto GetLanguageCode() const noexcept -> std::string_view;
-		[[nodiscard]] auto GetGameTranslator() const noexcept -> REX::NotNull<::Scaleform::Ptr<RE::BSScaleformTranslator>>;
+		[[nodiscard]] auto GetLanguageCode() const noexcept
+			-> std::string_view;
+		[[nodiscard]] auto GetGameTranslator() const noexcept
+			-> REX::NotNull<::Scaleform::Ptr<RE::BSScaleformTranslator>>;
 
 		[[nodiscard]] std::uint32_t GetSize() const noexcept;
 		[[nodiscard]] std::uint32_t GetCapacity() const noexcept;
@@ -42,10 +44,14 @@ namespace F4SE::Translations
 		[[nodiscard]] bool Contains(const RE::BSFixedStringCS& a_key) const;
 		[[nodiscard]] bool Contains(const RE::BSFixedStringWCS& a_key) const;
 
-		[[nodiscard]] auto GetValue(std::string_view a_key) const -> std::optional<std::string>;
-		[[nodiscard]] auto GetValue(std::wstring_view a_key) const -> std::optional<std::wstring>;
-		[[nodiscard]] auto GetValue(const RE::BSFixedStringCS& a_key) const -> std::optional<RE::BSFixedStringCS>;
-		[[nodiscard]] auto GetValue(const RE::BSFixedStringWCS& a_key) const -> std::optional<RE::BSFixedStringWCS>;
+		[[nodiscard]] auto GetValue(std::string_view a_key) const
+			-> std::optional<std::string>;
+		[[nodiscard]] auto GetValue(std::wstring_view a_key) const
+			-> std::optional<std::wstring>;
+		[[nodiscard]] auto GetValue(const RE::BSFixedStringCS& a_key) const
+			-> std::optional<RE::BSFixedStringCS>;
+		[[nodiscard]] auto GetValue(const RE::BSFixedStringWCS& a_key) const
+			-> std::optional<RE::BSFixedStringWCS>;
 
 		bool SetValue(std::string_view a_key, std::string_view a_value);
 		bool SetValue(std::wstring_view a_key, std::wstring_view a_value);
@@ -57,10 +63,14 @@ namespace F4SE::Translations
 		void SetRange(std::span<const std::pair<RE::BSFixedStringCS, RE::BSFixedStringCS>> a_pairs);
 		void SetRange(std::span<const std::pair<RE::BSFixedStringWCS, RE::BSFixedStringWCS>> a_pairs);
 
-		auto GetOrAdd(std::string_view a_key, std::string_view a_value) -> std::optional<std::string>;
-		auto GetOrAdd(std::wstring_view a_key, std::wstring_view a_value) -> std::optional<std::wstring>;
-		auto GetOrAdd(const RE::BSFixedStringCS& a_key, const RE::BSFixedStringCS& a_value) -> std::optional<RE::BSFixedStringCS>;
-		auto GetOrAdd(const RE::BSFixedStringWCS& a_key, const RE::BSFixedStringWCS& a_value) -> std::optional<RE::BSFixedStringWCS>;
+		auto GetOrAdd(std::string_view a_key, std::string_view a_value)
+			-> std::optional<std::string>;
+		auto GetOrAdd(std::wstring_view a_key, std::wstring_view a_value)
+			-> std::optional<std::wstring>;
+		auto GetOrAdd(const RE::BSFixedStringCS& a_key, const RE::BSFixedStringCS& a_value)
+			-> std::optional<RE::BSFixedStringCS>;
+		auto GetOrAdd(const RE::BSFixedStringWCS& a_key, const RE::BSFixedStringWCS& a_value)
+			-> std::optional<RE::BSFixedStringWCS>;
 
 		bool Add(std::string_view a_key, std::string_view a_value);
 		bool Add(std::wstring_view a_key, std::wstring_view a_value);
@@ -88,10 +98,12 @@ namespace F4SE::Translations
 		REX::NotNull<::Scaleform::Ptr<RE::BSScaleformTranslator>> _gameTranslator;
 	};
 
-	[[nodiscard]] auto GetTranslator() -> const REX::NotNull<std::unique_ptr<Translator>>&;
+	[[nodiscard]] auto GetTranslator()
+		-> const REX::NotNull<std::unique_ptr<Translator>>&;
 }
 
 namespace F4SE::Translations::Impl
 {
-	[[nodiscard]] auto GetGameTranslator() -> ::Scaleform::Ptr<RE::BSScaleformTranslator>;
+	[[nodiscard]] auto GetGameTranslator()
+		-> ::Scaleform::Ptr<RE::BSScaleformTranslator>;
 }

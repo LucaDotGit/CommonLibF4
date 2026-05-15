@@ -11,6 +11,7 @@
 #include "RE/I/Inventory3DManager.hpp"
 #include "RE/N/NiPoint.hpp"
 #include "RE/N/NiPointer.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 #include "msvc/memory.hpp"
 
@@ -113,14 +114,14 @@ namespace RE
 		{
 			using FuncType = decltype(&WorkshopMenu::CheckAndSetItemForPlacement);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::WorkshopMenu::CheckAndSetItemForPlacement };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void UpdateButtonText()
 		{
 			using FuncType = decltype(&WorkshopMenu::UpdateButtonText);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::WorkshopMenu::UpdateButtonText };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

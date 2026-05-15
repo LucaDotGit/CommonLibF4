@@ -136,28 +136,28 @@ namespace RE
 		{
 			using FuncType = decltype(&PipboyPlayerInfoData::UpdateCarryWeightData);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyPlayerInfoData::UpdateArmorData };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void UpdateCarryWeightData()
 		{
 			using FuncType = decltype(&PipboyPlayerInfoData::UpdateCarryWeightData);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyPlayerInfoData::UpdateCarryWeightData };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void UpdateGoldData()
 		{
 			using FuncType = decltype(&PipboyPlayerInfoData::UpdateCarryWeightData);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyPlayerInfoData::UpdateGoldData };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void UpdateWeaponData()
 		{
 			using FuncType = decltype(&PipboyPlayerInfoData::UpdateCarryWeightData);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyPlayerInfoData::UpdateWeaponData };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

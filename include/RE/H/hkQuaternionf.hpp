@@ -152,17 +152,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::hkQuaternionf& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::hkQuaternionf& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "({}, {}, {}, {})"sv, a_value.w, a_value.x, a_value.y, a_value.z);
+			return format_to(a_context.out(), "({}, {}, {}, {})"sv, a_value.w, a_value.x, a_value.y, a_value.z);
 		}
 	};
 }
@@ -177,17 +177,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::hkQuaternionf& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::hkQuaternionf& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "({}, {}, {}, {})"sv, a_value.w, a_value.x, a_value.y, a_value.z);
+			return format_to(a_context.out(), "({}, {}, {}, {})"sv, a_value.w, a_value.x, a_value.y, a_value.z);
 		}
 	};
 }

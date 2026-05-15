@@ -33,7 +33,7 @@ namespace RE
 		{
 			using FuncType = decltype(&BGSQuestInstanceText::ParseString);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSQuestInstanceText::ParseString };
-			FUNC(a_inOutText, a_quest, a_instanceID);
+			std::invoke(FUNC, a_inOutText, a_quest, a_instanceID);
 		}
 
 		// members

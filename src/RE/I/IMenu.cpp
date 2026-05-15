@@ -1,6 +1,13 @@
 #include "RE/I/IMenu.hpp"
 
+#include "RE/B/ButtonEvent.hpp"
+#include "RE/I/IUIMessageData.hpp"
 #include "RE/P/PauseMenu.hpp"
+#include "RE/U/UIMessage.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
+#include "RE/U/UI_MENU_FLAGS.hpp"
+#include "RE/U/UI_MESSAGE_RESULTS.hpp"
+#include "RE/U/UserEvents.hpp"
 
 #include "Scaleform/G/GFx_ASMovieRootBase.hpp"
 #include "Scaleform/G/GFx_Movie.hpp"
@@ -9,8 +16,11 @@
 namespace RE
 {
 	IMenu::IMenu()
+		: menuFlags(UI_MENU_FLAGS::kNone),
+		  depthPriority(UI_DEPTH_PRIORITY::kStandard),
+		  inputContext(UserEvents::INPUT_CONTEXT_ID::kNone)
 	{
-		REL::EmplaceVtable(this);
+		// REL::EmplaceVtable(this);
 	}
 
 	IMenu::~IMenu()
@@ -153,7 +163,7 @@ namespace RE
 	{
 		using FuncType = decltype(&IMenu::OnSetSafeRect);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::IMenu::OnSetSafeRect };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	UI_MESSAGE_RESULTS IMenu::ProcessScaleformEvent(::Scaleform::GFx::Movie* a_movie, const IUIMessageData* a_data)
@@ -167,7 +177,7 @@ namespace RE
 	{
 		using FuncType = decltype(&IMenu::RefreshPlatform);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::IMenu::RefreshPlatform };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void IMenu::SetMenuCodeObject(::Scaleform::GFx::Movie& a_movie, const char* a_menuObjPath)

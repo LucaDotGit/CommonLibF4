@@ -26,7 +26,7 @@ namespace RE
 		{
 			using FuncType = decltype(&PipboyInventoryMenu::SetQuickkey);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyInventoryMenu::SetQuickkey };
-			FUNC(this, a_selectedIndex, a_quickkeyIndex);
+			std::invoke(FUNC, this, a_selectedIndex, a_quickkeyIndex);
 		}
 	};
 	static_assert(sizeof(PipboyInventoryMenu) == 0x18);

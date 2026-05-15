@@ -17,24 +17,24 @@ namespace RE
 		inline static constexpr auto RTTI{ RTTI::BSScaleformTranslator };
 		inline static constexpr auto VTABLE{ VTABLE::BSScaleformTranslator };
 
+		template <REX::win32_character CharT>
+		inline static constexpr auto TRANSLATION_LANGUAGE_SEPARATOR = static_cast<CharT>('_');
+
+		template <REX::win32_character CharT>
+		inline static constexpr auto TRANSLATION_KEY_PREFIX = static_cast<CharT>('$');
+
 		inline static constexpr auto TRANSLATION_DIRECTORY_PATH = "Data/Interface/Translations"sv;
 		inline static constexpr auto TRANSLATION_RELATIVE_DIRECTORY_PATH = "Interface/Translations"sv;
 		inline static constexpr auto TRANSLATION_FILE_EXTENSION = ".txt"sv;
-
-		template <class T>
-		inline static constexpr auto TRANSLATION_LANGUAGE_SEPARATOR = static_cast<T>('_');
-
-		template <class T>
-		inline static constexpr auto TRANSLATION_KEY_PREFIX = static_cast<T>('$');
 
 		inline static constexpr auto LANGUAGE_SETTING_KEY = "sLanguage:General"sv;
 		inline static constexpr auto LANGUAGE_ENGLISH = "en"sv;
 		inline static constexpr auto DEFAULT_LANGUAGE = LANGUAGE_ENGLISH;
 
-		template <class T>
-		[[nodiscard]] static constexpr bool IsKeyValid(std::basic_string_view<T> a_key) noexcept
+		template <REX::win32_character CharT>
+		[[nodiscard]] static constexpr bool IsKeyValid(std::basic_string_view<CharT> a_key) noexcept
 		{
-			return !a_key.empty() && a_key.front() == TRANSLATION_KEY_PREFIX<T>;
+			return !a_key.empty() && a_key.front() == TRANSLATION_KEY_PREFIX<CharT>;
 		}
 
 		[[nodiscard]] static Setting& GetLanguageSetting();

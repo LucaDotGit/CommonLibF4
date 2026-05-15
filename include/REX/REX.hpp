@@ -12,7 +12,7 @@
 #include "REX/Crypto.hpp"
 #include "REX/Enum.hpp"
 #include "REX/EnumSet.hpp"
-#include "REX/ErrorCode.hpp"
+#include "REX/Error.hpp"
 #include "REX/Float.hpp"
 #include "REX/Fnv1a.hpp"
 #include "REX/Format.hpp"
@@ -31,6 +31,7 @@
 #include "REX/NotAssignable.hpp"
 #include "REX/NotNull.hpp"
 #include "REX/Own.hpp"
+#include "REX/Path.hpp"
 #include "REX/Random.hpp"
 #include "REX/ScopeExit.hpp"
 #include "REX/Setting.hpp"
@@ -53,5 +54,6 @@
 #include "REX/Uuid.hpp"
 #include "REX/Version.hpp"
 #include "REX/Wildcards.hpp"
+#include "REX/Windows.hpp"
 #include "REX/ZString.hpp"
 // IWYU pragma: end_exports

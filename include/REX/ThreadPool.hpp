@@ -34,51 +34,51 @@ namespace REX
 						 ...));
 
 		template <class It, class F, class... Args>
-		[[nodiscard]] auto SubmitTaskRange(It a_begin, It a_end, F&& a_func, Args&&... a_args)
-			-> std::vector<std::future<std::invoke_result_t<F&, std::iter_reference_t<It>, Args&...>>>
+		[[nodiscard]] auto SubmitTaskRange(It a_begin, It a_end, const F& a_func, const Args&... a_args)
+			-> std::vector<std::future<std::invoke_result_t<F, std::iter_reference_t<It>, Args&...>>>
 			requires(std::forward_iterator<It> &&
-					 std::is_invocable_v<F&, std::iter_reference_t<It>, Args&...> &&
+					 std::is_invocable_v<F, std::iter_reference_t<It>, Args&...> &&
 					 (std::is_copy_constructible_v<std::decay_t<F>> &&
 						 std::is_move_constructible_v<std::decay_t<F>>) &&
-					 (std::is_copy_constructible_v<std::iter_value_t<It>> &&
-						 std::is_move_constructible_v<std::iter_value_t<It>>) &&
+					 (std::is_copy_constructible_v<std::iter_reference_t<It>> &&
+						 std::is_move_constructible_v<std::iter_reference_t<It>>) &&
 					 ((std::is_copy_constructible_v<std::decay_t<Args>> &&
 						  std::is_move_constructible_v<std::decay_t<Args>>) &&
 						 ...));
 
 		template <std::ranges::forward_range Range, class F, class... Args>
-		[[nodiscard]] auto SubmitTaskRange(Range& a_range, F&& a_func, Args&&... a_args)
-			-> std::vector<std::future<std::invoke_result_t<F&, std::ranges::range_reference_t<Range>, Args&...>>>
-			requires(std::is_invocable_v<F&, std::ranges::range_reference_t<Range>, Args&...> &&
+		[[nodiscard]] auto SubmitTaskRange(Range& a_range, const F& a_func, const Args&... a_args)
+			-> std::vector<std::future<std::invoke_result_t<F, std::ranges::range_reference_t<Range>, Args&...>>>
+			requires(std::is_invocable_v<F, std::ranges::range_reference_t<Range>, Args&...> &&
 					 (std::is_copy_constructible_v<std::decay_t<F>> &&
 						 std::is_move_constructible_v<std::decay_t<F>>) &&
-					 (std::is_copy_constructible_v<std::ranges::range_value_t<Range>> &&
-						 std::is_move_constructible_v<std::ranges::range_value_t<Range>>) &&
+					 (std::is_copy_constructible_v<std::ranges::range_reference_t<Range>> &&
+						 std::is_move_constructible_v<std::ranges::range_reference_t<Range>>) &&
 					 ((std::is_copy_constructible_v<std::decay_t<Args>> &&
 						  std::is_move_constructible_v<std::decay_t<Args>>) &&
 						 ...));
 
 		template <std::ranges::forward_range Range, class F, class... Args>
-		[[nodiscard]] auto SubmitTaskRange(const Range& a_range, F&& a_func, Args&&... a_args)
-			-> std::vector<std::future<std::invoke_result_t<F&, std::ranges::range_reference_t<const Range>, Args&...>>>
-			requires(std::is_invocable_v<F&, std::ranges::range_reference_t<const Range>, Args&...> &&
+		[[nodiscard]] auto SubmitTaskRange(const Range& a_range, const F& a_func, const Args&... a_args)
+			-> std::vector<std::future<std::invoke_result_t<F, std::ranges::range_reference_t<const Range>, Args&...>>>
+			requires(std::is_invocable_v<F, std::ranges::range_reference_t<const Range>, Args&...> &&
 					 (std::is_copy_constructible_v<std::decay_t<F>> &&
 						 std::is_move_constructible_v<std::decay_t<F>>) &&
-					 (std::is_copy_constructible_v<std::ranges::range_value_t<const Range>> &&
-						 std::is_move_constructible_v<std::ranges::range_value_t<const Range>>) &&
+					 (std::is_copy_constructible_v<std::ranges::range_reference_t<const Range>> &&
+						 std::is_move_constructible_v<std::ranges::range_reference_t<const Range>>) &&
 					 ((std::is_copy_constructible_v<std::decay_t<Args>> &&
 						  std::is_move_constructible_v<std::decay_t<Args>>) &&
 						 ...));
 
 		template <std::ranges::forward_range Range, class F, class... Args>
-		[[nodiscard]] auto SubmitTaskRange(Range&& a_range, F&& a_func, Args&&... a_args)
-			-> std::vector<std::future<std::invoke_result_t<F&, std::ranges::range_rvalue_reference_t<Range>, Args&...>>>
+		[[nodiscard]] auto SubmitTaskRange(Range&& a_range, const F& a_func, const Args&... a_args)
+			-> std::vector<std::future<std::invoke_result_t<F, std::ranges::range_rvalue_reference_t<Range>, Args&...>>>
 			requires(!std::is_lvalue_reference_v<Range> &&
-					 std::is_invocable_v<F&, std::ranges::range_rvalue_reference_t<Range>, Args&...> &&
+					 std::is_invocable_v<F, std::ranges::range_rvalue_reference_t<Range>, Args&...> &&
 					 (std::is_copy_constructible_v<std::decay_t<F>> &&
 						 std::is_move_constructible_v<std::decay_t<F>>) &&
-					 (std::is_copy_constructible_v<std::ranges::range_value_t<Range>> &&
-						 std::is_move_constructible_v<std::ranges::range_value_t<Range>>) &&
+					 (std::is_copy_constructible_v<std::ranges::range_rvalue_reference_t<Range>> &&
+						 std::is_move_constructible_v<std::ranges::range_rvalue_reference_t<Range>>) &&
 					 ((std::is_copy_constructible_v<std::decay_t<Args>> &&
 						  std::is_move_constructible_v<std::decay_t<Args>>) &&
 						 ...));

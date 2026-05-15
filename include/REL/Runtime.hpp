@@ -101,7 +101,7 @@ namespace REL::Impl
 			return false;
 		}
 
-		return std::ranges::all_of(RUNTIMES, [](const Runtime& a_runtime) {
+		return std::ranges::all_of(RUNTIMES, [](const Runtime& a_runtime) -> bool {
 			return a_runtime != Runtime::INVALID;
 		});
 	}();
@@ -114,7 +114,7 @@ namespace REL::Impl
 			return true;
 		}
 
-		const auto runtimeIt = std::ranges::adjacent_find(RUNTIMES, [](const Runtime& a_lhs, const Runtime& a_rhs) {
+		const auto runtimeIt = std::ranges::adjacent_find(RUNTIMES, [](const Runtime& a_lhs, const Runtime& a_rhs) -> bool {
 			return a_lhs < a_rhs;
 		});
 

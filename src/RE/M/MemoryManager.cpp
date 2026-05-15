@@ -4,11 +4,11 @@ namespace RE
 {
 	MemoryManager::AutoScrapBuffer::~AutoScrapBuffer() noexcept
 	{
-		deallocate(_data);
+		deallocate_bytes(_data);
 	}
 
 	MemoryManager::AutoScrapBuffer::AutoScrapBuffer(std::size_t a_size, std::align_val_t a_alignment)
-		: _data(allocate(a_size, a_alignment))
+		: _data(allocate_bytes(a_size, a_alignment))
 	{
 	}
 
@@ -23,23 +23,18 @@ namespace RE
 			return *this;
 		}
 
-		deallocate(_data);
+		deallocate_bytes(_data);
 		_data = std::exchange(a_rhs._data, nullptr);
 
 		return *this;
 	}
 
-	void* MemoryManager::AutoScrapBuffer::allocate(std::size_t a_size, std::align_val_t a_alignment) noexcept
+	__declspec(allocator) __declspec(restrict) void* MemoryManager::AutoScrapBuffer::allocate_bytes(std::size_t a_size, std::align_val_t a_alignment) noexcept
 	{
-		auto* mem = scrap_alloc(a_size, a_alignment);
-		if (!mem) [[unlikely]] {
-			REX::AllocationFail();
-		}
-
-		return mem;
+		return scrap_alloc(a_size, a_alignment);
 	}
 
-	void MemoryManager::AutoScrapBuffer::deallocate(void* a_mem) noexcept
+	__declspec(noalias) void MemoryManager::AutoScrapBuffer::deallocate_bytes(void* a_mem) noexcept
 	{
 		if (!a_mem) {
 			return;
@@ -59,7 +54,7 @@ namespace RE
 	{
 		using FuncType = decltype(&MemoryManager::RegisterMemoryManager);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::MemoryManager::RegisterMemoryManager };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	ScrapHeap* MemoryManager::GetThreadScrapHeap()
@@ -87,7 +82,7 @@ namespace RE
 	{
 		using FuncType = decltype(&MemoryManager::Deallocate);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::MemoryManager::Deallocate };
-		FUNC(this, a_mem, a_alignmentRequired);
+		std::invoke(FUNC, this, a_mem, a_alignmentRequired);
 	}
 
 	__declspec(noalias) std::size_t MemoryManager::Size(const void* a_ptr) const
@@ -119,29 +114,15 @@ namespace RE
 		}
 	}
 
-	__declspec(allocator) __declspec(restrict) void* scrap_alloc(std::size_t a_size, std::align_val_t a_alignment) noexcept
-	{
-		try {
-			auto* memoryManager = MemoryManager::GetSingleton().GetThreadScrapHeap();
-			if (!memoryManager) {
-				return nullptr;
-			}
-
-			return memoryManager->Allocate(a_size, a_alignment);
-		}
-		catch (...) {
-			return nullptr;
-		}
-	}
-
 	__declspec(allocator) __declspec(restrict) void* calloc(std::size_t a_count, std::size_t a_size) noexcept
 	{
 		try {
 			auto* mem = malloc(a_count * a_size);
-			if (mem) {
-				REL::MemWriteZero(mem, a_count * a_size);
+			if (!mem) {
+				return nullptr;
 			}
 
+			REL::MemWriteZero(mem, a_count * a_size);
 			return mem;
 		}
 		catch (...) {
@@ -171,6 +152,37 @@ namespace RE
 		}
 	}
 
+	__declspec(allocator) __declspec(restrict) void* scrap_alloc(std::size_t a_size, std::align_val_t a_alignment) noexcept
+	{
+		try {
+			auto* memoryManager = MemoryManager::GetSingleton().GetThreadScrapHeap();
+			if (!memoryManager) {
+				return nullptr;
+			}
+
+			return memoryManager->Allocate(a_size, a_alignment);
+		}
+		catch (...) {
+			return nullptr;
+		}
+	}
+
+	__declspec(allocator) __declspec(restrict) void* scrap_calloc(std::size_t a_count, std::size_t a_size, std::align_val_t a_alignment) noexcept
+	{
+		try {
+			auto* mem = scrap_alloc(a_count * a_size, a_alignment);
+			if (!mem) {
+				return nullptr;
+			}
+
+			REL::MemWriteZero(mem, a_count * a_size);
+			return mem;
+		}
+		catch (...) {
+			return nullptr;
+		}
+	}
+
 	__declspec(noalias) void free(void* a_ptr) noexcept
 	{
 		if (!a_ptr) {
@@ -182,7 +194,7 @@ namespace RE
 			memoryManager.Deallocate(a_ptr, false);
 		}
 		catch (...) {
-			REX::DeallocationFail();
+			REX::Fail("Failed to free memory."sv);
 		}
 	}
 
@@ -197,7 +209,7 @@ namespace RE
 			memoryManager.Deallocate(a_ptr, true);
 		}
 		catch (...) {
-			REX::DeallocationFail();
+			REX::Fail("Failed to free memory."sv);
 		}
 	}
 
@@ -209,15 +221,15 @@ namespace RE
 
 		try {
 			auto* scrapHeap = MemoryManager::GetSingleton().GetThreadScrapHeap();
-			if (!scrapHeap) {
-				REX::DeallocationFail();
+			if (!scrapHeap) [[unlikely]] {
+				REX::Assert(false);
 				return;
 			}
 
 			scrapHeap->Deallocate(a_ptr);
 		}
 		catch (...) {
-			REX::DeallocationFail();
+			REX::Fail("Failed to free memory."sv);
 		}
 	}
 

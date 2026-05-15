@@ -37,7 +37,7 @@ namespace RE::BSScript::Internal
 		CallResult Call(const BSTSmartPointer<Stack>& a_stack, ErrorLogger& a_errorLogger, Internal::VirtualMachine& a_vm, bool a_inScriptTasklet) const override; // 0F
 		const BSFixedString& GetSourceFilename() const override;																								   // 10 - { return sourceFileName; }
 		bool TranslateIPToLineNumber(std::uint32_t a_ip, std::uint32_t& a_lineNumber) const override;															   // 11
-		bool GetVarNameForStackIndex(std::uint32_t a_index, BSFixedString& a_out) const override;																   // 12
+		bool GetVarNameForStackIndex(std::uint32_t a_index, BSFixedString& a_outName) const override;															   // 12
 		bool CanBeCalledFromTasklets() const override;																											   // 13 - { return true; }
 		void SetCallableFromTasklets(bool a_taskletCallable) override;																							   // 14 - { return; }
 

@@ -13,8 +13,8 @@ namespace RE
 		// members
 		std::array<char, REX::W32::MAX_DIR> directoryName;						// 1B0
 		bool singleSave;														// 2B0
-		std::array<char, 128> subtitle;											// 2B1
-		std::array<char, 1024> detail;											// 331
+		std::array<char, 0x80> subtitle;										// 2B1
+		std::array<char, 0x400> detail;											// 331
 		std::array<char, REX::W32::MAX_FNAME> createIconImagePath;				// 731
 		BSSaveDataSystemUtilityImage createIconImage;							// 838
 		BSSaveDataSystemUtilityImage iconImage;									// 850

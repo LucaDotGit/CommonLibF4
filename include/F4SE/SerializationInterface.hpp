@@ -41,8 +41,10 @@ namespace F4SE
 		bool WriteRecordData(const std::byte* a_value, std::uint32_t a_size) const;
 		bool GetNextRecordInfo(std::uint32_t& a_type, std::uint32_t& a_version, std::uint32_t& a_size) const;
 		std::uint32_t ReadRecordData(std::byte* a_buffer, std::uint32_t a_size) const;
-		[[nodiscard]] auto ResolveHandle(RE::BSScript::ObjectHandle a_objectHandle) const -> std::optional<RE::BSScript::ObjectHandle>;
-		[[nodiscard]] auto ResolveFormID(RE::TESFormID a_formID) const -> std::optional<RE::TESFormID>;
+		[[nodiscard]] auto ResolveHandle(RE::BSScript::ObjectHandle a_objectHandle) const
+			-> std::optional<RE::BSScript::ObjectHandle>;
+		[[nodiscard]] auto ResolveFormID(RE::TESFormID a_formID) const
+			-> std::optional<RE::TESFormID>;
 
 		template <REX::trivially_readable T>
 		bool WriteRecord(std::uint32_t a_type, std::uint32_t a_version, const T* a_data, std::uint32_t a_size) const
@@ -68,15 +70,15 @@ namespace F4SE
 		{
 			auto readType = 0ui32;
 			auto readVersion = 0ui32;
-			auto readLength = 0ui32;
+			auto readSize = 0ui32;
 
-			if (!GetNextRecordInfo(readType, readVersion, readLength) || readType != a_type || readVersion != a_version) {
+			if (!GetNextRecordInfo(readType, readVersion, readSize) || readType != a_type || readVersion != a_version) {
 				return false;
 			}
 
-			a_buffer.resize(readLength);
+			a_buffer.resize(readSize);
 
-			return ReadRecordData(a_buffer.data(), readLength) == readLength;
+			return ReadRecordData(a_buffer.data(), readSize) == readSize;
 		}
 
 		template <REX::trivially_writable T>

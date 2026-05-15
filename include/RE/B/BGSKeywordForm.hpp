@@ -45,7 +45,8 @@ namespace RE
 		[[nodiscard]] bool ContainsExactKeywordString(std::string_view a_editorID) const;
 
 		[[nodiscard]] std::uint32_t GetKeywordCount() const noexcept;
-		[[nodiscard]] auto GetKeywordIndex(const BGSKeyword* a_keyword) const -> std::optional<std::uint32_t>;
+		[[nodiscard]] auto GetKeywordIndex(const BGSKeyword* a_keyword) const
+			-> std::optional<std::uint32_t>;
 
 		[[nodiscard]] std::span<BGSKeyword*> GetKeywords() noexcept;
 		[[nodiscard]] std::span<BGSKeyword* const> GetKeywords() const noexcept;

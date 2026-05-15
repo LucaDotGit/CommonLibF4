@@ -13,7 +13,7 @@ namespace RE::InventoryUserUIUtils::Impl
 	{
 		using FuncType = decltype(&Impl::AddItemCardInfoEntry);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::InventoryUserUIUtils::AddItemCardInfoEntry };
-		FUNC(a_array, a_newEntry, a_textID, a_value, a_difference, a_totalDamage, a_compareDamage);
+		std::invoke(FUNC, a_array, a_newEntry, a_textID, a_value, a_difference, a_totalDamage, a_compareDamage);
 	}
 }
 

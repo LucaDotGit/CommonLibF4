@@ -1,6 +1,8 @@
 #pragma once
 
 #include "REX/Contract.hpp"
+#include "REX/Hash.hpp"
+#include "REX/Message.hpp"
 #include "REX/W32/CORE.hpp"
 
 namespace REX::W32
@@ -8,7 +10,7 @@ namespace REX::W32
 	// Source: https://learn.microsoft.com/en-us/cpp/cppcx/wrl/comptr-class
 
 	template <class T>
-	class ComPtr
+	class ComPtr final
 	{
 	public:
 		using element_type = T;
@@ -231,7 +233,7 @@ namespace REX::W32
 				_ptr->AddRef();
 			}
 			catch (...) {
-				REX::QuickFail("Failed to add reference to COM object."sv);
+				REX::Fail("Failed to increment ref count."sv);
 			}
 		}
 
@@ -246,7 +248,7 @@ namespace REX::W32
 				_ptr = nullptr;
 			}
 			catch (...) {
-				REX::QuickFail("Failed to release reference to COM object."sv);
+				REX::Fail("Failed to decrement ref count."sv);
 			}
 		}
 

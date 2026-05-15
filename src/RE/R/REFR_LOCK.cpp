@@ -7,61 +7,61 @@ namespace RE
 {
 	Setting& REFR_LOCK::GetLockLevelMaxEasySetting()
 	{
-		static auto* Setting = GetGameSetting("iLockLevelMaxEasy"sv);
-		return *Setting;
+		static auto* MaxEasySetting = GetGameSetting("iLockLevelMaxEasy"sv);
+		return *MaxEasySetting;
 	}
 
 	Setting& REFR_LOCK::GetLockLevelMaxAverageSetting()
 	{
-		static auto* Setting = GetGameSetting("iLockLevelMaxAverage"sv);
-		return *Setting;
+		static auto* MaxAverageSetting = GetGameSetting("iLockLevelMaxAverage"sv);
+		return *MaxAverageSetting;
 	}
 
 	Setting& REFR_LOCK::GetLockLevelMaxHardSetting()
 	{
-		static auto* Setting = GetGameSetting("iLockLevelMaxHard"sv);
-		return *Setting;
+		static auto* MaxHardSetting = GetGameSetting("iLockLevelMaxHard"sv);
+		return *MaxHardSetting;
 	}
 
 	Setting& REFR_LOCK::GetLockLevelMaxVeryHardSetting()
 	{
-		static auto* Setting = GetGameSetting("iLockLevelMaxVeryHard"sv);
-		return *Setting;
+		static auto* MaxVeryHardSetting = GetGameSetting("iLockLevelMaxVeryHard"sv);
+		return *MaxVeryHardSetting;
 	}
 
 	Setting& REFR_LOCK::GetLockLevelMaxBarredSetting()
 	{
-		static auto* Setting = GetGameSetting("iLockLevelMaxBarred"sv);
-		return *Setting;
+		static auto* MaxBarredSetting = GetGameSetting("iLockLevelMaxBarred"sv);
+		return *MaxBarredSetting;
 	}
 
 	Setting& REFR_LOCK::GetLockLevelMaxChainedSetting()
 	{
-		static auto* Setting = GetGameSetting("iLockLevelMaxChained"sv);
-		return *Setting;
+		static auto* MaxChainedSetting = GetGameSetting("iLockLevelMaxChained"sv);
+		return *MaxChainedSetting;
 	}
 
 	Setting& REFR_LOCK::GetLockLevelMaxTerminalSetting()
 	{
-		static auto* Setting = GetGameSetting("iLockLevelMaxTerminal"sv);
-		return *Setting;
+		static auto* MaxTerminalSetting = GetGameSetting("iLockLevelMaxTerminal"sv);
+		return *MaxTerminalSetting;
 	}
 
 	Setting& REFR_LOCK::GetLockLevelMaxInaccessibleSetting()
 	{
-		static auto* Setting = GetGameSetting("iLockLevelMaxInaccessible"sv);
-		return *Setting;
+		static auto* MaxInaccessibleSetting = GetGameSetting("iLockLevelMaxInaccessible"sv);
+		return *MaxInaccessibleSetting;
 	}
 
 	Setting& REFR_LOCK::GetLockLevelMaxImpossibleSetting()
 	{
-		static auto* Setting = GetGameSetting("iLockLevelMaxImpossible"sv);
-		return *Setting;
+		static auto* MaxImpossibleSetting = GetGameSetting("iLockLevelMaxImpossible"sv);
+		return *MaxImpossibleSetting;
 	}
 
 	std::int32_t REFR_LOCK::GetNumericLockLevel(LOCK_LEVEL a_lockLevel)
 	{
-		const auto getIntSettingValue = [](const Setting& a_setting) noexcept {
+		const auto getIntSettingValue = [](const Setting& a_setting) noexcept -> std::int32_t {
 			if (!a_setting.IsInt()) [[unlikely]] {
 				REX::Assert(false);
 				return 0;
@@ -106,7 +106,7 @@ namespace RE
 
 	LOCK_LEVEL REFR_LOCK::GetEnumLockLevel(std::int32_t a_lockLevel)
 	{
-		const auto compareWithIntSetting = [](std::int32_t a_lockLevel, const Setting& a_setting) noexcept {
+		const auto compareWithIntSetting = [](std::int32_t a_lockLevel, const Setting& a_setting) noexcept -> bool {
 			if (!a_setting.IsInt()) [[unlikely]] {
 				REX::Assert(false);
 				return false;

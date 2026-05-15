@@ -2,7 +2,7 @@
 
 #include "RE/H/hkAabb.hpp"
 #include "RE/H/hkRefPtr.hpp"
-#include "RE/H/hkVector4f.hpp"
+#include "RE/H/hkVector4.hpp"
 #include "RE/H/hknpContactSolverType.hpp"
 
 namespace RE
@@ -47,7 +47,7 @@ namespace RE
 		hkRefPtr<hknpBodyQualityLibrary> qualityLibrary;								 // 48
 		REX::EnumSet<SimulationType, std::uint8_t> simulationType;						 // 50
 		std::int32_t numSplitterCells;													 // 54
-		hkVector4f gravity;																 // 60
+		hkVector4 gravity;																 // 60
 		bool enableContactCaching;														 // 70
 		bool mergeEventsBeforeDispatch;													 // 71
 		REX::EnumSet<LeavingBroadPhaseBehavior, std::uint8_t> leavingBroadPhaseBehavior; // 72

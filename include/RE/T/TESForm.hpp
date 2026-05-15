@@ -163,14 +163,18 @@ namespace RE
 
 		static void AddCompileIndex(std::uint32_t& a_id, TESFile* a_file);
 		[[nodiscard]] static std::uint32_t& GetTotalFormCount();
-		[[nodiscard]] static auto GetAllFormsByEditorID() -> std::pair<BSTHashMap<BSFixedString, TESForm*>*, std::reference_wrapper<BSReadWriteLock>>;
-		[[nodiscard]] static auto GetAllFormsByID() -> std::pair<BSTHashMap<TESFormID, TESForm*>*, std::reference_wrapper<BSReadWriteLock>>;
-		[[nodiscard]] static auto GetAllFormsByNumericID() -> std::pair<BSTHashMap<TESFormID, TESForm*>*, std::reference_wrapper<BSReadWriteLock>>;
+		[[nodiscard]] static auto GetAllFormsByEditorID()
+			-> std::pair<BSTHashMap<BSFixedString, TESForm*>*, std::reference_wrapper<BSReadWriteLock>>;
+		[[nodiscard]] static auto GetAllFormsByID()
+			-> std::pair<BSTHashMap<TESFormID, TESForm*>*, std::reference_wrapper<BSReadWriteLock>>;
+		[[nodiscard]] static auto GetAllFormsByNumericID()
+			-> std::pair<BSTHashMap<TESFormID, TESForm*>*, std::reference_wrapper<BSReadWriteLock>>;
 		[[nodiscard]] TESFile* GetFile(std::int32_t a_index = -1) const;
 		[[nodiscard]] static TESForm* FindFormByEditorID(const BSFixedString& a_editorID);
 		[[nodiscard]] static TESForm* FindFormByID(TESFormID a_formID);
 		[[nodiscard]] static TESForm* FindFormByNumericID(TESFormID a_formID);
-		[[nodiscard]] static auto GetEditorIDByForm(const TESForm* a_form) -> std::optional<BSFixedString>;
+		[[nodiscard]] static auto GetEditorIDByForm(const TESForm* a_form)
+			-> std::optional<BSFixedString>;
 		[[nodiscard]] std::string_view GetFormTypeString() const;
 		[[nodiscard]] FormFlags GetFormFlags() const noexcept;
 		[[nodiscard]] TESFormID GetFormID() const noexcept;
@@ -188,20 +192,31 @@ namespace RE
 		void SetTemporary();
 
 		[[nodiscard]] static bool CanHoldKeywords(const TESForm* a_form);
-		[[nodiscard]] static auto ContainsKeyword(const TESForm* a_form, const BGSKeyword* a_keyword) -> std::optional<bool>;
-		[[nodiscard]] static auto GetKeywordCount(const TESForm* a_form) -> std::optional<std::uint32_t>;
-		[[nodiscard]] static auto GetKeywordIndex(const TESForm* a_form, const BGSKeyword* a_keyword) -> std::optional<std::uint32_t>;
+		[[nodiscard]] static auto ContainsKeyword(const TESForm* a_form, const BGSKeyword* a_keyword)
+			-> std::optional<bool>;
+		[[nodiscard]] static auto GetKeywordCount(const TESForm* a_form)
+			-> std::optional<std::uint32_t>;
+		[[nodiscard]] static auto GetKeywordIndex(const TESForm* a_form, const BGSKeyword* a_keyword)
+			-> std::optional<std::uint32_t>;
 
-		[[nodiscard]] static auto GetKeywords(const TESForm* a_form) -> std::optional<std::vector<BGSKeyword*>>;
-		static auto SetKeywords(TESForm* a_form, std::span<BGSKeyword*> a_keywords) -> std::optional<bool>;
+		[[nodiscard]] static auto GetKeywords(const TESForm* a_form)
+			-> std::optional<std::vector<BGSKeyword*>>;
+		static auto SetKeywords(TESForm* a_form, std::span<BGSKeyword*> a_keywords)
+			-> std::optional<bool>;
 
-		[[nodiscard]] static auto GetNthKeyword(const TESForm* a_form, std::uint32_t a_index) -> std::optional<BGSKeyword*>;
-		static auto SetNthKeyword(TESForm* a_form, std::uint32_t a_index, BGSKeyword* a_keyword) -> std::optional<bool>;
-		static auto RemoveNthKeyword(TESForm* a_form, std::uint32_t a_index) -> std::optional<bool>;
+		[[nodiscard]] static auto GetNthKeyword(const TESForm* a_form, std::uint32_t a_index)
+			-> std::optional<BGSKeyword*>;
+		static auto SetNthKeyword(TESForm* a_form, std::uint32_t a_index, BGSKeyword* a_keyword)
+			-> std::optional<bool>;
+		static auto RemoveNthKeyword(TESForm* a_form, std::uint32_t a_index)
+			-> std::optional<bool>;
 
-		static auto AddKeyword(TESForm* a_form, BGSKeyword* a_keyword) -> std::optional<bool>;
-		static auto RemoveKeyword(TESForm* a_form, BGSKeyword* a_keyword) -> std::optional<bool>;
-		static auto ReplaceKeyword(TESForm* a_form, BGSKeyword* a_oldKeyword, BGSKeyword* a_newKeyword) -> std::optional<bool>;
+		static auto AddKeyword(TESForm* a_form, BGSKeyword* a_keyword)
+			-> std::optional<bool>;
+		static auto RemoveKeyword(TESForm* a_form, BGSKeyword* a_keyword)
+			-> std::optional<bool>;
+		static auto ReplaceKeyword(TESForm* a_form, BGSKeyword* a_oldKeyword, BGSKeyword* a_newKeyword)
+			-> std::optional<bool>;
 
 		static bool AddKeywords(TESForm* a_form, std::span<BGSKeyword*> a_keywords);
 		static bool RemoveKeywords(TESForm* a_form, std::span<BGSKeyword*> a_keywords);

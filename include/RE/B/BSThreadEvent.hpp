@@ -12,6 +12,6 @@ namespace RE::BSThreadEvent
 	{
 		using FuncType = decltype(&BSThreadEvent::InitSDM);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSThreadEvent::InitSDM };
-		FUNC();
+		std::invoke(FUNC);
 	}
 }

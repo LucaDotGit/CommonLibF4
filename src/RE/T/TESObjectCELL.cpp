@@ -28,35 +28,35 @@ namespace RE
 	{
 		using FuncType = decltype(&TESObjectCELL::AttachReference3D);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectCELL::AttachReference3D };
-		FUNC(this, a_ref, a_onTop, a_queueAttach);
+		std::invoke(FUNC, this, a_ref, a_onTop, a_queueAttach);
 	}
 
 	void TESObjectCELL::RemoveReference(TESObjectREFR* a_ref)
 	{
 		using FuncType = decltype(&TESObjectCELL::RemoveReference);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectCELL::RemoveReference };
-		FUNC(this, a_ref);
+		std::invoke(FUNC, this, a_ref);
 	}
 
 	void TESObjectCELL::SetCullCellMarkers(bool a_cull)
 	{
 		using FuncType = decltype(&TESObjectCELL::SetCullCellMarkers);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectCELL::SetCullCellMarkers };
-		FUNC(this, a_cull);
+		std::invoke(FUNC, this, a_cull);
 	}
 
 	void TESObjectCELL::UpdateAllDecals()
 	{
 		using FuncType = decltype(&TESObjectCELL::UpdateAllDecals);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectCELL::UpdateAllDecals };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void TESObjectCELL::UpdateAllRefsLoaded()
 	{
 		using FuncType = decltype(&TESObjectCELL::UpdateAllRefsLoaded);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectCELL::UpdateAllRefsLoaded };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	std::uint32_t TESObjectCELL::GetInteriorOffset() const
@@ -70,10 +70,11 @@ namespace RE
 	{
 		using FuncType = decltype(&TESObjectCELL::SetInteriorOffset);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectCELL::SetInteriorOffset };
-		FUNC(this, a_offset);
+		std::invoke(FUNC, this, a_offset);
 	}
 
-	auto TESObjectCELL::GetCellX() const noexcept -> std::optional<std::int32_t>
+	auto TESObjectCELL::GetCellX() const noexcept
+		-> std::optional<std::int32_t>
 	{
 		if (!IsExterior() || !exteriorData) {
 			return std::nullopt;
@@ -82,7 +83,8 @@ namespace RE
 		return exteriorData->cellX;
 	}
 
-	auto TESObjectCELL::GetCellY() const noexcept -> std::optional<std::int32_t>
+	auto TESObjectCELL::GetCellY() const noexcept
+		-> std::optional<std::int32_t>
 	{
 		if (!IsExterior() || !exteriorData) {
 			return std::nullopt;
@@ -91,7 +93,8 @@ namespace RE
 		return exteriorData->cellY;
 	}
 
-	auto TESObjectCELL::GetCellXAndY() const noexcept -> std::optional<std::tuple<std::int32_t, std::int32_t>>
+	auto TESObjectCELL::GetCellXAndY() const noexcept
+		-> std::optional<std::tuple<std::int32_t, std::int32_t>>
 	{
 		if (!IsExterior() || !exteriorData) {
 			return std::nullopt;
@@ -100,7 +103,8 @@ namespace RE
 		return std::make_tuple(exteriorData->cellX, exteriorData->cellY);
 	}
 
-	auto TESObjectCELL::GetDataX() const noexcept -> std::optional<std::int32_t>
+	auto TESObjectCELL::GetDataX() const noexcept
+		-> std::optional<std::int32_t>
 	{
 		if (!IsInterior() || !interiorData) {
 			return std::nullopt;
@@ -109,7 +113,8 @@ namespace RE
 		return static_cast<std::int32_t>(interiorData->GetDirectionalX());
 	}
 
-	auto TESObjectCELL::GetDataY() const noexcept -> std::optional<std::int32_t>
+	auto TESObjectCELL::GetDataY() const noexcept
+		-> std::optional<std::int32_t>
 	{
 		if (!IsInterior() || !interiorData) {
 			return std::nullopt;
@@ -118,7 +123,8 @@ namespace RE
 		return static_cast<std::int32_t>(interiorData->GetDirectionalY());
 	}
 
-	auto TESObjectCELL::GetDataXAndY() const noexcept -> std::optional<std::tuple<std::int32_t, std::int32_t>>
+	auto TESObjectCELL::GetDataXAndY() const noexcept
+		-> std::optional<std::tuple<std::int32_t, std::int32_t>>
 	{
 		if (!IsInterior() || !interiorData) {
 			return std::nullopt;
@@ -129,7 +135,8 @@ namespace RE
 			static_cast<std::int32_t>(interiorData->GetDirectionalY()));
 	}
 
-	auto TESObjectCELL::GetWorldX() const noexcept -> std::optional<REX::Float32>
+	auto TESObjectCELL::GetWorldX() const noexcept
+		-> std::optional<REX::Float32>
 	{
 		if (!IsExterior() || !exteriorData) {
 			return std::nullopt;
@@ -138,7 +145,8 @@ namespace RE
 		return exteriorData->worldX;
 	}
 
-	auto TESObjectCELL::GetWorldY() const noexcept -> std::optional<REX::Float32>
+	auto TESObjectCELL::GetWorldY() const noexcept
+		-> std::optional<REX::Float32>
 	{
 		if (!IsExterior() || !exteriorData) {
 			return std::nullopt;
@@ -147,7 +155,8 @@ namespace RE
 		return exteriorData->worldY;
 	}
 
-	auto TESObjectCELL::GetWorldXAndY() const noexcept -> std::optional<std::tuple<REX::Float32, REX::Float32>>
+	auto TESObjectCELL::GetWorldXAndY() const noexcept
+		-> std::optional<std::tuple<REX::Float32, REX::Float32>>
 	{
 		if (!IsExterior() || !exteriorData) {
 			return std::nullopt;
@@ -195,11 +204,7 @@ namespace RE
 		}
 
 		auto newExtraList = make_shared<ExtraDataList>();
-		if (!newExtraList) [[unlikely]] {
-			REX::AllocationFail();
-		}
-
-		extraList = std::move(newExtraList);
+		extraList = newExtraList;
 		return newExtraList;
 	}
 
@@ -226,7 +231,7 @@ namespace RE
 
 		const auto squaredRadius = a_radius * a_radius;
 
-		return ForEachRef([&](const NiPointer<TESObjectREFR>& a_ref) {
+		return ForEachRef([&](const NiPointer<TESObjectREFR>& a_ref) -> BSContainer::ForEachResult {
 			const auto distance = a_origin.DistanceSquared(a_ref->GetPosition());
 			if (distance <= squaredRadius) {
 				return std::invoke(*a_predicate, a_ref);

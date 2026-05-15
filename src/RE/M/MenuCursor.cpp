@@ -62,7 +62,7 @@ namespace RE
 	{
 		using FuncType = decltype(&MenuCursor::CenterCursor);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::MenuCursor::CenterCursor };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void MenuCursor::ClearConstraints() noexcept
@@ -95,20 +95,20 @@ namespace RE
 	{
 		using FuncType = decltype(&MenuCursor::RegisterCursor);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::MenuCursor::RegisterCursor };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void MenuCursor::SetCursorConstraintsRaw(std::uint32_t a_tlx, std::uint32_t a_tly, std::uint32_t a_width, std::uint32_t a_height)
 	{
 		using FuncType = decltype(&MenuCursor::SetCursorConstraintsRaw);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::MenuCursor::SetCursorConstraintsRaw };
-		FUNC(this, a_tlx, a_tly, a_width, a_height);
+		std::invoke(FUNC, this, a_tlx, a_tly, a_width, a_height);
 	}
 
 	void MenuCursor::UnregisterCursor()
 	{
 		using FuncType = decltype(&MenuCursor::UnregisterCursor);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::MenuCursor::UnregisterCursor };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 }

@@ -10,7 +10,7 @@ namespace F4SE::Impl
 		bool(F4SE_API* Register)(const char*, void*);
 	};
 
-	[[nodiscard]] static const F4SEScaleformInterface& GetProxy(const ScaleformInterface* a_interface) noexcept
+	[[nodiscard]] __forceinline static const F4SEScaleformInterface& GetProxy(const ScaleformInterface* a_interface) noexcept
 	{
 		return reinterpret_cast<const F4SEScaleformInterface&>(*a_interface);
 	}
@@ -23,14 +23,11 @@ namespace F4SE
 		return Impl::GetProxy(this).interfaceVersion;
 	}
 
-	bool ScaleformInterface::Register(const char* a_name, REX::NotNull<REX::Observer<RegisterCallback*>> a_callback) const
+	void ScaleformInterface::Register(const char* a_name, REX::NotNull<REX::Observer<RegisterCallback*>> a_callback) const
 	{
-		const auto result = Impl::GetProxy(this).Register(a_name, reinterpret_cast<void*>(a_callback.get()));
-		if (!result) [[unlikely]] {
-			REX::Fail(R"(Failed to register scaleform interface with name "{}".)"sv,
+		if (!Impl::GetProxy(this).Register(a_name, reinterpret_cast<void*>(a_callback.get()))) [[unlikely]] {
+			REX::Fail(R"(Failed to register Scaleform interface with name "{}".)"sv,
 				a_name);
 		}
-
-		return result;
 	}
 }

@@ -35,7 +35,7 @@ namespace RE
 		{
 			using FuncType = decltype(&GameSettingCollection::InitCollection);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::GameSettingCollection::InitCollection };
-			FUNC();
+			std::invoke(FUNC);
 		}
 	};
 	static_assert(sizeof(GameSettingCollection) == 0x138);

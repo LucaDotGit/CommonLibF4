@@ -9,7 +9,7 @@ namespace RE
 	{
 		using FuncType = decltype(&TESFile::dtor);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESFile::dtor };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	bool TESFile::IsMaster() const noexcept
@@ -111,21 +111,21 @@ namespace RE
 	{
 		using FuncType = decltype(&TESFile::LoadForm);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESFile::LoadForm };
-		FUNC(this, a_form);
+		std::invoke(FUNC, this, a_form);
 	}
 
 	void TESFile::TESRewind(bool a_getForm)
 	{
 		using FuncType = decltype(&TESFile::TESRewind);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESFile::TESRewind };
-		FUNC(this, a_getForm);
+		std::invoke(FUNC, this, a_getForm);
 	}
 
 	void TESFile::TESRewindChunk()
 	{
 		using FuncType = decltype(&TESFile::TESRewindChunk);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESFile::TESRewindChunk };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void TESFile::ClearCurrentChunk()

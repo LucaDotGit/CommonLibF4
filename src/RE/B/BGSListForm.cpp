@@ -22,7 +22,7 @@ namespace RE
 		auto result = std::vector<TESForm*>();
 		result.reserve(GetFormCount());
 
-		ForEachForm([&result](TESForm* a_form) {
+		ForEachForm([&result](TESForm* a_form) -> BSContainer::ForEachResult {
 			result.push_back(a_form);
 			return BSContainer::ForEachResult::kContinue;
 		});
@@ -30,12 +30,13 @@ namespace RE
 		return result;
 	}
 
-	auto BGSListForm::GetScriptForms() const -> std::optional<std::vector<TESForm*>>
+	auto BGSListForm::GetScriptForms() const
+		-> std::optional<std::vector<TESForm*>>
 	{
 		auto result = std::vector<TESForm*>();
 		result.reserve(GetScriptFormCount());
 
-		ForEachScriptForm([&result](TESForm* a_form) {
+		ForEachScriptForm([&result](TESForm* a_form) -> BSContainer::ForEachResult {
 			result.push_back(a_form);
 			return BSContainer::ForEachResult::kContinue;
 		});
@@ -90,7 +91,8 @@ namespace RE
 		return std::ranges::contains(*scriptForms, a_form ? a_form->GetFormID() : 0);
 	}
 
-	auto BGSListForm::GetFormIndex(const TESForm* a_form) const -> std::optional<std::uint32_t>
+	auto BGSListForm::GetFormIndex(const TESForm* a_form) const
+		-> std::optional<std::uint32_t>
 	{
 		const auto editorIndex = GetEditorFormIndex(a_form);
 		if (editorIndex) {
@@ -105,7 +107,8 @@ namespace RE
 		return std::nullopt;
 	}
 
-	auto BGSListForm::GetEditorFormIndex(const TESForm* a_form) const -> std::optional<std::uint32_t>
+	auto BGSListForm::GetEditorFormIndex(const TESForm* a_form) const
+		-> std::optional<std::uint32_t>
 	{
 		const auto* formIt = std::ranges::find(arrayOfForms, a_form);
 		if (formIt == arrayOfForms.end()) {
@@ -115,7 +118,8 @@ namespace RE
 		return static_cast<std::uint32_t>(std::distance(arrayOfForms.begin(), formIt));
 	}
 
-	auto BGSListForm::GetScriptFormIndex(const TESForm* a_form) const -> std::optional<std::uint32_t>
+	auto BGSListForm::GetScriptFormIndex(const TESForm* a_form) const
+		-> std::optional<std::uint32_t>
 	{
 		const auto* scriptForms = scriptAddedTempForms;
 		if (!scriptForms) {

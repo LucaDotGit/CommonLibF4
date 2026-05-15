@@ -22,10 +22,10 @@ namespace RE
 		try {
 			using FuncType = decltype(&BSStringPool::Entry::Release);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSStringPool::Entry::Release };
-			FUNC(a_entry);
+			std::invoke(FUNC, a_entry);
 		}
 		catch (...) {
-			REX::QuickFail("Failed to release string pool entry."sv);
+			REX::Fail("Failed to release ref object."sv);
 		}
 	}
 
@@ -95,7 +95,7 @@ namespace RE
 	{
 		using FuncType = decltype(&RE::GetEntry<char>);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSStringPool::GetEntry_char };
-		FUNC(a_outEntry, a_string, a_caseSensitive);
+		std::invoke(FUNC, a_outEntry, a_string, a_caseSensitive);
 	}
 
 	template <>
@@ -103,6 +103,6 @@ namespace RE
 	{
 		using FuncType = decltype(&RE::GetEntry<wchar_t>);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSStringPool::GetEntry_wchar };
-		FUNC(a_outEntry, a_string, a_caseSensitive);
+		std::invoke(FUNC, a_outEntry, a_string, a_caseSensitive);
 	}
 }

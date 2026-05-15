@@ -12,7 +12,7 @@ namespace F4SE::Impl
 		void*(F4SE_API* GetEventDispatcher)(std::uint32_t);
 	};
 
-	[[nodiscard]] static const F4SEMessagingInterface& GetProxy(const MessagingInterface* a_interface) noexcept
+	[[nodiscard]] __forceinline static const F4SEMessagingInterface& GetProxy(const MessagingInterface* a_interface) noexcept
 	{
 		return reinterpret_cast<const F4SEMessagingInterface&>(*a_interface);
 	}
@@ -25,31 +25,24 @@ namespace F4SE
 		return Impl::GetProxy(this).interfaceVersion;
 	}
 
-	bool MessagingInterface::RegisterListener(REX::NotNull<REX::Observer<EventCallback*>> a_handler) const
+	void MessagingInterface::RegisterListener(REX::NotNull<REX::Observer<EventCallback*>> a_handler) const
 	{
-		return RegisterListener(a_handler, "F4SE");
+		constexpr auto SENDER_NAME = "F4SE"sv;
+
+		if (!RegisterListener(a_handler, SENDER_NAME.data())) [[unlikely]] {
+			REX::Fail(R"(Failed to register messaging listener for sender "{}".)"sv,
+				SENDER_NAME);
+		}
 	}
 
 	bool MessagingInterface::RegisterListener(REX::NotNull<REX::Observer<EventCallback*>> a_handler, const char* a_sender) const
 	{
-		const auto result = Impl::GetProxy(this).RegisterListener(F4SE::GetPluginHandle(), a_sender, reinterpret_cast<void*>(a_handler.get()));
-		if (!result) [[unlikely]] {
-			REX::Fail(R"(Failed to register messaging listener for "{}".)"sv,
-				a_sender);
-		}
-
-		return result;
+		return Impl::GetProxy(this).RegisterListener(F4SE::GetPluginHandle(), a_sender, reinterpret_cast<void*>(a_handler.get()));
 	}
 
 	bool MessagingInterface::Dispatch(MessageType a_messageType, std::byte* a_data, std::uint32_t a_dataSize, const char* a_receiver) const
 	{
-		const auto result = Impl::GetProxy(this).Dispatch(F4SE::GetPluginHandle(), std::to_underlying(a_messageType), a_data, a_dataSize, a_receiver);
-		if (!result) [[unlikely]] {
-			REX::Fail(R"(Failed to dispatch message to "{}".)"sv,
-				a_receiver ? a_receiver : "<all listeners>"sv);
-		}
-
-		return result;
+		return Impl::GetProxy(this).Dispatch(F4SE::GetPluginHandle(), std::to_underlying(a_messageType), a_data, a_dataSize, a_receiver);
 	}
 
 	void* MessagingInterface::GetEventDispatcher(std::uint32_t a_dispatcherID) const

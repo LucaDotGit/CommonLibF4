@@ -8,15 +8,16 @@ namespace RE
 	class BGSObjectInstance
 	{
 	public:
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
 		BGSObjectInstance(TESForm* a_object, TBO_InstanceData* a_instanceData)
 		{
 			using FuncType = void (BGSObjectInstance::*)(TESForm*, TBO_InstanceData*);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSObjectInstance::ctor };
-			FUNC(this, a_object, a_instanceData);
+			std::invoke(FUNC, this, a_object, a_instanceData);
 		}
 
 		// members
-		TESForm* object{ nullptr };						// 00
+		TESForm* object;								// 00
 		BSTSmartPointer<TBO_InstanceData> instanceData; // 08
 	};
 	static_assert(sizeof(BGSObjectInstance) == 0x10);

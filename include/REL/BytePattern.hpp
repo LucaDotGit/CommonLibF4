@@ -5,6 +5,7 @@
 #include "REX/Concepts.hpp"
 #include "REX/Locale.hpp"
 #include "REX/Message.hpp"
+#include "REX/SourceLocation.hpp"
 #include "REX/StaticString.hpp"
 
 namespace REL::Impl::Characters
@@ -29,10 +30,10 @@ namespace REL::Impl::Rules::Impl
 {
 	[[nodiscard]] constexpr std::uint8_t HexacharactersToHexadecimal(char a_highChar, char a_lowChar) noexcept
 	{
-		static constexpr auto LUT = []() noexcept {
+		static constexpr auto LUT = []() consteval noexcept {
 			auto array = std::array<std::uint8_t, std::numeric_limits<unsigned char>::max() + 1>();
 
-			const auto iterate = [&array](std::uint8_t a_firstByte, unsigned char a_firstChar, unsigned char a_lastChar) noexcept {
+			const auto iterate = [&array](std::uint8_t a_firstByte, unsigned char a_firstChar, unsigned char a_lastChar) noexcept -> void {
 				for (; a_firstChar <= a_lastChar; a_firstChar++, a_firstByte++) {
 					array[a_firstChar] = a_firstByte;
 				}
@@ -129,7 +130,7 @@ namespace REL::Impl
 			return Match(bytes);
 		}
 
-		constexpr void MatchOrFail(std::uintptr_t a_address, std::source_location a_location = std::source_location::current()) const noexcept
+		constexpr void MatchOrFail(std::uintptr_t a_address, REX::SourceLocation a_location = REX::SourceLocation::GetCurrent()) const noexcept
 		{
 			if (Match(a_address)) [[likely]] {
 				return;

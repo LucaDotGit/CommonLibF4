@@ -10,8 +10,6 @@ namespace RE
 		inline static constexpr auto RTTI{ RTTI::BSStreamParserData };
 		inline static constexpr auto VTABLE{ VTABLE::BSStreamParserData };
 
-		BSStreamParserData();
-
 		virtual ~BSStreamParserData() = default; // 00
 
 		// add

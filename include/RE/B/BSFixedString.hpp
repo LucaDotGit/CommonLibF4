@@ -5,7 +5,7 @@
 
 namespace RE::Impl
 {
-	template <class CharT, bool CS>
+	template <REX::win32_character CharT, bool CS>
 	class BSFixedString
 	{
 	public:
@@ -207,14 +207,14 @@ namespace RE::Impl
 		[[nodiscard]] constexpr const void* hash_accessor() const noexcept { return _data; }
 
 	private:
-		template <class, bool>
+		template <REX::win32_character, bool>
 		friend class BSFixedString;
 
 		inline static constexpr auto EMPTY_BUFFER = std::array<const value_type, 1>{ 0 };
 
 		[[nodiscard]] static constexpr bool hash_equals_impl(const BSFixedString& a_lhs, const BSFixedString& a_rhs) noexcept
 		{
-			const auto getLeaf = [](const BSFixedString& a_value) {
+			const auto getLeaf = [](const BSFixedString& a_value) -> const BSStringPool::Entry* {
 				return a_value._data ? a_value._data->leaf() : nullptr;
 			};
 
@@ -303,7 +303,7 @@ namespace RE
 	using BSFixedStringW = Impl::BSFixedString<wchar_t, false>;
 	using BSFixedStringWCS = Impl::BSFixedString<wchar_t, true>;
 
-	template <class CharT, bool CS>
+	template <REX::win32_character CharT, bool CS>
 	constexpr void swap(Impl::BSFixedString<CharT, CS>& a_lhs, Impl::BSFixedString<CharT, CS>& a_rhs) noexcept
 	{
 		a_lhs.swap(a_rhs);
@@ -347,7 +347,7 @@ namespace RE::BSScript
 
 namespace RE
 {
-	template <class CharT, bool CS>
+	template <REX::win32_character CharT, bool CS>
 	struct BSCRC32<RE::Impl::BSFixedString<CharT, CS>>
 	{
 	public:
@@ -365,7 +365,7 @@ namespace RE
 
 namespace std
 {
-	template <class CharT, bool CS>
+	template <REX::win32_character CharT, bool CS>
 	struct hash<RE::Impl::BSFixedString<CharT, CS>>
 	{
 	public:
@@ -384,21 +384,21 @@ namespace std
 #if __cpp_lib_format > 0l
 namespace std
 {
-	template <class CharT, bool CS>
+	template <REX::win32_character CharT, bool CS>
 	struct formatter<RE::Impl::BSFixedString<CharT, CS>, CharT>
 		: public formatter<std::basic_string_view<CharT>, CharT>
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::Impl::BSFixedString<CharT, CS>& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::Impl::BSFixedString<CharT, CS>& a_value, FormatContext& a_context) const
 		{
-			return format_to(a_ctx.out(), "{}"sv, static_cast<std::basic_string_view<CharT>>(a_value));
+			return format_to(a_context.out(), "{}"sv, static_cast<std::basic_string_view<CharT>>(a_value));
 		}
 	};
 
@@ -416,23 +416,23 @@ namespace fmt
 		TODO: Change this to one template specialization when fmt is able to compile it.
 
 		```CPP
-		template <class CharT, bool CS>
+		template <REX::win32_character CharT, bool CS>
 		struct formatter<RE::Impl::BSFixedString<CharT, CS>, CharT>
 			: public formatter<std::basic_string_view<CharT>, CharT>
 		{
 		public:
 			template <class ParseContext>
-			[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+			[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 			{
-				return a_ctx.begin();
+				return a_context.begin();
 			}
 
 			template <class FormatContext>
-			[[nodiscard]] constexpr auto format(const RE::Impl::BSFixedString<CharT, CS>& a_value, FormatContext& a_ctx) const
+			[[nodiscard]] constexpr auto format(const RE::Impl::BSFixedString<CharT, CS>& a_value, FormatContext& a_context) const
 			{
 				using namespace std::string_view_literals;
 
-				return format_to(a_ctx.out(), "{}"sv, static_cast<std::basic_string_view<CharT>>(a_value));
+				return format_to(a_context.out(), "{}"sv, static_cast<std::basic_string_view<CharT>>(a_value));
 			}
 		};
 
@@ -449,17 +449,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::BSFixedString& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::BSFixedString& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, static_cast<std::basic_string_view<RE::BSFixedString::value_type>>(a_value));
+			return format_to(a_context.out(), "{}"sv, static_cast<std::basic_string_view<RE::BSFixedString::value_type>>(a_value));
 		}
 	};
 
@@ -469,17 +469,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::BSFixedStringCS& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::BSFixedStringCS& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, static_cast<std::basic_string_view<RE::BSFixedStringCS::value_type>>(a_value));
+			return format_to(a_context.out(), "{}"sv, static_cast<std::basic_string_view<RE::BSFixedStringCS::value_type>>(a_value));
 		}
 	};
 
@@ -489,17 +489,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::BSFixedStringW& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::BSFixedStringW& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, static_cast<std::basic_string_view<RE::BSFixedStringW::value_type>>(a_value));
+			return format_to(a_context.out(), "{}"sv, static_cast<std::basic_string_view<RE::BSFixedStringW::value_type>>(a_value));
 		}
 	};
 
@@ -509,17 +509,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::BSFixedStringWCS& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::BSFixedStringWCS& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, static_cast<std::basic_string_view<RE::BSFixedStringWCS::value_type>>(a_value));
+			return format_to(a_context.out(), "{}"sv, static_cast<std::basic_string_view<RE::BSFixedStringWCS::value_type>>(a_value));
 		}
 	};
 }

@@ -224,7 +224,7 @@ namespace RE::ID
 	namespace BGSDefaultObject
 	{
 		inline constexpr auto ctor = F4SE::CreateVariantId(1144014, 2197003, 2197003);
-		inline constexpr auto Singleton = F4SE::CreateVariantId(561749, 2690473, 4797762);
+		inline constexpr auto GetDefaultObjects = F4SE::CreateVariantId(561749, 2690473, 4797762);
 	}
 
 	namespace BGSDefaultObjectManager
@@ -577,6 +577,11 @@ namespace RE::ID
 		inline constexpr auto LoadData = F4SE::CreateVariantId(741580, 2227871, 2227871);
 	}
 
+	namespace BGSSaveLoadGame
+	{
+		inline constexpr auto Singleton = F4SE::CreateVariantId(177947, 2697789, 2697789);
+	}
+
 	namespace BGSSaveLoadManager
 	{
 		inline constexpr auto Singleton = F4SE::CreateVariantId(1247320, 2697802, 2697802);
@@ -890,14 +895,20 @@ namespace RE::ID
 
 	namespace BSSoundHandle
 	{
+		inline constexpr auto HolotapeSoundHandle = F4SE::CreateVariantId(965852, 2664207, 2664207);
+		inline constexpr auto ClearFollowedObject = F4SE::CreateVariantId(208569, 2267067, 2267067);
 		inline constexpr auto FadeInPlay = F4SE::CreateVariantId(353528, 2267075, 2267075);
 		inline constexpr auto FadeOutAndRelease = F4SE::CreateVariantId(260328, 2267076, 2267076);
-		inline constexpr auto HolotapeSoundHandle = F4SE::CreateVariantId(965852, 2664207, 2664207);
+		inline constexpr auto GetDuration = F4SE::CreateVariantId(1192939, 2267062, 2267062);
+		inline constexpr auto FadeTo = F4SE::CreateVariantId(446556, 2267074, 2267074);
+		inline constexpr auto IsEnvelopeLoop = F4SE::CreateVariantId(529498, 2267051, 2267051);
 		inline constexpr auto Pause = F4SE::CreateVariantId(1168427, 2267044, 2267044);
 		inline constexpr auto Play = F4SE::CreateVariantId(384073, 2267042, 2267042);
 		inline constexpr auto PlayAfter = F4SE::CreateVariantId(557072, 2267043, 2267043);
-		inline constexpr auto Stop = F4SE::CreateVariantId(1340948, 2267045, 2267045);
 		inline constexpr auto SetOutputModel = F4SE::CreateVariantId(170407, 2267053, 2267053);
+		inline constexpr auto SetPosition = F4SE::CreateVariantId(1538508, 2267064, 2267064);
+		inline constexpr auto SetStaticAttenuation = F4SE::CreateVariantId(581557, 2267061, 2267061);
+		inline constexpr auto Stop = F4SE::CreateVariantId(1340948, 2267045, 2267045);
 	}
 
 	namespace BSStringPool
@@ -1548,6 +1559,11 @@ namespace RE::ID
 		}
 	}
 
+	namespace IRendererResourceManager
+	{
+		inline constexpr auto Singleton = F4SE::CreateVariantId(583240, 2703483, 2703483);
+	}
+
 	namespace ItemCrafted
 	{
 		namespace Event
@@ -1891,9 +1907,10 @@ namespace RE::ID
 	{
 		inline constexpr auto Singleton = F4SE::CreateVariantId(1171980, 2688801, 4796065);
 		inline constexpr auto SetState = F4SE::CreateVariantId(858847, 2214742, 2214742);
+		inline constexpr auto GetCameraPosition = F4SE::CreateVariantId(1574794, 2248334, 2248334);
+		inline constexpr auto ToggleFreeCameraMode = F4SE::CreateVariantId(224913, 2248368, 2248368);
 		inline constexpr auto StartPipboyMode = F4SE::CreateVariantId(998069, 2248358, 2248358);
 		inline constexpr auto StopPipboyMode = F4SE::CreateVariantId(811954, 2248359, 2248359);
-		inline constexpr auto ToggleFreeCameraMode = F4SE::CreateVariantId(224913, 2248368, 2248368);
 	}
 
 	namespace PlayerCharacter
@@ -2876,6 +2893,7 @@ namespace RE::ID
 
 	namespace bhkNPCollisionObject
 	{
+		inline constexpr auto CreateObject = F4SE::CreateVariantId(1264820, 2277912, 2277912);
 		inline constexpr auto CopyMembers = F4SE::CreateVariantId(1558409, 2277907, 2277907);
 		inline constexpr auto GetBody = F4SE::CreateVariantId(1127049, 2277926, 2277926);
 		inline constexpr auto GetBodyId = F4SE::CreateVariantId(1286222, 2277928, 2277928);
@@ -2884,6 +2902,11 @@ namespace RE::ID
 		inline constexpr auto Getbhk = F4SE::CreateVariantId(730034, 2277919, 2277919);
 		inline constexpr auto SetMotionType = F4SE::CreateVariantId(200912, 2277913, 2277913);
 		inline constexpr auto SetTransform = F4SE::CreateVariantId(178085, 2277945, 2277945);
+	}
+
+	namespace hknpBodyCinfo
+	{
+		inline constexpr auto ctor = F4SE::CreateVariantId(718403, 2255967, 2255967);
 	}
 
 	namespace bhkPhysicsSystem
@@ -2910,13 +2933,23 @@ namespace RE::ID
 	namespace bhkUtilFunctions
 	{
 		inline constexpr auto FindFirstCollisionObject = F4SE::CreateVariantId(507243, 2278093, 2278093);
+		inline constexpr auto GetAVObjectFromBodyID = F4SE::CreateVariantId(962716, 2278085, 2278085);
 	}
 
 	namespace bhkWorld
 	{
+		inline constexpr auto Activate = F4SE::CreateVariantId(1207639, 2277728, 2277728);
+		inline constexpr auto AddObjects = F4SE::CreateVariantId(585426, 2277719, 2277719);
 		inline constexpr auto AddPhysicsSystem = F4SE::CreateVariantId(82382, 2277752, 2277752);
+		inline constexpr auto IsBodyAdded = F4SE::CreateVariantId(1062018, 2277997, 2277997);
+		inline constexpr auto Enable = F4SE::CreateVariantId(343580, 2277725, 2277725);
+		inline constexpr auto EnableCollision = F4SE::CreateVariantId(50037, 2277730, 2277730);
+		inline constexpr auto IsActive = F4SE::CreateVariantId(848114, 2277729, 2277729);
 		inline constexpr auto RemoveObjects = F4SE::CreateVariantId(1514984, 2277721, 2277721);
 		inline constexpr auto RemovePhysicsSystem = F4SE::CreateVariantId(1039226, 2277753, 2277753);
+		inline constexpr auto SetCollisionGroup = F4SE::CreateVariantId(717116, 2277722, 2277722);
+		inline constexpr auto SetDismemberedLimb = F4SE::CreateVariantId(1566977, 2277726, 2277726);
+		inline constexpr auto SetMotion = F4SE::CreateVariantId(357289, 2277723, 2277723);
 	}
 
 	namespace hkContainerDebugAllocator
@@ -2934,15 +2967,113 @@ namespace RE::ID
 		inline constexpr auto Allocator = F4SE::CreateVariantId(190918, 2665425, 2665425);
 	}
 
+	namespace hkHardwareInfo
+	{
+		inline constexpr auto CalcNumHardwareThreads = F4SE::CreateVariantId(1392261, 2260765, 2260765);
+	}
+
 	namespace hkMemoryRouter
 	{
 		inline constexpr auto ThreadLocalInstance = F4SE::CreateVariantId(878080, 2787927, 2787927);
+	}
+
+	namespace hkMonitorStream
+	{
+		inline constexpr auto ThreadLocalInstance = F4SE::CreateVariantId(1467653, 2702743, 2702743);
+		inline constexpr auto Clear = F4SE::CreateVariantId(667853, 2257312, 2257312);
+		inline constexpr auto Resize = F4SE::CreateVariantId(854140, 2257310, 2257310);
+	}
+
+	namespace hkProcessFactory
+	{
+		inline constexpr auto Singleton = F4SE::CreateVariantId(111134, 2702978, 2702978);
+		inline constexpr auto CreateProcess = F4SE::CreateVariantId(1489919, 2263377, 2263377);
 	}
 
 	namespace hkReferencedObject
 	{
 		inline constexpr auto AddReference = F4SE::CreateVariantId(866015, 2259213, 2259213);
 		inline constexpr auto RemoveReference = F4SE::CreateVariantId(1379897, 2195747, 2195747);
+	}
+
+	namespace hkVisualDebugger
+	{
+		inline constexpr auto ctor = F4SE::CreateVariantId(1503084, 2263295, 2263295);
+		inline constexpr auto AddContext = F4SE::CreateVariantId(136058, 2263313, 2263313);
+		inline constexpr auto AddDefaultProcess = F4SE::CreateVariantId(926323, 2263302, 2263302);
+		inline constexpr auto Serve = F4SE::CreateVariantId(1036317, 2263296, 2263296);
+		inline constexpr auto Shutdown = F4SE::CreateVariantId(156043, 2263300, 2263300);
+	}
+
+	namespace hkVtableClassRegistry
+	{
+		inline constexpr auto Singleton = F4SE::CreateVariantId(1281220, 2702926, 2702926);
+	}
+
+	namespace hknpBSWorld
+	{
+		inline constexpr auto AccessMotion = F4SE::CreateVariantId(979298, 2277680, 2277680);
+		inline constexpr auto ActivateBody = F4SE::CreateVariantId(1259285, 2277677, 2277677);
+		inline constexpr auto SetBodyAngularVelocity = F4SE::CreateVariantId(1020581, 2277672, 2277672);
+		inline constexpr auto SetBodyKeyframed = F4SE::CreateVariantId(527037, 2277684, 2277684);
+		inline constexpr auto SetBodyLinearVelocity = F4SE::CreateVariantId(1552859, 2277671, 2277671);
+		inline constexpr auto SetBodyStatic = F4SE::CreateVariantId(1058828, 2277683, 2277683);
+		inline constexpr auto SetBodyVelocity = F4SE::CreateVariantId(1300379, 2277670, 2277670);
+	}
+
+	namespace hknpCapsuleShape
+	{
+		inline constexpr auto CreateCapsuleShape = F4SE::CreateVariantId(1316723, 2257207, 2257207);
+		inline constexpr auto Init = F4SE::CreateVariantId(647475, 2257217, 2257217);
+	}
+
+	namespace hknpConvexPolytopeShape
+	{
+		inline constexpr auto CreateFromVerticesInternal = F4SE::CreateVariantId(720930, 2257201, 2257201);
+	}
+
+	namespace hknpConvexShape
+	{
+		inline constexpr auto CreateFromAabb = F4SE::CreateVariantId(1144958, 2257125, 2257125);
+		inline constexpr auto CreateFromCylinder = F4SE::CreateVariantId(39591, 2257126, 2257126);
+		inline constexpr auto CreateFromHalfExtents = F4SE::CreateVariantId(972150, 2257124, 2257124);
+		inline constexpr auto CreateFromIndexedVertices = F4SE::CreateVariantId(308779, 2257123, 2257123);
+		inline constexpr auto CreateFromVertices = F4SE::CreateVariantId(1389383, 2257122, 2257122);
+	}
+
+	namespace hknpMotionCinfo
+	{
+		inline constexpr auto ctor = F4SE::CreateVariantId(1248706, 2258369, 2258369);
+		inline constexpr auto InitializeAsKeyFramed = F4SE::CreateVariantId(1204390, 2258373, 2258373);
+	}
+
+	namespace hknpPhysicsSystem
+	{
+		inline constexpr auto AddToWorld = F4SE::CreateVariantId(189542, 2255984, 2255984);
+		inline constexpr auto RemoveFromWorld = F4SE::CreateVariantId(773481, 2255985, 2255985);
+	}
+
+	namespace hknpSphereShape
+	{
+		inline constexpr auto CreateSphereShape = F4SE::CreateVariantId(1116388, 2256377, 2256377);
+	}
+
+	namespace hknpTriangleShape
+	{
+		inline constexpr auto CreateEmptyTriangleShape = F4SE::CreateVariantId(1355865, 2256226, 2256226);
+		inline constexpr auto SetVertices = F4SE::CreateVariantId(1435439, 2256228, 2256228);
+	}
+
+	namespace hknpWorld
+	{
+		inline constexpr auto AddBodies = F4SE::CreateVariantId(1454855, 2255681, 2255681);
+		inline constexpr auto CreateBody = F4SE::CreateVariantId(72830, 2255680, 2255680);
+		inline constexpr auto CreateMotion = F4SE::CreateVariantId(1574333, 2255688, 2255688);
+		inline constexpr auto DisableBodyFlags = F4SE::CreateVariantId(1506647, 2255636, 2255636);
+		inline constexpr auto EnableBodyFlags = F4SE::CreateVariantId(987833, 2255635, 2255635);
+		inline constexpr auto GetActionManager = F4SE::CreateVariantId(1548356, 2255709, 2255709);
+		inline constexpr auto SetBodyCollisionFilterInfo = F4SE::CreateVariantId(1114792, 2255626, 2255626);
+		inline constexpr auto SetBodyMotion = F4SE::CreateVariantId(618186, 2255634, 2255634);
 	}
 
 	namespace msvc

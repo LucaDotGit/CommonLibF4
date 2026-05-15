@@ -7,6 +7,7 @@
 #include "RE/B/BSTSmartPointer.hpp"
 #include "RE/G/GameMenuBase.hpp"
 #include "RE/N/NiPointer.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 namespace RE::REFREventCallbacks
 {

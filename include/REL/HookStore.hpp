@@ -39,5 +39,6 @@ namespace REL
 		std::map<REL::HookHandle, REX::NotNull<std::shared_ptr<REL::IHook>>> _hookMap;
 	};
 
-	[[nodiscard]] auto GetHookStore() -> const REX::NotNull<std::unique_ptr<HookStore>>&;
+	[[nodiscard]] auto GetHookStore()
+		-> const REX::NotNull<std::unique_ptr<HookStore>>&;
 }

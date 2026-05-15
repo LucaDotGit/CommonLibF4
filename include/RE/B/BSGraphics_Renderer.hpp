@@ -15,28 +15,28 @@ namespace RE::BSGraphics
 		{
 			using FuncType = decltype(&BSGraphics::Renderer::IncRef);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSGraphics::Renderer::IncRef };
-			FUNC(this, a_vertexBuffer);
+			std::invoke(FUNC, this, a_vertexBuffer);
 		}
 
 		void DecRef(Buffer* a_vertexBuffer)
 		{
 			using FuncType = decltype(&BSGraphics::Renderer::DecRef);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSGraphics::Renderer::DecRef };
-			FUNC(this, a_vertexBuffer);
+			std::invoke(FUNC, this, a_vertexBuffer);
 		}
 
 		void Begin(std::uint32_t a_windowID)
 		{
 			using FuncType = decltype(&BSGraphics::Renderer::Begin);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSGraphics::Renderer::Begin };
-			FUNC(this, a_windowID);
+			std::invoke(FUNC, this, a_windowID);
 		}
 
 		void End()
 		{
 			using FuncType = decltype(&BSGraphics::Renderer::End);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSGraphics::Renderer::End };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

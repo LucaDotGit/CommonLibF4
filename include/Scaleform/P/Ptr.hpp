@@ -175,7 +175,7 @@ namespace Scaleform
 				_ptr->AddRef();
 			}
 			catch (...) {
-				REX::QuickFail("Failed to add reference to Scaleform object."sv);
+				REX::Fail("Failed to increment ref count."sv);
 			}
 		}
 
@@ -190,7 +190,7 @@ namespace Scaleform
 				_ptr = nullptr;
 			}
 			catch (...) {
-				REX::QuickFail("Failed to release reference to Scaleform object."sv);
+				REX::Fail("Failed to decrement ref count."sv);
 			}
 		}
 

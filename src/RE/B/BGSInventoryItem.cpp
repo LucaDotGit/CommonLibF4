@@ -96,6 +96,6 @@ namespace RE
 	{
 		using FuncType = decltype(&BGSInventoryItem::MergeStacks);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSInventoryItem::MergeStacks };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 }

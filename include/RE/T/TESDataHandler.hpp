@@ -97,9 +97,12 @@ namespace RE
 
 		[[nodiscard]] static TESFormID GetLocalFormID(TESFormID a_formID) noexcept;
 
-		[[nodiscard]] auto FindFormID(TESFormID a_localFormID, std::string_view a_fileName) const -> std::optional<TESFormID>;
-		[[nodiscard]] auto FindForm(TESFormID a_localFormID, std::string_view a_fileName) const -> TESForm*;
-		[[nodiscard]] auto FindFormOrRef(TESFormID a_localFormID, std::string_view a_fileName) const -> std::optional<std::variant<TESForm*, NiPointer<TESObjectREFR>>>;
+		[[nodiscard]] auto FindFormID(TESFormID a_localFormID, std::string_view a_fileName) const
+			-> std::optional<TESFormID>;
+		[[nodiscard]] auto FindForm(TESFormID a_localFormID, std::string_view a_fileName) const
+			-> TESForm*;
+		[[nodiscard]] auto FindFormOrRef(TESFormID a_localFormID, std::string_view a_fileName) const
+			-> std::optional<std::variant<TESForm*, NiPointer<TESObjectREFR>>>;
 
 		[[nodiscard]] TESFile* FindFileByName(std::string_view a_fileName) const;
 		[[nodiscard]] TESFile* FindFileByFormID(TESFormID a_formID) const;
@@ -109,8 +112,10 @@ namespace RE
 		[[nodiscard]] TESFile* FindLoadedFileByFormID(TESFormID a_formID) const;
 		[[nodiscard]] TESFile* FindLoadedFileByIndex(std::uint16_t a_index) const;
 
-		[[nodiscard]] auto FindFileIndex(std::string_view a_fileName) const -> std::optional<std::uint16_t>;
-		[[nodiscard]] auto FindLoadedFileIndex(std::string_view a_fileName) const -> std::optional<std::uint16_t>;
+		[[nodiscard]] auto FindFileIndex(std::string_view a_fileName) const
+			-> std::optional<std::uint16_t>;
+		[[nodiscard]] auto FindLoadedFileIndex(std::string_view a_fileName) const
+			-> std::optional<std::uint16_t>;
 
 		[[nodiscard]] RuntimeData& GetRuntimeData() noexcept;
 		[[nodiscard]] const RuntimeData& GetRuntimeData() const noexcept;

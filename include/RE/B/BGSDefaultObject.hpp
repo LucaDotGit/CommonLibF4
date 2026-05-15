@@ -14,16 +14,17 @@ namespace RE
 		inline static constexpr auto VTABLE{ VTABLE::BGSDefaultObject };
 		inline static constexpr auto FORM_TYPE{ FormType::kDefaultObject };
 
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
 		BGSDefaultObject(const char* a_name, FormType a_formType, const char* a_description)
 		{
 			using FuncType = void (BGSDefaultObject::*)(const char*, FormType, const char*);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSDefaultObject::ctor };
-			FUNC(this, a_name, a_formType, a_description);
+			std::invoke(FUNC, this, a_name, a_formType, a_description);
 		}
 
-		[[nodiscard]] static auto* GetSingleton()
+		[[nodiscard]] static BSTArray<BGSDefaultObject*>& GetDefaultObjects()
 		{
-			static const auto SINGLETON = REL::Relocation<BSTArray<BGSDefaultObject*>**>{ ID::BGSDefaultObject::Singleton };
+			static const auto SINGLETON = REL::Relocation<BSTArray<BGSDefaultObject*>*>{ ID::BGSDefaultObject::GetDefaultObjects };
 			return *SINGLETON;
 		}
 
@@ -34,7 +35,7 @@ namespace RE
 		}
 
 		// members
-		TESForm* form{ nullptr };				// 20
+		TESForm* form;							// 20
 		REX::Enum<FormType, std::uint8_t> type; // 28
 		BSFixedString formEditorID;				// 30
 	};

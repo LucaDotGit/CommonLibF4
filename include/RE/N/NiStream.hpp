@@ -23,10 +23,10 @@ namespace RE
 		virtual ~NiStream(); // 00
 
 		// add
-		bool Load(NiBinaryStream* a_istr);								   // 01
+		bool Load(NiBinaryStream* a_inputStream);						   // 01
 		bool Load(char* a_buffer, std::uint64_t a_bufferSize);			   // 02
 		bool Load(const char* a_fileName);								   // 03
-		bool Save(NiBinaryStream* a_ostr);								   // 04
+		bool Save(NiBinaryStream* a_outputStream);						   // 04
 		bool Save(char*& a_buffer, std::uint64_t& a_bufferSize);		   // 05
 		bool Save(const char* a_fileName);								   // 06
 		bool RegisterFixedString(const BSFixedString& a_string);		   // 07
@@ -59,8 +59,8 @@ namespace RE
 		NiTLargePrimitiveArray<std::uint32_t> objectSizes;		   // 338
 		NiTLargeObjectArray<NiPointer<NiObject>> topObjects;	   // 358
 		NiTLargeObjectArray<BSFixedString> fixedStrings;		   // 378
-		NiBinaryStream* istr;									   // 398
-		NiBinaryStream* ostr;									   // 3A0
+		NiBinaryStream* inputStream;							   // 398
+		NiBinaryStream* outputStream;							   // 3A0
 		std::uint32_t linkIndex;								   // 3A8
 		std::uint32_t linkBlockIndex;							   // 3AC
 		NiTPointerMap<const NiObject*, std::uint32_t> registerMap; // 3B0

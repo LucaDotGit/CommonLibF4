@@ -68,7 +68,7 @@ namespace RE::BSScript
 		virtual CallResult Call(const BSTSmartPointer<Stack>& a_stack, ErrorLogger& a_errorLogger, Internal::VirtualMachine& a_vm, bool a_inScriptTasklet) const = 0; // 0F
 		virtual const BSFixedString& GetSourceFilename() const = 0;																									  // 10
 		virtual bool TranslateIPToLineNumber(std::uint32_t a_ip, std::uint32_t& a_lineNumber) const = 0;															  // 11
-		virtual bool GetVarNameForStackIndex(std::uint32_t a_index, BSFixedString& a_variableName) const = 0;														  // 12
+		virtual bool GetVarNameForStackIndex(std::uint32_t a_index, BSFixedString& a_outName) const = 0;															  // 12
 		virtual bool CanBeCalledFromTasklets() const = 0;																											  // 13
 		virtual void SetCallableFromTasklets(bool a_taskletCallable) = 0;																							  // 14
 
@@ -81,9 +81,12 @@ namespace RE::BSScript
 		[[nodiscard]] bool HasParamsOfVariadicTypes(std::span<const SharedVariant> a_args) const;
 		[[nodiscard]] bool HasParamsOfVariadicTypes(std::span<const UniqueVariant> a_args) const;
 
-		[[nodiscard]] auto GetParamNames() const -> std::vector<BSFixedString>;
-		[[nodiscard]] auto GetParamTypes() const -> std::vector<TypeInfo>;
-		[[nodiscard]] auto GetParams() const -> std::vector<std::pair<BSFixedString, TypeInfo>>;
+		[[nodiscard]] auto GetParamNames() const
+			-> std::vector<BSFixedString>;
+		[[nodiscard]] auto GetParamTypes() const
+			-> std::vector<TypeInfo>;
+		[[nodiscard]] auto GetParams() const
+			-> std::vector<std::pair<BSFixedString, TypeInfo>>;
 
 		BSContainer::ForEachResult ForEachParam(
 			const REX::NotNull<std::function<BSContainer::ForEachResult(std::uint32_t, const BSFixedString&, const TypeInfo&)>>& a_predicate) const;

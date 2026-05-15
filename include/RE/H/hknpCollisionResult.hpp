@@ -2,7 +2,7 @@
 
 #include "RE/C/CFilter.hpp"
 #include "RE/H/hkPadSpu.hpp"
-#include "RE/H/hkVector4f.hpp"
+#include "RE/H/hkVector4.hpp"
 #include "RE/H/hknpBodyId.hpp"
 #include "RE/H/hknpCollisionQueryType.hpp"
 #include "RE/H/hknpMaterialId.hpp"
@@ -25,8 +25,8 @@ namespace RE
 		static_assert(sizeof(BodyInfo) == 0x18);
 
 		// members
-		hkVector4f position;											 // 00
-		hkVector4f normal;												 // 10
+		hkVector4 position;												 // 00
+		hkVector4 normal;												 // 10
 		hkPadSpu<REX::Float32> fraction;								 // 20
 		BodyInfo queryBodyInfo;											 // 28
 		BodyInfo hitBodyInfo;											 // 40

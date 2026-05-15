@@ -4,7 +4,8 @@
 
 namespace REX::Toml
 {
-	auto SplitSetting(std::string_view a_setting) -> std::pair<std::string_view, std::string_view>
+	auto SplitSetting(std::string_view a_setting)
+		-> std::pair<std::string_view, std::string_view>
 	{
 		const auto separatorPos = a_setting.rfind(REX::Toml::KEY_SEPARATOR);
 		if (separatorPos == std::string_view::npos) {
@@ -16,10 +17,14 @@ namespace REX::Toml
 		return std::make_pair(section, key);
 	}
 
-	template auto GetPointer(toml::basic_value<toml::type_config>&, std::string_view) -> toml::basic_value<toml::type_config>*;
-	template auto GetPointer(const toml::basic_value<toml::type_config>&, std::string_view) -> const toml::basic_value<toml::type_config>*;
-	template auto GetOrCreatePointer(toml::basic_value<toml::type_config>&, std::string_view) -> toml::basic_value<toml::type_config>*;
-	template auto Flatten(const toml::basic_value<toml::type_config>&) -> std::optional<toml::basic_value<toml::type_config>>;
+	template auto GetPointer(toml::basic_value<toml::type_config>&, std::string_view)
+		-> toml::basic_value<toml::type_config>*;
+	template auto GetPointer(const toml::basic_value<toml::type_config>&, std::string_view)
+		-> const toml::basic_value<toml::type_config>*;
+	template auto GetOrCreatePointer(toml::basic_value<toml::type_config>&, std::string_view)
+		-> toml::basic_value<toml::type_config>*;
+	template auto Flatten(const toml::basic_value<toml::type_config>&)
+		-> std::optional<toml::basic_value<toml::type_config>>;
 }
 
 #endif

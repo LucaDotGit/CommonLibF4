@@ -67,133 +67,133 @@ namespace RE
 		{
 			using FuncType = decltype(&PipboyManager::AddMenuToPipboy);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::AddMenuToPipboy };
-			FUNC(this, a_menu, a_standVP, a_powerVP);
+			std::invoke(FUNC, this, a_menu, a_standVP, a_powerVP);
 		}
 
 		void ClosedownPipboy()
 		{
 			using FuncType = decltype(&PipboyManager::ClosedownPipboy);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::ClosedownPipboy };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void DisablePipboyShader()
 		{
 			using FuncType = decltype(&PipboyManager::DisablePipboyShader);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::DisablePipboyShader };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void EnablePipboyShader()
 		{
 			using FuncType = decltype(&PipboyManager::EnablePipboyShader);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::EnablePipboyShader };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void InitPipboy()
 		{
 			using FuncType = decltype(&PipboyManager::InitPipboy);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::InitPipboy };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void LowerPipboy(LOWER_REASON a_reason)
 		{
 			using FuncType = decltype(&PipboyManager::LowerPipboy);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::LowerPipboy };
-			FUNC(this, a_reason);
+			std::invoke(FUNC, this, a_reason);
 		}
 
 		void OnPipboyCloseAnim()
 		{
 			using FuncType = decltype(&PipboyManager::OnPipboyCloseAnim);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::OnPipboyCloseAnim };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void OnPipboyCloseAnimFailed()
 		{
 			using FuncType = decltype(&PipboyManager::OnPipboyCloseAnimFailed);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::OnPipboyCloseAnimFailed };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void OnPipboyClosed()
 		{
 			using FuncType = decltype(&PipboyManager::OnPipboyClosed);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::OnPipboyClosed };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void OnPipboyOpenAnim()
 		{
 			using FuncType = decltype(&PipboyManager::OnPipboyOpenAnim);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::OnPipboyOpenAnim };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void OnPipboyOpenAnimFailed()
 		{
 			using FuncType = decltype(&PipboyManager::OnPipboyOpenAnimFailed);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::OnPipboyOpenAnimFailed };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void OnPipboyOpened()
 		{
 			using FuncType = decltype(&PipboyManager::OnPipboyOpened);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::OnPipboyOpened };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void PlayItemAnimOnClose()
 		{
 			using FuncType = decltype(&PipboyManager::PlayItemAnimOnClose);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::PlayItemAnimOnClose };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void PlayPipboyCloseAnim(bool a_noAnim)
 		{
 			using FuncType = decltype(&PipboyManager::PlayPipboyCloseAnim);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::PlayPipboyCloseAnim };
-			FUNC(this, a_noAnim);
+			std::invoke(FUNC, this, a_noAnim);
 		}
 
 		void PlayPipboyGenericOpenAnim(const BSFixedString& a_menu, const BSFixedString& a_anim, bool a_noAnim)
 		{
 			using FuncType = decltype(&PipboyManager::PlayPipboyGenericOpenAnim);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::PlayPipboyGenericOpenAnim };
-			FUNC(this, a_menu, a_anim, a_noAnim);
+			std::invoke(FUNC, this, a_menu, a_anim, a_noAnim);
 		}
 
 		void PlayPipboyLoadHolotapeAnim(BGSNote* a_holotape, bool a_noAnim)
 		{
 			using FuncType = decltype(&PipboyManager::PlayPipboyLoadHolotapeAnim);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::PlayPipboyLoadHolotapeAnim };
-			FUNC(this, a_holotape, a_noAnim);
+			std::invoke(FUNC, this, a_holotape, a_noAnim);
 		}
 
 		void PlayPipboyOpenAnim(const BSFixedString& a_menuName)
 		{
 			using FuncType = decltype(&PipboyManager::PlayPipboyOpenAnim);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::PlayPipboyOpenAnim };
-			FUNC(this, a_menuName);
+			std::invoke(FUNC, this, a_menuName);
 		}
 
 		void PlayPipboyOpenTerminalAnim(BGSTerminal* a_terminal)
 		{
 			using FuncType = decltype(&PipboyManager::PlayPipboyOpenTerminalAnim);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::PlayPipboyOpenTerminalAnim };
-			FUNC(this, a_terminal);
+			std::invoke(FUNC, this, a_terminal);
 		}
 
 		void ProcessLoweringReason()
 		{
 			using FuncType = decltype(&PipboyManager::ProcessLoweringReason);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::ProcessLoweringReason };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		bool QPipboyActive()
@@ -207,35 +207,35 @@ namespace RE
 		{
 			using FuncType = decltype(&PipboyManager::RaisePipboy);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::RaisePipboy };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void RefreshPipboyRenderSurface()
 		{
 			using FuncType = decltype(&PipboyManager::RefreshPipboyRenderSurface);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::RefreshPipboyRenderSurface };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void StartAnimationGraphListening()
 		{
 			using FuncType = decltype(&PipboyManager::StartAnimationGraphListening);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::StartAnimationGraphListening };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void StopAnimationGraphListening()
 		{
 			using FuncType = decltype(&PipboyManager::StopAnimationGraphListening);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::StopAnimationGraphListening };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void UpdateCursorConstraint(bool a_enable)
 		{
 			using FuncType = decltype(&PipboyManager::UpdateCursorConstraint);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyManager::UpdateCursorConstraint };
-			FUNC(this, a_enable);
+			std::invoke(FUNC, this, a_enable);
 		}
 
 		// members

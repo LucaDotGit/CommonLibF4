@@ -52,7 +52,7 @@ namespace RE::GameScript
 		{
 			using FuncType = decltype(&ObjectBindPolicy::EndSaveLoad);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::ObjectBindPolicy::EndSaveLoad };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

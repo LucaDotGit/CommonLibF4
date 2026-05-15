@@ -2,23 +2,25 @@
 
 namespace REX
 {
-	template auto CreateCrcTable<std::uint32_t>(std::uint32_t a_polynomial) noexcept -> std::array<std::uint32_t, 0x100>;
-	template auto CreateCrcTable<std::uint64_t>(std::uint64_t a_polynomial) noexcept -> std::array<std::uint64_t, 0x100>;
+	template auto CreateCrcTable<std::uint32_t>(std::uint32_t) noexcept
+		-> std::array<std::uint32_t, 0x100>;
+	template auto CreateCrcTable<std::uint64_t>(std::uint64_t) noexcept
+		-> std::array<std::uint64_t, 0x100>;
 
-	template std::uint32_t GenerateCrcHash<std::byte, std::uint32_t>(std::span<const std::byte> a_data, std::span<const std::uint32_t, CRC_TABLE_SIZE> a_table, std::uint32_t a_initValue, std::uint32_t a_xorOut) noexcept;
-	template std::uint32_t GenerateCrcHash<char, std::uint32_t>(std::span<const char> a_data, std::span<const std::uint32_t, CRC_TABLE_SIZE> a_table, std::uint32_t a_initValue, std::uint32_t a_xorOut) noexcept;
+	template std::uint32_t GenerateCrcHash<std::byte, std::uint32_t>(std::span<const std::byte>, std::span<const std::uint32_t, CRC_TABLE_SIZE>, std::uint32_t, std::uint32_t) noexcept;
+	template std::uint32_t GenerateCrcHash<char, std::uint32_t>(std::span<const char>, std::span<const std::uint32_t, CRC_TABLE_SIZE>, std::uint32_t, std::uint32_t) noexcept;
 
-	template std::uint64_t GenerateCrcHash<std::byte, std::uint64_t>(std::span<const std::byte> a_data, std::span<const std::uint64_t, CRC_TABLE_SIZE> a_table, std::uint64_t a_initValue, std::uint64_t a_xorOut) noexcept;
-	template std::uint64_t GenerateCrcHash<char, std::uint64_t>(std::span<const char> a_data, std::span<const std::uint64_t, CRC_TABLE_SIZE> a_table, std::uint64_t a_initValue, std::uint64_t a_xorOut) noexcept;
+	template std::uint64_t GenerateCrcHash<std::byte, std::uint64_t>(std::span<const std::byte>, std::span<const std::uint64_t, CRC_TABLE_SIZE>, std::uint64_t, std::uint64_t) noexcept;
+	template std::uint64_t GenerateCrcHash<char, std::uint64_t>(std::span<const char>, std::span<const std::uint64_t, CRC_TABLE_SIZE>, std::uint64_t, std::uint64_t) noexcept;
 }
 
 namespace REX::Impl
 {
-	template std::uint32_t GenerateCrc32Hash<std::byte>(std::span<const std::byte> a_data) noexcept;
-	template std::uint32_t GenerateCrc32Hash<char>(std::span<const char> a_data) noexcept;
+	template std::uint32_t GenerateCrc32Hash<std::byte>(std::span<const std::byte>) noexcept;
+	template std::uint32_t GenerateCrc32Hash<char>(std::span<const char>) noexcept;
 
-	template std::uint64_t GenerateCrc64Hash<std::byte>(std::span<const std::byte> a_data) noexcept;
-	template std::uint64_t GenerateCrc64Hash<char>(std::span<const char> a_data) noexcept;
+	template std::uint64_t GenerateCrc64Hash<std::byte>(std::span<const std::byte>) noexcept;
+	template std::uint64_t GenerateCrc64Hash<char>(std::span<const char>) noexcept;
 }
 
 namespace REX

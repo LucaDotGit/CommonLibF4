@@ -16,6 +16,7 @@ namespace Scaleform::GFx
 		FSCommandHandler()
 			: State(STATE_TYPE)
 		{
+			// REL::EmplaceVtable(this);
 		}
 
 		~FSCommandHandler() override; // 01

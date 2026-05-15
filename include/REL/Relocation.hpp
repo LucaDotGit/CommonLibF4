@@ -11,7 +11,7 @@
 
 #include "REX/Concepts.hpp"
 #include "REX/Contract.hpp"
-#include "REX/ErrorCode.hpp"
+#include "REX/Error.hpp"
 #include "REX/Message.hpp"
 
 #define REL_MAKE_MEMBER_FUNCTION_POD_TYPE_HELPER_IMPL(a_nopropQual, a_propQual, ...)              \
@@ -486,54 +486,30 @@ namespace REL
 			return REL::UnrestrictedCast<value_type>(_impl);
 		}
 
-		void Write(const void* a_newData, std::size_t a_size) const noexcept
+		REX::SystemError Write(const void* a_newData, std::size_t a_size) const noexcept
 			requires(std::same_as<value_type, std::uintptr_t>)
 		{
-			const auto writeError = REL::WriteSafe(GetAddress(), a_newData, a_size);
-			if (writeError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
-				REX::Fail(
-					"Failed to write data.\n"
-					"System Error (0x{:08X}): {}"sv,
-					writeError.value(), writeError.message());
-			}
+			return REL::WriteSafe(GetAddress(), a_newData, a_size);
 		}
 
 		template <REX::trivially_writable U>
-		void Write(std::span<U> a_data) const noexcept
+		REX::SystemError Write(std::span<U> a_data) const noexcept
 			requires(std::same_as<value_type, std::uintptr_t>)
 		{
-			const auto writeError = REL::WriteSafe(GetAddress(), a_data);
-			if (writeError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
-				REX::Fail(
-					"Failed to write data.\n"
-					"System Error (0x{:08X}): {}"sv,
-					writeError.value(), writeError.message());
-			}
+			return REL::WriteSafe(GetAddress(), a_data);
 		}
 
 		template <REX::trivially_writable U>
-		void Write(const U& a_data) const noexcept
+		REX::SystemError Write(const U& a_data) const noexcept
 			requires(std::same_as<value_type, std::uintptr_t>)
 		{
-			const auto writeError = REL::WriteSafeData(GetAddress(), a_data);
-			if (writeError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
-				REX::Fail(
-					"Failed to write data.\n"
-					"System Error (0x{:08X}): {}"sv,
-					writeError.value(), writeError.message());
-			}
+			return REL::WriteSafeData(GetAddress(), a_data);
 		}
 
-		void WriteFill(std::uint8_t a_value, std::size_t a_size) const noexcept
+		REX::SystemError WriteFill(std::uint8_t a_value, std::size_t a_size) const noexcept
 			requires(std::same_as<value_type, std::uintptr_t>)
 		{
-			const auto writeError = REL::WriteSafeFill(GetAddress(), a_value, a_size);
-			if (writeError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
-				REX::Fail(
-					"Failed to write fill data.\n"
-					"System Error (0x{:08X}): {}"sv,
-					writeError.value(), writeError.message());
-			}
+			return REL::WriteSafeFill(GetAddress(), a_value, a_size);
 		}
 
 		template <std::size_t N>
@@ -577,11 +553,8 @@ namespace REL
 			const auto oldAddress = *std::bit_cast<const std::uintptr_t*>(address);
 
 			const auto writeError = REL::WriteSafeData(address, a_newFunc);
-			if (writeError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
-				REX::Fail(
-					"Failed to write virtual call data.\n"
-					"System Error (0x{:08X}): {}"sv,
-					writeError.value(), writeError.message());
+			if (writeError.value() != REX::ERROR_NUMBER_SUCCESS) {
+				return INVALID_ADDRESS;
 			}
 
 			return oldAddress;
@@ -609,28 +582,28 @@ namespace REL
 			return WriteVirtualCall(a_index.GetSize(), REL::UnrestrictedCast<std::uintptr_t>(a_newFunc));
 		}
 
-		void ReplaceFunction(std::size_t a_size, std::uintptr_t a_newAddress) const noexcept
+		REX::SystemError ReplaceFunction(std::size_t a_size, std::uintptr_t a_newAddress) const noexcept
 			requires(std::same_as<value_type, std::uintptr_t>)
 		{
 			const auto assembly = REL::Asm::Jump14(a_newAddress);
 
 			const auto writeSafeFillErrorCode = REL::WriteSafeFill(GetAddress(), INT3, a_size);
 			if (writeSafeFillErrorCode != REX::ERROR_NUMBER_SUCCESS) {
-				return;
+				return writeSafeFillErrorCode;
 			}
 
 			const auto writeSafeErrorCode = REL::WriteSafe(GetAddress(), std::addressof(assembly), sizeof(assembly));
 			if (writeSafeErrorCode != REX::ERROR_NUMBER_SUCCESS) {
-				return;
+				return writeSafeErrorCode;
 			}
 		}
 
 		template <class F>
-		void ReplaceFunction(std::size_t a_size, const F& a_newFunc) const noexcept
+		REX::SystemError ReplaceFunction(std::size_t a_size, const F& a_newFunc) const noexcept
 			requires(std::same_as<value_type, std::uintptr_t> &&
 					 std::is_function_v<F>)
 		{
-			ReplaceFunction(a_size, REL::UnrestrictedCast<std::uintptr_t>(a_newFunc));
+			return ReplaceFunction(a_size, REL::UnrestrictedCast<std::uintptr_t>(a_newFunc));
 		}
 
 		template <class... Args>

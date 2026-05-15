@@ -26,7 +26,7 @@ namespace RE
 		{
 			using FuncType = decltype(&PipboyObject::AddMember);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyObject::AddMember };
-			FUNC(this, a_name, a_member);
+			std::invoke(FUNC, this, a_name, a_member);
 		}
 
 		template <class T>

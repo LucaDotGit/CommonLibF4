@@ -71,8 +71,8 @@ namespace REX
 	public:
 		[[nodiscard]] constexpr std::uint32_t operator()(std::nullptr_t) const noexcept
 		{
-			static constexpr auto HASH = std::invoke(Fnv1a32<std::uintptr_t>(), 0);
-			return HASH;
+			static constexpr auto EMPTY_HASH = std::invoke(Fnv1a32<std::uintptr_t>(), 0);
+			return EMPTY_HASH;
 		}
 	};
 
@@ -236,8 +236,8 @@ namespace REX
 	public:
 		[[nodiscard]] constexpr std::uint64_t operator()(std::nullptr_t) const noexcept
 		{
-			static constexpr auto HASH = std::invoke(Fnv1a64<std::uintptr_t>(), 0);
-			return HASH;
+			static constexpr auto EMPTY_HASH = std::invoke(Fnv1a64<std::uintptr_t>(), 0);
+			return EMPTY_HASH;
 		}
 	};
 

@@ -233,11 +233,15 @@ namespace RE::BSScript
 		[[nodiscard]] NamedStateInfo* GetThisNamedStateInfoByName(const BSFixedString& a_name);
 		[[nodiscard]] const NamedStateInfo* GetThisNamedStateInfoByName(const BSFixedString& a_name) const;
 
-		[[nodiscard]] auto GetVariableIndex(const BSFixedString& a_name) const -> std::optional<std::uint32_t>;
-		[[nodiscard]] auto GetThisVariableIndex(const BSFixedString& a_name) const -> std::optional<std::uint32_t>;
+		[[nodiscard]] auto GetVariableIndex(const BSFixedString& a_name) const
+			-> std::optional<std::uint32_t>;
+		[[nodiscard]] auto GetThisVariableIndex(const BSFixedString& a_name) const
+			-> std::optional<std::uint32_t>;
 
-		[[nodiscard]] auto GetPropertyIndex(const BSFixedString& a_name) const -> std::optional<std::uint32_t>;
-		[[nodiscard]] auto GetThisPropertyIndex(const BSFixedString& a_name) const -> std::optional<std::uint32_t>;
+		[[nodiscard]] auto GetPropertyIndex(const BSFixedString& a_name) const
+			-> std::optional<std::uint32_t>;
+		[[nodiscard]] auto GetThisPropertyIndex(const BSFixedString& a_name) const
+			-> std::optional<std::uint32_t>;
 
 		[[nodiscard]] bool IsChildOf(const ObjectTypeInfo* a_parentTypeInfo) const;
 		[[nodiscard]] bool IsChildOf(const BSTSmartPointer<ObjectTypeInfo>& a_parentTypeInfo) const;

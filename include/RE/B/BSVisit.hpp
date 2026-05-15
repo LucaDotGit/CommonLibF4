@@ -1,5 +1,7 @@
 #pragma once
 
+#include "RE/B/BSContainer_ForEachResult.hpp"
+
 namespace RE
 {
 	class NiCollisionObject;
@@ -10,11 +12,7 @@ namespace RE
 
 namespace RE::BSVisit
 {
-	enum class BSVisitControl : std::int32_t
-	{
-		kContinue = 0,
-		kStop = 1
-	};
+	using BSVisitControl = BSContainer::ForEachResult;
 
 	BSVisitControl TraverseScenegraphCollision(NiAVObject* a_object,
 		const REX::NotNull<std::function<BSVisitControl(NiCollisionObject*)>>& a_predicate);

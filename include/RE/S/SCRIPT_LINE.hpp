@@ -10,10 +10,10 @@ namespace RE
 	public:
 		// members
 		std::uint32_t lineNumber;						   // 000
-		std::array<char, 512> line;						   // 004
+		std::array<char, 0x200> line;					   // 004
 		std::uint32_t size;								   // 204
 		std::uint32_t offset;							   // 208
-		std::array<char, 512> output;					   // 20C
+		std::array<char, 0x200> output;					   // 20C
 		std::uint32_t outputSize;						   // 40C
 		SCRIPT_OUTPUT expression;						   // 410
 		std::uint32_t refObjectIndex;					   // 414

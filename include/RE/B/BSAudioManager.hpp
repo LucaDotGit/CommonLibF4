@@ -42,14 +42,14 @@ namespace RE
 		{
 			using FuncType = decltype(&BSAudioManager::GetSoundHandleByFile);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSAudioManager::GetSoundHandleByFile };
-			FUNC(this, a_soundHandle, a_file, a_usageFlags, a_priority);
+			std::invoke(FUNC, this, a_soundHandle, a_file, a_usageFlags, a_priority);
 		}
 
 		void GetSoundHandleByName(BSSoundHandle& a_soundHandle, const char* a_soundName, REX::Float32 a_distance, std::uint32_t a_usageFlags, BSISoundDescriptor::ExtraResolutionData* a_data)
 		{
 			using FuncType = decltype(&BSAudioManager::GetSoundHandleByName);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSAudioManager::GetSoundHandleByName };
-			FUNC(this, a_soundHandle, a_soundName, a_distance, a_usageFlags, a_data);
+			std::invoke(FUNC, this, a_soundHandle, a_soundName, a_distance, a_usageFlags, a_data);
 		}
 
 		// members

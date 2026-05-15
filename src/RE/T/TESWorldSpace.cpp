@@ -50,7 +50,7 @@ namespace RE
 	{
 		using FuncType = decltype(&TESWorldSpace::PrefetchCellData);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESWorldSpace::PrefetchCellData };
-		FUNC(this, a_file, a_x, a_y, a_priority);
+		std::invoke(FUNC, this, a_file, a_x, a_y, a_priority);
 	}
 
 	bool TESWorldSpace::FindCellInFile(TESFile* a_file, std::int32_t a_x, std::int32_t a_y)
@@ -262,6 +262,6 @@ namespace RE
 	{
 		using FuncType = decltype(&TESWorldSpace::FreeOffsetData);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESWorldSpace::FreeOffsetData };
-		FUNC(this, a_file);
+		std::invoke(FUNC, this, a_file);
 	}
 }

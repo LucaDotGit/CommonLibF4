@@ -9,20 +9,17 @@ namespace RE
 	class hkMemoryRouter
 	{
 	public:
-		using Allocator = hkMemoryAllocator;
-		using Stack = hkLifoAllocator;
-
 		[[nodiscard]] static hkMemoryRouter* GetInstance();
 		static void SetInstance(hkMemoryRouter* a_router);
 
 		// members
-		Stack stack;						 // 00
-		Allocator* temp{ nullptr };			 // 50
-		Allocator* heap{ nullptr };			 // 58
-		Allocator* debug{ nullptr };		 // 60
-		Allocator* solver{ nullptr };		 // 68
-		void* userData{ nullptr };			 // 70
-		std::uint32_t refObjLocalStore{ 0 }; // 78
+		hkLifoAllocator stack;				  // 00
+		hkMemoryAllocator* temp{ nullptr };	  // 50
+		hkMemoryAllocator* heap{ nullptr };	  // 58
+		hkMemoryAllocator* debug{ nullptr };  // 60
+		hkMemoryAllocator* solver{ nullptr }; // 68
+		void* userData{ nullptr };			  // 70
+		std::uint32_t refObjLocalStore{ 0 };  // 78
 	};
 	static_assert(sizeof(hkMemoryRouter) == 0x80);
 
@@ -94,112 +91,181 @@ namespace RE
 
 	template <class T>
 	struct hkStlAllocator
-		: public std::allocator<T>
 	{
 	public:
 		using value_type = T;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
+		using propagate_on_container_move_assignment = std::true_type;
 
-		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(std::size_t a_count) noexcept
+		constexpr hkStlAllocator() noexcept = default;
+		constexpr ~hkStlAllocator() noexcept = default;
+
+		constexpr hkStlAllocator(const hkStlAllocator&) noexcept = default;
+		constexpr hkStlAllocator(hkStlAllocator&&) noexcept = default;
+
+		constexpr hkStlAllocator& operator=(const hkStlAllocator&) noexcept = default;
+		constexpr hkStlAllocator& operator=(hkStlAllocator&&) noexcept = default;
+
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(size_type a_count)
 		{
 			auto* mem = hk_malloc<value_type>(a_count * sizeof(value_type));
 			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
+				throw std::bad_alloc();
 			}
 
 			return mem;
 		}
 
-		__declspec(noalias) void deallocate(value_type* a_ptr, std::size_t a_count) noexcept
+		__declspec(noalias) void deallocate(value_type* a_ptr, size_type a_count) noexcept
 		{
 			hk_free(static_cast<void*>(a_ptr), a_count * sizeof(value_type));
 		}
 	};
 
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator==([[maybe_unused]] const hkStlAllocator<T1>& a_lhs, [[maybe_unused]] const hkStlAllocator<T2>& a_rhs) noexcept
+	{
+		return true;
+	}
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator!=([[maybe_unused]] const hkStlAllocator<T1>& a_lhs, [[maybe_unused]] const hkStlAllocator<T2>& a_rhs) noexcept
+	{
+		return false;
+	}
+
 	template <class T>
 	struct hkStlTempAllocator
-		: public std::allocator<T>
 	{
 	public:
 		using value_type = T;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
+		using propagate_on_container_move_assignment = std::true_type;
 
-		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(std::size_t a_count) noexcept
+		constexpr hkStlTempAllocator() noexcept = default;
+		constexpr ~hkStlTempAllocator() noexcept = default;
+
+		constexpr hkStlTempAllocator(const hkStlTempAllocator&) noexcept = default;
+		constexpr hkStlTempAllocator(hkStlTempAllocator&&) noexcept = default;
+
+		constexpr hkStlTempAllocator& operator=(const hkStlTempAllocator&) noexcept = default;
+		constexpr hkStlTempAllocator& operator=(hkStlTempAllocator&&) noexcept = default;
+
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(size_type a_count)
 		{
 			auto* mem = hk_temp_malloc<value_type>(a_count * sizeof(value_type));
 			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
+				throw std::bad_alloc();
 			}
 
 			return mem;
 		}
 
-		__declspec(noalias) void deallocate(value_type* a_ptr, std::size_t a_count) noexcept
+		__declspec(noalias) void deallocate(value_type* a_ptr, size_type a_count) noexcept
 		{
 			hk_temp_free(static_cast<void*>(a_ptr), a_count * sizeof(value_type));
 		}
 	};
 
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator==([[maybe_unused]] const hkStlTempAllocator<T1>& a_lhs, [[maybe_unused]] const hkStlTempAllocator<T2>& a_rhs) noexcept
+	{
+		return true;
+	}
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator!=([[maybe_unused]] const hkStlTempAllocator<T1>& a_lhs, [[maybe_unused]] const hkStlTempAllocator<T2>& a_rhs) noexcept
+	{
+		return false;
+	}
+
 	template <class T>
 	struct hkStlDebugAllocator
-		: public std::allocator<T>
 	{
 	public:
 		using value_type = T;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
+		using propagate_on_container_move_assignment = std::true_type;
 
-		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(std::size_t a_count) noexcept
+		constexpr hkStlDebugAllocator() noexcept = default;
+		constexpr ~hkStlDebugAllocator() noexcept = default;
+
+		constexpr hkStlDebugAllocator(const hkStlDebugAllocator&) noexcept = default;
+		constexpr hkStlDebugAllocator(hkStlDebugAllocator&&) noexcept = default;
+
+		constexpr hkStlDebugAllocator& operator=(const hkStlDebugAllocator&) noexcept = default;
+		constexpr hkStlDebugAllocator& operator=(hkStlDebugAllocator&&) noexcept = default;
+
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(size_type a_count)
 		{
 			auto* mem = hk_debug_malloc<value_type>(a_count * sizeof(value_type));
 			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
+				throw std::bad_alloc();
 			}
 
 			return mem;
 		}
 
-		__declspec(noalias) void deallocate(value_type* a_ptr, std::size_t a_count) noexcept
+		__declspec(noalias) void deallocate(value_type* a_ptr, size_type a_count) noexcept
 		{
 			hk_debug_free(static_cast<void*>(a_ptr), a_count * sizeof(value_type));
 		}
 	};
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator==([[maybe_unused]] const hkStlDebugAllocator<T1>& a_lhs, [[maybe_unused]] const hkStlDebugAllocator<T2>& a_rhs) noexcept
+	{
+		return true;
+	}
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator!=([[maybe_unused]] const hkStlDebugAllocator<T1>& a_lhs, [[maybe_unused]] const hkStlDebugAllocator<T2>& a_rhs) noexcept
+	{
+		return false;
+	}
 }
 
 #define HK_HEAP_REDEFINE_NEW(a_type)                                                                                    \
 	static_assert(std::is_class_v<a_type>);                                                                             \
                                                                                                                         \
-	[[nodiscard]] void* operator new(std::size_t a_size) noexcept                                                       \
+	[[nodiscard]] void* operator new(std::size_t a_size)                                                                \
 	{                                                                                                                   \
 		auto* mem = RE::hk_malloc(a_size);                                                                              \
 		if (!mem) [[unlikely]] {                                                                                        \
-			REX::AllocationFail();                                                                                      \
+			throw std::bad_alloc();                                                                                     \
 		}                                                                                                               \
                                                                                                                         \
 		return mem;                                                                                                     \
 	}                                                                                                                   \
                                                                                                                         \
-	[[nodiscard]] void* operator new[](std::size_t a_size) noexcept                                                     \
+	[[nodiscard]] void* operator new[](std::size_t a_size)                                                              \
 	{                                                                                                                   \
 		auto* mem = RE::hk_malloc(a_size);                                                                              \
 		if (!mem) [[unlikely]] {                                                                                        \
-			REX::AllocationFail();                                                                                      \
+			throw std::bad_alloc();                                                                                     \
 		}                                                                                                               \
                                                                                                                         \
 		return mem;                                                                                                     \
 	}                                                                                                                   \
                                                                                                                         \
-	[[nodiscard]] void* operator new(std::size_t a_size, std::align_val_t) noexcept                                     \
+	[[nodiscard]] void* operator new(std::size_t a_size, std::align_val_t)                                              \
 	{                                                                                                                   \
 		auto* mem = RE::hk_malloc(a_size);                                                                              \
 		if (!mem) [[unlikely]] {                                                                                        \
-			REX::AllocationFail();                                                                                      \
+			throw std::bad_alloc();                                                                                     \
 		}                                                                                                               \
                                                                                                                         \
 		return mem;                                                                                                     \
 	}                                                                                                                   \
                                                                                                                         \
-	[[nodiscard]] void* operator new[](std::size_t a_size, std::align_val_t) noexcept                                   \
+	[[nodiscard]] void* operator new[](std::size_t a_size, std::align_val_t)                                            \
 	{                                                                                                                   \
 		auto* mem = RE::hk_malloc(a_size);                                                                              \
 		if (!mem) [[unlikely]] {                                                                                        \
-			REX::AllocationFail();                                                                                      \
+			throw std::bad_alloc();                                                                                     \
 		}                                                                                                               \
                                                                                                                         \
 		return mem;                                                                                                     \
@@ -222,41 +288,41 @@ namespace RE
 #define HK_TEMP_REDEFINE_NEW(a_type)                                                                                       \
 	static_assert(std::is_class_v<a_type>);                                                                                \
                                                                                                                            \
-	[[nodiscard]] void* operator new(std::size_t a_size) noexcept                                                          \
+	[[nodiscard]] void* operator new(std::size_t a_size)                                                                   \
 	{                                                                                                                      \
 		auto* mem = RE::hk_temp_malloc(a_size);                                                                            \
 		if (!mem) [[unlikely]] {                                                                                           \
-			REX::AllocationFail();                                                                                         \
+			throw std::bad_alloc();                                                                                        \
 		}                                                                                                                  \
                                                                                                                            \
 		return mem;                                                                                                        \
 	}                                                                                                                      \
                                                                                                                            \
-	[[nodiscard]] void* operator new[](std::size_t a_size) noexcept                                                        \
+	[[nodiscard]] void* operator new[](std::size_t a_size)                                                                 \
 	{                                                                                                                      \
 		auto* mem = RE::hk_temp_malloc(a_size);                                                                            \
 		if (!mem) [[unlikely]] {                                                                                           \
-			REX::AllocationFail();                                                                                         \
+			throw std::bad_alloc();                                                                                        \
 		}                                                                                                                  \
                                                                                                                            \
 		return mem;                                                                                                        \
 	}                                                                                                                      \
                                                                                                                            \
-	[[nodiscard]] void* operator new(std::size_t a_size, std::align_val_t) noexcept                                        \
+	[[nodiscard]] void* operator new(std::size_t a_size, std::align_val_t)                                                 \
 	{                                                                                                                      \
 		auto* mem = RE::hk_temp_malloc(a_size);                                                                            \
 		if (!mem) [[unlikely]] {                                                                                           \
-			REX::AllocationFail();                                                                                         \
+			throw std::bad_alloc();                                                                                        \
 		}                                                                                                                  \
                                                                                                                            \
 		return mem;                                                                                                        \
 	}                                                                                                                      \
                                                                                                                            \
-	[[nodiscard]] void* operator new[](std::size_t a_size, std::align_val_t) noexcept                                      \
+	[[nodiscard]] void* operator new[](std::size_t a_size, std::align_val_t)                                               \
 	{                                                                                                                      \
 		auto* mem = RE::hk_temp_malloc(a_size);                                                                            \
 		if (!mem) [[unlikely]] {                                                                                           \
-			REX::AllocationFail();                                                                                         \
+			throw std::bad_alloc();                                                                                        \
 		}                                                                                                                  \
                                                                                                                            \
 		return mem;                                                                                                        \
@@ -279,41 +345,41 @@ namespace RE
 #define HK_DEBUG_REDEFINE_NEW(a_type)                                                                                       \
 	static_assert(std::is_class_v<a_type>);                                                                                 \
                                                                                                                             \
-	[[nodiscard]] void* operator new(std::size_t a_size) noexcept                                                           \
+	[[nodiscard]] void* operator new(std::size_t a_size)                                                                    \
 	{                                                                                                                       \
 		auto* mem = RE::hk_debug_malloc(a_size);                                                                            \
 		if (!mem) [[unlikely]] {                                                                                            \
-			REX::AllocationFail();                                                                                          \
+			throw std::bad_alloc();                                                                                         \
 		}                                                                                                                   \
                                                                                                                             \
 		return mem;                                                                                                         \
 	}                                                                                                                       \
                                                                                                                             \
-	[[nodiscard]] void* operator new[](std::size_t a_size) noexcept                                                         \
+	[[nodiscard]] void* operator new[](std::size_t a_size)                                                                  \
 	{                                                                                                                       \
 		auto* mem = RE::hk_debug_malloc(a_size);                                                                            \
 		if (!mem) [[unlikely]] {                                                                                            \
-			REX::AllocationFail();                                                                                          \
+			throw std::bad_alloc();                                                                                         \
 		}                                                                                                                   \
                                                                                                                             \
 		return mem;                                                                                                         \
 	}                                                                                                                       \
                                                                                                                             \
-	[[nodiscard]] void* operator new(std::size_t a_size, std::align_val_t) noexcept                                         \
+	[[nodiscard]] void* operator new(std::size_t a_size, std::align_val_t)                                                  \
 	{                                                                                                                       \
 		auto* mem = RE::hk_debug_malloc(a_size);                                                                            \
 		if (!mem) [[unlikely]] {                                                                                            \
-			REX::AllocationFail();                                                                                          \
+			throw std::bad_alloc();                                                                                         \
 		}                                                                                                                   \
                                                                                                                             \
 		return mem;                                                                                                         \
 	}                                                                                                                       \
                                                                                                                             \
-	[[nodiscard]] void* operator new[](std::size_t a_size, std::align_val_t) noexcept                                       \
+	[[nodiscard]] void* operator new[](std::size_t a_size, std::align_val_t)                                                \
 	{                                                                                                                       \
 		auto* mem = RE::hk_debug_malloc(a_size);                                                                            \
 		if (!mem) [[unlikely]] {                                                                                            \
-			REX::AllocationFail();                                                                                          \
+			throw std::bad_alloc();                                                                                         \
 		}                                                                                                                   \
                                                                                                                             \
 		return mem;                                                                                                         \

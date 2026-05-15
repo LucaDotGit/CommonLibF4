@@ -9,14 +9,14 @@ namespace RE
 		{
 			using FuncType = decltype(&BGSSaveLoadFileEntry::DeleteGame);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSSaveLoadFileEntry::DeleteGame };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void LoadData()
 		{
 			using FuncType = decltype(&BGSSaveLoadFileEntry::LoadData);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSSaveLoadFileEntry::LoadData };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

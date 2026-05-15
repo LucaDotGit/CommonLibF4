@@ -9,7 +9,7 @@ namespace RE::BSScript::ByteCode
 		return (numInstructionBits + 7) / 8;
 	}
 
-	PackedInstructionStream PackedInstructionStream::CopyInstructionStream() const noexcept
+	PackedInstructionStream PackedInstructionStream::CopyInstructionStream() const
 	{
 		auto result = PackedInstructionStream();
 		result.numInstructionBits = numInstructionBits;
@@ -25,7 +25,7 @@ namespace RE::BSScript::ByteCode
 
 		auto* newInstructions = calloc<std::byte>(byteSize);
 		if (!newInstructions) [[unlikely]] {
-			REX::AllocationFail();
+			throw std::bad_alloc();
 		}
 
 		std::copy_n(instructions, byteSize, newInstructions);

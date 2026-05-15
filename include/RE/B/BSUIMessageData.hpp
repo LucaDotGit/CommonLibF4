@@ -13,34 +13,40 @@ namespace RE
 		inline static constexpr auto RTTI{ RTTI::BSUIMessageData };
 		inline static constexpr auto VTABLE{ VTABLE::BSUIMessageData };
 
+		BSUIMessageData(BSFixedString a_menuName, UI_MESSAGE_TYPE a_type)
+			: IUIMessageData(std::move(a_menuName), a_type)
+		{
+			REL::EmplaceVtable(this);
+		}
+
 		~BSUIMessageData() override = default; // 00
 
 		static void SendUIBoolMessage(const BSFixedString& a_menuName, UI_MESSAGE_TYPE a_type, bool a_value)
 		{
 			using FuncType = decltype(&BSUIMessageData::SendUIBoolMessage);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSUIMessageData::SendUIBoolMessage };
-			FUNC(a_menuName, a_type, a_value);
+			std::invoke(FUNC, a_menuName, a_type, a_value);
 		}
 
 		static void SendUIStringMessage(const BSFixedString& a_menuName, UI_MESSAGE_TYPE a_type, const BSFixedString& a_string)
 		{
 			using FuncType = decltype(&BSUIMessageData::SendUIStringMessage);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSUIMessageData::SendUIStringMessage };
-			FUNC(a_menuName, a_type, a_string);
+			std::invoke(FUNC, a_menuName, a_type, a_string);
 		}
 
 		static void SendUIPtrMessage(const BSFixedString& a_menuName, UI_MESSAGE_TYPE a_type, void* a_data)
 		{
 			using FuncType = decltype(&BSUIMessageData::SendUIPtrMessage);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSUIMessageData::SendUIPtrMessage };
-			FUNC(a_menuName, a_type, a_data);
+			std::invoke(FUNC, a_menuName, a_type, a_data);
 		}
 
 		static void SendUIStringUIntMessage(const BSFixedString& a_menuName, UI_MESSAGE_TYPE a_type, const BSFixedString& a_fixedString, std::uint32_t a_data)
 		{
 			using FuncType = decltype(&BSUIMessageData::SendUIStringUIntMessage);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSUIMessageData::SendUIStringUIntMessage };
-			FUNC(a_menuName, a_type, a_fixedString, a_data);
+			std::invoke(FUNC, a_menuName, a_type, a_fixedString, a_data);
 		}
 
 		// members

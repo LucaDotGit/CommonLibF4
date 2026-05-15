@@ -52,14 +52,14 @@ namespace RE
 		{
 			using FuncType = decltype(&BGSCreatedObjectManager::IncrementRef);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSCreatedObjectManager::IncrementRef };
-			FUNC(this, a_alchemyItem);
+			std::invoke(FUNC, this, a_alchemyItem);
 		}
 
 		void DecrementRef(AlchemyItem* a_alchemyItem)
 		{
 			using FuncType = decltype(&BGSCreatedObjectManager::DecrementRef);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSCreatedObjectManager::DecrementRef };
-			FUNC(this, a_alchemyItem);
+			std::invoke(FUNC, this, a_alchemyItem);
 		}
 
 		// members

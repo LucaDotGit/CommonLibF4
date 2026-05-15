@@ -40,7 +40,7 @@ namespace RE
 		{
 			using FuncType = decltype(&TESCondition::ClearAllConditionItems);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::TESCondition::ClearAllConditionItems };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

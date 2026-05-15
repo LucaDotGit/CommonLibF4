@@ -52,11 +52,14 @@ namespace RE
 		virtual void SaveImpl();									// 67 - { return; }
 		virtual void LoadImpl(TESFile* a_file, CHUNK_ID a_chunkID); // 68 - { return; }
 
-		[[nodiscard]] auto GetComponents() const noexcept -> std::optional<std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>>>;
+		[[nodiscard]] auto GetComponents() const noexcept
+			-> std::optional<std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>>>;
 		void SetComponents(std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>> a_components);
 
-		[[nodiscard]] auto GetDisplayIndices() noexcept -> std::optional<std::span<std::uint8_t>>;
-		[[nodiscard]] auto GetDisplayIndices() const noexcept -> std::optional<std::span<const std::uint8_t>>;
+		[[nodiscard]] auto GetDisplayIndices() noexcept
+			-> std::optional<std::span<std::uint8_t>>;
+		[[nodiscard]] auto GetDisplayIndices() const noexcept
+			-> std::optional<std::span<const std::uint8_t>>;
 		void SetDisplayIndices(std::span<const std::uint8_t> a_indices);
 
 		// members

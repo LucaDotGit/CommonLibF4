@@ -492,7 +492,8 @@ namespace F4SE::Inputs
 		return Impl::IsOrbisGamepadButtonPressed(gamepadDevice, a_keyCode);
 	}
 
-	auto GetPressedKeyCodes() -> std::expected<std::vector<std::uint32_t>, REX::SystemError>
+	auto GetPressedKeyCodes()
+		-> std::expected<std::vector<std::uint32_t>, REX::SystemError>
 	{
 		auto result = std::vector<std::uint32_t>();
 
@@ -520,7 +521,8 @@ namespace F4SE::Inputs
 		return result;
 	}
 
-	auto GetPressedKeyboardKeyCodes() -> std::expected<std::vector<std::uint32_t>, REX::SystemError>
+	auto GetPressedKeyboardKeyCodes()
+		-> std::expected<std::vector<std::uint32_t>, REX::SystemError>
 	{
 		const auto* inputDeviceManager = RE::BSInputDeviceManager::GetSingleton();
 		if (!inputDeviceManager) [[unlikely]] {
@@ -544,7 +546,8 @@ namespace F4SE::Inputs
 		return result;
 	}
 
-	auto GetPressedMouseButtonCodes() -> std::expected<std::vector<std::uint32_t>, REX::SystemError>
+	auto GetPressedMouseButtonCodes()
+		-> std::expected<std::vector<std::uint32_t>, REX::SystemError>
 	{
 		const auto* inputDeviceManager = RE::BSInputDeviceManager::GetSingleton();
 		if (!inputDeviceManager) [[unlikely]] {
@@ -568,7 +571,8 @@ namespace F4SE::Inputs
 		return result;
 	}
 
-	auto GetPressedGamepadButtonCodes() -> std::expected<std::vector<std::uint32_t>, REX::SystemError>
+	auto GetPressedGamepadButtonCodes()
+		-> std::expected<std::vector<std::uint32_t>, REX::SystemError>
 	{
 		const auto* controlMap = RE::ControlMap::GetSingleton();
 		if (!controlMap) [[unlikely]] {
@@ -590,7 +594,8 @@ namespace F4SE::Inputs
 		}
 	}
 
-	auto GetPressedXInputButtonCodes() -> std::expected<std::vector<std::uint32_t>, REX::SystemError>
+	auto GetPressedXInputButtonCodes()
+		-> std::expected<std::vector<std::uint32_t>, REX::SystemError>
 	{
 		const auto* inputDeviceManager = RE::BSInputDeviceManager::GetSingleton();
 		if (!inputDeviceManager) [[unlikely]] {
@@ -614,7 +619,8 @@ namespace F4SE::Inputs
 		return result;
 	}
 
-	auto GetPressedOrbisGamepadButtonCodes() -> std::expected<std::vector<std::uint32_t>, REX::SystemError>
+	auto GetPressedOrbisGamepadButtonCodes()
+		-> std::expected<std::vector<std::uint32_t>, REX::SystemError>
 	{
 		const auto* inputDeviceManager = RE::BSInputDeviceManager::GetSingleton();
 		if (!inputDeviceManager) [[unlikely]] {
@@ -638,7 +644,8 @@ namespace F4SE::Inputs
 		return result;
 	}
 
-	auto GetPressedControlNames(RE::INPUT_DEVICE a_deviceType) -> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>
+	auto GetPressedControlNames(RE::INPUT_DEVICE a_deviceType)
+		-> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>
 	{
 		auto result = std::vector<RE::BSFixedString>();
 
@@ -666,7 +673,8 @@ namespace F4SE::Inputs
 		return result;
 	}
 
-	auto GetPressedKeyboardControlNames() -> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>
+	auto GetPressedKeyboardControlNames()
+		-> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>
 	{
 		const auto* inputDeviceManager = RE::BSInputDeviceManager::GetSingleton();
 		if (!inputDeviceManager) [[unlikely]] {
@@ -703,7 +711,8 @@ namespace F4SE::Inputs
 		return result;
 	}
 
-	auto GetPressedMouseButtonControlNames() -> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>
+	auto GetPressedMouseButtonControlNames()
+		-> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>
 	{
 		const auto* inputDeviceManager = RE::BSInputDeviceManager::GetSingleton();
 		if (!inputDeviceManager) [[unlikely]] {
@@ -740,7 +749,8 @@ namespace F4SE::Inputs
 		return result;
 	}
 
-	auto GetPressedGamepadButtonControlNames() -> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>
+	auto GetPressedGamepadButtonControlNames()
+		-> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>
 	{
 		const auto* inputDeviceManager = RE::BSInputDeviceManager::GetSingleton();
 		if (!inputDeviceManager) [[unlikely]] {
@@ -768,7 +778,8 @@ namespace F4SE::Inputs
 		}
 	}
 
-	auto GetPressedXInputGamepadButtonControlNames() -> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>
+	auto GetPressedXInputGamepadButtonControlNames()
+		-> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>
 	{
 		const auto* inputDeviceManager = RE::BSInputDeviceManager::GetSingleton();
 		if (!inputDeviceManager) [[unlikely]] {
@@ -805,7 +816,8 @@ namespace F4SE::Inputs
 		return result;
 	}
 
-	auto GetPressedOrbisGamepadButtonControlNames() -> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>
+	auto GetPressedOrbisGamepadButtonControlNames()
+		-> std::expected<std::vector<RE::BSFixedString>, REX::SystemError>
 	{
 		const auto* inputDeviceManager = RE::BSInputDeviceManager::GetSingleton();
 		if (!inputDeviceManager) [[unlikely]] {
@@ -842,7 +854,8 @@ namespace F4SE::Inputs
 		return result;
 	}
 
-	auto GetKeyName(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedStringCS, REX::SystemError>
+	auto GetKeyName(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedStringCS, REX::SystemError>
 	{
 		if (!IsKeyCodeInRange(a_keyCode)) {
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::invalid_argument));
@@ -863,7 +876,8 @@ namespace F4SE::Inputs
 		return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::invalid_argument));
 	}
 
-	auto GetKeyboardKeyName(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedStringCS, REX::SystemError>
+	auto GetKeyboardKeyName(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedStringCS, REX::SystemError>
 	{
 		if (!IsKeyboardKeyCodeInRange(a_keyCode)) {
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::invalid_argument));
@@ -893,7 +907,8 @@ namespace F4SE::Inputs
 		return buttonInfoData->name;
 	}
 
-	auto GetMouseButtonName(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedStringCS, REX::SystemError>
+	auto GetMouseButtonName(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedStringCS, REX::SystemError>
 	{
 		if (!IsMouseButtonCodeInRange(a_keyCode)) {
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::invalid_argument));
@@ -923,7 +938,8 @@ namespace F4SE::Inputs
 		return buttonInfoData->name;
 	}
 
-	auto GetGamepadButtonName(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedStringCS, REX::SystemError>
+	auto GetGamepadButtonName(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedStringCS, REX::SystemError>
 	{
 		if (!IsGamepadButtonCodeInRange(a_keyCode)) {
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::invalid_argument));
@@ -949,7 +965,8 @@ namespace F4SE::Inputs
 		}
 	}
 
-	auto GetXInputGamepadButtonName(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedStringCS, REX::SystemError>
+	auto GetXInputGamepadButtonName(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedStringCS, REX::SystemError>
 	{
 		if (!IsGamepadButtonCodeInRange(a_keyCode)) {
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::invalid_argument));
@@ -979,7 +996,8 @@ namespace F4SE::Inputs
 		return buttonInfoData->name;
 	}
 
-	auto GetOrbisGamepadButtonName(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedStringCS, REX::SystemError>
+	auto GetOrbisGamepadButtonName(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedStringCS, REX::SystemError>
 	{
 		if (!IsGamepadButtonCodeInRange(a_keyCode)) {
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::invalid_argument));
@@ -1009,7 +1027,8 @@ namespace F4SE::Inputs
 		return buttonInfoData->name;
 	}
 
-	auto GetControlNameByKeyCode(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedString, REX::SystemError>
+	auto GetControlNameByKeyCode(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedString, REX::SystemError>
 	{
 		if (!IsKeyCodeInRange(a_keyCode)) {
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::invalid_argument));
@@ -1018,7 +1037,7 @@ namespace F4SE::Inputs
 		if (IsKeyboardKeyCodeInRange(a_keyCode)) {
 			auto controlName = GetControlNameByKeyboardKeyCode(a_keyCode);
 			if (!controlName) {
-				return std::unexpected(std::move(controlName).error());
+				return std::unexpected(controlName.error());
 			}
 
 			return *std::move(controlName);
@@ -1027,7 +1046,7 @@ namespace F4SE::Inputs
 		if (IsMouseButtonCodeInRange(a_keyCode)) {
 			auto controlName = GetControlNameByMouseKeyCode(a_keyCode);
 			if (!controlName) {
-				return std::unexpected(std::move(controlName).error());
+				return std::unexpected(controlName.error());
 			}
 
 			return *std::move(controlName);
@@ -1036,7 +1055,7 @@ namespace F4SE::Inputs
 		if (IsGamepadButtonCodeInRange(a_keyCode)) {
 			auto controlName = GetControlNameByGamepadKeyCode(a_keyCode);
 			if (!controlName) {
-				return std::unexpected(std::move(controlName).error());
+				return std::unexpected(controlName.error());
 			}
 
 			return *std::move(controlName);
@@ -1045,7 +1064,8 @@ namespace F4SE::Inputs
 		return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::invalid_argument));
 	}
 
-	auto GetControlNameByKeyboardKeyCode(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedString, REX::SystemError>
+	auto GetControlNameByKeyboardKeyCode(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedString, REX::SystemError>
 	{
 		if (!IsKeyboardKeyCodeInRange(a_keyCode)) {
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::invalid_argument));
@@ -1065,7 +1085,8 @@ namespace F4SE::Inputs
 		return *std::move(controlName);
 	}
 
-	auto GetControlNameByMouseKeyCode(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedString, REX::SystemError>
+	auto GetControlNameByMouseKeyCode(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedString, REX::SystemError>
 	{
 		if (!IsMouseButtonCodeInRange(a_keyCode)) {
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::invalid_argument));
@@ -1085,7 +1106,8 @@ namespace F4SE::Inputs
 		return *std::move(controlName);
 	}
 
-	auto GetControlNameByGamepadKeyCode(std::uint32_t a_keyCode) -> std::expected<RE::BSFixedString, REX::SystemError>
+	auto GetControlNameByGamepadKeyCode(std::uint32_t a_keyCode)
+		-> std::expected<RE::BSFixedString, REX::SystemError>
 	{
 		if (!IsGamepadButtonCodeInRange(a_keyCode)) {
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::invalid_argument));
@@ -1147,7 +1169,8 @@ namespace F4SE::Inputs
 		return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::invalid_argument));
 	}
 
-	auto GetKeyCodeByKeyboardControlName(const RE::BSFixedString& a_controlName) -> std::expected<std::uint32_t, REX::SystemError>
+	auto GetKeyCodeByKeyboardControlName(const RE::BSFixedString& a_controlName)
+		-> std::expected<std::uint32_t, REX::SystemError>
 	{
 		const auto* controlMap = RE::ControlMap::GetSingleton();
 		if (!controlMap) [[unlikely]] {
@@ -1163,7 +1186,8 @@ namespace F4SE::Inputs
 		return *keyCode;
 	}
 
-	auto GetKeyCodeByMouseControlName(const RE::BSFixedString& a_controlName) -> std::expected<std::uint32_t, REX::SystemError>
+	auto GetKeyCodeByMouseControlName(const RE::BSFixedString& a_controlName)
+		-> std::expected<std::uint32_t, REX::SystemError>
 	{
 		const auto* controlMap = RE::ControlMap::GetSingleton();
 		if (!controlMap) [[unlikely]] {
@@ -1179,7 +1203,8 @@ namespace F4SE::Inputs
 		return *keyCode;
 	}
 
-	auto GetKeyCodeByGamepadControlName(const RE::BSFixedString& a_controlName) -> std::expected<std::uint32_t, REX::SystemError>
+	auto GetKeyCodeByGamepadControlName(const RE::BSFixedString& a_controlName)
+		-> std::expected<std::uint32_t, REX::SystemError>
 	{
 		const auto* controlMap = RE::ControlMap::GetSingleton();
 		if (!controlMap) [[unlikely]] {
@@ -1338,7 +1363,8 @@ namespace F4SE::Inputs
 			   ReleaseOrbisGamepadButton(a_keyCode, a_durationSeconds);
 	}
 
-	auto GamepadFlagToKeyCode(std::uint32_t a_keyFlag) -> std::expected<std::uint32_t, REX::SystemError>
+	auto GamepadFlagToKeyCode(std::uint32_t a_keyFlag)
+		-> std::expected<std::uint32_t, REX::SystemError>
 	{
 		const auto* controlMap = RE::ControlMap::GetSingleton();
 		if (!controlMap) [[unlikely]] {
@@ -1350,7 +1376,7 @@ namespace F4SE::Inputs
 			case RE::PC_GAMEPAD_TYPE::kDirectX: {
 				auto result = XInputGamepadFlagToKeyCode(a_keyFlag);
 				if (!result) {
-					return std::unexpected(std::move(result).error());
+					return std::unexpected(result.error());
 				}
 
 				return *result;
@@ -1358,7 +1384,7 @@ namespace F4SE::Inputs
 			case RE::PC_GAMEPAD_TYPE::kOrbis: {
 				auto result = OrbisGamepadFlagToKeyCode(a_keyFlag);
 				if (!result) {
-					return std::unexpected(std::move(result).error());
+					return std::unexpected(result.error());
 				}
 
 				return *result;
@@ -1370,7 +1396,8 @@ namespace F4SE::Inputs
 		}
 	}
 
-	auto GamepadKeyCodeToFlag(std::uint32_t a_keyCode) -> std::expected<std::uint32_t, REX::SystemError>
+	auto GamepadKeyCodeToFlag(std::uint32_t a_keyCode)
+		-> std::expected<std::uint32_t, REX::SystemError>
 	{
 		if (!IsGamepadButtonCodeInRange(a_keyCode)) {
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::invalid_argument));
@@ -1386,7 +1413,7 @@ namespace F4SE::Inputs
 			case RE::PC_GAMEPAD_TYPE::kDirectX: {
 				auto result = XInputGamepadKeyCodeToFlag(a_keyCode);
 				if (!result) {
-					return std::unexpected(std::move(result).error());
+					return std::unexpected(result.error());
 				}
 
 				return *result;
@@ -1394,7 +1421,7 @@ namespace F4SE::Inputs
 			case RE::PC_GAMEPAD_TYPE::kOrbis: {
 				auto result = OrbisGamepadKeyCodeToFlag(a_keyCode);
 				if (!result) {
-					return std::unexpected(std::move(result).error());
+					return std::unexpected(result.error());
 				}
 
 				return *result;
@@ -1406,7 +1433,8 @@ namespace F4SE::Inputs
 		}
 	}
 
-	auto XInputGamepadFlagToScePadFlag(std::uint32_t a_keyFlag) noexcept -> std::expected<std::uint32_t, REX::SystemError>
+	auto XInputGamepadFlagToScePadFlag(std::uint32_t a_keyFlag) noexcept
+		-> std::expected<std::uint32_t, REX::SystemError>
 	{
 		switch (a_keyFlag) {
 			case REX::W32::XINPUT_GAMEPAD_DPAD_UP: {
@@ -1457,7 +1485,8 @@ namespace F4SE::Inputs
 		}
 	}
 
-	auto ScePadFlagToXInputGamepadFlag(std::uint32_t a_keyFlag) noexcept -> std::expected<std::uint32_t, REX::SystemError>
+	auto ScePadFlagToXInputGamepadFlag(std::uint32_t a_keyFlag) noexcept
+		-> std::expected<std::uint32_t, REX::SystemError>
 	{
 		switch (a_keyFlag) {
 			case REX::PS4::SCE_PAD_BUTTON_UP: {
@@ -1508,7 +1537,8 @@ namespace F4SE::Inputs
 		}
 	}
 
-	auto XInputGamepadFlagToKeyCode(std::uint32_t a_keyFlag) noexcept -> std::expected<std::uint32_t, REX::SystemError>
+	auto XInputGamepadFlagToKeyCode(std::uint32_t a_keyFlag) noexcept
+		-> std::expected<std::uint32_t, REX::SystemError>
 	{
 		switch (a_keyFlag) {
 			case REX::W32::XINPUT_GAMEPAD_DPAD_UP: {
@@ -1559,7 +1589,8 @@ namespace F4SE::Inputs
 		}
 	}
 
-	auto XInputGamepadKeyCodeToFlag(std::uint32_t a_keyCode) noexcept -> std::expected<std::uint32_t, REX::SystemError>
+	auto XInputGamepadKeyCodeToFlag(std::uint32_t a_keyCode) noexcept
+		-> std::expected<std::uint32_t, REX::SystemError>
 	{
 		switch (a_keyCode) {
 			case GamepadButton::kDPadUp: {
@@ -1610,21 +1641,23 @@ namespace F4SE::Inputs
 		}
 	}
 
-	auto OrbisGamepadFlagToKeyCode(std::uint32_t a_keyFlag) noexcept -> std::expected<std::uint32_t, REX::SystemError>
+	auto OrbisGamepadFlagToKeyCode(std::uint32_t a_keyFlag) noexcept
+		-> std::expected<std::uint32_t, REX::SystemError>
 	{
 		auto newKeyFlag = ScePadFlagToXInputGamepadFlag(a_keyFlag);
 		if (!newKeyFlag) {
-			return std::unexpected(std::move(newKeyFlag).error());
+			return std::unexpected(newKeyFlag.error());
 		}
 
 		return XInputGamepadFlagToKeyCode(*newKeyFlag);
 	}
 
-	auto OrbisGamepadKeyCodeToFlag(std::uint32_t a_keyCode) noexcept -> std::expected<std::uint32_t, REX::SystemError>
+	auto OrbisGamepadKeyCodeToFlag(std::uint32_t a_keyCode) noexcept
+		-> std::expected<std::uint32_t, REX::SystemError>
 	{
 		auto newKeyCode = XInputGamepadKeyCodeToFlag(a_keyCode);
 		if (!newKeyCode) {
-			return std::unexpected(std::move(newKeyCode).error());
+			return std::unexpected(newKeyCode.error());
 		}
 
 		return XInputGamepadFlagToScePadFlag(*newKeyCode);

@@ -6,6 +6,6 @@ namespace RE
 {
 	WorkbenchMenuBase::InitParams::InitParams()
 	{
-		inventorySource = RE::PlayerCharacter::GetPlayerHandle();
+		inventorySource = PlayerCharacter::GetPlayerHandle();
 	}
 }

@@ -12,9 +12,10 @@ namespace RE
 	static_assert(std::is_empty_v<hknpBodyIdBaseDiscriminant>);
 
 	class hknpBodyId
-		: public hkHandle<std::uint32_t, std::numeric_limits<std::int32_t>::max(), hknpBodyIdBaseDiscriminant>
+		: public hkHandle<std::uint32_t, std::numeric_limits<std::int32_t>::max(), hknpBodyIdBaseDiscriminant> // 00
 	{
 	public:
+		using hkHandle::hkHandle;
 	};
 	static_assert(sizeof(hknpBodyId) == 0x04);
 }

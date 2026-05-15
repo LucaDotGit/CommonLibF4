@@ -53,7 +53,7 @@ namespace RE
 		{
 			using FuncType = decltype(&NiCamera::ViewPointToRay);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::NiCamera::ViewPointToRay };
-			FUNC(this, a_vx, a_vy, a_origin, a_dir);
+			std::invoke(FUNC, this, a_vx, a_vy, a_origin, a_dir);
 		}
 
 		bool WorldPtToScreenPt3(const NiPoint3& a_point, REX::Float32& a_x, REX::Float32& a_y, REX::Float32& a_z, REX::Float32 a_zeroTolerance) const

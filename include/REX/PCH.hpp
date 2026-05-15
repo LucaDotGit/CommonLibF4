@@ -45,6 +45,8 @@
 #include <execution>
 #include <expected>
 #include <filesystem>
+#include <flat_map>
+#include <flat_set>
 #include <format>
 #include <forward_list>
 #include <fstream>
@@ -108,14 +110,6 @@
 #include <variant>
 #include <vector>
 #include <version>
-
-#if __cpp_lib_flat_map >= 202207l
-#include <flat_map>
-#endif
-
-#if __cpp_lib_flat_set >= 202207l
-#include <flat_set>
-#endif
 
 #if COMMONLIB_OPTION_FMT == 1
 #include <fmt/format.h>

@@ -5,6 +5,7 @@
 #include "RE/B/BSTArray.hpp"
 #include "RE/B/BSTOptional.hpp"
 #include "RE/B/BSTSingleton.hpp"
+#include "RE/M/MemoryManager.hpp"
 
 namespace RE
 {
@@ -124,22 +125,23 @@ namespace RE
 
 			const auto sinkLock = BSAutoLock(_lock);
 
+			if (_notifying != 0) {
+				if (!std::ranges::contains(_pendingRegisters, a_sink)) {
+					_pendingRegisters.push_back(a_sink);
+				}
+			}
+			else {
+				if (!std::ranges::contains(_sinks, a_sink)) {
+					_sinks.push_back(a_sink);
+				}
+			}
+
 			const auto sinkIt = std::ranges::find(_pendingUnregisters, a_sink);
 			if (sinkIt != _pendingUnregisters.end()) {
 				_pendingUnregisters.erase(sinkIt);
 			}
 
-			if (_notifying > 0 && !std::ranges::contains(_pendingRegisters, a_sink)) {
-				_pendingRegisters.push_back(a_sink);
-				return true;
-			}
-
-			if (!std::ranges::contains(_sinks, a_sink)) {
-				_sinks.push_back(a_sink);
-				return true;
-			}
-
-			return false;
+			return true;
 		}
 
 		bool UnregisterSink(BSTEventSink<event_type>* a_sink)
@@ -150,31 +152,36 @@ namespace RE
 
 			const auto sinkLock = BSAutoLock(_lock);
 
-			const auto pendingIt = std::ranges::find(_pendingRegisters, a_sink);
-			if (pendingIt != _pendingRegisters.end()) {
-				_pendingRegisters.erase(pendingIt);
+			if (_notifying != 0) {
+				if (!std::ranges::contains(_pendingUnregisters, a_sink)) {
+					_pendingUnregisters.push_back(a_sink);
+				}
+			}
+			else {
+				const auto sinkIt = std::ranges::find(_sinks, a_sink);
+				if (sinkIt != _sinks.end()) {
+					_sinks.erase(sinkIt);
+				}
 			}
 
-			if (_notifying > 0 && !std::ranges::contains(_pendingUnregisters, a_sink)) {
-				_pendingUnregisters.push_back(a_sink);
-				return true;
+			const auto sinkIt = std::ranges::find(_pendingRegisters, a_sink);
+			if (sinkIt != _pendingRegisters.end()) {
+				_pendingRegisters.erase(sinkIt);
 			}
 
-			const auto sinkIt = std::ranges::find(_sinks, a_sink);
-			if (sinkIt != _sinks.end()) {
-				_sinks.erase(sinkIt);
-				return true;
-			}
-
-			return false;
+			return true;
 		}
 
 		std::uint32_t Notify(const event_type& a_event)
 		{
 			const auto sinkLock = BSAutoLock(_lock);
 
-			if (!_notifying && !_pendingRegisters.empty()) {
+			if (_notifying == 0 && !_pendingRegisters.empty()) {
 				for (auto* pendingRegister : _pendingRegisters) {
+					if (!pendingRegister) {
+						continue;
+					}
+
 					if (!std::ranges::contains(_sinks, pendingRegister)) {
 						_sinks.push_back(pendingRegister);
 					}
@@ -183,24 +190,35 @@ namespace RE
 				_pendingRegisters.clear();
 			}
 
-			auto count = 0ui32;
+			auto notifyCount = 0ui32;
 			_notifying++;
 
 			for (auto* sink : _sinks) {
-				if (!std::ranges::contains(_pendingUnregisters, sink) &&
-					sink->ProcessEvent(a_event, this) == BSEventNotifyControl::kStop) {
-					break;
+				if (!sink) {
+					continue;
 				}
 
-				count++;
+				if (std::ranges::contains(_pendingUnregisters, sink)) {
+					continue;
+				}
+
+				notifyCount++;
+
+				if (sink->ProcessEvent(a_event, this) == BSEventNotifyControl::kStop) {
+					break;
+				}
 			}
 
 			const auto uncontended = _notifying-- == 1;
-			if (!uncontended || _pendingUnregisters.empty()) {
-				return count;
+			if (uncontended == 0 || _pendingUnregisters.empty()) {
+				return notifyCount;
 			}
 
 			for (auto* pendingUnregister : _pendingUnregisters) {
+				if (!pendingUnregister) {
+					continue;
+				}
+
 				const auto sinkIt = std::ranges::find(_sinks, pendingUnregister);
 				if (sinkIt != _sinks.end()) {
 					_sinks.erase(sinkIt);
@@ -208,7 +226,7 @@ namespace RE
 			}
 
 			_pendingUnregisters.clear();
-			return count;
+			return notifyCount;
 		}
 
 	private:
@@ -241,7 +259,7 @@ namespace RE
 	};
 
 	template <class T>
-	class BSTValueEventSink
+	class /*__declspec(novtable)*/ BSTValueEventSink
 		: public BSTEventSink<T> // 00
 	{
 	public:
@@ -293,7 +311,7 @@ namespace RE
 	};
 
 	template <class T>
-	class BSTValueEventSource
+	class /*__declspec(novtable)*/ BSTValueEventSource
 		: public BSTEventSink<BSTValueRequestEvent<T>> // 00
 	{
 	public:
@@ -362,17 +380,15 @@ namespace RE
 		static_assert(sizeof(KillSDMEventSource) == 0x58);
 
 		template <class Event>
-		class EventSource
+		class /*__declspec(novtable)*/ EventSource
 			: public BSTEventSink<KillSDMEvent>,		  // 00
 			  public BSTSingletonSDM<EventSource<Event>>, // 08
 			  public BSTEventSource<Event>				  // 10
 		{
 		public:
-			EventSource(KillSDMEventSource* a_eventSource)
+			EventSource(KillSDMEventSource& a_eventSource)
 			{
-				if (a_eventSource) {
-					a_eventSource->RegisterSink(this);
-				}
+				a_eventSource.RegisterSink(this);
 			}
 
 			EventSource(const EventSource&) = delete;
@@ -394,6 +410,8 @@ namespace RE
 
 				return BSEventNotifyControl::kContinue;
 			}
+
+			GAME_HEAP_REDEFINE_NEW(EventSource);
 		};
 		static_assert(sizeof(EventSource<std::any>) == 0x68);
 

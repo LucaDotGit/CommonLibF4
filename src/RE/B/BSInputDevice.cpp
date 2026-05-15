@@ -12,7 +12,8 @@ namespace RE
 		return buttonNameIDMap.contains(a_name);
 	}
 
-	auto BSInputDevice::GetButtonInfoByName(const BSFixedStringCS& a_name) const -> std::optional<std::pair<ButtonID, InputButton*>>
+	auto BSInputDevice::GetButtonInfoByName(const BSFixedStringCS& a_name) const
+		-> std::optional<std::pair<ButtonID, InputButton*>>
 	{
 		const auto buttonIDIt = buttonNameIDMap.find(a_name);
 		if (buttonIDIt == buttonNameIDMap.end()) {
@@ -27,7 +28,8 @@ namespace RE
 		return std::make_pair(buttonIDIt->second, buttonIt->second);
 	}
 
-	auto BSInputDevice::GetButtonInfoByID(ButtonID a_buttonID) const -> std::optional<std::pair<ButtonID, InputButton*>>
+	auto BSInputDevice::GetButtonInfoByID(ButtonID a_buttonID) const
+		-> std::optional<std::pair<ButtonID, InputButton*>>
 	{
 		const auto buttonIt = deviceButtons.find(a_buttonID);
 		if (buttonIt == deviceButtons.end()) {
@@ -41,6 +43,6 @@ namespace RE
 	{
 		using FuncType = decltype(&BSInputDevice::CreateButtonEvent);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSInputDevice::CreateButtonEvent };
-		FUNC(this, a_buttonID, a_deltaTime, a_prevPressed, a_currPressed);
+		std::invoke(FUNC, this, a_buttonID, a_deltaTime, a_prevPressed, a_currPressed);
 	}
 }

@@ -14,7 +14,7 @@ namespace F4SE::Impl
 		void*(F4SE_API* AllocateFromLocalPool)(std::uint32_t, std::size_t);
 	};
 
-	[[nodiscard]] static const F4SETrampolineInterface& GetProxy(const TrampolineInterface* a_interface) noexcept
+	[[nodiscard]] __forceinline static const F4SETrampolineInterface& GetProxy(const TrampolineInterface* a_interface) noexcept
 	{
 		return reinterpret_cast<const F4SETrampolineInterface&>(*a_interface);
 	}

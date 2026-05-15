@@ -67,7 +67,7 @@ namespace RE
 		{
 			using FuncType = decltype(&TESBoundObject::ApplyMods);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::TESBoundObject::ApplyMods };
-			FUNC(this, a_dest, a_extra);
+			std::invoke(FUNC, this, a_dest, a_extra);
 		}
 
 		// members

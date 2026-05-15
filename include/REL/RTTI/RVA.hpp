@@ -5,7 +5,7 @@
 namespace REL::RTTI
 {
 	template <class T>
-	class RVA
+	class RVA final
 	{
 	public:
 		using value_type = T;
@@ -26,7 +26,10 @@ namespace REL::RTTI
 		constexpr RVA& operator=(const RVA&) noexcept = default;
 		constexpr RVA& operator=(RVA&&) noexcept = default;
 
-		[[nodiscard]] constexpr explicit operator bool() const noexcept { return good(); }
+		[[nodiscard]] constexpr explicit operator bool() const noexcept
+		{
+			return good();
+		}
 
 		[[nodiscard]] constexpr reference operator*() const noexcept
 		{

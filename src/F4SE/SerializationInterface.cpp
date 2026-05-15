@@ -23,7 +23,7 @@ namespace F4SE::Impl
 		bool(F4SE_API* ResolveFormID)(RE::TESFormID, RE::TESFormID*);
 	};
 
-	[[nodiscard]] static const F4SESerializationInterface& GetProxy(const SerializationInterface* a_interface) noexcept
+	[[nodiscard]] __forceinline static const F4SESerializationInterface& GetProxy(const SerializationInterface* a_interface) noexcept
 	{
 		return reinterpret_cast<const F4SESerializationInterface&>(*a_interface);
 	}
@@ -110,7 +110,8 @@ namespace F4SE
 		return result;
 	}
 
-	auto SerializationInterface::ResolveHandle(RE::BSScript::ObjectHandle a_objectHandle) const -> std::optional<RE::BSScript::ObjectHandle>
+	auto SerializationInterface::ResolveHandle(RE::BSScript::ObjectHandle a_objectHandle) const
+		-> std::optional<RE::BSScript::ObjectHandle>
 	{
 		auto result = static_cast<RE::BSScript::ObjectHandle>(0);
 		if (!Impl::GetProxy(this).ResolveHandle(a_objectHandle, std::addressof(result))) {
@@ -120,7 +121,8 @@ namespace F4SE
 		return result;
 	}
 
-	auto SerializationInterface::ResolveFormID(RE::TESFormID a_formID) const -> std::optional<RE::TESFormID>
+	auto SerializationInterface::ResolveFormID(RE::TESFormID a_formID) const
+		-> std::optional<RE::TESFormID>
 	{
 		auto result = static_cast<RE::TESFormID>(0);
 		if (!Impl::GetProxy(this).ResolveFormID(a_formID, std::addressof(result))) {

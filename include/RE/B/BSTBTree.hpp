@@ -221,7 +221,7 @@ namespace RE
 			auto* node = _root;
 			while (node) {
 				const auto it = std::lower_bound(node->begin(), node->end(), a_key,
-					[this](const value_type& a_lhs, const key_type& a_rhs) {
+					[this](const value_type& a_lhs, const key_type& a_rhs) -> auto {
 						return key_comp()(a_lhs.first, a_rhs);
 					});
 
@@ -241,10 +241,10 @@ namespace RE
 			return It();
 		}
 
-		std::array<std::byte, 0x08> pad00{}; // 00
-		size_type _activeEntry{ 0 };		 // 08
-		size_type _allocatedSize{ 0 };		 // 0C
-		node_type* _root{ nullptr };		 // 10
-		node_type* _availNodes{ nullptr };	 // 18
+		std::array<std::byte, 0x08> pad00{ static_cast<std::byte>(0) }; // 00
+		size_type _activeEntry{ 0 };									// 08
+		size_type _allocatedSize{ 0 };									// 0C
+		node_type* _root{ nullptr };									// 10
+		node_type* _availNodes{ nullptr };								// 18
 	};
 }

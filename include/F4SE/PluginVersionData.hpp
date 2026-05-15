@@ -42,7 +42,8 @@ namespace F4SE
 		constexpr PluginVersionData& operator=(const PluginVersionData&) noexcept = default;
 		constexpr PluginVersionData& operator=(PluginVersionData&&) noexcept = default;
 
-		[[nodiscard]] static auto GetSingleton() noexcept -> REX::NotNull<REX::Observer<const PluginVersionData*>>;
+		[[nodiscard]] static auto GetSingleton() noexcept
+			-> REX::NotNull<REX::Observer<const PluginVersionData*>>;
 
 		[[nodiscard]] constexpr std::uint32_t GetDataVersion() const noexcept { return _dataVersion; }
 		constexpr void SetDataVersion(std::uint32_t a_version) noexcept { _dataVersion = a_version; }
@@ -85,7 +86,7 @@ namespace F4SE
 
 		[[nodiscard]] constexpr std::vector<REX::Version> GetCompatibleVersions() const
 		{
-			return std::ranges::views::transform(_compatibleVersions, [](std::uint32_t a_version) noexcept {
+			return std::ranges::views::transform(_compatibleVersions, [](std::uint32_t a_version) noexcept -> REX::Version {
 				return REX::Version::Unpack(a_version);
 			}) | std::ranges::to<std::vector>();
 		}
@@ -95,7 +96,7 @@ namespace F4SE
 			REX::Assert(a_versions.size() < _compatibleVersions.size() - 1);
 
 			std::ranges::fill(_compatibleVersions, 0);
-			std::ranges::transform(a_versions, _compatibleVersions.begin(), [](REX::Version a_version) noexcept {
+			std::ranges::transform(a_versions, _compatibleVersions.begin(), [](REX::Version a_version) noexcept -> std::uint32_t {
 				return a_version.Pack<std::uint32_t>();
 			});
 		}
@@ -105,7 +106,7 @@ namespace F4SE
 			REX::Assert(a_runtimes.size() < _compatibleVersions.size() - 1);
 
 			std::ranges::fill(_compatibleVersions, 0);
-			std::ranges::transform(a_runtimes, _compatibleVersions.begin(), [](REL::Runtime a_version) noexcept {
+			std::ranges::transform(a_runtimes, _compatibleVersions.begin(), [](REL::Runtime a_version) noexcept -> std::uint32_t {
 				return a_version.GetVersion().Pack<std::uint32_t>();
 			});
 		}

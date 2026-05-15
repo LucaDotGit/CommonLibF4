@@ -48,8 +48,8 @@ namespace RE::BSScript
 			return false;
 		}
 
-		const auto leftMemberLock = RE::BSAutoLock(structLock);
-		const auto rightMemberLock = RE::BSAutoLock(a_rhs.structLock);
+		const auto leftMemberLock = BSAutoLock(structLock);
+		const auto rightMemberLock = BSAutoLock(a_rhs.structLock);
 
 		const auto leftMemberSize = type->variables.size();
 		const auto rightMemberSize = a_rhs.type->variables.size();
@@ -99,8 +99,8 @@ namespace RE::BSScript
 			return typeComparison;
 		}
 
-		const auto leftMemberLock = RE::BSAutoLock(structLock);
-		const auto rightMemberLock = RE::BSAutoLock(a_rhs.structLock);
+		const auto leftMemberLock = BSAutoLock(structLock);
+		const auto rightMemberLock = BSAutoLock(a_rhs.structLock);
 
 		const auto leftMemberSize = type->variables.size();
 		const auto rightMemberSize = a_rhs.type->variables.size();
@@ -128,7 +128,8 @@ namespace RE::BSScript
 		return type;
 	}
 
-	auto Struct::GetTypeInfoName() const noexcept -> std::optional<BSFixedString>
+	auto Struct::GetTypeInfoName() const noexcept
+		-> std::optional<BSFixedString>
 	{
 		if (!type) {
 			return std::nullopt;
@@ -137,7 +138,8 @@ namespace RE::BSScript
 		return type->GetName();
 	}
 
-	std::span<Variable> Struct::GetVariables() noexcept
+	auto Struct::GetVariables() noexcept
+		-> std::span<Variable>
 	{
 		if (!type) {
 			return {};
@@ -146,7 +148,8 @@ namespace RE::BSScript
 		return { static_cast<Variable*>(variables), type->variables.size() };
 	}
 
-	std::span<const Variable> Struct::GetVariables() const noexcept
+	auto Struct::GetVariables() const noexcept
+		-> std::span<const Variable>
 	{
 		if (!type) {
 			return {};
@@ -264,7 +267,7 @@ namespace RE::BSScript
 		auto result = std::string("["sv);
 
 		for (auto i = 0ui32; i < memberSize; i++) {
-			const auto pairIt = std::ranges::find_if(memberPairMap, [i](const BSTPair<const BSFixedString, std::uint32_t>& a_pair) {
+			const auto pairIt = std::ranges::find_if(memberPairMap, [i](const BSTPair<const BSFixedString, std::uint32_t>& a_pair) -> bool {
 				return a_pair.second == i;
 			});
 

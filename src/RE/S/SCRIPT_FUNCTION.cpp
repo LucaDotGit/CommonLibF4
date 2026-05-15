@@ -4,7 +4,8 @@
 
 namespace RE
 {
-	auto SCRIPT_FUNCTION::GetConsoleFunctions() -> std::span<SCRIPT_FUNCTION>
+	auto SCRIPT_FUNCTION::GetConsoleFunctions()
+		-> std::span<SCRIPT_FUNCTION>
 	{
 		constexpr auto FUNCTION_SIZE_NG = static_cast<std::size_t>(std::to_underlying(SCRIPT_OUTPUT::kConsole_Total_NG));
 		constexpr auto FUNCTION_SIZE_OG = static_cast<std::size_t>(std::to_underlying(SCRIPT_OUTPUT::kConsole_Total_OG));
@@ -18,7 +19,8 @@ namespace RE
 		return { *CONSOLE_FUNCTIONS };
 	}
 
-	auto SCRIPT_FUNCTION::GetScriptFunctions() -> std::span<SCRIPT_FUNCTION>
+	auto SCRIPT_FUNCTION::GetScriptFunctions()
+		-> std::span<SCRIPT_FUNCTION>
 	{
 		constexpr auto FUNCTION_SIZE = static_cast<std::size_t>(std::to_underlying(SCRIPT_OUTPUT::kScript_Total));
 
@@ -30,7 +32,7 @@ namespace RE
 	{
 		const auto functions = GetConsoleFunctions();
 
-		const auto functionIt = std::ranges::find_if(functions, [a_name](const SCRIPT_FUNCTION& a_func) noexcept {
+		const auto functionIt = std::ranges::find_if(functions, [a_name](const SCRIPT_FUNCTION& a_func) noexcept -> bool {
 			return REX::EqualsIgnoreCase(std::string_view(a_func.functionName), a_name);
 		});
 		if (functionIt == functions.end()) {
@@ -44,7 +46,7 @@ namespace RE
 	{
 		const auto functions = GetScriptFunctions();
 
-		const auto functionIt = std::ranges::find_if(functions, [a_name](const SCRIPT_FUNCTION& a_func) noexcept {
+		const auto functionIt = std::ranges::find_if(functions, [a_name](const SCRIPT_FUNCTION& a_func) noexcept -> bool {
 			return REX::EqualsIgnoreCase(std::string_view(a_func.functionName), a_name);
 		});
 		if (functionIt == functions.end()) {
@@ -58,7 +60,7 @@ namespace RE
 	{
 		const auto functions = GetConsoleFunctions();
 
-		const auto functionIt = std::ranges::find_if(functions, [a_name](const SCRIPT_FUNCTION& a_func) noexcept {
+		const auto functionIt = std::ranges::find_if(functions, [a_name](const SCRIPT_FUNCTION& a_func) noexcept -> bool {
 			return REX::EqualsIgnoreCase(std::string_view(a_func.shortName), a_name);
 		});
 		if (functionIt == functions.end()) {
@@ -72,7 +74,7 @@ namespace RE
 	{
 		const auto functions = GetScriptFunctions();
 
-		const auto functionIt = std::ranges::find_if(functions, [a_name](const SCRIPT_FUNCTION& a_func) noexcept {
+		const auto functionIt = std::ranges::find_if(functions, [a_name](const SCRIPT_FUNCTION& a_func) noexcept -> bool {
 			return REX::EqualsIgnoreCase(std::string_view(a_func.shortName), a_name);
 		});
 		if (functionIt == functions.end()) {

@@ -29,7 +29,8 @@ namespace RE
 		virtual OBJECT_CATEGORY_TYPE GetObjectCategory() const;		  // 06
 		virtual BGSMod::Property::BridgeI* GetPropertyBridge() const; // 07 - { return nullptr; }
 
-		[[nodiscard]] static auto GetFormFactories() -> std::span<IFormFactory*, std::to_underlying(FormType::kTotal)>;
+		[[nodiscard]] static auto GetFormFactories()
+			-> std::span<IFormFactory*, std::to_underlying(FormType::kTotal)>;
 	};
 	static_assert(sizeof(IFormFactory) == 0x08);
 }

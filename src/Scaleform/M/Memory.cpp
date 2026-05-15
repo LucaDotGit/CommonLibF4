@@ -127,10 +127,11 @@ namespace Scaleform
 	{
 		try {
 			auto* mem = malloc(a_count * a_size);
-			if (mem) {
-				REL::MemWriteZero(mem, a_count * a_size);
+			if (!mem) {
+				return nullptr;
 			}
 
+			REL::MemWriteZero(mem, a_count * a_size);
 			return mem;
 		}
 		catch (...) {
@@ -151,11 +152,17 @@ namespace Scaleform
 	__declspec(allocator) __declspec(restrict) void* aligned_realloc(void* a_ptr, std::size_t a_newSize, std::align_val_t a_alignment) noexcept
 	{
 		try {
-			if (a_ptr) {
-				Memory::Free(a_ptr);
+			auto* mem = Memory::Realloc(a_ptr, a_newSize);
+			if (!mem) {
+				return nullptr;
 			}
 
-			return Memory::Alloc(a_newSize, a_alignment);
+			if (std::align(static_cast<std::size_t>(a_alignment), 1, mem, a_newSize)) {
+				return mem;
+			}
+
+			Memory::Free(mem);
+			return nullptr;
 		}
 		catch (...) {
 			return nullptr;
@@ -172,7 +179,7 @@ namespace Scaleform
 			Memory::Free(a_ptr);
 		}
 		catch (...) {
-			REX::DeallocationFail();
+			REX::Fail("Failed to free memory."sv);
 		}
 	}
 

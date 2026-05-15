@@ -73,6 +73,7 @@ namespace RE
 		void SetState(TESCameraState* a_newState);
 		void SetState(const BSTSmartPointer<TESCameraState>& a_newState);
 
+		bool GetCameraPosition(NiPoint3& a_outPosition, bool a_addPlayerPos) const;
 		void ToggleFreeCameraMode(bool a_freezeTime);
 		void StartPipboyMode(bool a_forcePipboyModeCamera);
 		void StopPipboyMode();

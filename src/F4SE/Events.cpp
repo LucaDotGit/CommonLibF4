@@ -87,7 +87,7 @@ namespace F4SE::Events
 		};
 
 		F4SE::GetPapyrusInterface()->GetExternalEventRegistrations(a_eventName.data(), std::addressof(eventVisitor),
-			[](RE::BSScript::ObjectHandle a_objectHandle, const char* a_scriptName, const char* a_callbackName, void* a_data) {
+			[](RE::BSScript::ObjectHandle a_objectHandle, const char* a_scriptName, const char* a_callbackName, void* a_data) -> void {
 				const auto* eventVisitor = static_cast<const ExternalEventVisitor*>(a_data);
 				if (!eventVisitor) [[unlikely]] {
 					REX::Assert(false);
@@ -114,7 +114,8 @@ namespace F4SE::Events
 		return eventVisitor.hasFound;
 	}
 
-	auto GetExternalEventRegistrations(const RE::BSFixedString& a_eventName) -> std::vector<ExternalEventInfo>
+	auto GetExternalEventRegistrations(const RE::BSFixedString& a_eventName)
+		-> std::vector<ExternalEventInfo>
 	{
 		class ExternalEventCollector final
 		{
@@ -125,7 +126,7 @@ namespace F4SE::Events
 		auto eventCollector = ExternalEventCollector();
 
 		F4SE::GetPapyrusInterface()->GetExternalEventRegistrations(a_eventName.data(), std::addressof(eventCollector),
-			[](RE::BSScript::ObjectHandle a_objectHandle, const char* a_scriptName, const char* a_callbackName, void* a_data) {
+			[](RE::BSScript::ObjectHandle a_objectHandle, const char* a_scriptName, const char* a_callbackName, void* a_data) -> void {
 				const auto* eventCollector = static_cast<const ExternalEventCollector*>(a_data);
 				if (!eventCollector) [[unlikely]] {
 					REX::Assert(false);

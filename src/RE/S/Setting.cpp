@@ -59,16 +59,16 @@ namespace RE
 		SetFloat(a_value);
 	}
 
-	Setting::Setting(const char* a_key, const char* a_value) noexcept
+	Setting::Setting(const char* a_key, char* a_value) noexcept
 	{
 		SetKey(a_key);
 		SetString(a_value);
 	}
 
-	Setting::Setting(const char* a_key, REX::zstring_view a_value) noexcept
+	Setting::Setting(const char* a_key, REX::zstring_view a_value)
 	{
 		SetKey(a_key);
-		SetString(a_value);
+		SetStringView(a_value);
 	}
 
 	Setting::Setting(const char* a_key, std::span<const std::uint8_t, 3> a_value) noexcept
@@ -157,9 +157,9 @@ namespace RE
 		return *this;
 	}
 
-	Setting& Setting::operator=(REX::zstring_view a_value) noexcept
+	Setting& Setting::operator=(REX::zstring_view a_value)
 	{
-		SetString(a_value);
+		SetStringView(a_value);
 		return *this;
 	}
 
@@ -541,10 +541,11 @@ namespace RE
 	void Setting::SetString(char* a_value) noexcept
 	{
 		REX::Assert(this->IsString());
+
 		_value.string = a_value;
 	}
 
-	void Setting::SetString(REX::zstring_view a_value) noexcept
+	void Setting::SetStringView(REX::zstring_view a_value)
 	{
 		REX::Assert(this->IsString());
 
@@ -554,7 +555,7 @@ namespace RE
 
 		auto* newValue = calloc<char>(a_value.size() + sizeof(char));
 		if (!newValue) [[unlikely]] {
-			REX::AllocationFail();
+			throw std::bad_alloc();
 		}
 
 		std::ranges::copy(a_value, newValue);
@@ -657,7 +658,7 @@ namespace RE
 				break;
 			}
 			case SETTING_TYPE::kString: {
-				SetString(a_other.GetString());
+				SetStringView(a_other.GetStringView());
 				break;
 			}
 			case SETTING_TYPE::kRGB: {

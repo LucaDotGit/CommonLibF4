@@ -11,8 +11,8 @@ namespace RE
 	};
 	static_assert(std::is_empty_v<hkMapOperations<std::any>>);
 
-	template <class T, class U, class Operations = hkMapOperations<T>>
-	class hkMapBase
+	template <class T, class U, class Operations = hkMapOperations<T>, class Allocator = hkContainerHeapAllocator>
+	class hkMap
 	{
 	public:
 		class Pair
@@ -24,17 +24,9 @@ namespace RE
 		};
 
 		// members
-		Pair* elem;			   // 00
+		Pair* element;		   // 00
 		std::int32_t numElems; // 08
 		std::int32_t hashMod;  // 0C
-	};
-	static_assert(sizeof(hkMapBase<std::any, std::any>) == 0x10);
-
-	template <class T, class U, class Operations = hkMapOperations<T>, class Allocator = hkContainerHeapAllocator>
-	class hkMap
-		: public hkMapBase<T, U, Operations>
-	{
-	public:
 	};
 	static_assert(sizeof(hkMap<std::any, std::any>) == 0x10);
 

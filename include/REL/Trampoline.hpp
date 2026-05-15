@@ -95,7 +95,8 @@ namespace REL
 		std::size_t _size{ 0 };
 	};
 
-	[[nodiscard]] auto GetTrampoline() -> const REX::NotNull<std::unique_ptr<Trampoline>>&;
+	[[nodiscard]] auto GetTrampoline()
+		-> const REX::NotNull<std::unique_ptr<Trampoline>>&;
 }
 
 #include "REL/Trampoline.inl"

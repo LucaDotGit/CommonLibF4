@@ -56,7 +56,7 @@ namespace RE::PowerArmor
 	{
 		using FuncType = decltype(&PowerArmor::SyncFurnitureVisualsToInventory);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::PowerArmor::SyncFurnitureVisualsToInventory };
-		FUNC(a_furniture, a_force3DUpdate, a_tempItemToAdd, a_hideCore);
+		std::invoke(FUNC, a_furniture, a_force3DUpdate, a_tempItemToAdd, a_hideCore);
 	}
 
 	Setting& GetNewBatteryCapacity()

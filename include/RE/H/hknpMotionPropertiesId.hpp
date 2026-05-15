@@ -14,6 +14,8 @@ namespace RE
 		: public hkHandle<std::uint16_t, std::numeric_limits<std::uint16_t>::max(), hknpMotionPropertiesIdBaseDiscriminant>
 	{
 	public:
+		using hkHandle::hkHandle;
+
 		enum class Preset : std::uint16_t
 		{
 			kInvalid = std::numeric_limits<std::uint16_t>::max(),

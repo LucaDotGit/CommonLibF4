@@ -90,89 +90,135 @@ namespace Scaleform
 
 	template <class T>
 	struct StlAllocator
-		: public std::allocator<T>
 	{
 	public:
 		using value_type = T;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
+		using propagate_on_container_move_assignment = std::true_type;
 
-		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(std::size_t a_count) noexcept
+		constexpr StlAllocator() noexcept = default;
+		constexpr ~StlAllocator() noexcept = default;
+
+		constexpr StlAllocator(const StlAllocator&) noexcept = default;
+		constexpr StlAllocator(StlAllocator&&) noexcept = default;
+
+		constexpr StlAllocator& operator=(const StlAllocator&) noexcept = default;
+		constexpr StlAllocator& operator=(StlAllocator&&) noexcept = default;
+
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(size_type a_count)
 		{
 			auto* mem = malloc<value_type>(a_count * sizeof(value_type));
 			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
+				throw std::bad_alloc();
 			}
 
 			return mem;
 		}
 
-		__declspec(noalias) void deallocate(value_type* a_ptr, [[maybe_unused]] std::size_t a_count) noexcept
+		__declspec(noalias) void deallocate(value_type* a_ptr, [[maybe_unused]] size_type a_count) noexcept
 		{
 			free(static_cast<void*>(a_ptr));
 		}
 	};
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator==([[maybe_unused]] const StlAllocator<T1>& a_lhs, [[maybe_unused]] const StlAllocator<T2>& a_rhs) noexcept
+	{
+		return true;
+	}
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator!=([[maybe_unused]] const StlAllocator<T1>& a_lhs, [[maybe_unused]] const StlAllocator<T2>& a_rhs) noexcept
+	{
+		return false;
+	}
 
 	template <class T>
 	struct StlAlignedAllocator
-		: public std::allocator<T>
 	{
 	public:
 		using value_type = T;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
+		using propagate_on_container_move_assignment = std::true_type;
 
-		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(std::size_t a_count) noexcept
+		constexpr StlAlignedAllocator() noexcept = default;
+		constexpr ~StlAlignedAllocator() noexcept = default;
+
+		constexpr StlAlignedAllocator(const StlAlignedAllocator&) noexcept = default;
+		constexpr StlAlignedAllocator(StlAlignedAllocator&&) noexcept = default;
+
+		constexpr StlAlignedAllocator& operator=(const StlAlignedAllocator&) noexcept = default;
+		constexpr StlAlignedAllocator& operator=(StlAlignedAllocator&&) noexcept = default;
+
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(size_type a_count)
 		{
 			auto* mem = aligned_alloc<value_type>(a_count * sizeof(value_type), static_cast<std::align_val_t>(alignof(value_type)));
 			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
+				throw std::bad_alloc();
 			}
 
 			return mem;
 		}
 
-		__declspec(noalias) void deallocate(value_type* a_ptr, [[maybe_unused]] std::size_t a_count) noexcept
+		__declspec(noalias) void deallocate(value_type* a_ptr, [[maybe_unused]] size_type a_count) noexcept
 		{
 			free(static_cast<void*>(a_ptr));
 		}
 	};
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator==([[maybe_unused]] const StlAlignedAllocator<T1>& a_lhs, [[maybe_unused]] const StlAlignedAllocator<T2>& a_rhs) noexcept
+	{
+		return true;
+	}
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator!=([[maybe_unused]] const StlAlignedAllocator<T1>& a_lhs, [[maybe_unused]] const StlAlignedAllocator<T2>& a_rhs) noexcept
+	{
+		return false;
+	}
 }
 
 #define SF_HEAP_REDEFINE_NEW(a_type)                                                                                    \
 	static_assert(std::is_class_v<a_type>);                                                                             \
                                                                                                                         \
-	[[nodiscard]] void* operator new(std::size_t a_size) noexcept                                                       \
+	[[nodiscard]] void* operator new(std::size_t a_size)                                                                \
 	{                                                                                                                   \
 		auto* mem = Scaleform::malloc(a_size);                                                                          \
 		if (!mem) [[unlikely]] {                                                                                        \
-			REX::AllocationFail();                                                                                      \
+			throw std::bad_alloc();                                                                                     \
 		}                                                                                                               \
                                                                                                                         \
 		return mem;                                                                                                     \
 	}                                                                                                                   \
                                                                                                                         \
-	[[nodiscard]] void* operator new[](std::size_t a_size) noexcept                                                     \
+	[[nodiscard]] void* operator new[](std::size_t a_size)                                                              \
 	{                                                                                                                   \
 		auto* mem = Scaleform::malloc(a_size);                                                                          \
 		if (!mem) [[unlikely]] {                                                                                        \
-			REX::AllocationFail();                                                                                      \
+			throw std::bad_alloc();                                                                                     \
 		}                                                                                                               \
                                                                                                                         \
 		return mem;                                                                                                     \
 	}                                                                                                                   \
                                                                                                                         \
-	[[nodiscard]] void* operator new(std::size_t a_size, std::align_val_t a_alignment) noexcept                         \
+	[[nodiscard]] void* operator new(std::size_t a_size, std::align_val_t a_alignment)                                  \
 	{                                                                                                                   \
 		auto* mem = Scaleform::aligned_alloc(a_size, a_alignment);                                                      \
 		if (!mem) [[unlikely]] {                                                                                        \
-			REX::AllocationFail();                                                                                      \
+			throw std::bad_alloc();                                                                                     \
 		}                                                                                                               \
                                                                                                                         \
 		return mem;                                                                                                     \
 	}                                                                                                                   \
                                                                                                                         \
-	[[nodiscard]] void* operator new[](std::size_t a_size, std::align_val_t a_alignment) noexcept                       \
+	[[nodiscard]] void* operator new[](std::size_t a_size, std::align_val_t a_alignment)                                \
 	{                                                                                                                   \
 		auto* mem = Scaleform::aligned_alloc(a_size, a_alignment);                                                      \
 		if (!mem) [[unlikely]] {                                                                                        \
-			REX::AllocationFail();                                                                                      \
+			throw std::bad_alloc();                                                                                     \
 		}                                                                                                               \
                                                                                                                         \
 		return mem;                                                                                                     \

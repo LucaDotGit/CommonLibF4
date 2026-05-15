@@ -45,7 +45,7 @@ namespace RE
 		BSTDataBuffer(const BSTDataBuffer& a_rhs) = delete;
 
 		BSTDataBuffer(BSTDataBuffer&& a_rhs) noexcept
-			: _buffer(std::exchange(a_rhs._buffer, nullptr)),
+			: _data(std::exchange(a_rhs._data, nullptr)),
 			  _size(std::exchange(a_rhs._size, 0))
 		{
 		}
@@ -60,7 +60,7 @@ namespace RE
 
 			free_buffer();
 
-			_buffer = std::exchange(a_rhs._buffer, nullptr);
+			_data = std::exchange(a_rhs._data, nullptr);
 			_size = std::exchange(a_rhs._size, 0);
 			return *this;
 		}
@@ -88,8 +88,8 @@ namespace RE
 		[[nodiscard]] reference back() noexcept { return at(size() - 1); }
 		[[nodiscard]] const_reference back() const noexcept { return at(size() - 1); }
 
-		[[nodiscard]] pointer data() noexcept { return _buffer; }
-		[[nodiscard]] const_pointer data() const noexcept { return _buffer; }
+		[[nodiscard]] pointer data() noexcept { return _data; }
+		[[nodiscard]] const_pointer data() const noexcept { return _data; }
 
 		[[nodiscard]] iterator begin() noexcept { return data(); }
 		[[nodiscard]] const_iterator begin() const noexcept { return data(); }
@@ -114,11 +114,11 @@ namespace RE
 
 		[[nodiscard]] bool has_block(std::uint8_t a_id) const noexcept
 		{
-			if (!_buffer || a_id == INVALID_ID) {
+			if (!_data || a_id == INVALID_ID) {
 				return false;
 			}
 
-			auto* blocks = reinterpret_cast<Block*>(_buffer + _size);
+			auto* blocks = reinterpret_cast<Block*>(_data + _size);
 
 			for (auto i = static_cast<size_type>(0); i < MAX_SIZE; i++) {
 				const auto& block = blocks[i];
@@ -132,11 +132,11 @@ namespace RE
 
 		[[nodiscard]] std::pair<Block*, std::uint32_t> get_block(std::uint8_t a_id) noexcept
 		{
-			if (!_buffer || a_id == INVALID_ID) {
+			if (!_data || a_id == INVALID_ID) {
 				return { nullptr, 0 };
 			}
 
-			auto* blocks = reinterpret_cast<Block*>(_buffer + _size);
+			auto* blocks = reinterpret_cast<Block*>(_data + _size);
 
 			auto offset = static_cast<size_type>(0);
 			for (auto i = static_cast<size_type>(0); i < MAX_SIZE; i++) {
@@ -153,11 +153,11 @@ namespace RE
 
 		[[nodiscard]] std::pair<const Block*, std::uint32_t> get_block(std::uint8_t a_id) const noexcept
 		{
-			if (!_buffer || a_id == INVALID_ID) {
+			if (!_data || a_id == INVALID_ID) {
 				return { nullptr, 0 };
 			}
 
-			const auto* blocks = reinterpret_cast<const Block*>(_buffer + _size);
+			const auto* blocks = reinterpret_cast<const Block*>(_data + _size);
 
 			auto offset = static_cast<size_type>(0);
 			for (auto i = static_cast<size_type>(0); i < MAX_SIZE; i++) {
@@ -180,7 +180,7 @@ namespace RE
 				return {};
 			}
 
-			return { reinterpret_cast<T*>(_buffer + offset), block->size / sizeof(T) };
+			return { reinterpret_cast<T*>(_data + offset), block->size / sizeof(T) };
 		}
 
 		template <class T>
@@ -191,7 +191,7 @@ namespace RE
 				return {};
 			}
 
-			return { reinterpret_cast<const T*>(_buffer + offset), block->size / sizeof(T) };
+			return { reinterpret_cast<const T*>(_data + offset), block->size / sizeof(T) };
 		}
 
 		void swap(BSTDataBuffer& a_other) noexcept
@@ -200,24 +200,27 @@ namespace RE
 				return;
 			}
 
-			std::swap(_buffer, a_other._buffer);
+			std::swap(_data, a_other._data);
 			std::swap(_size, a_other._size);
 		}
 
 	private:
+		template <std::uint32_t, class>
+		friend class BSTDataBuffer;
+
 		void free_buffer()
 		{
-			if (_buffer) {
-				Allocator::deallocate_bytes(_buffer);
-				_buffer = nullptr;
+			if (_data) {
+				Allocator::deallocate_bytes(_data);
+				_data = nullptr;
 			}
 
 			_size = 0;
 		}
 
 		// members
-		value_type* _buffer{ nullptr }; // 00
-		size_type _size{ 0 };			// 08
+		value_type* _data{ nullptr }; // 00
+		size_type _size{ 0 };		  // 08
 	};
 
 	extern template class BSTDataBuffer<1>;
@@ -246,12 +249,7 @@ namespace RE
 
 		[[nodiscard]] __declspec(allocator) __declspec(restrict) static void* allocate_bytes(size_type a_count) noexcept
 		{
-			auto* mem = calloc<std::byte>(a_count);
-			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
-			}
-
-			return mem;
+			return calloc<std::byte>(a_count);
 		}
 
 		__declspec(noalias) static void deallocate_bytes(void* a_ptr) noexcept

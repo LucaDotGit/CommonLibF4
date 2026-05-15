@@ -14,7 +14,7 @@ namespace RE
 		{
 			static const auto SINGLETON = REL::Relocation<EventSourceType**>{ ID::UIAdvanceMenusFunctionCompleteEvent::GetEventSource };
 			if (!*SINGLETON) {
-				*SINGLETON = new EventSourceType(std::addressof(BSTGlobalEvent::GetSingleton()->eventSourceSDMKiller));
+				*SINGLETON = new EventSourceType(BSTGlobalEvent::GetSingleton()->eventSourceSDMKiller);
 			}
 
 			return *SINGLETON;

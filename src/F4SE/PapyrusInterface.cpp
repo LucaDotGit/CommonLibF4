@@ -9,7 +9,7 @@ namespace F4SE::Impl
 		void(F4SE_API* GetExternalEventRegistrations)(const char*, void*, void*);
 	};
 
-	[[nodiscard]] static const F4SEPapyrusInterface& GetProxy(const PapyrusInterface* a_interface) noexcept
+	[[nodiscard]] __forceinline static const F4SEPapyrusInterface& GetProxy(const PapyrusInterface* a_interface) noexcept
 	{
 		return reinterpret_cast<const F4SEPapyrusInterface&>(*a_interface);
 	}
@@ -22,14 +22,11 @@ namespace F4SE
 		return Impl::GetProxy(this).interfaceVersion;
 	}
 
-	bool PapyrusInterface::Register(REX::NotNull<REX::Observer<RegisterFunctions*>> a_callback) const
+	void PapyrusInterface::Register(REX::NotNull<REX::Observer<RegisterFunctions*>> a_callback) const
 	{
-		const auto result = Impl::GetProxy(this).Register(reinterpret_cast<void*>(a_callback.get()));
-		if (!result) [[unlikely]] {
-			REX::Fail("Failed to register papyrus callback."sv);
+		if (!Impl::GetProxy(this).Register(reinterpret_cast<void*>(a_callback.get()))) [[unlikely]] {
+			REX::Fail("Failed to register Papyrus callback."sv);
 		}
-
-		return result;
 	}
 
 	void PapyrusInterface::GetExternalEventRegistrations(const char* a_eventName, void* a_data, REX::NotNull<REX::Observer<RegistrantFunctor*>> a_functor) const

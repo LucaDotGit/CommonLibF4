@@ -93,8 +93,10 @@ namespace RE
 
 		[[nodiscard]] static Calendar* GetSingleton();
 
-		[[nodiscard]] static auto GetAllDayNames() -> std::span<const std::string_view, DAY_SETTING_KEYS.size()>;
-		[[nodiscard]] static auto GetAllMonthNames() -> std::span<const std::string_view, MONTH_SETTING_KEYS.size()>;
+		[[nodiscard]] static auto GetAllDayNames()
+			-> std::span<const std::string_view, DAY_SETTING_KEYS.size()>;
+		[[nodiscard]] static auto GetAllMonthNames()
+			-> std::span<const std::string_view, MONTH_SETTING_KEYS.size()>;
 
 		[[nodiscard]] static std::string_view GetNameOfDay(DayOfWeek a_dayOfWeek);
 		[[nodiscard]] static std::string_view GetNameOfMonth(Month a_month);

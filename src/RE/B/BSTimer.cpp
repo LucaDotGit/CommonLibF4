@@ -44,7 +44,7 @@ namespace RE
 	{
 		using FuncType = decltype(&BSTimer::SetGlobalTimeMultiplier);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSTimer::SetGlobalTimeMultiplier };
-		FUNC(this, a_mult, a_now);
+		std::invoke(FUNC, this, a_mult, a_now);
 	}
 
 	BSTimer::Milliseconds BSTimer::GetInitTime() const noexcept

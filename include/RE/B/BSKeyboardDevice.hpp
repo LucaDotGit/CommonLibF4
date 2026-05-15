@@ -13,7 +13,7 @@ namespace RE
 		inline static constexpr auto VTABLE{ VTABLE::BSKeyboardDevice };
 		inline static constexpr auto DEVICE_TYPE{ INPUT_DEVICE::kKeyboard };
 
-		// override(BSInputDevice)
+		// override (BSInputDevice)
 		~BSKeyboardDevice() override; // 04
 	};
 	static_assert(sizeof(BSKeyboardDevice) == 0x70);

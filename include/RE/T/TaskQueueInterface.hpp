@@ -22,49 +22,49 @@ namespace RE
 		{
 			using FuncType = decltype(&TaskQueueInterface::QueueClosePipboy);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::TaskQueueInterface::QueueClosePipboy };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void QueueRebuildBendableSpline(TESObjectREFR& a_ref, bool a_createPhysics, NiAVObject* a_childNode)
 		{
 			using FuncType = decltype(&TaskQueueInterface::QueueRebuildBendableSpline);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::TaskQueueInterface::QueueRebuildBendableSpline };
-			FUNC(this, a_ref, a_createPhysics, a_childNode);
+			std::invoke(FUNC, this, a_ref, a_createPhysics, a_childNode);
 		}
 
 		void QueueShow1stPerson(bool a_show1stPerson)
 		{
 			using FuncType = decltype(&TaskQueueInterface::QueueShow1stPerson);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::TaskQueueInterface::QueueShow1stPerson };
-			FUNC(this, a_show1stPerson);
+			std::invoke(FUNC, this, a_show1stPerson);
 		}
 
 		void QueueShowPipboy(DEFAULT_OBJECT a_animType)
 		{
 			using FuncType = decltype(&TaskQueueInterface::QueueShowPipboy);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::TaskQueueInterface::QueueShowPipboy };
-			FUNC(this, a_animType);
+			std::invoke(FUNC, this, a_animType);
 		}
 
 		void QueueUpdate3D(TESObjectREFR* a_ref, std::uint32_t a_flags)
 		{
 			using FuncType = decltype(&TaskQueueInterface::QueueUpdate3D);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::TaskQueueInterface::QueueUpdate3D };
-			FUNC(this, a_ref, a_flags);
+			std::invoke(FUNC, this, a_ref, a_flags);
 		}
 
 		void QueueWeaponFire(TESObjectWEAP* a_weapon, TESObjectREFR* a_refObject, BGSEquipIndex a_equipIndex, TESAmmo* a_ammo)
 		{
 			using FuncType = decltype(&TaskQueueInterface::QueueWeaponFire);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::TaskQueueInterface::QueueWeaponFire };
-			FUNC(this, a_weapon, a_refObject, a_equipIndex, a_ammo);
+			std::invoke(FUNC, this, a_weapon, a_refObject, a_equipIndex, a_ammo);
 		}
 
 		void TaskUnpackFunc(const BSPackedTask& a_task)
 		{
 			using FuncType = decltype(&TaskQueueInterface::TaskUnpackFunc);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::TaskQueueInterface::TaskUnpackFunc };
-			FUNC(this, a_task);
+			std::invoke(FUNC, this, a_task);
 		}
 
 		// members

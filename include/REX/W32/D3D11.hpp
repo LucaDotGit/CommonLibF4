@@ -100,7 +100,7 @@ namespace REX::W32
 
 	inline constexpr auto D3D11_COMMONSHADER_TEMP_REGISTER_COMPONENTS{ 4 };
 	inline constexpr auto D3D11_COMMONSHADER_TEMP_REGISTER_COMPONENT_BIT_COUNT{ 32 };
-	inline constexpr auto D3D11_COMMONSHADER_TEMP_REGISTER_COUNT{ 4096 };
+	inline constexpr auto D3D11_COMMONSHADER_TEMP_REGISTER_COUNT{ 0x1000 };
 	inline constexpr auto D3D11_COMMONSHADER_TEMP_REGISTER_READS_PER_INST{ 3 };
 	inline constexpr auto D3D11_COMMONSHADER_TEMP_REGISTER_READ_PORTS{ 3 };
 
@@ -168,9 +168,9 @@ namespace REX::W32
 
 	inline constexpr auto D3D11_CS_4_X_UAV_REGISTER_COUNT{ 1 };
 
-	inline constexpr auto D3D11_CS_DISPATCH_MAX_THREAD_GROUPS_PER_DIMENSION{ 65535 };
+	inline constexpr auto D3D11_CS_DISPATCH_MAX_THREAD_GROUPS_PER_DIMENSION{ 0xFFFF };
 
-	inline constexpr auto D3D11_CS_TGSM_REGISTER_COUNT{ 8192 };
+	inline constexpr auto D3D11_CS_TGSM_REGISTER_COUNT{ 0x2000 };
 	inline constexpr auto D3D11_CS_TGSM_REGISTER_READS_PER_INST{ 1 };
 
 	inline constexpr auto D3D11_CS_TGSM_RESOURCE_REGISTER_COMPONENTS{ 1 };
@@ -188,16 +188,16 @@ namespace REX::W32
 	inline constexpr auto D3D11_CS_THREADID_REGISTER_COMPONENTS{ 3 };
 	inline constexpr auto D3D11_CS_THREADID_REGISTER_COUNT{ 1 };
 
-	inline constexpr auto D3D11_CS_THREAD_GROUP_MAX_THREADS_PER_GROUP{ 1024 };
+	inline constexpr auto D3D11_CS_THREAD_GROUP_MAX_THREADS_PER_GROUP{ 0x400 };
 
-	inline constexpr auto D3D11_CS_THREAD_GROUP_MAX_X{ 1024 };
-	inline constexpr auto D3D11_CS_THREAD_GROUP_MAX_Y{ 1024 };
+	inline constexpr auto D3D11_CS_THREAD_GROUP_MAX_X{ 0x400 };
+	inline constexpr auto D3D11_CS_THREAD_GROUP_MAX_Y{ 0x400 };
 	inline constexpr auto D3D11_CS_THREAD_GROUP_MAX_Z{ 64 };
 	inline constexpr auto D3D11_CS_THREAD_GROUP_MIN_X{ 1 };
 	inline constexpr auto D3D11_CS_THREAD_GROUP_MIN_Y{ 1 };
 	inline constexpr auto D3D11_CS_THREAD_GROUP_MIN_Z{ 1 };
 
-	inline constexpr auto D3D11_CS_THREAD_LOCAL_TEMP_REGISTER_POOL{ 16384 };
+	inline constexpr auto D3D11_CS_THREAD_LOCAL_TEMP_REGISTER_POOL{ 0x4000 };
 
 	inline constexpr auto D3D11_DEFAULT_BLEND_FACTOR_ALPHA{ 1.0_f32 };
 	inline constexpr auto D3D11_DEFAULT_BLEND_FACTOR_BLUE{ 1.0_f32 };
@@ -306,7 +306,7 @@ namespace REX::W32
 
 	inline constexpr auto D3D11_GS_MAX_INSTANCE_COUNT{ 32 };
 
-	inline constexpr auto D3D11_GS_MAX_OUTPUT_VERTEX_COUNT_ACROSS_INSTANCES{ 1024 };
+	inline constexpr auto D3D11_GS_MAX_OUTPUT_VERTEX_COUNT_ACROSS_INSTANCES{ 0x400 };
 
 	inline constexpr auto D3D11_GS_OUTPUT_ELEMENTS{ 32 };
 
@@ -450,58 +450,58 @@ namespace REX::W32
 	inline constexpr auto D3D11_PS_PIXEL_CENTER_FRACTIONAL_COMPONENT{ 0.5_f32 };
 	inline constexpr auto D3D11_RAW_UAV_SRV_BYTE_ALIGNMENT{ 16 };
 
-	inline constexpr auto D3D11_REQ_BLEND_OBJECT_COUNT_PER_DEVICE{ 4096 };
+	inline constexpr auto D3D11_REQ_BLEND_OBJECT_COUNT_PER_DEVICE{ 0x1000 };
 
 	inline constexpr auto D3D11_REQ_BUFFER_RESOURCE_TEXEL_COUNT_2_TO_EXP{ 27 };
 
-	inline constexpr auto D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT{ 4096 };
+	inline constexpr auto D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT{ 0x1000 };
 
-	inline constexpr auto D3D11_REQ_DEPTH_STENCIL_OBJECT_COUNT_PER_DEVICE{ 4096 };
+	inline constexpr auto D3D11_REQ_DEPTH_STENCIL_OBJECT_COUNT_PER_DEVICE{ 0x1000 };
 
 	inline constexpr auto D3D11_REQ_DRAWINDEXED_INDEX_COUNT_2_TO_EXP{ 32 };
 
 	inline constexpr auto D3D11_REQ_DRAW_VERTEX_COUNT_2_TO_EXP{ 32 };
 
-	inline constexpr auto D3D11_REQ_FILTERING_HW_ADDRESSABLE_RESOURCE_DIMENSION{ 16384 };
+	inline constexpr auto D3D11_REQ_FILTERING_HW_ADDRESSABLE_RESOURCE_DIMENSION{ 0x4000 };
 
-	inline constexpr auto D3D11_REQ_GS_INVOCATION_32BIT_OUTPUT_COMPONENT_LIMIT{ 1024 };
+	inline constexpr auto D3D11_REQ_GS_INVOCATION_32BIT_OUTPUT_COMPONENT_LIMIT{ 0x400 };
 
-	inline constexpr auto D3D11_REQ_IMMEDIATE_CONSTANT_BUFFER_ELEMENT_COUNT{ 4096 };
+	inline constexpr auto D3D11_REQ_IMMEDIATE_CONSTANT_BUFFER_ELEMENT_COUNT{ 0x1000 };
 
 	inline constexpr auto D3D11_REQ_MAXANISOTROPY{ 16 };
 
 	inline constexpr auto D3D11_REQ_MIP_LEVELS{ 15 };
 
-	inline constexpr auto D3D11_REQ_MULTI_ELEMENT_STRUCTURE_SIZE_IN_BYTES{ 2048 };
+	inline constexpr auto D3D11_REQ_MULTI_ELEMENT_STRUCTURE_SIZE_IN_BYTES{ 0x800 };
 
-	inline constexpr auto D3D11_REQ_RASTERIZER_OBJECT_COUNT_PER_DEVICE{ 4096 };
+	inline constexpr auto D3D11_REQ_RASTERIZER_OBJECT_COUNT_PER_DEVICE{ 0x1000 };
 
-	inline constexpr auto D3D11_REQ_RENDER_TO_BUFFER_WINDOW_WIDTH{ 16384 };
+	inline constexpr auto D3D11_REQ_RENDER_TO_BUFFER_WINDOW_WIDTH{ 0x4000 };
 
 	inline constexpr auto D3D11_REQ_RESOURCE_SIZE_IN_MEGABYTES_EXPRESSION_A_TERM{ 128 };
 	inline constexpr auto D3D11_REQ_RESOURCE_SIZE_IN_MEGABYTES_EXPRESSION_B_TERM{ 0.25_f32 };
-	inline constexpr auto D3D11_REQ_RESOURCE_SIZE_IN_MEGABYTES_EXPRESSION_C_TERM{ 2048 };
+	inline constexpr auto D3D11_REQ_RESOURCE_SIZE_IN_MEGABYTES_EXPRESSION_C_TERM{ 0x800 };
 
 	inline constexpr auto D3D11_REQ_RESOURCE_VIEW_COUNT_PER_DEVICE_2_TO_EXP{ 20 };
 
-	inline constexpr auto D3D11_REQ_SAMPLER_OBJECT_COUNT_PER_DEVICE{ 4096 };
+	inline constexpr auto D3D11_REQ_SAMPLER_OBJECT_COUNT_PER_DEVICE{ 0x1000 };
 
-	inline constexpr auto D3D11_REQ_TEXTURE1D_ARRAY_AXIS_DIMENSION{ 2048 };
-	inline constexpr auto D3D11_REQ_TEXTURE1D_U_DIMENSION{ 16384 };
-	inline constexpr auto D3D11_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION{ 2048 };
-	inline constexpr auto D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION{ 16384 };
-	inline constexpr auto D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION{ 2048 };
+	inline constexpr auto D3D11_REQ_TEXTURE1D_ARRAY_AXIS_DIMENSION{ 0x800 };
+	inline constexpr auto D3D11_REQ_TEXTURE1D_U_DIMENSION{ 0x4000 };
+	inline constexpr auto D3D11_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION{ 0x800 };
+	inline constexpr auto D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION{ 0x4000 };
+	inline constexpr auto D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION{ 0x800 };
 
-	inline constexpr auto D3D11_REQ_TEXTURECUBE_DIMENSION{ 16384 };
+	inline constexpr auto D3D11_REQ_TEXTURECUBE_DIMENSION{ 0x4000 };
 
 	inline constexpr auto D3D11_RESINFO_INSTRUCTION_MISSING_COMPONENT_RETVAL{ 0 };
 
 	inline constexpr auto D3D11_SHADER_MAJOR_VERSION{ 5 };
 
-	inline constexpr auto D3D11_SHADER_MAX_INSTANCES{ 65535 };
+	inline constexpr auto D3D11_SHADER_MAX_INSTANCES{ 0xFFFF };
 	inline constexpr auto D3D11_SHADER_MAX_INTERFACES{ 253 };
-	inline constexpr auto D3D11_SHADER_MAX_INTERFACE_CALL_SITES{ 4096 };
-	inline constexpr auto D3D11_SHADER_MAX_TYPES{ 65535 };
+	inline constexpr auto D3D11_SHADER_MAX_INTERFACE_CALL_SITES{ 0x1000 };
+	inline constexpr auto D3D11_SHADER_MAX_TYPES{ 0xFFFF };
 
 	inline constexpr auto D3D11_SHADER_MINOR_VERSION{ 0 };
 
@@ -510,8 +510,8 @@ namespace REX::W32
 
 	inline constexpr auto D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT{ 8 };
 
-	inline constexpr auto D3D11_SO_BUFFER_MAX_STRIDE_IN_BYTES{ 2048 };
-	inline constexpr auto D3D11_SO_BUFFER_MAX_WRITE_WINDOW_IN_BYTES{ 512 };
+	inline constexpr auto D3D11_SO_BUFFER_MAX_STRIDE_IN_BYTES{ 0x800 };
+	inline constexpr auto D3D11_SO_BUFFER_MAX_WRITE_WINDOW_IN_BYTES{ 0x200 };
 	inline constexpr auto D3D11_SO_BUFFER_SLOT_COUNT{ 4 };
 	inline constexpr auto D3D11_SO_DDI_REGISTER_INDEX_DENOTING_GAP{ 0xFFFFFFFF };
 	inline constexpr auto D3D11_SO_NO_RASTERIZED_STREAM{ 0xFFFFFFFF };
@@ -558,8 +558,8 @@ namespace REX::W32
 	inline constexpr auto D3D11_VIEWPORT_AND_SCISSORRECT_MAX_INDEX{ 15 };
 	inline constexpr auto D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE{ 16 };
 
-	inline constexpr auto D3D11_VIEWPORT_BOUNDS_MAX{ 32767 };
-	inline constexpr auto D3D11_VIEWPORT_BOUNDS_MIN{ -32768 };
+	inline constexpr auto D3D11_VIEWPORT_BOUNDS_MAX{ 0x7FFF };
+	inline constexpr auto D3D11_VIEWPORT_BOUNDS_MIN{ -0x7FFF };
 
 	inline constexpr auto D3D11_VS_INPUT_REGISTER_COMPONENTS{ 4 };
 	inline constexpr auto D3D11_VS_INPUT_REGISTER_COMPONENT_BIT_COUNT{ 32 };

@@ -33,7 +33,8 @@ namespace RE
 			kCanTunnel = 1 << 2
 		};
 
-		[[nodiscard]] static auto GetMaterialIDMap() -> BSTHashMap<std::uint32_t, BGSMaterialType*>&;
+		[[nodiscard]] static auto GetMaterialIDMap()
+			-> BSTHashMap<std::uint32_t, BGSMaterialType*>&;
 
 		[[nodiscard]] static BGSMaterialType* GetMaterialTypeByID(std::uint32_t a_materialID);
 

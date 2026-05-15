@@ -1,7 +1,6 @@
 #include "RE/T/TESReactionForm.hpp"
 
 #include "RE/G/GROUP_REACTION.hpp"
-#include "RE/T/TESFaction.hpp"
 
 namespace RE
 {
@@ -16,8 +15,6 @@ namespace RE
 
 			reactionList.push_back(reaction.release());
 		}
-
-		AddReactionChange();
 	}
 
 	void TESReactionForm::ClearReactions()
@@ -32,16 +29,5 @@ namespace RE
 		}
 
 		reactionList.clear();
-	}
-
-	bool TESReactionForm::AddReactionChange()
-	{
-		auto* faction = DynamicCast<TESFaction*>(this);
-		if (!faction) {
-			return false;
-		}
-
-		faction->AddChange(TESFaction::ChangeFlags::kReactions);
-		return true;
 	}
 }

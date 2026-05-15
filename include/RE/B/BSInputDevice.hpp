@@ -41,8 +41,10 @@ namespace RE
 		[[nodiscard]] bool ContainsButtonID(ButtonID a_buttonID) const;
 		[[nodiscard]] bool ContainsButtonName(const BSFixedStringCS& a_name) const;
 
-		[[nodiscard]] auto GetButtonInfoByID(ButtonID a_buttonID) const -> std::optional<std::pair<ButtonID, InputButton*>>;
-		[[nodiscard]] auto GetButtonInfoByName(const BSFixedStringCS& a_name) const -> std::optional<std::pair<ButtonID, InputButton*>>;
+		[[nodiscard]] auto GetButtonInfoByID(ButtonID a_buttonID) const
+			-> std::optional<std::pair<ButtonID, InputButton*>>;
+		[[nodiscard]] auto GetButtonInfoByName(const BSFixedStringCS& a_name) const
+			-> std::optional<std::pair<ButtonID, InputButton*>>;
 
 		void CreateButtonEvent(ButtonID a_buttonID, REX::Float32 a_deltaTime, bool a_prevPressed, bool a_currPressed);
 

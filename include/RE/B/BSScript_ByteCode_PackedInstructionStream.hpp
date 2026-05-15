@@ -18,7 +18,7 @@ namespace RE::BSScript::ByteCode
 		static_assert(sizeof(InstructionInfo) == 0x0C);
 
 		[[nodiscard]] std::uint32_t GetInstructionByteSize() const noexcept;
-		[[nodiscard]] PackedInstructionStream CopyInstructionStream() const noexcept;
+		[[nodiscard]] PackedInstructionStream CopyInstructionStream() const;
 
 		// members
 		std::uint32_t numInstructionBits;	 // 00

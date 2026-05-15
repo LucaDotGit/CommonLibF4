@@ -25,7 +25,7 @@ namespace RE
 		{
 			using FuncType = decltype(&BGSSaveGameBuffer::SaveDataEndian);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSSaveGameBuffer::SaveDataEndian };
-			FUNC(this, a_data, a_size);
+			std::invoke(FUNC, this, a_data, a_size);
 		}
 
 		// members

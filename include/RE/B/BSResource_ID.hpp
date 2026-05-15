@@ -27,7 +27,7 @@ namespace RE::BSResource
 		{
 			using FuncType = decltype(&ID::GenerateFromPath);
 			static const auto FUNC = REL::Relocation<FuncType>{ RE::ID::BSResource::ID::GenerateFromPath };
-			FUNC(this, a_path);
+			std::invoke(FUNC, this, a_path);
 		}
 
 		// members

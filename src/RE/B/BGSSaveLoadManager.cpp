@@ -20,7 +20,7 @@ namespace RE
 	{
 		using FuncType = decltype(&BGSSaveLoadManager::BuildSaveGameList);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSSaveLoadManager::BuildSaveGameList };
-		FUNC(this, a_playerID);
+		std::invoke(FUNC, this, a_playerID);
 	}
 
 	bool BGSSaveLoadManager::Autosave()
@@ -37,7 +37,7 @@ namespace RE
 	{
 		using FuncType = void (BGSSaveLoadManager::*)();
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSSaveLoadManager::BufferSceneScreenShot };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	bool BGSSaveLoadManager::DeleteSaveFile(const char* a_fileName, bool a_checkHasSaveData)
@@ -60,14 +60,14 @@ namespace RE
 	{
 		using FuncType = decltype(&BGSSaveLoadManager::GetFullPath);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSSaveLoadManager::GetFullPath };
-		FUNC(this, a_fileName, a_fullPath, a_tempFile);
+		std::invoke(FUNC, this, a_fileName, a_fullPath, a_tempFile);
 	}
 
 	void BGSSaveLoadManager::GetSaveDirectoryPath(char* a_path) const
 	{
 		using FuncType = decltype(&BGSSaveLoadManager::GetSaveDirectoryPath);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSSaveLoadManager::GetSaveDirectoryPath };
-		FUNC(this, a_path);
+		std::invoke(FUNC, this, a_path);
 	}
 
 	bool BGSSaveLoadManager::IsAutoSavingAllowed() const
@@ -105,7 +105,7 @@ namespace RE
 	{
 		using FuncType = decltype(&BGSSaveLoadManager::QueueSaveLoadTask);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSSaveLoadManager::QueueSaveLoadTask };
-		FUNC(this, a_task);
+		std::invoke(FUNC, this, a_task);
 	}
 
 	bool BGSSaveLoadManager::Quickload()
@@ -364,21 +364,21 @@ namespace RE
 	{
 		using FuncType = decltype(&BGSSaveLoadManager::AutosaveImpl);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSSaveLoadManager::AutosaveImpl };
-		FUNC(this, a_background);
+		std::invoke(FUNC, this, a_background);
 	}
 
 	void BGSSaveLoadManager::DeleteSaveFileImpl(const char* a_fileName, std::int32_t a_deviceID, bool a_checkHasSaveData)
 	{
 		using FuncType = decltype(&BGSSaveLoadManager::DeleteSaveFileImpl);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSSaveLoadManager::DeleteSaveFileImpl };
-		FUNC(this, a_fileName, a_deviceID, a_checkHasSaveData);
+		std::invoke(FUNC, this, a_fileName, a_deviceID, a_checkHasSaveData);
 	}
 
 	void BGSSaveLoadManager::GenerateSaveFileNameImpl(char* a_saveFileName, bool a_displayOnly, SAVEFILE_CATEGORY a_saveCategory)
 	{
 		using FuncType = decltype(&BGSSaveLoadManager::GenerateSaveFileNameImpl);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSSaveLoadManager::GenerateSaveFileNameImpl };
-		FUNC(this, a_saveFileName, a_displayOnly, a_saveCategory);
+		std::invoke(FUNC, this, a_saveFileName, a_displayOnly, a_saveCategory);
 	}
 
 	bool BGSSaveLoadManager::LoadGameImpl(const char* a_fileName, std::int32_t a_deviceID, std::uint32_t a_outputStats, bool a_checkForMods, bool a_ignoreMissingContent)

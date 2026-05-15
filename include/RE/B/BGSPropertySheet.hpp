@@ -24,7 +24,8 @@ namespace RE
 		void CopyComponent(BaseFormComponent* a_copy) override;					  // 05
 		void CopyComponent(BaseFormComponent* a_copy, TESForm* a_owner) override; // 06
 
-		[[nodiscard]] auto GetProperties() const noexcept -> std::optional<std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>>>;
+		[[nodiscard]] auto GetProperties() const noexcept
+			-> std::optional<std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>>>;
 		void SetProperties(std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>> a_properties);
 
 		// members

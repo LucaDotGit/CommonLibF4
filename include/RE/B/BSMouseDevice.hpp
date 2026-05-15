@@ -13,7 +13,7 @@ namespace RE
 		inline static constexpr auto VTABLE{ VTABLE::BSMouseDevice };
 		inline static constexpr auto DEVICE_TYPE{ INPUT_DEVICE::kMouse };
 
-		// override(BSInputDevice)
+		// override (BSInputDevice)
 		~BSMouseDevice() override; // 04
 	};
 	static_assert(sizeof(BSMouseDevice) == 0x70);

@@ -4,6 +4,7 @@
 
 #include "REX/Concepts.hpp"
 #include "REX/Convert.hpp"
+#include "REX/Error.hpp"
 #include "REX/ZString.hpp"
 
 #include <SimpleIni.h>
@@ -17,21 +18,41 @@ namespace REX::Ini
 	inline constexpr auto USE_QUOTES = true;
 	inline constexpr auto PREPEND_BOM = false;
 
-	template <
-		class NullType = std::nullptr_t,
-		class BoolType = bool,
-		class IntType = std::int64_t,
-		class UIntType = std::uint64_t,
-		class FloatType = REX::Float64,
-		class StringType = REX::zstring_view>
-	using VariantType = std::variant<NullType, BoolType, IntType, UIntType, FloatType, StringType>;
+	using ErrorNumber = SI_Error;
 
-	[[nodiscard]] auto CombineSetting(std::string_view a_section, std::string_view a_key) -> std::string;
+	struct TypeConfig
+	{
+	public:
+		using null_type = std::nullptr_t;
+		using bool_type = bool;
+		using int_type = std::int64_t;
+		using uint_type = std::uint64_t;
+		using float_type = REX::Float64;
+		using string_type = REX::zstring_view;
+	};
 
-	[[nodiscard]] auto SplitSetting(std::string_view a_setting) -> std::pair<std::string_view, std::string_view>;
+	template <class TypeConfig = Ini::TypeConfig>
+	using VariantType = std::variant<
+		typename TypeConfig::null_type,
+		typename TypeConfig::bool_type,
+		typename TypeConfig::int_type,
+		typename TypeConfig::uint_type,
+		typename TypeConfig::float_type,
+		typename TypeConfig::string_type>;
+
+	[[nodiscard]] bool IsValid(ErrorNumber a_errorCode) noexcept;
+
+	[[nodiscard]] REX::PosixError CreatePosixErrorCode(ErrorNumber a_errorCode) noexcept;
+
+	[[nodiscard]] auto CombineSetting(std::string_view a_section, std::string_view a_key)
+		-> std::string;
+
+	[[nodiscard]] auto SplitSetting(std::string_view a_setting)
+		-> std::pair<std::string_view, std::string_view>;
 
 	template <class T, class IniType>
-	[[nodiscard]] auto GetValue(const IniType& a_ini, REX::zstring_view a_section, REX::zstring_view a_key) -> std::optional<T>
+	[[nodiscard]] auto GetValue(const IniType& a_ini, REX::zstring_view a_section, REX::zstring_view a_key)
+		-> std::optional<T>
 		requires(REX::nullable<T>)
 	{
 		constexpr auto* DEFAULT_VALUE = static_cast<const char*>(nullptr);
@@ -58,7 +79,8 @@ namespace REX::Ini
 	}
 
 	template <class T, class IniType>
-	[[nodiscard]] auto GetValue(const IniType& a_ini, REX::zstring_view a_section, REX::zstring_view a_key) -> std::optional<T>
+	[[nodiscard]] auto GetValue(const IniType& a_ini, REX::zstring_view a_section, REX::zstring_view a_key)
+		-> std::optional<T>
 		requires(REX::boolean<T>)
 	{
 		constexpr auto* DEFAULT_VALUE = static_cast<const char*>(nullptr);
@@ -89,7 +111,8 @@ namespace REX::Ini
 	}
 
 	template <class T, class IniType>
-	[[nodiscard]] auto GetValue(const IniType& a_ini, REX::zstring_view a_section, REX::zstring_view a_key) -> std::optional<T>
+	[[nodiscard]] auto GetValue(const IniType& a_ini, REX::zstring_view a_section, REX::zstring_view a_key)
+		-> std::optional<T>
 		requires(REX::number<T>)
 	{
 		constexpr auto* DEFAULT_VALUE = static_cast<const char*>(nullptr);
@@ -120,7 +143,8 @@ namespace REX::Ini
 	}
 
 	template <class T, class IniType>
-	[[nodiscard]] auto GetValue(const IniType& a_ini, REX::zstring_view a_section, REX::zstring_view a_key) -> std::optional<T>
+	[[nodiscard]] auto GetValue(const IniType& a_ini, REX::zstring_view a_section, REX::zstring_view a_key)
+		-> std::optional<T>
 		requires(std::same_as<T, std::string> || std::same_as<T, std::string_view> || std::same_as<T, std::filesystem::path>)
 	{
 		constexpr auto* DEFAULT_VALUE = static_cast<const char*>(nullptr);
@@ -147,22 +171,9 @@ namespace REX::Ini
 		return a_ini.SetValue(a_section.data(), a_key.data(), a_value.generic_string().data()) >= SI_OK;
 	}
 
-	template <
-		class IniType,
-		class NullType = std::nullptr_t,
-		class BoolType = bool,
-		class IntType = std::int64_t,
-		class UIntType = std::uint64_t,
-		class FloatType = REX::Float64,
-		class StringType = REX::zstring_view>
+	template <class IniType, class TypeConfig = Ini::TypeConfig>
 	auto GetDetectedValue(const IniType& a_ini, REX::zstring_view a_section, REX::zstring_view a_key)
-		-> std::optional<VariantType<NullType, BoolType, IntType, UIntType, FloatType, StringType>>
-		requires(REX::nullable<NullType> &&
-				 REX::boolean<BoolType> &&
-				 REX::signed_integer<IntType> &&
-				 REX::unsigned_integer<UIntType> &&
-				 REX::floating_point<FloatType> &&
-				 (std::same_as<StringType, std::string> || std::same_as<StringType, std::string_view>))
+		-> std::optional<VariantType<TypeConfig>>
 	{
 		constexpr auto* DEFAULT_VALUE = static_cast<const char*>(nullptr);
 
@@ -173,58 +184,44 @@ namespace REX::Ini
 
 		const auto stringView = REX::zstring_view(stringValue);
 		if (stringView.empty()) {
-			return NullType();
+			return typename TypeConfig::null_type();
 		}
 
 		{
 			constexpr auto BOOL_FORMAT = REX::EnumSet(REX::BoolFormat::kTrueFalse, REX::BoolFormat::kYesNo, REX::BoolFormat::kOnOff);
 
-			auto boolValue = REX::FromString<BoolType>(stringView, BOOL_FORMAT.get());
+			auto boolValue = REX::FromString<typename TypeConfig::bool_type>(stringView, BOOL_FORMAT.get());
 			if (boolValue.has_value()) {
 				return boolValue.value();
 			}
 		}
 
 		{
-			auto intValue = REX::FromString<IntType>(stringView);
+			auto intValue = REX::FromString<typename TypeConfig::int_type>(stringView);
 			if (intValue.has_value()) {
 				return intValue.value();
 			}
 		}
 
 		{
-			auto uintValue = REX::FromString<UIntType>(stringView);
+			auto uintValue = REX::FromString<typename TypeConfig::uint_type>(stringView);
 			if (uintValue.has_value()) {
 				return uintValue.value();
 			}
 		}
 
 		{
-			auto floatValue = REX::FromString<FloatType>(stringView);
+			auto floatValue = REX::FromString<typename TypeConfig::float_type>(stringView);
 			if (floatValue.has_value()) {
 				return floatValue.value();
 			}
 		}
 
-		return StringType(stringView);
+		return typename TypeConfig::string_type(stringView);
 	}
 
-	template <
-		class IniType,
-		class NullType = std::nullptr_t,
-		class BoolType = bool,
-		class IntType = std::int64_t,
-		class UIntType = std::uint64_t,
-		class FloatType = REX::Float64,
-		class StringType = REX::zstring_view>
-	bool SetDetectedValue(IniType& a_ini, REX::zstring_view a_section, REX::zstring_view a_key,
-		const VariantType<NullType, BoolType, IntType, UIntType, FloatType, StringType>& a_value)
-		requires(REX::nullable<NullType> &&
-				 REX::boolean<BoolType> &&
-				 REX::signed_integer<IntType> &&
-				 REX::unsigned_integer<UIntType> &&
-				 REX::floating_point<FloatType> &&
-				 (std::same_as<StringType, std::string> || std::same_as<StringType, std::string_view>))
+	template <class IniType, class TypeConfig = Ini::TypeConfig>
+	bool SetDetectedValue(IniType& a_ini, REX::zstring_view a_section, REX::zstring_view a_key, const VariantType<TypeConfig>& a_value)
 	{
 		return std::visit(
 			[&a_ini, a_section, a_key](auto&& a_arg) -> bool {
@@ -233,55 +230,72 @@ namespace REX::Ini
 			a_value);
 	}
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<std::nullptr_t>;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<std::nullptr_t>;
 	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::nullptr_t);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<bool>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, bool) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<bool>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, bool);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<std::int8_t>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::int8_t) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<std::int8_t>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::int8_t);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<std::uint8_t>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::uint8_t) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<std::uint8_t>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::uint8_t);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<std::int16_t>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::int16_t) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<std::int16_t>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::int16_t);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<std::uint16_t>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::uint16_t) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<std::uint16_t>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::uint16_t);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<std::int32_t>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::int32_t) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<std::int32_t>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::int32_t);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<std::uint32_t>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::uint32_t) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<std::uint32_t>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::uint32_t);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<std::int64_t>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::int64_t) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<std::int64_t>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::int64_t);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<std::uint64_t>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::uint64_t) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<std::uint64_t>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, std::uint64_t);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<REX::Float32>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, REX::Float32) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<REX::Float32>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, REX::Float32);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<REX::Float64>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, REX::Float64) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<REX::Float64>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, REX::Float64);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<REX::Float128>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, REX::Float128) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<REX::Float128>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, REX::Float128);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<std::string>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, const std::string&) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<std::string>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, const std::string&);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<std::string_view>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, const REX::zstring_view&) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<std::string_view>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, const REX::zstring_view&);
 
-	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<std::filesystem::path>;
-	extern template auto SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, const std::filesystem::path&) -> bool;
+	extern template auto GetValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<std::filesystem::path>;
+	extern template bool SetValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, const std::filesystem::path&);
 
-	extern template auto GetDetectedValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view) -> std::optional<VariantType<>>;
+	extern template auto GetDetectedValue(const CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view)
+		-> std::optional<VariantType<>>;
 	extern template bool SetDetectedValue(CSimpleIniCaseA&, REX::zstring_view, REX::zstring_view, const VariantType<>&);
 }
 

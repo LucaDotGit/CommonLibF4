@@ -1,6 +1,6 @@
 #pragma once
 
-#include "REX/ErrorCode.hpp"
+#include "REX/Error.hpp"
 #include "REX/W32/CORE.hpp"
 
 namespace REX

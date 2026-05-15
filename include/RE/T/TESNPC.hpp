@@ -87,7 +87,8 @@ namespace RE
 		};
 		static_assert(sizeof(HeadRelatedData) == 0x18);
 
-		[[nodiscard]] static auto GetAlternateHeadPartListMap() -> BSTHashMap<const TESNPC*, BSTArray<BGSHeadPart*>>&;
+		[[nodiscard]] static auto GetAlternateHeadPartListMap()
+			-> BSTHashMap<const TESNPC*, BSTArray<BGSHeadPart*>>&;
 
 		[[nodiscard]] bool HasApplicableKeywordString(std::string_view a_editorID) const;
 		[[nodiscard]] BGSColorForm* GetFacialHairColor() const noexcept;

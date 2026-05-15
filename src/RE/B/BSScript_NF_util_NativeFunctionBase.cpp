@@ -18,7 +18,6 @@ namespace RE::BSScript::NF_util
 		  userFlags(0),
 		  docString(""sv)
 	{
-		// REL::EmplaceVtable(this);
 	}
 
 	NativeFunctionBase::~NativeFunctionBase() = default;
@@ -121,16 +120,16 @@ namespace RE::BSScript::NF_util
 		return false;
 	}
 
-	bool NativeFunctionBase::GetVarNameForStackIndex(std::uint32_t a_index, BSFixedString& a_variableName) const
+	bool NativeFunctionBase::GetVarNameForStackIndex(std::uint32_t a_index, BSFixedString& a_outName) const
 	{
 		auto entryName = descTable.GetNthEntryName(static_cast<Internal::VDescTable::size_type>(a_index));
 		if (!entryName) [[unlikely]] {
 			REX::Assert(false);
-			a_variableName = ""sv;
+			a_outName = ""sv;
 			return false;
 		}
 
-		a_variableName = *std::move(entryName);
+		a_outName = *std::move(entryName);
 		return true;
 	}
 

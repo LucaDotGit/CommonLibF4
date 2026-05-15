@@ -294,4 +294,7 @@ namespace REX
 		using buffer_size = std::integral_constant<std::size_t, 4954>;
 #endif
 	};
+
+	inline constexpr auto TITLE_BUFFER_SIZE = 0x100;
+	inline constexpr auto MESSAGE_BUFFER_SIZE = 0x400;
 }

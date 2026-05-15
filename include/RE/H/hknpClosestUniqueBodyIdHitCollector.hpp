@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RE/H/hkVector4f.hpp"
+#include "RE/H/hkVector4.hpp"
 #include "RE/H/hknpUniqueBodyIdHitCollector.hpp"
 
 namespace RE
@@ -15,7 +15,7 @@ namespace RE
 		~hknpClosestUniqueBodyIdHitCollector() override; // 00
 
 		// members
-		hkVector4f center; // 400
+		hkVector4 center; // 400
 	};
 	static_assert(sizeof(hknpClosestUniqueBodyIdHitCollector) == 0x410);
 }

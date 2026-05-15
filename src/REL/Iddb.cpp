@@ -3,7 +3,7 @@
 #include "REL/Module.hpp"
 
 #include "REX/Crc.hpp"
-#include "REX/ErrorCode.hpp"
+#include "REX/Error.hpp"
 #include "REX/Format.hpp"
 #include "REX/Locale.hpp"
 #include "REX/Message.hpp"
@@ -90,7 +90,7 @@ namespace REL
 		HeaderV2& operator=(const HeaderV2&) = delete;
 		HeaderV2& operator=(HeaderV2&&) noexcept = default;
 
-		[[nodiscard]] std::string_view GetName() const noexcept { return { _name.data(), _nameLength }; }
+		[[nodiscard]] std::string_view GetName() const noexcept { return { _name.data(), _nameSize }; }
 		[[nodiscard]] std::size_t GetPointerSize() const noexcept { return static_cast<std::size_t>(_pointerSize); }
 		[[nodiscard]] std::size_t GetAddressCount() const noexcept { return static_cast<std::size_t>(_addressCount); }
 
@@ -104,18 +104,18 @@ namespace REL
 			return version;
 		}
 
-		void Load(Iddb::Stream& a_stream)
+		void Load(Iddb::Stream& a_stream) noexcept(false)
 		{
 			a_stream.ReadIn(_gameVersion);
-			a_stream.ReadIn(_nameLength);
-			a_stream.ReadIn(std::span(_name.data(), _nameLength));
+			a_stream.ReadIn(_nameSize);
+			a_stream.ReadIn(std::span(_name.data(), _nameSize));
 			a_stream.ReadIn(_pointerSize);
 			a_stream.ReadIn(_addressCount);
 		}
 
 	private:
 		std::array<std::uint32_t, 4> _gameVersion{ 0 };
-		std::uint32_t _nameLength{ 0 };
+		std::uint32_t _nameSize{ 0 };
 		std::array<char, 64> _name{ '\0' };
 		std::int32_t _pointerSize{ 0 };
 		std::int32_t _addressCount{ 0 };
@@ -148,7 +148,7 @@ namespace REL
 			return version;
 		}
 
-		void Load(Iddb::Stream& a_stream)
+		void Load(Iddb::Stream& a_stream) noexcept(false)
 		{
 			a_stream.ReadIn(_gameVersion);
 			a_stream.ReadIn(_name);
@@ -158,7 +158,7 @@ namespace REL
 		}
 
 	private:
-		std::array<std::uint32_t, 4> _gameVersion{};
+		std::array<std::uint32_t, 4> _gameVersion{ 0 };
 		std::array<char, 64> _name{ '\0' };
 		std::int32_t _pointerSize{ 0 };
 		std::int32_t _dataFormat{ 0 };
@@ -214,7 +214,7 @@ namespace REL
 			if (expectedHash != actualHash) [[unlikely]] {
 				REX::Fail(
 					"Invalid Address Library loaded.\n"
-					"Redownload Address Library for your module version.\n"
+					"Please redownload Address Library for your module version.\n"
 					"Module Version: {}"sv,
 					moduleVersion);
 			}
@@ -245,9 +245,10 @@ namespace REL
 				.offset = 0
 			};
 
-			const auto mappingIt = std::ranges::lower_bound(_mapping, mappingElement, [](const Mapping& a_lhs, const Mapping& a_rhs) {
-				return a_lhs.id < a_rhs.id;
-			});
+			const auto mappingIt = std::ranges::lower_bound(_mapping, mappingElement,
+				[](const Mapping& a_lhs, const Mapping& a_rhs) -> auto {
+					return a_lhs.id < a_rhs.id;
+				});
 
 			if (mappingIt == _mapping.end()) [[unlikely]] {
 				REX::Fail(
@@ -314,43 +315,10 @@ namespace REL
 
 		void Load(LoadContext& a_context) override
 		{
+			auto header = HeaderV2();
+
 			try {
-				auto header = HeaderV2();
 				header.Load(a_context.stream);
-
-				const auto& module = REL::Module::GetSingleton();
-				if (header.GetGameVersion() != module->GetVersion()) [[unlikely]] {
-					REX::Fail(
-						"Address Library version mismatch.\n"
-						"Expected Version: {}\n"
-						"Actual Version: {}"sv,
-						module->GetVersion(), header.GetGameVersion());
-				}
-
-				const auto mapName = GetMemoryMapName(module->GetVersion());
-				const auto byteSize = header.GetAddressCount() * sizeof(Mapping);
-
-				if (!a_context.memoryMap->Create(true, mapName, byteSize)) [[unlikely]] {
-					const auto currentError = REX::GetCurrentSystemError();
-					REX::Fail(
-						"Failed to create Address Library memory map.\n"
-						"System Error (0x{:08X}): {}"sv,
-						currentError.value(), currentError.message());
-				}
-
-				ValidateFile(a_context.loaderInfo, a_context.memoryMap);
-
-				_mapping = { reinterpret_cast<Mapping*>(a_context.memoryMap->data()), header.GetAddressCount() };
-
-				if (!a_context.memoryMap->IsOwner()) {
-					return;
-				}
-
-				UnpackFile(a_context.stream, header);
-
-				std::sort(std::execution::par, _mapping.begin(), _mapping.end(), [](const Mapping& a_lhs, const Mapping& a_rhs) {
-					return a_lhs.id < a_rhs.id;
-				});
 			}
 			catch (const std::ios::failure& error) {
 				REX::Fail(
@@ -359,6 +327,41 @@ namespace REL
 					"Exception Error: {}"sv,
 					a_context.path.generic_string(), error.what());
 			}
+
+			const auto& module = REL::Module::GetSingleton();
+			if (header.GetGameVersion() != module->GetVersion()) [[unlikely]] {
+				REX::Fail(
+					"Address Library version mismatch.\n"
+					"Expected Version: {}\n"
+					"Actual Version: {}"sv,
+					module->GetVersion(), header.GetGameVersion());
+			}
+
+			const auto mapName = GetMemoryMapName(module->GetVersion());
+			const auto byteSize = header.GetAddressCount() * sizeof(Mapping);
+
+			if (!a_context.memoryMap->Create(true, mapName, byteSize)) [[unlikely]] {
+				const auto currentError = REX::GetCurrentSystemError();
+				REX::Fail(
+					"Failed to create Address Library memory map.\n"
+					"System Error (0x{:08X}): {}"sv,
+					currentError.value(), currentError.message());
+			}
+
+			ValidateFile(a_context.loaderInfo, a_context.memoryMap);
+
+			_mapping = { reinterpret_cast<Mapping*>(a_context.memoryMap->data()), header.GetAddressCount() };
+
+			if (!a_context.memoryMap->IsOwner()) {
+				return;
+			}
+
+			UnpackFile(a_context.stream, header);
+
+			std::sort(std::execution::par, _mapping.begin(), _mapping.end(),
+				[](const Mapping& a_lhs, const Mapping& a_rhs) -> auto {
+					return a_lhs.id < a_rhs.id;
+				});
 		}
 
 	private:
@@ -498,33 +501,10 @@ namespace REL
 
 		void Load(LoadContext& a_context) override
 		{
+			auto header = HeaderV5();
+
 			try {
-				auto header = HeaderV5();
 				header.Load(a_context.stream);
-
-				const auto& module = REL::Module::GetSingleton();
-				if (header.GetGameVersion() != module->GetVersion()) [[unlikely]] {
-					REX::Fail(
-						"Address Library version mismatch.\n"
-						"Expected Version: {}\n"
-						"Actual Version: {}"sv,
-						module->GetVersion(), header.GetGameVersion());
-				}
-
-				const auto mapName = GetMemoryMapName(module->GetVersion());
-
-				const auto createError = a_context.memoryMap->Create(false, a_context.path, mapName);
-				if (createError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
-					REX::Fail(
-						"Failed to create Address Library memory map.\n"
-						"File Path: \"{}\"\n"
-						"System Error (0x{:08X}): {}"sv,
-						a_context.path.generic_string(), createError.value(), createError.message());
-				}
-
-				ValidateFile(a_context.loaderInfo, a_context.memoryMap);
-
-				_mapping = { reinterpret_cast<std::uint32_t*>(a_context.memoryMap->data() + sizeof(HeaderV5)), header.GetOffsetCount() };
 			}
 			catch (const std::ios::failure& error) {
 				REX::Fail(
@@ -533,6 +513,30 @@ namespace REL
 					"Exception Error: {}"sv,
 					a_context.path.generic_string(), error.what());
 			}
+
+			const auto& module = REL::Module::GetSingleton();
+			if (header.GetGameVersion() != module->GetVersion()) [[unlikely]] {
+				REX::Fail(
+					"Address Library version mismatch.\n"
+					"Expected Version: {}\n"
+					"Actual Version: {}"sv,
+					module->GetVersion(), header.GetGameVersion());
+			}
+
+			const auto mapName = GetMemoryMapName(module->GetVersion());
+
+			const auto createError = a_context.memoryMap->Create(false, a_context.path, mapName);
+			if (createError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				REX::Fail(
+					"Failed to create Address Library memory map.\n"
+					"File Path: \"{}\"\n"
+					"System Error (0x{:08X}): {}"sv,
+					a_context.path.generic_string(), createError.value(), createError.message());
+			}
+
+			ValidateFile(a_context.loaderInfo, a_context.memoryMap);
+
+			_mapping = { reinterpret_cast<std::uint32_t*>(a_context.memoryMap->data() + sizeof(HeaderV5)), header.GetOffsetCount() };
 		}
 
 	private:
@@ -564,9 +568,10 @@ namespace REL
 				.offset = 0
 			};
 
-			const auto mappingIt = std::ranges::lower_bound(_mapping, mappingElement, [](const Mapping& a_lhs, const Mapping& a_rhs) {
-				return a_lhs.id < a_rhs.id;
-			});
+			const auto mappingIt = std::ranges::lower_bound(_mapping, mappingElement,
+				[](const Mapping& a_lhs, const Mapping& a_rhs) -> auto {
+					return a_lhs.id < a_rhs.id;
+				});
 
 			if (mappingIt == _mapping.end()) [[unlikely]] {
 				REX::Fail(
@@ -631,9 +636,10 @@ namespace REL
 				_mapping.push_back(mappingElement);
 			}
 
-			std::sort(std::execution::par, _mapping.begin(), _mapping.end(), [](const Mapping& a_lhs, const Mapping& a_rhs) {
-				return a_lhs.id < a_rhs.id;
-			});
+			std::sort(std::execution::par, _mapping.begin(), _mapping.end(),
+				[](const Mapping& a_lhs, const Mapping& a_rhs) -> auto {
+					return a_lhs.id < a_rhs.id;
+				});
 		}
 
 	private:

@@ -21,7 +21,7 @@ namespace RE
 		private:
 			enum class ProgressiveAttachState : std::int32_t
 			{
-				kToWorld = 0,
+				kWorld = 0,
 				kModels = 1,
 				kRegisterCombinedObjectVisibility = 2,
 				kDone = 3
@@ -39,10 +39,10 @@ namespace RE
 		private:
 			enum class ProgressiveDetachState : std::int32_t
 			{
-				kProgressiveDetachActorsNext = 0,
-				kProgressiveDetachRefsNext = 1,
-				kProgressiveDetachCombinedArtNext = 2,
-				kProgressiveDetachDone = 3
+				kActorsNext = 0,
+				kRefsNext = 1,
+				kCombinedArtNext = 2,
+				kDone = 3
 			};
 
 		public:
@@ -75,12 +75,12 @@ namespace RE
 		}
 
 		// members
-		SimpleArray<TESObjectCELL*> cells;
-		std::uint32_t cellAttachDetachQueueDisabled;
-		BSTArray<QueuedAttach> queuedAttach;
-		BSTArray<QueuedDetach> queuedDetach;
-		NiPoint3 worldCenter;
-		bool landAttached;
+		SimpleArray<TESObjectCELL*> cells;			 // 18 - allocated using: `0x08 * numGrids * numGrids`
+		std::uint32_t cellAttachDetachQueueDisabled; // 20
+		BSTArray<QueuedAttach> queuedAttach;		 // 28
+		BSTArray<QueuedDetach> queuedDetach;		 // 40
+		NiPoint3 worldCenter;						 // 58
+		bool landAttached;							 // 64
 	};
 	static_assert(sizeof(GridCellArray) == 0x68);
 }

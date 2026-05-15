@@ -11,7 +11,7 @@ namespace RE
 		inline static constexpr auto RTTI{ RTTI::BSPCVirtualKeyboardDevice };
 		inline static constexpr auto VTABLE{ VTABLE::BSPCVirtualKeyboardDevice };
 
-		// override(BSVirtualKeyboardDevice)
+		// override (BSVirtualKeyboardDevice)
 		void Initialize() override;											// 00
 		void Poll(REX::Float32 a_deltaTime) override;						// 01
 		void Shutdown() override;											// 02

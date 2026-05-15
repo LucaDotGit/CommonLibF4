@@ -13,14 +13,14 @@ namespace RE
 	{
 		using FuncType = decltype(&Actor::AddPerk);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::AddPerk };
-		FUNC(this, a_perk, a_rank);
+		std::invoke(FUNC, this, a_perk, a_rank);
 	}
 
 	void Actor::CalculateDetectionFormula(Actor& a_target, DetectionData& a_detectionData)
 	{
 		using FuncType = decltype(&Actor::CalculateDetectionFormula);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::CalculateDetectionFormula };
-		FUNC(this, a_target, a_detectionData);
+		std::invoke(FUNC, this, a_target, a_detectionData);
 	}
 
 	bool Actor::CanUseIdle(TESIdleForm* a_idle) const
@@ -34,35 +34,35 @@ namespace RE
 	{
 		using FuncType = decltype(&Actor::ClearAttackStates);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::ClearAttackStates };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void Actor::DoHitMe(const HitData* a_data)
 	{
 		using FuncType = decltype(&Actor::DoHitMe);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::DoHitMe };
-		FUNC(this, a_data);
+		std::invoke(FUNC, this, a_data);
 	}
 
 	void Actor::EndInterruptPackage(bool a_notRunOnceDialogue)
 	{
 		using FuncType = decltype(&Actor::EndInterruptPackage);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::EndInterruptPackage };
-		FUNC(this, a_notRunOnceDialogue);
+		std::invoke(FUNC, this, a_notRunOnceDialogue);
 	}
 
 	void Actor::ExitCover()
 	{
 		using FuncType = decltype(&Actor::ExitCover);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::ExitCover };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void Actor::ForceDetect(Actor* a_target, bool a_forceLOS, REX::Float32 a_time)
 	{
 		using FuncType = decltype(&Actor::ForceDetect);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::ForceDetect };
-		FUNC(this, a_target, a_forceLOS, a_time);
+		std::invoke(FUNC, this, a_target, a_forceLOS, a_time);
 	}
 
 	TESNPC* Actor::GetActorBase() const
@@ -80,7 +80,7 @@ namespace RE
 	{
 		using FuncType = decltype(&Actor::GetAimVector);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::GetAimVector };
-		FUNC(this, a_aimVector);
+		std::invoke(FUNC, this, a_aimVector);
 	}
 
 	BGSBodyPartData* Actor::GetBodyPartData() const
@@ -227,14 +227,14 @@ namespace RE
 	{
 		using FuncType = decltype(&Actor::HandleDefaultAnimationSwitch);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::HandleDefaultAnimationSwitch };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void Actor::HandleItemEquip(bool a_cullBone)
 	{
 		using FuncType = decltype(&Actor::HandleItemEquip);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::HandleItemEquip };
-		FUNC(this, a_cullBone);
+		std::invoke(FUNC, this, a_cullBone);
 	}
 
 	bool Actor::HasObjects(TESBoundObject* a_obj, PACKAGE_OBJECT_TYPE a_formID, std::int32_t a_number, std::uint32_t a_id, PACKAGE_OBJECT_TYPE& a_matchID)
@@ -248,7 +248,7 @@ namespace RE
 	{
 		using FuncType = decltype(&Actor::InitiateDoNothingPackage);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::InitiateDoNothingPackage };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	bool Actor::IsCrippled() const
@@ -317,7 +317,7 @@ namespace RE
 	{
 		using FuncType = decltype(&Actor::Jump);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::Jump };
-		FUNC(this, a_height);
+		std::invoke(FUNC, this, a_height);
 	}
 
 	bhkCharacterController* Actor::Move(REX::Float32 a_deltaTime, NiPoint3 a_deltaPos, bool a_defer)
@@ -338,28 +338,28 @@ namespace RE
 	{
 		using FuncType = decltype(&Actor::RemovePerk);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::RemovePerk };
-		FUNC(this, a_perk);
+		std::invoke(FUNC, this, a_perk);
 	}
 
 	void Actor::Reset3D(bool a_reloadAll, RESET_3D_FLAGS a_additionalFlags, bool a_queueReset, RESET_3D_FLAGS a_excludeFlags)
 	{
 		using FuncType = decltype(&Actor::Reset3D);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::Reset3D };
-		FUNC(this, a_reloadAll, a_additionalFlags, a_queueReset, a_excludeFlags);
+		std::invoke(FUNC, this, a_reloadAll, a_additionalFlags, a_queueReset, a_excludeFlags);
 	}
 
 	void Actor::RewardExperience(REX::Float32 a_amount, bool a_direct, TESObjectREFR* a_actionTarget, TESObjectREFR* a_killWeapon)
 	{
 		using FuncType = decltype(&Actor::RewardExperience);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::RewardExperience };
-		FUNC(this, a_amount, a_direct, a_actionTarget, a_killWeapon);
+		std::invoke(FUNC, this, a_amount, a_direct, a_actionTarget, a_killWeapon);
 	}
 
 	void Actor::SPECIALModifiedCallback(const ActorValueInfo* a_info, REX::Float32 a_originalValue, REX::Float32 a_delta)
 	{
 		using FuncType = decltype(&Actor::SPECIALModifiedCallback);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::SPECIALModifiedCallback };
-		FUNC(this, a_info, a_originalValue, a_delta);
+		std::invoke(FUNC, this, a_info, a_originalValue, a_delta);
 	}
 
 	void Actor::SetCurrentAmmo(BGSEquipIndex a_equipIndex, TESAmmo* a_ammo) const
@@ -373,55 +373,55 @@ namespace RE
 	{
 		using FuncType = decltype(&Actor::SetCurrentAmmoCount);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::SetCurrentAmmoCount };
-		FUNC(this, a_equipIndex, a_count);
+		std::invoke(FUNC, this, a_equipIndex, a_count);
 	}
 
 	void Actor::SetGunState(GUN_STATE a_gunState, bool a_set)
 	{
 		using FuncType = decltype(&Actor::SetGunState);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::SetGunState };
-		FUNC(this, a_gunState, a_set);
+		std::invoke(FUNC, this, a_gunState, a_set);
 	}
 
 	void Actor::SetHeading(REX::Float32 a_angle)
 	{
 		using FuncType = decltype(&Actor::SetHeading);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::SetHeading };
-		FUNC(this, a_angle);
+		std::invoke(FUNC, this, a_angle);
 	}
 
 	void Actor::StopInteractingQuick(bool a_instance, bool a_moveActor, bool a_update3D)
 	{
 		using FuncType = decltype(&Actor::StopInteractingQuick);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::StopInteractingQuick };
-		FUNC(this, a_instance, a_moveActor, a_update3D);
+		std::invoke(FUNC, this, a_instance, a_moveActor, a_update3D);
 	}
 
 	void Actor::TrespassAlarm(TESObjectREFR* a_ref, TESForm* a_owner, std::int32_t a_crime)
 	{
 		using FuncType = decltype(&Actor::TrespassAlarm);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::TrespassAlarm };
-		FUNC(this, a_ref, a_owner, a_crime);
+		std::invoke(FUNC, this, a_ref, a_owner, a_crime);
 	}
 
 	void Actor::UnequipObject(TESBoundObject* a_object, ObjectEquipParams a_params)
 	{
 		using FuncType = decltype(&Actor::UnequipObject);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::UnequipObject };
-		FUNC(this, a_object, a_params);
+		std::invoke(FUNC, this, a_object, a_params);
 	}
 
 	void Actor::UpdateSprinting()
 	{
 		using FuncType = decltype(&Actor::UpdateSprinting);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::UpdateSprinting };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void Actor::UpdateVoiceTimer(bool a_force)
 	{
 		using FuncType = decltype(&Actor::UpdateVoiceTimer);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Actor::UpdateVoiceTimer };
-		FUNC(this, a_force);
+		std::invoke(FUNC, this, a_force);
 	}
 }

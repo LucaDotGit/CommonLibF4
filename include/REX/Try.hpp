@@ -1,8 +1,8 @@
 #pragma once
 
-#include "REX/Contract.hpp"
 #include "REX/Format.hpp"
 #include "REX/Message.hpp"
+#include "REX/SourceLocation.hpp"
 
 namespace REX
 {
@@ -29,8 +29,8 @@ namespace REX
 	template <class Error, class TryFunc>
 	[[nodiscard]] constexpr auto TryOrFail(
 		TryFunc&& a_tryFunc,
-		REX::FormatString<const char*> a_format = "A function threw an exception during execution.\nError: {}"sv,
-		std::source_location a_location = std::source_location::current()) //
+		REX::FormatString<std::string_view> a_format = "A function threw an exception during execution.\nError: {}"sv,
+		REX::SourceLocation a_location = REX::SourceLocation::GetCurrent()) //
 		noexcept(std::is_nothrow_invocable_v<TryFunc>)
 			-> std::invoke_result_t<TryFunc>
 		requires(std::derived_from<Error, std::exception> &&
@@ -40,14 +40,16 @@ namespace REX
 			return std::invoke(std::forward<TryFunc>(a_tryFunc));
 		}
 		catch (const Error& error) {
-			REX::Impl::Fail(a_location, a_format, error.what());
+			const auto formatData = REX::FixedFormat(a_format, std::string_view(error.what()));
+			REX::Fail(std::string_view{ formatData.buffer.data(), formatData.size }, a_location);
 		}
 	}
 
 	template <class Error, class TryFunc>
-	[[nodiscard]] constexpr auto TryOrQuickFail(
+	[[nodiscard]] constexpr auto TryOrFailW(
 		TryFunc&& a_tryFunc,
-		std::string_view a_format = "A function threw an exception during execution."sv) //
+		REX::WFormatString<std::wstring_view> a_format = L"A function threw an exception during execution.\nError: {}"sv,
+		REX::SourceLocation a_location = REX::SourceLocation::GetCurrent()) //
 		noexcept(std::is_nothrow_invocable_v<TryFunc>)
 			-> std::invoke_result_t<TryFunc>
 		requires(std::derived_from<Error, std::exception> &&
@@ -57,7 +59,8 @@ namespace REX
 			return std::invoke(std::forward<TryFunc>(a_tryFunc));
 		}
 		catch (const Error& error) {
-			REX::Impl::QuickFail(a_format);
+			const auto formatData = REX::FixedFormat(a_format, std::wstring_view(error.what()));
+			REX::Fail(std::wstring_view{ formatData.buffer.data(), formatData.size }, a_location);
 		}
 	}
 
@@ -71,7 +74,7 @@ namespace REX
 		try {
 			return std::invoke(std::forward<TryFunc>(a_tryFunc));
 		}
-		catch (const Error& error) {
+		catch ([[maybe_unused]] const Error& error) {
 			std::terminate();
 		}
 	}

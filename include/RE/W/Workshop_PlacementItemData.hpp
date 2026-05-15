@@ -22,7 +22,7 @@ namespace RE::Workshop
 		{
 			using FuncType = decltype(&PlacementItemData::Set);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Workshop::PlacementItemData::Set };
-			FUNC(this, a_ref);
+			std::invoke(FUNC, this, a_ref);
 		}
 
 		// members

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RE/H/hkReferencedObject.hpp"
-#include "RE/H/hkVector4f.hpp"
+#include "RE/H/hkVector4.hpp"
 #include "RE/H/hknpCharacterState.hpp"
 
 namespace RE
@@ -31,7 +31,7 @@ namespace RE
 		REX::Float32 maxLinearAcceleration;												   // 2C
 		REX::Float32 maxLinearSpeed;													   // 30
 		REX::Float32 gain;																   // 34
-		hkVector4f previousSurfaceVelocity;												   // 40
+		hkVector4 previousSurfaceVelocity;												   // 40
 		std::int32_t numUpdatesInCurrentState;											   // 50
 	};
 	static_assert(sizeof(hknpCharacterContext) == 0x60);

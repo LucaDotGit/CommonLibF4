@@ -3,6 +3,8 @@
 #include "REL/Module.hpp"
 #include "REL/Runtime.hpp"
 
+#include "REX/Hash.hpp"
+
 namespace REL
 {
 	template <class T>
@@ -51,8 +53,7 @@ namespace REL
 
 		template <class... V>
 		constexpr explicit Value(V&&... a_values) //
-			noexcept(std::is_nothrow_default_constructible_v<value_type> &&
-					 (std::is_nothrow_convertible_v<V, value_type> && ...))
+			noexcept((std::is_nothrow_convertible_v<V, value_type> && ...))
 			requires((std::is_convertible_v<V, value_type> && ...) &&
 					 (sizeof...(V) == sizeof...(R) + 1))
 			: _values{ static_cast<value_type>(std::forward<V>(a_values))... }
@@ -213,7 +214,7 @@ namespace REL
 		noexcept(std::is_nothrow_constructible_v<Value<std::decay_t<V>>, V>)
 		requires(std::is_constructible_v<Value<std::decay_t<V>>, V>)
 	{
-		return Value<V>(std::forward<V>(a_value));
+		return Value<std::decay_t<V>>{ std::forward<V>(a_value) };
 	}
 
 	template <Runtime R0, Runtime... R, class... V>
@@ -222,7 +223,7 @@ namespace REL
 		requires(std::is_constructible_v<Value<std::common_type_t<V...>, R0, R...>, V...> &&
 				 (sizeof...(V) == sizeof...(R) + 1))
 	{
-		return Value<std::common_type_t<V...>, R0, R...>(std::forward<V>(a_values)...);
+		return Value<std::common_type_t<V...>, R0, R...>{ std::forward<V>(a_values)... };
 	}
 }
 

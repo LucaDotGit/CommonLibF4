@@ -32,7 +32,7 @@ namespace RE::MiscStatManager
 	};
 	static_assert(sizeof(MiscStat) == 0x20);
 
-	[[nodiscard]] inline RE::BSTArray<MiscStat>& GetMiscStats()
+	[[nodiscard]] inline BSTArray<MiscStat>& GetMiscStats()
 	{
 		static const auto MISC_STATS = REL::Relocation<BSTArray<MiscStat>*>{ ID::MiscStatManager::MiscStats };
 		return *MISC_STATS;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RE/H/hkSimdFloat32.hpp"
-#include "RE/H/hkVector4f.hpp"
+#include "RE/H/hkVector4.hpp"
 
 namespace RE
 {
@@ -29,10 +29,10 @@ namespace RE
 		REX::Float32 nominalGravityLength;				   // 0C4
 		REX::Float32 expectedDeltaTime;					   // 0C8
 		std::uint32_t stepSolveCount;					   // 0CC
-		hkVector4f globalAccelerationPerSubStep;		   // 0D0
-		hkVector4f globalAccelerationPerStep;			   // 0E0
-		hkVector4f integrateVelocityFactor;				   // 0F0
-		hkVector4f invIntegrateVelocityFactor;			   // 100
+		hkVector4 globalAccelerationPerSubStep;			   // 0D0
+		hkVector4 globalAccelerationPerStep;			   // 0E0
+		hkVector4 integrateVelocityFactor;				   // 0F0
+		hkVector4 invIntegrateVelocityFactor;			   // 100
 		hkSimdFloat32 rhsFactor;						   // 110
 		hkSimdFloat32 frictionRhsFactor;				   // 120
 		REX::Float32 dampDivTau;						   // 130

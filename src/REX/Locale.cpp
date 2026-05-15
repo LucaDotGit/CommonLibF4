@@ -4,23 +4,25 @@
 
 namespace REX
 {
-	auto CreateCLocale(std::string_view a_localeName, std::int32_t a_localeCategory) noexcept -> CLocale
+	auto CreateCLocale(std::string_view a_localeName, std::int32_t a_localeCategory) noexcept
+		-> std::optional<CLocale>
 	{
 		auto* result = ::_create_locale(a_localeCategory, a_localeName.data());
 		if (!result) {
-			return { nullptr, ::_free_locale };
+			return std::nullopt;
 		}
 
-		return { result, ::_free_locale };
+		return CLocale(result, ::_free_locale);
 	}
 
-	auto CreateCppLocale(std::string_view a_localeName, std::locale::category a_localeCategory) noexcept -> std::expected<CppLocale, std::runtime_error>
+	auto CreateCppLocale(std::string_view a_localeName, std::locale::category a_localeCategory) noexcept
+		-> std::optional<CppLocale>
 	{
 		try {
 			return std::locale(a_localeName.data(), a_localeCategory);
 		}
-		catch (std::runtime_error& error) {
-			return std::unexpected(std::move(error));
+		catch ([[maybe_unused]] const std::runtime_error& error) {
+			return std::nullopt;
 		}
 	}
 
@@ -33,7 +35,7 @@ namespace REX
 					DEFAULT_LOCALE_NAME);
 			}
 
-			return result;
+			return *std::move(result);
 		}();
 
 		return DEFAULT_LOCALE;
@@ -48,7 +50,7 @@ namespace REX
 					DEFAULT_LOCALE_NAME);
 			}
 
-			return *result;
+			return *std::move(result);
 		}();
 
 		return DEFAULT_LOCALE;

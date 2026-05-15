@@ -19,14 +19,14 @@ namespace RE
 
 		// add
 		virtual void Init(Json::Value* a_json) = 0;		 // 01
-		virtual const PipboyCommandResult* DoValidate(); // 02
-		virtual const PipboyCommandResult* DoExecute();	 // 03
+		virtual const PipboyCommandResult* DoValidate(); // 02 - { return validationResult; }
+		virtual const PipboyCommandResult* DoExecute();	 // 03 - { return executionResult; }
 
 		// members
 		std::uint32_t id{ 0 };							  // 08
 		PipboyCommandResult* validationResult{ nullptr }; // 10
 		PipboyCommandResult* executionResult{ nullptr };  // 18
-		bool isReadonly{ false };						  // 20
+		bool isReadOnly{ false };						  // 20
 	};
 	static_assert(sizeof(PipboyCommand) == 0x28);
 }

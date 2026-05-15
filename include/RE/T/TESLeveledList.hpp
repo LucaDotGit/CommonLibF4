@@ -71,7 +71,8 @@ namespace RE
 		virtual const char* GetOverrideName();							  // 0A - { return nullptr; }
 		virtual bool GetCanContainFormsOfType(FormType a_type) const = 0; // 0B
 
-		[[nodiscard]] static auto GetSpecialChanceGlobalMap() -> BSTHashMap<TESLeveledList*, TESGlobal*>&;
+		[[nodiscard]] static auto GetSpecialChanceGlobalMap()
+			-> BSTHashMap<const TESLeveledList*, TESGlobal*>&;
 
 		void CalculateCurrentFormList(
 			std::uint16_t a_level,
@@ -83,7 +84,8 @@ namespace RE
 			const char* a_overrideName = nullptr);
 		void CalculateCurrentFormListForRef(TESObjectREFR* a_ref, BSScrapArray<CALCED_OBJECT>& a_outCont, bool a_legendary);
 
-		[[nodiscard]] auto GetKeywordChances() const -> std::optional<std::vector<std::pair<BGSKeyword*, std::int32_t>>>;
+		[[nodiscard]] auto GetKeywordChances() const
+			-> std::optional<std::vector<std::pair<BGSKeyword*, std::int32_t>>>;
 		void SetKeywordChances(std::span<const std::pair<BGSKeyword*, std::int32_t>> a_chances);
 
 		[[nodiscard]] std::uint8_t GetLevObjectCount() const noexcept;

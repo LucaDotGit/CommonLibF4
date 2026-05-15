@@ -107,7 +107,7 @@ namespace RE
 		{
 			using FuncType = decltype(&TESTopicInfo::StartScene);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::TESTopicInfo::StartScene };
-			FUNC(this, a_ref);
+			std::invoke(FUNC, this, a_ref);
 		}
 
 		BGSScene* StartSceneOnEnd(ObjectRefHandle a_ref)

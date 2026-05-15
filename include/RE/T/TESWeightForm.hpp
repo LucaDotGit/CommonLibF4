@@ -21,7 +21,8 @@ namespace RE
 		void CopyComponent(BaseFormComponent* a_copy) override;					  // 05
 		void CopyComponent(BaseFormComponent* a_copy, TESForm* a_owner) override; // 06
 
-		[[nodiscard]] static auto GetFormWeight(const TESForm* a_form) -> std::optional<REX::Float32>;
+		[[nodiscard]] static auto GetFormWeight(const TESForm* a_form)
+			-> std::optional<REX::Float32>;
 		static bool SetFormWeight(TESForm* a_form, REX::Float32 a_weight);
 
 		// members

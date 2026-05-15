@@ -17,6 +17,7 @@ namespace RE
 		inline static constexpr auto NI_RTTI{ Ni_RTTI::BSTempEffectDebris };
 		inline static constexpr auto EFFECT_TYPE{ TEMP_EFFECT_TYPE::kDebris };
 
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
 		BSTempEffectDebris(
 			TESObjectCELL* a_parentCell,
 			REX::Float32 a_lifetime,
@@ -31,19 +32,43 @@ namespace RE
 			bool a_addDebrisCount,
 			bool isFirstPerson)
 		{
-			using FuncType = void (BSTempEffectDebris::*)(TESObjectCELL*, REX::Float32, const char*, TESObjectREFR*, const NiPoint3&, const NiMatrix3&, const NiPoint3&, const NiPoint3&, REX::Float32, bool, bool, bool);
+			using FuncType = void (BSTempEffectDebris::*)(
+				TESObjectCELL*,
+				REX::Float32,
+				const char*,
+				TESObjectREFR*,
+				const NiPoint3&,
+				const NiMatrix3&,
+				const NiPoint3&,
+				const NiPoint3&,
+				REX::Float32,
+				bool,
+				bool,
+				bool);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSTempEffectDebris::ctor };
-			FUNC(this, a_parentCell, a_lifetime, a_fileName, a_sourceRef, a_position, a_rotation, a_startLinearVelocity, a_startAngularVelocity, a_scale, a_useCache, a_addDebrisCount, isFirstPerson);
+			std::invoke(FUNC, this,
+				a_parentCell,
+				a_lifetime,
+				a_fileName,
+				a_sourceRef,
+				a_position,
+				a_rotation,
+				a_startLinearVelocity,
+				a_startAngularVelocity,
+				a_scale,
+				a_useCache,
+				a_addDebrisCount,
+				isFirstPerson);
 		}
 
 		~BSTempEffectDebris() override; // 00
 
 		// members
-		NiPointer<NiAVObject> debris3D;		   // 30
-		const char* debrisFilename{ nullptr }; // 38
-		bool useDebrisCounter{ false };		   // 40
-		bool forceDelete{ false };			   // 41
-		bool firstPerson{ false };			   // 42
+		NiPointer<NiAVObject> debris3D; // 30
+		const char* debrisFilename;		// 38
+		bool useDebrisCounter;			// 40
+		bool forceDelete;				// 41
+		bool firstPerson;				// 42
 	};
 	static_assert(sizeof(BSTempEffectDebris) == 0x48);
 }

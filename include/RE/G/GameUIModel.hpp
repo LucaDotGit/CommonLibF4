@@ -65,14 +65,14 @@ namespace RE
 		{
 			using FuncType = decltype(&GameUIModel::SetGameColors);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::GameUIModel::SetGameColors };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void UpdateDataModels()
 		{
 			using FuncType = decltype(&GameUIModel::UpdateDataModels);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::GameUIModel::UpdateDataModels };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

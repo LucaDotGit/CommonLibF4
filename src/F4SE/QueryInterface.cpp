@@ -1,7 +1,5 @@
 #include "F4SE/QueryInterface.hpp"
 
-#include "REX/Message.hpp"
-
 namespace F4SE::Impl
 {
 	struct F4SEInterface final
@@ -17,7 +15,7 @@ namespace F4SE::Impl
 		const char*(F4SE_API* GetSaveFolderName)(); // since F4SE v0.7.1
 	};
 
-	[[nodiscard]] static const F4SEInterface& GetProxy(const QueryInterface* a_interface) noexcept
+	[[nodiscard]] __forceinline static const F4SEInterface& GetProxy(const QueryInterface* a_interface) noexcept
 	{
 		return reinterpret_cast<const F4SEInterface&>(*a_interface);
 	}
@@ -45,7 +43,7 @@ namespace F4SE
 		return Impl::GetProxy(this).isEditor != 0;
 	}
 
-	REX::Observer<void*> QueryInterface::DoQueryInterface(InterfaceID a_id) const
+	REX::Observer<void*> QueryInterface::Query(InterfaceID a_id) const
 	{
 		return Impl::GetProxy(this).QueryInterface(std::to_underlying(a_id));
 	}
@@ -81,11 +79,5 @@ namespace F4SE
 		}
 
 		return "Fallout4"sv;
-	}
-
-	void QueryInterface::FailDoQueryInterfaceImpl(InterfaceID a_id, std::uint32_t a_version)
-	{
-		REX::Fail("Failed to get xSE interface {} v{}."sv,
-			a_id, a_version);
 	}
 }

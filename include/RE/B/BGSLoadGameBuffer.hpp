@@ -22,7 +22,7 @@ namespace RE
 		{
 			using FuncType = decltype(&BGSLoadGameBuffer::LoadDataEndian);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSLoadGameBuffer::LoadDataEndian };
-			FUNC(this, a_data, a_offset, a_size);
+			std::invoke(FUNC, this, a_data, a_offset, a_size);
 		}
 
 		// members

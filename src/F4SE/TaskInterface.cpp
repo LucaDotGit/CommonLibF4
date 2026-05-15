@@ -13,7 +13,7 @@ namespace F4SE::Impl
 		void(F4SE_API* AddTaskPermanent)(void*); // since F4SE v0.7.1
 	};
 
-	[[nodiscard]] static const F4SETaskInterface& GetProxy(const TaskInterface* a_interface) noexcept
+	[[nodiscard]] __forceinline static const F4SETaskInterface& GetProxy(const TaskInterface* a_interface) noexcept
 	{
 		return reinterpret_cast<const F4SETaskInterface&>(*a_interface);
 	}
@@ -54,7 +54,7 @@ namespace F4SE
 		}
 
 		auto taskRepeater = std::make_shared<std::function<void()>>();
-		*taskRepeater = [this, a_task, taskRepeater]() {
+		*taskRepeater = [this, a_task, taskRepeater]() -> void {
 			a_task->Run();
 			AddTask(*taskRepeater);
 		};
@@ -72,7 +72,7 @@ namespace F4SE
 		auto permanentTask = std::make_shared<TaskDelegate>(std::move(a_task));
 
 		auto taskRepeater = std::make_shared<std::function<void()>>();
-		*taskRepeater = [this, permanentTask, taskRepeater]() {
+		*taskRepeater = [this, permanentTask, taskRepeater]() -> void {
 			permanentTask->Run();
 			AddTask(*taskRepeater);
 		};
@@ -83,7 +83,7 @@ namespace F4SE
 	void TaskInterface::AddUITaskPermanent(REX::NotNull<REX::Owner<ITaskDelegate*>> a_task) const
 	{
 		auto taskRepeater = std::make_shared<std::function<void()>>();
-		*taskRepeater = [this, a_task, taskRepeater]() {
+		*taskRepeater = [this, a_task, taskRepeater]() -> void {
 			a_task->Run();
 			AddUITask(*taskRepeater);
 		};
@@ -96,7 +96,7 @@ namespace F4SE
 		auto permanentTask = std::make_shared<TaskDelegate>(std::move(a_task));
 
 		auto taskRepeater = std::make_shared<std::function<void()>>();
-		*taskRepeater = [this, permanentTask, taskRepeater]() {
+		*taskRepeater = [this, permanentTask, taskRepeater]() -> void {
 			permanentTask->Run();
 			AddUITask(*taskRepeater);
 		};

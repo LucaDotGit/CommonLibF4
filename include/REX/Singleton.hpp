@@ -21,7 +21,8 @@ namespace REX
 		Singleton& operator=(const Singleton&) = delete;
 		Singleton& operator=(Singleton&&) = delete;
 
-		[[nodiscard]] static auto GetSingleton() -> const REX::NotNull<std::unique_ptr<T>>&
+		[[nodiscard]] static auto GetSingleton()
+			-> const REX::NotNull<std::unique_ptr<T>>&
 		{
 			static const auto INSTANCE = REX::NotNull(std::make_unique<T>());
 			return INSTANCE;

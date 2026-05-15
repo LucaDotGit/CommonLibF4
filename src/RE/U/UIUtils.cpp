@@ -6,7 +6,7 @@ namespace RE::UIUtils
 	{
 		using FuncType = decltype(&UIUtils::GetComparisonItems);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::UIUtils::GetComparisonItems };
-		FUNC(a_object, a_comparisonItems);
+		std::invoke(FUNC, a_object, a_comparisonItems);
 	}
 
 	bool HasRequiredInventoryForCraftingMenu(TESObjectREFR* a_furniture)
@@ -20,27 +20,27 @@ namespace RE::UIUtils
 	{
 		using FuncType = decltype(&UIUtils::PlayPipboySound);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::UIUtils::PlayPipboySound };
-		FUNC(a_soundName);
+		std::invoke(FUNC, a_soundName);
 	}
 
 	void PlayMenuSound(const char* a_soundName)
 	{
 		using FuncType = decltype(&UIUtils::PlayMenuSound);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::UIUtils::PlayMenuSound };
-		FUNC(a_soundName);
+		std::invoke(FUNC, a_soundName);
 	}
 
 	void ShowCraftingMenu(TESObjectREFR* a_furniture)
 	{
 		using FuncType = decltype(&UIUtils::ShowCraftingMenu);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::UIUtils::ShowCraftingMenu };
-		FUNC(a_furniture);
+		std::invoke(FUNC, a_furniture);
 	}
 
 	void UpdateGamepadDependentButtonCodes(bool a_usingGamepad)
 	{
 		using FuncType = decltype(&UIUtils::UpdateGamepadDependentButtonCodes);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::UIUtils::UpdateGamepadDependentButtonCodes };
-		FUNC(a_usingGamepad);
+		std::invoke(FUNC, a_usingGamepad);
 	}
 }

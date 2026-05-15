@@ -33,7 +33,8 @@ namespace RE::BSScript
 		return linkedValid == LinkValidState::kLinkedInvalid;
 	}
 
-	auto StructTypeInfo::GetVariableIndex(const BSFixedString& a_name) const -> std::optional<std::uint32_t>
+	auto StructTypeInfo::GetVariableIndex(const BSFixedString& a_name) const
+		-> std::optional<std::uint32_t>
 	{
 		const auto varIt = varNameIndexMap.find(a_name);
 		if (varIt == varNameIndexMap.end()) {

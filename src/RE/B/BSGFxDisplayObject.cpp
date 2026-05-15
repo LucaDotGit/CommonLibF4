@@ -31,12 +31,12 @@ namespace RE
 	{
 		using FuncType = decltype(&BSGFxDisplayObject::RemoveChild);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSGFxDisplayObject::RemoveChild };
-		FUNC(this, a_child);
+		std::invoke(FUNC, this, a_child);
 	}
 
 	void BSGFxDisplayObject::ctor_shared()
 	{
-		REL::EmplaceVtable(this);
+		// REL::EmplaceVtable(this);
 
 		auto width = ::Scaleform::GFx::Value();
 		if (GetMember("width", std::addressof(width)) && width.IsNumber()) {

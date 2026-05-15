@@ -12,8 +12,13 @@ namespace RE
 
 		constexpr NiTransform() noexcept = default;
 
+		constexpr NiTransform(const NiMatrix3& a_rotation, const NiPoint3& a_translation) noexcept
+			: rotation(a_rotation), translation(a_translation)
+		{
+		}
+
 		constexpr NiTransform(const NiMatrix3& a_rotation, const NiPoint3& a_translation, REX::Float32 a_scale) noexcept
-			: rotate(a_rotation), translate(a_translation), scale(a_scale)
+			: rotation(a_rotation), translation(a_translation), scale(a_scale)
 		{
 		}
 
@@ -26,8 +31,8 @@ namespace RE
 		constexpr NiTransform& operator=(NiTransform&&) noexcept = default;
 
 		// members
-		NiMatrix3 rotate;			   // 00
-		NiPoint3 translate;			   // 30
+		NiMatrix3 rotation;			   // 00
+		NiPoint3 translation;		   // 30
 		REX::Float32 scale{ 1.0_f32 }; // 3C
 	};
 	static_assert(sizeof(NiTransform) == 0x40);

@@ -32,49 +32,49 @@ namespace RE
 		{
 			using FuncType = decltype(&Inventory3DManager::Begin3D);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Inventory3DManager::Begin3D };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void ClearModel()
 		{
 			using FuncType = decltype(&Inventory3DManager::ClearModel);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Inventory3DManager::ClearModel };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void DisableRendering(const BSFixedString& a_userID)
 		{
 			using FuncType = decltype(&Inventory3DManager::DisableRendering);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Inventory3DManager::DisableRendering };
-			FUNC(this, a_userID);
+			std::invoke(FUNC, this, a_userID);
 		}
 
 		void EnableRendering(const BSFixedString& a_userID)
 		{
 			using FuncType = decltype(&Inventory3DManager::EnableRendering);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Inventory3DManager::EnableRendering };
-			FUNC(this, a_userID);
+			std::invoke(FUNC, this, a_userID);
 		}
 
 		void End3D()
 		{
 			using FuncType = decltype(&Inventory3DManager::End3D);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Inventory3DManager::End3D };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void SetModelScale(REX::Float32 a_scale)
 		{
 			using FuncType = decltype(&Inventory3DManager::SetModelScale);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Inventory3DManager::SetModelScale };
-			FUNC(this, a_scale);
+			std::invoke(FUNC, this, a_scale);
 		}
 
 		void SetModelScreenPosition(const NiPoint3& a_position, bool a_screenCoords)
 		{
 			using FuncType = decltype(&Inventory3DManager::SetModelScreenPosition);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Inventory3DManager::SetModelScreenPosition };
-			FUNC(this, a_position, a_screenCoords);
+			std::invoke(FUNC, this, a_position, a_screenCoords);
 		}
 
 		// members

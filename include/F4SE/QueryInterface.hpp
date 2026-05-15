@@ -2,6 +2,7 @@
 
 #include "F4SE/Core.hpp"
 
+#include "REX/Message.hpp"
 #include "REX/Own.hpp"
 
 namespace F4SE::Impl
@@ -50,7 +51,7 @@ namespace F4SE
 		[[nodiscard]] REX::Version GetRuntimeVersion() const noexcept;
 		[[nodiscard]] REX::Version GetEditorVersion() const noexcept;
 		[[nodiscard]] bool IsEditor() const noexcept;
-		[[nodiscard]] REX::Observer<void*> DoQueryInterface(InterfaceID a_id) const;
+		[[nodiscard]] REX::Observer<void*> Query(InterfaceID a_id) const;
 		[[nodiscard]] PluginHandle GetPluginHandle() const;
 		[[nodiscard]] std::uint32_t GetReleaseIndex() const;
 		[[nodiscard]] REX::Observer<const PluginInfo*> GetPluginInfo(const char* a_name) const;
@@ -58,21 +59,19 @@ namespace F4SE
 		[[nodiscard]] std::string_view GetSaveFolderName() const;
 
 		template <Impl::QueryInterfaceConstraint T>
-		[[nodiscard]] REX::Observer<T*> DoQueryInterface() const
+		[[nodiscard]] REX::Observer<T*> Query() const
 		{
 			constexpr auto INTERFACE_ID = T::INTERFACE_ID;
 			constexpr auto INTERFACE_VERSION = T::INTERFACE_VERSION;
 
-			auto* interface = reinterpret_cast<T*>(DoQueryInterface(INTERFACE_ID));
+			auto* interface = reinterpret_cast<T*>(Query(INTERFACE_ID));
 			if (!interface || interface->GetVersion() > INTERFACE_VERSION) [[unlikely]] {
-				FailDoQueryInterfaceImpl(INTERFACE_ID, INTERFACE_VERSION);
+				REX::Fail("Failed to get xSE interface {} v{}."sv,
+					INTERFACE_ID, INTERFACE_VERSION);
 			}
 
 			return interface;
 		}
-
-	private:
-		[[noreturn]] static void FailDoQueryInterfaceImpl(InterfaceID a_id, std::uint32_t a_version);
 	};
 	static_assert(std::is_empty_v<QueryInterface>);
 }
@@ -86,40 +85,40 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const F4SE::QueryInterface::InterfaceID& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const F4SE::QueryInterface::InterfaceID& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
 			switch (a_value) {
 				case F4SE::QueryInterface::InterfaceID::kMessaging: {
-					return format_to(a_ctx.out(), "{}"sv, "Messaging"sv);
+					return format_to(a_context.out(), "{}"sv, "Messaging"sv);
 				}
 				case F4SE::QueryInterface::InterfaceID::kScaleform: {
-					return format_to(a_ctx.out(), "{}"sv, "Scaleform"sv);
+					return format_to(a_context.out(), "{}"sv, "Scaleform"sv);
 				}
 				case F4SE::QueryInterface::InterfaceID::kPapyrus: {
-					return format_to(a_ctx.out(), "{}"sv, "Papyrus"sv);
+					return format_to(a_context.out(), "{}"sv, "Papyrus"sv);
 				}
 				case F4SE::QueryInterface::InterfaceID::kSerialization: {
-					return format_to(a_ctx.out(), "{}"sv, "Serialization"sv);
+					return format_to(a_context.out(), "{}"sv, "Serialization"sv);
 				}
 				case F4SE::QueryInterface::InterfaceID::kTask: {
-					return format_to(a_ctx.out(), "{}"sv, "Task"sv);
+					return format_to(a_context.out(), "{}"sv, "Task"sv);
 				}
 				case F4SE::QueryInterface::InterfaceID::kObject: {
-					return format_to(a_ctx.out(), "{}"sv, "Object"sv);
+					return format_to(a_context.out(), "{}"sv, "Object"sv);
 				}
 				case F4SE::QueryInterface::InterfaceID::kTrampoline: {
-					return format_to(a_ctx.out(), "{}"sv, "Trampoline"sv);
+					return format_to(a_context.out(), "{}"sv, "Trampoline"sv);
 				}
 				[[unlikely]] default: {
-					return format_to(a_ctx.out(), "{}"sv, "Unknown"sv);
+					return format_to(a_context.out(), "{}"sv, "Unknown"sv);
 				}
 			}
 		}
@@ -136,40 +135,40 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const F4SE::QueryInterface::InterfaceID& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const F4SE::QueryInterface::InterfaceID& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
 			switch (a_value) {
 				case F4SE::QueryInterface::InterfaceID::kMessaging: {
-					return format_to(a_ctx.out(), "{}"sv, "Messaging"sv);
+					return format_to(a_context.out(), "{}"sv, "Messaging"sv);
 				}
 				case F4SE::QueryInterface::InterfaceID::kScaleform: {
-					return format_to(a_ctx.out(), "{}"sv, "Scaleform"sv);
+					return format_to(a_context.out(), "{}"sv, "Scaleform"sv);
 				}
 				case F4SE::QueryInterface::InterfaceID::kPapyrus: {
-					return format_to(a_ctx.out(), "{}"sv, "Papyrus"sv);
+					return format_to(a_context.out(), "{}"sv, "Papyrus"sv);
 				}
 				case F4SE::QueryInterface::InterfaceID::kSerialization: {
-					return format_to(a_ctx.out(), "{}"sv, "Serialization"sv);
+					return format_to(a_context.out(), "{}"sv, "Serialization"sv);
 				}
 				case F4SE::QueryInterface::InterfaceID::kTask: {
-					return format_to(a_ctx.out(), "{}"sv, "Task"sv);
+					return format_to(a_context.out(), "{}"sv, "Task"sv);
 				}
 				case F4SE::QueryInterface::InterfaceID::kObject: {
-					return format_to(a_ctx.out(), "{}"sv, "Object"sv);
+					return format_to(a_context.out(), "{}"sv, "Object"sv);
 				}
 				case F4SE::QueryInterface::InterfaceID::kTrampoline: {
-					return format_to(a_ctx.out(), "{}"sv, "Trampoline"sv);
+					return format_to(a_context.out(), "{}"sv, "Trampoline"sv);
 				}
 				[[unlikely]] default: {
-					return format_to(a_ctx.out(), "{}"sv, "Unknown"sv);
+					return format_to(a_context.out(), "{}"sv, "Unknown"sv);
 				}
 			}
 		}

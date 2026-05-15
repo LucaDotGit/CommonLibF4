@@ -42,14 +42,14 @@ namespace RE::BGSMod::Attachment
 		{
 			using FuncType = decltype(&Mod::FindFilesForLooseMod);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSMod::Attachment::Mod::FindFilesForLooseMod };
-			FUNC(a_looseMod, a_result);
+			std::invoke(FUNC, a_looseMod, a_result);
 		}
 
 		void GetData(Data& a_data) const
 		{
 			using FuncType = decltype(&Mod::GetData);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSMod::Attachment::Mod::GetData };
-			FUNC(this, a_data);
+			std::invoke(FUNC, this, a_data);
 		}
 
 		[[nodiscard]] TESObjectMISC* GetLooseMod() const
@@ -63,7 +63,7 @@ namespace RE::BGSMod::Attachment
 		{
 			using FuncType = decltype(&Mod::SetLooseMod);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSMod::Attachment::Mod::SetLooseMod };
-			FUNC(this, misc);
+			std::invoke(FUNC, this, misc);
 		}
 
 		// members

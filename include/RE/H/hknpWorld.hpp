@@ -7,7 +7,8 @@
 #include "RE/H/hkRefPtr.hpp"
 #include "RE/H/hkReferencedObject.hpp"
 #include "RE/H/hkSimdFloat32.hpp"
-#include "RE/H/hkVector4f.hpp"
+#include "RE/H/hkVector4.hpp"
+#include "RE/H/hkcdRayQueryFlags.hpp"
 #include "RE/H/hknpBodyManager.hpp"
 #include "RE/H/hknpConstraintManager.hpp"
 #include "RE/H/hknpContactSolverType.hpp"
@@ -20,6 +21,8 @@
 
 namespace RE
 {
+	enum class hknpCollisionFlags : std::uint32_t;
+
 	class hkBlockStreamAllocator;
 	class hknpActionManager;
 	class hknpBodyQualityLibrary;
@@ -61,6 +64,12 @@ namespace RE
 			kAddBodyInNextStep = 2
 		};
 
+		enum class RebuildCachesMode : std::int8_t
+		{
+			kRebuild = 0,
+			kKeep = 1
+		};
+
 		enum class SimulationStage : std::uint32_t
 		{
 			kNone = 0,
@@ -74,6 +83,66 @@ namespace RE
 		};
 
 		~hknpWorld() override; // 00
+
+		void AddBodies(hknpBodyId* a_ids, std::uint32_t a_idCount, AdditionMode a_additionMode, hkcdRayQueryFlags::Enum a_additionFlags)
+		{
+			using FuncType = decltype(&hknpWorld::AddBodies);
+			static const auto FUNC = REL::Relocation<FuncType>{ ID::hknpWorld::AddBodies };
+			std::invoke(FUNC, this, a_ids, a_idCount, a_additionMode, a_additionFlags);
+		}
+
+		[[nodiscard]] hknpBodyId& CreateBody(const hknpBodyCinfo& a_cInfo, AdditionMode a_additionMode = AdditionMode::kAddBodyNow, hkcdRayQueryFlags::Enum a_additionFlags = hkcdRayQueryFlags::Enum::kNone)
+		{
+			using FuncType = hknpBodyId&(hknpWorld*, hknpBodyId&, const hknpBodyCinfo&, AdditionMode, hkcdRayQueryFlags::Enum);
+			static const auto FUNC = REL::Relocation<FuncType>{ ID::hknpWorld::CreateBody };
+
+			auto bodyId = hknpBodyId();
+			return std::invoke(FUNC, this, bodyId, a_cInfo, a_additionMode, a_additionFlags);
+		}
+
+		[[nodiscard]] hknpMotionId& CreateMotion(const hknpMotionCinfo& a_cInfo)
+		{
+			using FuncType = hknpMotionId&(hknpWorld*, hknpMotionId&, const hknpMotionCinfo&);
+			static const auto FUNC = REL::Relocation<FuncType>{ ID::hknpWorld::CreateMotion };
+
+			auto motionId = hknpMotionId();
+			return std::invoke(FUNC, this, motionId, a_cInfo);
+		}
+
+		void DisableBodyFlags(hknpBodyId a_bodyId, hknpCollisionFlags a_enabledFlags, RebuildCachesMode a_cacheBehavior = RebuildCachesMode::kRebuild)
+		{
+			using FuncType = decltype(&hknpWorld::DisableBodyFlags);
+			static const auto FUNC = REL::Relocation<FuncType>{ ID::hknpWorld::DisableBodyFlags };
+			std::invoke(FUNC, this, a_bodyId, a_enabledFlags, a_cacheBehavior);
+		}
+
+		void EnableBodyFlags(hknpBodyId a_bodyId, hknpCollisionFlags a_enabledFlags, RebuildCachesMode a_cacheBehavior = RebuildCachesMode::kRebuild)
+		{
+			using FuncType = decltype(&hknpWorld::EnableBodyFlags);
+			static const auto FUNC = REL::Relocation<FuncType>{ ID::hknpWorld::EnableBodyFlags };
+			std::invoke(FUNC, this, a_bodyId, a_enabledFlags, a_cacheBehavior);
+		}
+
+		[[nodiscard]] hknpActionManager* GetActionManager()
+		{
+			using FuncType = decltype(&hknpWorld::GetActionManager);
+			static const auto FUNC = REL::Relocation<FuncType>{ ID::hknpWorld::GetActionManager };
+			return std::invoke(FUNC, this);
+		}
+
+		void SetBodyCollisionFilterInfo(hknpBodyId a_bodyId, std::uint32_t a_collisionFilterInfo, RebuildCachesMode a_cacheBehavior = RebuildCachesMode::kRebuild)
+		{
+			using FuncType = decltype(&hknpWorld::SetBodyCollisionFilterInfo);
+			static const auto FUNC = REL::Relocation<FuncType>{ ID::hknpWorld::SetBodyCollisionFilterInfo };
+			std::invoke(FUNC, this, a_bodyId, a_collisionFilterInfo, a_cacheBehavior);
+		}
+
+		void SetBodyMotion(hknpBodyId a_bodyId, hknpMotionId a_motionId, RebuildCachesMode a_cacheBehavior = RebuildCachesMode::kRebuild)
+		{
+			using FuncType = decltype(&hknpWorld::SetBodyMotion);
+			static const auto FUNC = REL::Relocation<FuncType>{ ID::hknpWorld::SetBodyMotion };
+			std::invoke(FUNC, this, a_bodyId, a_motionId, a_cacheBehavior);
+		}
 
 		// members
 		hknpBodyManager bodyManager;																	 // 010
@@ -106,7 +175,7 @@ namespace RE
 		hkPrimaryCommandDispatcher* commandDispatcher;													 // 598
 		hkRefPtr<hkSecondaryCommandDispatcher> traceDispatcher;											 // 5A0
 		std::uint16_t userData;																			 // 5A8
-		hkVector4f gravity;																				 // 5B0
+		hkVector4 gravity;																				 // 5B0
 		hkRefPtr<hkReferencedObject> defaultModifierSet;												 // 5C0
 		hkRefPtr<hknpMaterialLibrary> materialLibrary;													 // 5C8
 		hkRefPtr<hknpMotionPropertiesLibrary> motionPropertiesLibrary;									 // 5D0

@@ -203,7 +203,8 @@ namespace REL
 		return totalSize;
 	}
 
-	auto GetHookStore() -> const REX::NotNull<std::unique_ptr<HookStore>>&
+	auto GetHookStore()
+		-> const REX::NotNull<std::unique_ptr<HookStore>>&
 	{
 		static const auto INSTANCE = REX::NotNull(std::make_unique<REL::HookStore>());
 		return INSTANCE;

@@ -71,7 +71,7 @@ namespace RE
 		{
 			using FuncType = decltype(&FavoritesManager::ClearCurrentAmmoCount);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::FavoritesManager::ClearCurrentAmmoCount };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		[[nodiscard]] bool UseQuickkeyItem(std::uint32_t a_quickkeyIndex)

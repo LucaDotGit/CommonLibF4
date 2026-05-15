@@ -2,7 +2,8 @@
 
 namespace RE
 {
-	auto BGSMaterialType::GetMaterialIDMap() -> BSTHashMap<std::uint32_t, BGSMaterialType*>&
+	auto BGSMaterialType::GetMaterialIDMap()
+		-> BSTHashMap<std::uint32_t, BGSMaterialType*>&
 	{
 		static const auto MATERIAL_ID_MAP = REL::Relocation<BSTHashMap<std::uint32_t, BGSMaterialType*>*>{ ID::BGSMaterialType::MaterialIDMap, Offset::BGSMaterialType::MaterialIDMap };
 		return *MATERIAL_ID_MAP;

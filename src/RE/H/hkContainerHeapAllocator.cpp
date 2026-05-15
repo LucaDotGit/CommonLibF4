@@ -37,7 +37,7 @@ namespace RE
 			allocator.free(a_ptr, a_size);
 		}
 		catch (...) {
-			REX::DeallocationFail();
+			REX::Fail("Failed to free memory."sv);
 		}
 	}
 }

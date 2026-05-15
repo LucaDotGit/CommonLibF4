@@ -4,7 +4,8 @@
 
 namespace RE
 {
-	auto TESDescription::GetFormDescription(const TESForm* a_form) -> std::optional<BSFixedStringCS>
+	auto TESDescription::GetFormDescription(const TESForm* a_form)
+		-> std::optional<BSFixedStringCS>
 	{
 		if (!a_form) {
 			return std::nullopt;

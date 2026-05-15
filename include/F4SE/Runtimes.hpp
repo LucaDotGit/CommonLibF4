@@ -38,20 +38,48 @@ namespace F4SE
 	[[nodiscard]] bool IsRuntimeOnlyNG() noexcept;
 	[[nodiscard]] bool IsRuntimeOnlyAE() noexcept;
 
-	using VariantId = REL::Id<RUNTIME_LATEST_OG, RUNTIME_LATEST_NG, RUNTIME_LATEST_AE>;
-	using VRVariantId = REL::Id<RUNTIME_LATEST_VR, RUNTIME_LATEST_OG, RUNTIME_LATEST_NG, RUNTIME_LATEST_AE>;
+	using VariantId = REL::Id<
+		RUNTIME_LATEST_OG,
+		RUNTIME_LATEST_NG,
+		RUNTIME_LATEST_AE>;
+	using VRVariantId = REL::Id<
+		RUNTIME_LATEST_VR,
+		RUNTIME_LATEST_OG,
+		RUNTIME_LATEST_NG,
+		RUNTIME_LATEST_AE>;
 
-	using VariantOffset = REL::Offset<RUNTIME_LATEST_OG, RUNTIME_LATEST_NG, RUNTIME_LATEST_AE>;
-	using VRVariantOffset = REL::Offset<RUNTIME_LATEST_VR, RUNTIME_LATEST_OG, RUNTIME_LATEST_NG, RUNTIME_LATEST_AE>;
+	using VariantOffset = REL::Offset<
+		RUNTIME_LATEST_OG,
+		RUNTIME_LATEST_NG,
+		RUNTIME_LATEST_AE>;
+	using VRVariantOffset = REL::Offset<
+		RUNTIME_LATEST_VR,
+		RUNTIME_LATEST_OG,
+		RUNTIME_LATEST_NG,
+		RUNTIME_LATEST_AE>;
 
-	using VariantSize = REL::Size<RUNTIME_LATEST_OG, RUNTIME_LATEST_NG, RUNTIME_LATEST_AE>;
-	using VRVariantSize = REL::Size<RUNTIME_LATEST_VR, RUNTIME_LATEST_OG, RUNTIME_LATEST_NG, RUNTIME_LATEST_AE>;
+	using VariantSize = REL::Size<
+		RUNTIME_LATEST_OG,
+		RUNTIME_LATEST_NG,
+		RUNTIME_LATEST_AE>;
+	using VRVariantSize = REL::Size<
+		RUNTIME_LATEST_VR,
+		RUNTIME_LATEST_OG,
+		RUNTIME_LATEST_NG,
+		RUNTIME_LATEST_AE>;
 
 	template <class T>
-	using VariantValue = REL::Value<T, RUNTIME_LATEST_OG, RUNTIME_LATEST_NG, RUNTIME_LATEST_AE>;
+	using VariantValue = REL::Value<T,
+		RUNTIME_LATEST_OG,
+		RUNTIME_LATEST_NG,
+		RUNTIME_LATEST_AE>;
 
 	template <class T>
-	using VRVariantValue = REL::Value<T, RUNTIME_LATEST_VR, RUNTIME_LATEST_OG, RUNTIME_LATEST_NG, RUNTIME_LATEST_AE>;
+	using VRVariantValue = REL::Value<T,
+		RUNTIME_LATEST_VR,
+		RUNTIME_LATEST_OG,
+		RUNTIME_LATEST_NG,
+		RUNTIME_LATEST_AE>;
 
 	[[nodiscard]] constexpr auto CreateVariantId(
 		std::uintptr_t a_ogId,

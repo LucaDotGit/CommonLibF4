@@ -9,7 +9,7 @@ namespace Scaleform
 		{
 		public:
 			// members
-			std::uint64_t size;				// 00
+			std::size_t size;				// 00
 			volatile std::int32_t refCount; // 08
 			std::array<char, 1> data;		// 0C
 		};

@@ -37,14 +37,16 @@ namespace F4SE
 		[[nodiscard]] const char* GetObjectName() const override { return OBJECT_NAME.data(); }											   // 03
 
 		template <class... Args>
-		[[nodiscard]] auto CreateObject() const -> REX::NotNull<std::unique_ptr<value_type>>
+		[[nodiscard]] auto CreateObject() const
+			-> REX::NotNull<std::unique_ptr<value_type>>
 			requires(std::is_default_constructible_v<value_type>)
 		{
 			return CreateObjectImpl();
 		}
 
 		template <class... Args>
-		[[nodiscard]] auto CreateObject(Args&&... a_args) const -> REX::NotNull<std::unique_ptr<value_type>>
+		[[nodiscard]] auto CreateObject(Args&&... a_args) const
+			-> REX::NotNull<std::unique_ptr<value_type>>
 			requires(std::is_constructible_v<value_type, Args...>)
 		{
 			return CreateObjectImpl(std::forward<Args>(a_args)...);
@@ -56,14 +58,16 @@ namespace F4SE
 		}
 
 	private:
-		[[nodiscard]] static auto CreateObjectImpl() -> REX::NotNull<std::unique_ptr<value_type>>
+		[[nodiscard]] static auto CreateObjectImpl()
+			-> REX::NotNull<std::unique_ptr<value_type>>
 			requires(std::is_default_constructible_v<value_type>)
 		{
 			return std::make_unique<value_type>();
 		}
 
 		template <class... Args>
-		[[nodiscard]] static auto CreateObjectImpl(Args&&... a_args) -> REX::NotNull<std::unique_ptr<value_type>>
+		[[nodiscard]] static auto CreateObjectImpl(Args&&... a_args)
+			-> REX::NotNull<std::unique_ptr<value_type>>
 			requires(std::is_constructible_v<value_type, Args...>)
 		{
 			return std::make_unique<value_type>(std::forward<Args>(a_args)...);

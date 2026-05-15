@@ -12,7 +12,7 @@ namespace RE
 		inline static constexpr auto VTABLE{ VTABLE::TESTexture1024 };
 
 		// override (TESTexture)
-		std::uint32_t GetMaxAllowedSize() override { return 1024; } // 07
+		std::uint32_t GetMaxAllowedSize() override { return 0x400; } // 07
 	};
 	static_assert(sizeof(TESTexture1024) == 0x10);
 }

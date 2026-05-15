@@ -2,6 +2,7 @@
 
 #include "RE/B/BSTEvent.hpp"
 #include "RE/G/GameMenuBase.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 namespace RE
 {
@@ -34,7 +35,7 @@ namespace RE
 		{
 			using FuncType = decltype(&HUDMenu::SetHUDColor);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::HUDMenu::SetHUDColor };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

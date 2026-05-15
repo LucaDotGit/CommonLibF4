@@ -22,14 +22,14 @@ namespace RE
 	{
 		using FuncType = decltype(&TESObjectREFR::AddInventoryItem);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectREFR::AddInventoryItem };
-		FUNC(this, a_object, a_extra, a_count, a_oldContainer, a_filter, a_overrideRef);
+		std::invoke(FUNC, this, a_object, a_extra, a_count, a_oldContainer, a_filter, a_overrideRef);
 	}
 
 	void TESObjectREFR::AddLockChange()
 	{
 		using FuncType = decltype(&TESObjectREFR::AddLockChange);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectREFR::AddLockChange };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	ModelReferenceEffect* TESObjectREFR::ApplyArtObject(BGSArtObject* a_art, REX::Float32 a_time, TESObjectREFR* a_facingRef, bool a_attachToCamera, bool a_inheritRotation, NiAVObject* a_3D, bool a_interfaceEffect)
@@ -57,7 +57,7 @@ namespace RE
 	{
 		using FuncType = decltype(&TESObjectREFR::Enable);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectREFR::Enable };
-		FUNC(this, a_resetInventory);
+		std::invoke(FUNC, this, a_resetInventory);
 	}
 
 	void TESObjectREFR::FindAndWriteStackDataForInventoryItem(TESBoundObject* a_object, BGSInventoryItem::StackDataCompareFunctor& a_compareFunc, BGSInventoryItem::StackDataWriteFunctor& a_writeFunc, bool (*a_objCompFn)(TESBoundObject*, TESBoundObject*), bool a_alwaysContinue) const
@@ -106,7 +106,8 @@ namespace RE
 		return std::invoke(FUNC, this);
 	}
 
-	auto TESObjectREFR::GetDisplayName() const -> std::optional<BGSLocalizedString>
+	auto TESObjectREFR::GetDisplayName() const
+		-> std::optional<BGSLocalizedString>
 	{
 		auto* baseObject = data.objectReference;
 		if (!baseObject) {
@@ -197,7 +198,7 @@ namespace RE
 	{
 		using FuncType = decltype(&TESObjectREFR::GetObjectCenter);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectREFR::GetObjectCenter };
-		FUNC(this, a_center);
+		std::invoke(FUNC, this, a_center);
 	}
 
 	BSTSmartPointer<ExtraDataList> TESObjectREFR::GetOrCreateExtraList()
@@ -207,11 +208,7 @@ namespace RE
 		}
 
 		auto newExtraList = make_shared<ExtraDataList>();
-		if (!newExtraList) [[unlikely]] {
-			REX::AllocationFail();
-		}
-
-		extraList = std::move(newExtraList);
+		extraList = newExtraList;
 		return newExtraList;
 	}
 
@@ -323,7 +320,7 @@ namespace RE
 	{
 		using FuncType = decltype(&TESObjectREFR::MarkAsDeleted);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectREFR::MarkAsDeleted };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void TESObjectREFR::ModAngle(const NiPoint3A& a_delta) noexcept
@@ -374,14 +371,14 @@ namespace RE
 	{
 		using FuncType = decltype(&TESObjectREFR::MoveRefToNewSpace);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectREFR::MoveRefToNewSpace };
-		FUNC(this, a_interior, a_world);
+		std::invoke(FUNC, this, a_interior, a_world);
 	}
 
 	void TESObjectREFR::RebuildBendableSpline(bool a_rebuildCollision, NiAVObject* a_target)
 	{
 		using FuncType = decltype(&TESObjectREFR::RebuildBendableSpline);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectREFR::RebuildBendableSpline };
-		FUNC(this, a_rebuildCollision, a_target);
+		std::invoke(FUNC, this, a_rebuildCollision, a_target);
 	}
 
 	void TESObjectREFR::SetAngle(const NiPoint3A& a_point) noexcept
@@ -410,7 +407,7 @@ namespace RE
 	{
 		using FuncType = decltype(&TESObjectREFR::SetAngleOnReference);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectREFR::SetAngleOnReference };
-		FUNC(this, a_point);
+		std::invoke(FUNC, this, a_point);
 	}
 
 	void TESObjectREFR::SetBaseObject(TESBoundObject* a_object)
@@ -446,14 +443,14 @@ namespace RE
 	{
 		using FuncType = decltype(&TESObjectREFR::SetLinkedRef);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectREFR::SetLinkedRef };
-		FUNC(this, a_actor, a_keyword);
+		std::invoke(FUNC, this, a_actor, a_keyword);
 	}
 
 	void TESObjectREFR::SetLocationOnReference(const NiPoint3& a_point)
 	{
 		using FuncType = decltype(&TESObjectREFR::SetLocationOnReference);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectREFR::SetLocationOnReference };
-		FUNC(this, a_point);
+		std::invoke(FUNC, this, a_point);
 	}
 
 	void TESObjectREFR::SetPosition(const NiPoint3A& a_position) noexcept
@@ -480,31 +477,32 @@ namespace RE
 	{
 		using FuncType = decltype(&TESObjectREFR::SetScale);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectREFR::SetScale };
-		FUNC(this, a_scale);
+		std::invoke(FUNC, this, a_scale);
 	}
 
 	void TESObjectREFR::SetWantsDelete(bool a_delete)
 	{
 		using FuncType = decltype(&TESObjectREFR::SetWantsDelete);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectREFR::SetWantsDelete };
-		FUNC(this, a_delete);
+		std::invoke(FUNC, this, a_delete);
 	}
 
 	void TESObjectREFR::UpdateDynamicNavmesh(bool a_active)
 	{
 		using FuncType = decltype(&TESObjectREFR::UpdateDynamicNavmesh);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectREFR::UpdateDynamicNavmesh };
-		FUNC(this, a_active);
+		std::invoke(FUNC, this, a_active);
 	}
 
 	void TESObjectREFR::UpdateReference3D()
 	{
 		using FuncType = decltype(&TESObjectREFR::UpdateReference3D);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESObjectREFR::UpdateReference3D };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
-	auto TESObjectREFR::GetRefByNumericID(TESFormID a_formID) -> NiPointer<TESObjectREFR>
+	auto TESObjectREFR::GetRefByNumericID(TESFormID a_formID)
+		-> NiPointer<TESObjectREFR>
 	{
 		const auto&& [formIDMap, formIDMutex] = TESForm::GetAllFormsByNumericID();
 		if (!formIDMap) {
@@ -531,7 +529,8 @@ namespace RE
 		return NiPointer(ref);
 	}
 
-	auto TESObjectREFR::GetRefByEditorID(const BSFixedString& a_editorID) -> NiPointer<TESObjectREFR>
+	auto TESObjectREFR::GetRefByEditorID(const BSFixedString& a_editorID)
+		-> NiPointer<TESObjectREFR>
 	{
 		const auto&& [editorIDMap, editorIDMutex] = TESForm::GetAllFormsByEditorID();
 		if (!editorIDMap) {
@@ -558,7 +557,8 @@ namespace RE
 		return NiPointer(ref);
 	}
 
-	auto TESObjectREFR::FindFormOrRefByNumericID(TESFormID a_formID) -> std::optional<std::variant<TESForm*, NiPointer<TESObjectREFR>>>
+	auto TESObjectREFR::FindFormOrRefByNumericID(TESFormID a_formID)
+		-> std::optional<std::variant<TESForm*, NiPointer<TESObjectREFR>>>
 	{
 		// Returning only a `TESForm` pointer may end up in a dangling pointer if the form is a reference
 		// and gets deleted right after the pointer is returned.
@@ -589,7 +589,8 @@ namespace RE
 		return NiPointer(ref);
 	}
 
-	auto TESObjectREFR::FindFormOrRefByEditorID(const BSFixedString& a_editorID) -> std::optional<std::variant<TESForm*, NiPointer<TESObjectREFR>>>
+	auto TESObjectREFR::FindFormOrRefByEditorID(const BSFixedString& a_editorID)
+		-> std::optional<std::variant<TESForm*, NiPointer<TESObjectREFR>>>
 	{
 		// Returning only a `TESForm` pointer may end up in a dangling pointer if the form is a reference
 		// and gets deleted right after the pointer is returned.
@@ -620,7 +621,8 @@ namespace RE
 		return NiPointer(ref);
 	}
 
-	auto TESObjectREFR::ContainsKeyword(const TESObjectREFR* a_ref, const BGSKeyword* a_keyword) -> std::optional<bool>
+	auto TESObjectREFR::ContainsKeyword(const TESObjectREFR* a_ref, const BGSKeyword* a_keyword)
+		-> std::optional<bool>
 	{
 		if (!a_ref || !a_keyword) {
 			return std::nullopt;
@@ -649,7 +651,8 @@ namespace RE
 		return std::ranges::contains(extraData->extraKeywords, a_keyword);
 	}
 
-	auto TESObjectREFR::GetKeywordCount(const TESObjectREFR* a_ref) -> std::optional<std::uint32_t>
+	auto TESObjectREFR::GetKeywordCount(const TESObjectREFR* a_ref)
+		-> std::optional<std::uint32_t>
 	{
 		if (!a_ref) {
 			return std::nullopt;
@@ -676,7 +679,8 @@ namespace RE
 		return baseKeywordCount.value_or(0) + extraData->extraKeywords.size();
 	}
 
-	auto TESObjectREFR::GetKeywordIndex(const TESObjectREFR* a_ref, const BGSKeyword* a_keyword) -> std::optional<std::uint32_t>
+	auto TESObjectREFR::GetKeywordIndex(const TESObjectREFR* a_ref, const BGSKeyword* a_keyword)
+		-> std::optional<std::uint32_t>
 	{
 		if (!a_ref || !a_keyword) {
 			return std::nullopt;
@@ -715,7 +719,8 @@ namespace RE
 		return baseKeywordCount.value_or(0) + extraIndex;
 	}
 
-	auto TESObjectREFR::GetKeywords(const TESObjectREFR* a_ref) -> std::optional<std::vector<BGSKeyword*>>
+	auto TESObjectREFR::GetKeywords(const TESObjectREFR* a_ref)
+		-> std::optional<std::vector<BGSKeyword*>>
 	{
 		if (!a_ref) {
 			return std::nullopt;

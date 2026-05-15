@@ -37,8 +37,8 @@ namespace RE
 		explicit Setting(const char* a_key, std::int32_t a_value) noexcept;
 		explicit Setting(const char* a_key, std::uint32_t a_value) noexcept;
 		explicit Setting(const char* a_key, REX::Float32 a_value) noexcept;
-		explicit Setting(const char* a_key, const char* a_value) noexcept;
-		explicit Setting(const char* a_key, REX::zstring_view a_value) noexcept;
+		explicit Setting(const char* a_key, char* a_value) noexcept;
+		explicit Setting(const char* a_key, REX::zstring_view a_value);
 		explicit Setting(const char* a_key, std::span<const std::uint8_t, 3> a_value) noexcept;
 		explicit Setting(const char* a_key, std::span<const std::uint8_t, 4> a_value) noexcept;
 
@@ -57,7 +57,7 @@ namespace RE
 		Setting& operator=(std::uint32_t a_value) noexcept;
 		Setting& operator=(REX::Float32 a_value) noexcept;
 		Setting& operator=(char* a_value) noexcept;
-		Setting& operator=(REX::zstring_view a_value) noexcept;
+		Setting& operator=(REX::zstring_view a_value);
 		Setting& operator=(std::span<const std::uint8_t, 3> a_value) noexcept;
 		Setting& operator=(std::span<const std::uint8_t, 4> a_value) noexcept;
 
@@ -112,7 +112,7 @@ namespace RE
 		void SetUInt(std::uint32_t a_value) noexcept;
 		void SetFloat(REX::Float32 a_value) noexcept;
 		void SetString(char* a_value) noexcept;
-		void SetString(REX::zstring_view a_value) noexcept;
+		void SetStringView(REX::zstring_view a_value);
 		void SetRGB(std::span<const std::uint8_t, 3> a_value) noexcept;
 		void SetRGBA(std::span<const std::uint8_t, 4> a_value) noexcept;
 
@@ -151,17 +151,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::Setting& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::Setting& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, a_value.ToString());
+			return format_to(a_context.out(), "{}"sv, a_value.ToString());
 		}
 	};
 }
@@ -176,17 +176,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const RE::Setting& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const RE::Setting& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, a_value.ToString());
+			return format_to(a_context.out(), "{}"sv, a_value.ToString());
 		}
 	};
 }

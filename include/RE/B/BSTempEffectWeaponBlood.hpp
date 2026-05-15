@@ -22,7 +22,7 @@ namespace RE
 		{
 			using FuncType = decltype(&BSTempEffectWeaponBlood::ClearEffectForWeapon);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSTempEffectWeaponBlood::ClearEffectForWeapon };
-			FUNC(a_weapon3D);
+			std::invoke(FUNC, a_weapon3D);
 		}
 
 		// members

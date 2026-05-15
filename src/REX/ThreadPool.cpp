@@ -55,7 +55,7 @@ namespace REX
 	{
 		while (true) {
 			auto queueLock = std::unique_lock(_queueMutex);
-			_queueCondition.wait(queueLock, [this]() noexcept {
+			_queueCondition.wait(queueLock, [this]() noexcept -> bool {
 				return _doStop || !_taskQueue.empty();
 			});
 

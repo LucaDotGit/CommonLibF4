@@ -96,7 +96,7 @@ namespace RE::Interface3D
 		{
 			using FuncType = decltype(&Renderer::MainScreen_ClearLights);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Interface3D::MainScreen_ClearLights };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void MainScreen_EnableAO(bool a_value)
@@ -152,7 +152,7 @@ namespace RE::Interface3D
 		{
 			using FuncType = decltype(&Renderer::MainScreen_SetScreenAttached3D);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Interface3D::MainScreen_SetScreenAttached3D };
-			FUNC(this, a_root3D);
+			std::invoke(FUNC, this, a_root3D);
 		}
 
 		void MainScreen_SetUseDeferredRenderer(bool a_value)
@@ -164,7 +164,7 @@ namespace RE::Interface3D
 		{
 			using FuncType = decltype(&Renderer::MainScreen_SetWorldAttached3D);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Interface3D::MainScreen_SetWorldAttached3D };
-			FUNC(this, a_root3D);
+			std::invoke(FUNC, this, a_root3D);
 		}
 
 		void MainScreen_SetWorldAttachedMenuIntensity(REX::Float32 a_diffuse, REX::Float32 a_emit)
@@ -193,14 +193,14 @@ namespace RE::Interface3D
 		{
 			using FuncType = decltype(&Renderer::Offscreen_Clear3D);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Interface3D::Offscreen_Clear3D };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void Offscreen_ClearLights()
 		{
 			using FuncType = decltype(&Renderer::Offscreen_ClearLights);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Interface3D::Offscreen_ClearLights };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void Offscreen_Enable3D(bool a_value)
@@ -226,7 +226,7 @@ namespace RE::Interface3D
 		{
 			using FuncType = decltype(&Renderer::Offscreen_Set3D);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Interface3D::Offscreen_Set3D };
-			FUNC(this, a_3D);
+			std::invoke(FUNC, this, a_3D);
 		}
 
 		void Offscreen_SetBackgroundColor(const NiColorA& a_color)
@@ -248,7 +248,7 @@ namespace RE::Interface3D
 		{
 			using FuncType = decltype(&Renderer::Offscreen_SetDebugMode);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Interface3D::Offscreen_SetDebugMode };
-			FUNC(this, a_on, a_small, a_target);
+			std::invoke(FUNC, this, a_on, a_small, a_target);
 		}
 
 		void Offscreen_SetDirectionalLight(
@@ -291,35 +291,35 @@ namespace RE::Interface3D
 		{
 			using FuncType = decltype(&Renderer::Enable);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Interface3D::Enable };
-			FUNC(this, a_unhideGeometries);
+			std::invoke(FUNC, this, a_unhideGeometries);
 		}
 
 		void Disable()
 		{
 			using FuncType = decltype(&Renderer::Disable);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Interface3D::Disable };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		static void DisableAll(bool a_disableAll)
 		{
 			using FuncType = decltype(&Renderer::DisableAll);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Interface3D::DisableAll };
-			FUNC(a_disableAll);
+			std::invoke(FUNC, a_disableAll);
 		}
 
 		void Release()
 		{
 			using FuncType = decltype(&Renderer::Release);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Interface3D::Release };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		void SetViewport(::Scaleform::GFx::Movie& a_ui, const NiRect<REX::Float32>& a_renderArea)
 		{
 			using FuncType = decltype(&Renderer::SetViewport);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Interface3D::SetViewport };
-			FUNC(this, a_ui, a_renderArea);
+			std::invoke(FUNC, this, a_ui, a_renderArea);
 		}
 
 		// members

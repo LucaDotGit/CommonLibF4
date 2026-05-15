@@ -3,22 +3,31 @@
 #include "RE/B/BSFixedString.hpp"
 #include "RE/B/BSInputEventUser.hpp"
 #include "RE/B/BSTAtomicValue.hpp"
-#include "RE/B/ButtonEvent.hpp"
 #include "RE/N/NiRect.hpp"
 #include "RE/S/SWFToCodeFunctionHandler.hpp"
-#include "RE/U/UIMessage.hpp"
-#include "RE/U/UI_DEPTH_PRIORITY.hpp"
-#include "RE/U/UI_MENU_FLAGS.hpp"
-#include "RE/U/UI_MESSAGE_RESULTS.hpp"
-#include "RE/U/UserEvents.hpp"
 
 #include "Scaleform/P/Ptr.hpp"
 
 namespace RE
 {
 	enum class MENU_RENDER_CONTEXT : std::int32_t;
+	enum class UI_DEPTH_PRIORITY : std::int32_t;
+	enum class UI_MENU_FLAGS : std::uint32_t;
+	enum class UI_MESSAGE_RESULTS : std::int32_t;
 
-	class __declspec(novtable) IMenu
+	class ButtonEvent;
+	class UIMessage;
+	class IUIMessageData;
+}
+
+namespace RE::UserEvents
+{
+	enum class INPUT_CONTEXT_ID : std::int32_t;
+}
+
+namespace RE
+{
+	class /*__declspec(novtable)*/ IMenu
 		: public SWFToCodeFunctionHandler, // 00
 		  public BSInputEventUser		   // 10
 	{
@@ -82,18 +91,18 @@ namespace RE
 		void SetMenuCodeObject(::Scaleform::GFx::Movie& a_movie, const char* a_menuObjPath);
 
 		// members
-		::Scaleform::GFx::Value menuObj;																		   // 20
-		::Scaleform::Ptr<::Scaleform::GFx::Movie> uiMovie;														   // 40
-		BSFixedString customRendererName;																		   // 48
-		BSFixedString menuName;																					   // 50
-		REX::EnumSet<UI_MENU_FLAGS, std::uint32_t> menuFlags{ UI_MENU_FLAGS::kNone };							   // 58
-		BSTAtomicValue<std::uint32_t> advanceWithoutRenderCount{ 0 };											   // 5C
-		bool passesTopMenuTest{ true };																			   // 60
-		bool menuCanBeVisible{ true };																			   // 61
-		bool hasQuadsForCustomRenderer{ false };																   // 62
-		bool hasDoneFirstAdvanceMovie{ false };																	   // 63
-		REX::Enum<UI_DEPTH_PRIORITY, std::int32_t> depthPriority{ UI_DEPTH_PRIORITY::kStandard };				   // 64
-		REX::Enum<UserEvents::INPUT_CONTEXT_ID, std::int32_t> inputContext{ UserEvents::INPUT_CONTEXT_ID::kNone }; // 68
+		::Scaleform::GFx::Value menuObj;									// 20
+		::Scaleform::Ptr<::Scaleform::GFx::Movie> uiMovie;					// 40
+		BSFixedString customRendererName;									// 48
+		BSFixedString menuName;												// 50
+		REX::EnumSet<UI_MENU_FLAGS, std::uint32_t> menuFlags;				// 58
+		BSTAtomicValue<std::uint32_t> advanceWithoutRenderCount{ 0 };		// 5C
+		bool passesTopMenuTest{ true };										// 60
+		bool menuCanBeVisible{ true };										// 61
+		bool hasQuadsForCustomRenderer{ false };							// 62
+		bool hasDoneFirstAdvanceMovie{ false };								// 63
+		REX::Enum<UI_DEPTH_PRIORITY, std::int32_t> depthPriority;			// 64
+		REX::Enum<UserEvents::INPUT_CONTEXT_ID, std::int32_t> inputContext; // 68
 	};
 	static_assert(sizeof(IMenu) == 0x70);
 }

@@ -39,16 +39,20 @@ namespace RE
 
 		[[nodiscard]] std::vector<TESForm*> GetAllForms() const;
 
-		[[nodiscard]] auto GetScriptForms() const -> std::optional<std::vector<TESForm*>>;
+		[[nodiscard]] auto GetScriptForms() const
+			-> std::optional<std::vector<TESForm*>>;
 		void SetScriptForms(std::span<TESForm*> a_forms);
 
 		[[nodiscard]] bool ContainsForm(const TESForm* a_form) const;
 		[[nodiscard]] bool ContainsEditorForm(const TESForm* a_form) const;
 		[[nodiscard]] bool ContainsScriptForm(const TESForm* a_form) const;
 
-		[[nodiscard]] auto GetFormIndex(const TESForm* a_form) const -> std::optional<std::uint32_t>;
-		[[nodiscard]] auto GetEditorFormIndex(const TESForm* a_form) const -> std::optional<std::uint32_t>;
-		[[nodiscard]] auto GetScriptFormIndex(const TESForm* a_form) const -> std::optional<std::uint32_t>;
+		[[nodiscard]] auto GetFormIndex(const TESForm* a_form) const
+			-> std::optional<std::uint32_t>;
+		[[nodiscard]] auto GetEditorFormIndex(const TESForm* a_form) const
+			-> std::optional<std::uint32_t>;
+		[[nodiscard]] auto GetScriptFormIndex(const TESForm* a_form) const
+			-> std::optional<std::uint32_t>;
 
 		[[nodiscard]] TESForm* GetNthForm(std::uint32_t a_index) const;
 		bool SetNthForm(std::uint32_t a_index, TESForm* a_form);

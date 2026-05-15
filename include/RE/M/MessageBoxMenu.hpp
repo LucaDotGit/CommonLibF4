@@ -2,6 +2,7 @@
 
 #include "RE/B/BSTEvent.hpp"
 #include "RE/G/GameMenuBase.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 namespace RE
 {
@@ -21,9 +22,9 @@ namespace RE
 		~MessageBoxMenu() override; // 00
 
 		// override (GameMenuBase)
-		void Call(const Params& a_params) override;				// 01
-		void MapCodeObjectFunctions() override;					// 02
-		UI_MESSAGE_RESULTS ProcessMessage(UIMessage&) override; // 03
+		void Call(const Params& a_params) override;						  // 01
+		void MapCodeObjectFunctions() override;							  // 02
+		UI_MESSAGE_RESULTS ProcessMessage(UIMessage& a_message) override; // 03
 
 		// override (BSTEventSink<MenuModeChangeEvent>)
 		BSEventNotifyControl ProcessEvent(const MenuModeChangeEvent& a_event, BSTEventSource<MenuModeChangeEvent>* a_eventSource) override;
@@ -32,7 +33,7 @@ namespace RE
 		{
 			using FuncType = decltype(&MessageBoxMenu::ShowMessage);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::MessageBoxMenu::ShowMessage };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

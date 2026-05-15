@@ -2,11 +2,6 @@
 
 namespace RE
 {
-	NiBinaryStream::NiBinaryStream()
-	{
-		REL::EmplaceVtable(this);
-	}
-
 	void NiBinaryStream::GetBufferInfo(BufferInfo& a_info)
 	{
 		a_info.buffer = nullptr;

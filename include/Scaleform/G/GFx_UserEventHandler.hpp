@@ -16,6 +16,7 @@ namespace Scaleform::GFx
 		UserEventHandler()
 			: State(STATE_TYPE)
 		{
+			// REL::EmplaceVtable(this);
 		}
 
 		// add

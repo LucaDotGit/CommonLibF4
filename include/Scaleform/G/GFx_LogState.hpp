@@ -17,6 +17,7 @@ namespace Scaleform::GFx
 		LogState()
 			: State(STATE_TYPE)
 		{
+			// REL::EmplaceVtable(this);
 		}
 
 		~LogState() override; // 01

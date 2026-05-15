@@ -2,7 +2,8 @@
 
 namespace RE
 {
-	auto FORM_ENUM_STRING::GetFormTypeStrings() -> std::span<FORM_ENUM_STRING, std::to_underlying(FormType::kTotal)>
+	auto FORM_ENUM_STRING::GetFormTypeStrings()
+		-> std::span<FORM_ENUM_STRING, std::to_underlying(FormType::kTotal)>
 	{
 		static const auto FORM_TYPE_STRINGS = REL::Relocation<std::array<FORM_ENUM_STRING, std::to_underlying(FormType::kTotal)>*>{ ID::FORM_ENUM_STRING::FormTypeStrings };
 		return { *FORM_TYPE_STRINGS };

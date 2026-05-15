@@ -179,17 +179,26 @@ namespace RE
 		[[nodiscard]] INTERIOR_DATA* GetInteriorData() const noexcept { return IsInterior() ? interiorData : nullptr; }
 		[[nodiscard]] TESWorldSpace* GetWorldSpace() const noexcept { return IsExterior() ? worldSpace : nullptr; }
 
-		[[nodiscard]] auto GetCellX() const noexcept -> std::optional<std::int32_t>;
-		[[nodiscard]] auto GetCellY() const noexcept -> std::optional<std::int32_t>;
-		[[nodiscard]] auto GetCellXAndY() const noexcept -> std::optional<std::tuple<std::int32_t, std::int32_t>>;
+		[[nodiscard]] auto GetCellX() const noexcept
+			-> std::optional<std::int32_t>;
+		[[nodiscard]] auto GetCellY() const noexcept
+			-> std::optional<std::int32_t>;
+		[[nodiscard]] auto GetCellXAndY() const noexcept
+			-> std::optional<std::tuple<std::int32_t, std::int32_t>>;
 
-		[[nodiscard]] auto GetDataX() const noexcept -> std::optional<std::int32_t>;
-		[[nodiscard]] auto GetDataY() const noexcept -> std::optional<std::int32_t>;
-		[[nodiscard]] auto GetDataXAndY() const noexcept -> std::optional<std::tuple<std::int32_t, std::int32_t>>;
+		[[nodiscard]] auto GetDataX() const noexcept
+			-> std::optional<std::int32_t>;
+		[[nodiscard]] auto GetDataY() const noexcept
+			-> std::optional<std::int32_t>;
+		[[nodiscard]] auto GetDataXAndY() const noexcept
+			-> std::optional<std::tuple<std::int32_t, std::int32_t>>;
 
-		[[nodiscard]] auto GetWorldX() const noexcept -> std::optional<REX::Float32>;
-		[[nodiscard]] auto GetWorldY() const noexcept -> std::optional<REX::Float32>;
-		[[nodiscard]] auto GetWorldXAndY() const noexcept -> std::optional<std::tuple<REX::Float32, REX::Float32>>;
+		[[nodiscard]] auto GetWorldX() const noexcept
+			-> std::optional<REX::Float32>;
+		[[nodiscard]] auto GetWorldY() const noexcept
+			-> std::optional<REX::Float32>;
+		[[nodiscard]] auto GetWorldXAndY() const noexcept
+			-> std::optional<std::tuple<REX::Float32, REX::Float32>>;
 
 		[[nodiscard]] TESWaterForm* GetWaterType() const noexcept;
 		[[nodiscard]] REX::Float32 GetExteriorWaterHeight() const noexcept;

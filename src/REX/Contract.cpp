@@ -13,33 +13,13 @@ namespace REX::Impl
 {
 #if NDEBUG == 0
 	static constexpr auto ASSERT_MESSAGE_BOX_FLAGS = REX::EnumSet(
-		REX::DEFAULT_MESSAGE_FLAGS.get(),
-		REX::W32::MB::MB_ABORTRETRYIGNORE);
+		MessageBoxFlags::MB_SYSTEMMODAL,
+		MessageBoxFlags::MB_SETFOREGROUND,
+		MessageBoxFlags::MB_TOPMOST,
+		MessageBoxFlags::MB_ABORTRETRYIGNORE);
 #endif
 
-	void QuickFail(REX::zstring_view a_format) noexcept
-	{
-		REX::ShowBasicMessage(REX::LogLevel::kCritical, "Fatal Error"sv, a_format);
-
-		if (REX::W32::IsDebuggerPresent()) {
-			REX::W32::DebugBreak();
-		}
-
-		REX::W32::TerminateCurrentProcess(EXIT_FAILURE);
-	}
-
-	void QuickFail(REX::zwstring_view a_format) noexcept
-	{
-		REX::ShowBasicMessage(REX::LogLevel::kCritical, L"Fatal Error"sv, a_format);
-
-		if (REX::W32::IsDebuggerPresent()) {
-			REX::W32::DebugBreak();
-		}
-
-		REX::W32::TerminateCurrentProcess(EXIT_FAILURE);
-	}
-
-	void Ensure(std::source_location a_location, std::string_view a_format) noexcept
+	void Ensure(REX::SourceLocation a_location, std::string_view a_format) noexcept
 	{
 		REX::ShowSourceMessage(REX::LogLevel::kCritical, a_location, a_format);
 
@@ -50,7 +30,7 @@ namespace REX::Impl
 		REX::W32::TerminateCurrentProcess(EXIT_FAILURE);
 	}
 
-	void Ensure(std::source_location a_location, std::wstring_view a_format) noexcept
+	void Ensure(REX::SourceLocation a_location, std::wstring_view a_format) noexcept
 	{
 		REX::ShowSourceMessage(REX::LogLevel::kCritical, a_location, a_format);
 
@@ -62,7 +42,7 @@ namespace REX::Impl
 	}
 
 #if NDEBUG == 0
-	void Assume(std::source_location a_location, std::string_view a_format) noexcept
+	void Assume(REX::SourceLocation a_location, std::string_view a_format) noexcept
 	{
 		REX::ShowSourceMessage(REX::LogLevel::kCritical, a_location, a_format);
 
@@ -73,7 +53,7 @@ namespace REX::Impl
 		REX::W32::TerminateCurrentProcess(EXIT_FAILURE);
 	}
 
-	void Assume(std::source_location a_location, std::wstring_view a_format) noexcept
+	void Assume(REX::SourceLocation a_location, std::wstring_view a_format) noexcept
 	{
 		REX::ShowSourceMessage(REX::LogLevel::kCritical, a_location, a_format);
 
@@ -86,7 +66,7 @@ namespace REX::Impl
 #endif
 
 #if NDEBUG == 0
-	void Assert(std::source_location a_location, std::string_view a_format) noexcept
+	void Assert(REX::SourceLocation a_location, std::string_view a_format) noexcept
 	{
 		const auto messageBoxResult = REX::Impl::ShowSourceMessage(REX::LogLevel::kError, a_location, a_format, ASSERT_MESSAGE_BOX_FLAGS.get());
 		switch (messageBoxResult) {
@@ -107,7 +87,7 @@ namespace REX::Impl
 		}
 	}
 
-	void Assert(std::source_location a_location, std::wstring_view a_format) noexcept
+	void Assert(REX::SourceLocation a_location, std::wstring_view a_format) noexcept
 	{
 		const auto messageBoxResult = REX::Impl::ShowSourceMessage(REX::LogLevel::kError, a_location, a_format, ASSERT_MESSAGE_BOX_FLAGS.get());
 		switch (messageBoxResult) {

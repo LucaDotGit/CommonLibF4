@@ -32,7 +32,7 @@ namespace RE
 			return 0;
 		}
 		catch (...) {
-			REX::QuickFail("Failed to delete Bethesda ref object."sv);
+			REX::Fail("Failed to delete ref object."sv);
 		}
 	}
 }

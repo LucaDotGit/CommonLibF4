@@ -147,15 +147,6 @@ namespace RE
 		using iterator = iterator_base<value_type>;
 		using const_iterator = iterator_base<const value_type>;
 
-		explicit NiTLargeArray(size_type a_maxSize = 0, size_type a_growBy = 1)
-			: _capacity(a_maxSize),
-			  _growthSize(a_growBy)
-		{
-			if (capacity() > 0) {
-				_data = allocator_type::allocate(capacity());
-			}
-		}
-
 		virtual ~NiTLargeArray() // 00
 		{
 			allocator_type::deallocate(_data);

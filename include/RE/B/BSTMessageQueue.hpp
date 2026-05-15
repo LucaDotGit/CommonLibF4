@@ -28,6 +28,8 @@ namespace RE
 		: public BSTMessageQueue<T> // 00
 	{
 	public:
+		~BSTCommonMessageQueue() override; // 00
+
 		// override (BSTMessageQueue<T>)
 		bool Push(const T& a_message) override;	   // 01
 		bool TryPush(const T& a_message) override; // 02
@@ -48,6 +50,8 @@ namespace RE
 		: public BSTCommonMessageQueue<T> // 00
 	{
 	public:
+		~BSTCommonLLMessageQueue() override; // 00
+
 		// members
 		BSTFreeList<T>* freeList{ nullptr };  // 10
 		BSTFreeListElem<T>* head{ nullptr };  // 18
@@ -60,6 +64,8 @@ namespace RE
 		: public BSTCommonMessageQueue<T>
 	{
 	public:
+		~BSTCommonScrapHeapMessageQueue() override; // 00
+
 		// override (BSTMessageQueue<T>)
 		bool DoTryPush(const T& a_message) override; // 05
 		bool DoTryPop(T& a_message) override;		 // 06

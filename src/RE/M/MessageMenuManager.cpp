@@ -107,7 +107,7 @@ namespace RE
 	{
 		using FuncType = decltype(&MessageMenuManager::ShowMessages);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::MessageMenuManager::ShowMessages };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void MessageMenuManager::CreateImpl(
@@ -123,7 +123,7 @@ namespace RE
 	{
 		using FuncType = decltype(&MessageMenuManager::CreateImpl);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::MessageMenuManager::CreateImpl };
-		FUNC(
+		std::invoke(FUNC,
 			this,
 			a_headerText,
 			a_bodyText,

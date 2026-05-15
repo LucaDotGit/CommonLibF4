@@ -52,7 +52,20 @@ namespace RE
 		void DeallocateAlignImpl(void*& a_block) override;								 // 05 - { Deallocate(a_block), a_block = nullptr; }
 
 		[[nodiscard]] __declspec(allocator) __declspec(restrict) void* Allocate(std::size_t a_size, std::align_val_t a_alignment);
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) void* CountedAllocate(std::size_t a_count, std::size_t a_size, std::align_val_t a_alignment);
 		__declspec(noalias) void Deallocate(void* a_mem);
+
+		template <class T>
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) T* Allocate(std::size_t a_size = sizeof(T), std::align_val_t a_alignment = static_cast<std::align_val_t>(alignof(T)))
+		{
+			return static_cast<T*>(Allocate(a_size, a_alignment));
+		}
+
+		template <class T>
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) T* CountedAllocate(std::size_t a_count, std::align_val_t a_alignment = static_cast<std::align_val_t>(alignof(T)))
+		{
+			return static_cast<T*>(CountedAllocate(a_count, sizeof(T), a_alignment));
+		}
 
 		// members
 		std::array<FreeBlock*, 6> smallBlocks{ nullptr }; // 08

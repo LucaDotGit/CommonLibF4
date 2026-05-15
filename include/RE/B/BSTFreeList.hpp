@@ -15,10 +15,10 @@ namespace RE
 	static_assert(sizeof(BSTFreeListElem<void*>) == 0x10);
 
 	template <class T>
-	class BSTFreeList
+	class __declspec(novtable) BSTFreeList
 	{
 	public:
-		virtual ~BSTFreeList() = default; // 00
+		virtual ~BSTFreeList(); // 00
 
 		GAME_HEAP_REDEFINE_NEW(BSTFreeList);
 
@@ -34,6 +34,8 @@ namespace RE
 	{
 	public:
 		inline static constexpr auto MAX_SIZE = N;
+
+		~BSTStaticFreeList() override; // 00
 
 		// members
 		std::array<BSTFreeListElem<T>, MAX_SIZE> elems; // ??

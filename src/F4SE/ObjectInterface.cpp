@@ -12,7 +12,7 @@ namespace F4SE::Impl
 		PersistentObjectStorage&(F4SE_API* GetPersistentObjectStorage)();
 	};
 
-	[[nodiscard]] static const F4SEObjectInterface& GetProxy(const ObjectInterface* a_interface) noexcept
+	[[nodiscard]] __forceinline static const F4SEObjectInterface& GetProxy(const ObjectInterface* a_interface) noexcept
 	{
 		return reinterpret_cast<const F4SEObjectInterface&>(*a_interface);
 	}

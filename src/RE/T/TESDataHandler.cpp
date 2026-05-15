@@ -61,12 +61,12 @@ namespace RE
 	std::uint32_t TESDataHandler::GetFileCount() const
 	{
 		auto fileCount = 0ui32;
-		ForEachFile([&fileCount](TESFile* a_plugin) {
+		ForEachFile([&fileCount](TESFile* a_plugin) -> BSContainer::ForEachResult {
 			if (a_plugin) {
 				fileCount++;
 			}
 
-			return RE::BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::kContinue;
 		});
 
 		return fileCount;
@@ -75,12 +75,12 @@ namespace RE
 	std::uint32_t TESDataHandler::GetLoadedFileCount() const
 	{
 		auto loadedFileCount = 0ui32;
-		ForEachFile([&loadedFileCount](TESFile* a_plugin) {
+		ForEachFile([&loadedFileCount](TESFile* a_plugin) -> BSContainer::ForEachResult {
 			if (a_plugin && a_plugin->IsActive()) {
 				loadedFileCount++;
 			}
 
-			return RE::BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::kContinue;
 		});
 
 		return loadedFileCount;
@@ -89,12 +89,12 @@ namespace RE
 	std::uint32_t TESDataHandler::GetTotalFormCount() const
 	{
 		auto totalFormCount = 0ui32;
-		ForEachFile([&totalFormCount](TESFile* a_plugin) {
+		ForEachFile([&totalFormCount](TESFile* a_plugin) -> BSContainer::ForEachResult {
 			if (a_plugin) {
 				totalFormCount += a_plugin->fileHeaderInfo.formCount;
 			}
 
-			return RE::BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::kContinue;
 		});
 
 		return totalFormCount;
@@ -103,12 +103,12 @@ namespace RE
 	std::uint32_t TESDataHandler::GetTotalLoadedFormCount() const
 	{
 		auto totalLoadedFormCount = 0ui32;
-		ForEachFile([&totalLoadedFormCount](TESFile* a_plugin) {
+		ForEachFile([&totalLoadedFormCount](TESFile* a_plugin) -> BSContainer::ForEachResult {
 			if (a_plugin && a_plugin->IsActive()) {
 				totalLoadedFormCount += a_plugin->fileHeaderInfo.formCount;
 			}
 
-			return RE::BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::kContinue;
 		});
 
 		return totalLoadedFormCount;
@@ -143,7 +143,8 @@ namespace RE
 		return a_formID & LOCAL_FORM_ID_MASK;
 	}
 
-	auto TESDataHandler::FindFormID(TESFormID a_localFormID, std::string_view a_fileName) const -> std::optional<TESFormID>
+	auto TESDataHandler::FindFormID(TESFormID a_localFormID, std::string_view a_fileName) const
+		-> std::optional<TESFormID>
 	{
 		if (a_localFormID == EMPTY_FORM_ID) {
 			return EMPTY_FORM_ID;
@@ -169,7 +170,8 @@ namespace RE
 		return EMPTY_FORM_ID | pluginIndex | localFormID;
 	}
 
-	auto TESDataHandler::FindForm(TESFormID a_localFormID, std::string_view a_fileName) const -> TESForm*
+	auto TESDataHandler::FindForm(TESFormID a_localFormID, std::string_view a_fileName) const
+		-> TESForm*
 	{
 		const auto formID = FindFormID(a_localFormID, a_fileName);
 		if (!formID) {
@@ -179,7 +181,8 @@ namespace RE
 		return TESForm::FindFormByNumericID(*formID);
 	}
 
-	auto TESDataHandler::FindFormOrRef(TESFormID a_localFormID, std::string_view a_fileName) const -> std::optional<std::variant<TESForm*, NiPointer<TESObjectREFR>>>
+	auto TESDataHandler::FindFormOrRef(TESFormID a_localFormID, std::string_view a_fileName) const
+		-> std::optional<std::variant<TESForm*, NiPointer<TESObjectREFR>>>
 	{
 		const auto formID = FindFormID(a_localFormID, a_fileName);
 		if (!formID) {
@@ -196,18 +199,18 @@ namespace RE
 		}
 
 		auto* result = static_cast<TESFile*>(nullptr);
-		ForEachFile([&result, a_fileName](TESFile* a_file) {
+		ForEachFile([&result, a_fileName](TESFile* a_file) -> BSContainer::ForEachResult {
 			if (!a_file) {
-				return RE::BSContainer::ForEachResult::kContinue;
+				return BSContainer::ForEachResult::kContinue;
 			}
 
 			const auto fileName = std::string_view(a_file->filename.data());
 			if (REX::EqualsIgnoreCase(a_fileName, fileName)) {
 				result = a_file;
-				return RE::BSContainer::ForEachResult::kStop;
+				return BSContainer::ForEachResult::kStop;
 			}
 
-			return RE::BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::kContinue;
 		});
 
 		return result;
@@ -220,17 +223,17 @@ namespace RE
 		}
 
 		auto* result = static_cast<TESFile*>(nullptr);
-		ForEachFile([&result, a_formID](TESFile* a_file) {
+		ForEachFile([&result, a_formID](TESFile* a_file) -> BSContainer::ForEachResult {
 			if (!a_file) {
-				return RE::BSContainer::ForEachResult::kContinue;
+				return BSContainer::ForEachResult::kContinue;
 			}
 
 			if (a_file->IsFormInFile(a_formID)) {
 				result = a_file;
-				return RE::BSContainer::ForEachResult::kStop;
+				return BSContainer::ForEachResult::kStop;
 			}
 
-			return RE::BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::kContinue;
 		});
 
 		return result;
@@ -239,25 +242,25 @@ namespace RE
 	TESFile* TESDataHandler::FindFileByIndex(std::uint16_t a_index) const
 	{
 		auto* result = static_cast<TESFile*>(nullptr);
-		ForEachFile([&result, a_index](TESFile* a_file) {
+		ForEachFile([&result, a_index](TESFile* a_file) -> BSContainer::ForEachResult {
 			if (!a_file) {
-				return RE::BSContainer::ForEachResult::kContinue;
+				return BSContainer::ForEachResult::kContinue;
 			}
 
 			if (a_file->IsLight()) {
 				if (a_file->smallFileCompileIndex == a_index) {
 					result = a_file;
-					return RE::BSContainer::ForEachResult::kStop;
+					return BSContainer::ForEachResult::kStop;
 				}
 			}
 			else {
 				if (a_file->compileIndex == a_index) {
 					result = a_file;
-					return RE::BSContainer::ForEachResult::kStop;
+					return BSContainer::ForEachResult::kStop;
 				}
 			}
 
-			return RE::BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::kContinue;
 		});
 
 		return result;
@@ -270,18 +273,18 @@ namespace RE
 		}
 
 		auto* result = static_cast<TESFile*>(nullptr);
-		ForEachFile([&result, a_fileName](TESFile* a_file) {
+		ForEachFile([&result, a_fileName](TESFile* a_file) -> BSContainer::ForEachResult {
 			if (!a_file || !a_file->IsActive()) {
-				return RE::BSContainer::ForEachResult::kContinue;
+				return BSContainer::ForEachResult::kContinue;
 			}
 
 			const auto fileName = std::string_view(a_file->filename.data());
 			if (REX::EqualsIgnoreCase(a_fileName, fileName)) {
 				result = a_file;
-				return RE::BSContainer::ForEachResult::kStop;
+				return BSContainer::ForEachResult::kStop;
 			}
 
-			return RE::BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::kContinue;
 		});
 
 		return result;
@@ -294,17 +297,17 @@ namespace RE
 		}
 
 		auto* result = static_cast<TESFile*>(nullptr);
-		ForEachFile([&result, a_formID](TESFile* a_file) {
+		ForEachFile([&result, a_formID](TESFile* a_file) -> BSContainer::ForEachResult {
 			if (!a_file || !a_file->IsActive()) {
-				return RE::BSContainer::ForEachResult::kContinue;
+				return BSContainer::ForEachResult::kContinue;
 			}
 
 			if (a_file->IsFormInFile(a_formID)) {
 				result = a_file;
-				return RE::BSContainer::ForEachResult::kStop;
+				return BSContainer::ForEachResult::kStop;
 			}
 
-			return RE::BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::kContinue;
 		});
 
 		return result;
@@ -313,31 +316,32 @@ namespace RE
 	TESFile* TESDataHandler::FindLoadedFileByIndex(std::uint16_t a_index) const
 	{
 		auto* result = static_cast<TESFile*>(nullptr);
-		ForEachFile([&result, a_index](TESFile* a_file) {
+		ForEachFile([&result, a_index](TESFile* a_file) -> BSContainer::ForEachResult {
 			if (!a_file || !a_file->IsActive()) {
-				return RE::BSContainer::ForEachResult::kContinue;
+				return BSContainer::ForEachResult::kContinue;
 			}
 
 			if (a_file->IsLight()) {
 				if (a_file->smallFileCompileIndex == a_index) {
 					result = a_file;
-					return RE::BSContainer::ForEachResult::kStop;
+					return BSContainer::ForEachResult::kStop;
 				}
 			}
 			else {
 				if (a_file->compileIndex == a_index) {
 					result = a_file;
-					return RE::BSContainer::ForEachResult::kStop;
+					return BSContainer::ForEachResult::kStop;
 				}
 			}
 
-			return RE::BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::kContinue;
 		});
 
 		return result;
 	}
 
-	auto TESDataHandler::FindFileIndex(std::string_view a_fileName) const -> std::optional<std::uint16_t>
+	auto TESDataHandler::FindFileIndex(std::string_view a_fileName) const
+		-> std::optional<std::uint16_t>
 	{
 		const auto* file = FindFileByName(a_fileName);
 		if (!file) {
@@ -351,7 +355,8 @@ namespace RE
 		return file->compileIndex;
 	}
 
-	auto TESDataHandler::FindLoadedFileIndex(std::string_view a_fileName) const -> std::optional<std::uint16_t>
+	auto TESDataHandler::FindLoadedFileIndex(std::string_view a_fileName) const
+		-> std::optional<std::uint16_t>
 	{
 		const auto* file = FindLoadedFileByName(a_fileName);
 		if (!file) {

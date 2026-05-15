@@ -66,14 +66,18 @@ namespace RE
 	__declspec(noalias) void ni_free(void* a_ptr) noexcept;
 
 	template <class T>
-	class NiTMallocInterface
+	struct NiTMallocInterface
 	{
 	public:
 		using value_type = T;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
 
-		[[nodiscard]] __declspec(allocator) __declspec(restrict) static value_type* allocate(std::size_t a_count) noexcept
+		NiTMallocInterface() = delete;
+
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) static value_type* allocate(size_type a_count) noexcept
 		{
-			return ni_malloc<T>(a_count * sizeof(value_type));
+			return ni_malloc<value_type>(a_count * sizeof(value_type));
 		}
 
 		__declspec(noalias) static void deallocate(value_type* a_ptr) noexcept
@@ -84,12 +88,16 @@ namespace RE
 	static_assert(std::is_empty_v<NiTMallocInterface<std::any>>);
 
 	template <class T>
-	class NiTNewInterface
+	struct NiTNewInterface
 	{
 	public:
 		using value_type = T;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
 
-		[[nodiscard]] __declspec(allocator) __declspec(restrict) static value_type* allocate(std::size_t a_count) //
+		NiTNewInterface() = delete;
+
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) static value_type* allocate(size_type a_count) //
 			noexcept(std::is_nothrow_default_constructible_v<value_type>)
 		{
 			return new value_type[a_count];
@@ -105,66 +113,135 @@ namespace RE
 
 	template <class T>
 	struct NiStlAllocator
-		: public std::allocator<T>
 	{
 	public:
 		using value_type = T;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
+		using propagate_on_container_move_assignment = std::true_type;
 
-		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(std::size_t a_count) noexcept
+		constexpr NiStlAllocator() noexcept = default;
+		constexpr ~NiStlAllocator() noexcept = default;
+
+		constexpr NiStlAllocator(const NiStlAllocator&) noexcept = default;
+		constexpr NiStlAllocator(NiStlAllocator&&) noexcept = default;
+
+		constexpr NiStlAllocator& operator=(const NiStlAllocator&) noexcept = default;
+		constexpr NiStlAllocator& operator=(NiStlAllocator&&) noexcept = default;
+
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(size_type a_count)
 		{
 			auto* mem = ni_malloc<value_type>(a_count * sizeof(value_type));
 			if (!mem) [[unlikely]] {
-				REX::AllocationFail();
+				throw std::bad_alloc();
 			}
 
 			return mem;
 		}
 
-		__declspec(noalias) void deallocate(value_type* a_ptr, [[maybe_unused]] std::size_t a_count) noexcept
+		__declspec(noalias) void deallocate(value_type* a_ptr, [[maybe_unused]] size_type a_count) noexcept
 		{
 			ni_free(static_cast<void*>(a_ptr));
 		}
 	};
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator==([[maybe_unused]] const NiStlAllocator<T1>& a_lhs, [[maybe_unused]] const NiStlAllocator<T2>& a_rhs) noexcept
+	{
+		return true;
+	}
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator!=([[maybe_unused]] const NiStlAllocator<T1>& a_lhs, [[maybe_unused]] const NiStlAllocator<T2>& a_rhs) noexcept
+	{
+		return false;
+	}
+
+	template <class T>
+	struct NiStlAlignedAllocator
+	{
+	public:
+		using value_type = T;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
+		using propagate_on_container_move_assignment = std::true_type;
+
+		constexpr NiStlAlignedAllocator() noexcept = default;
+		constexpr ~NiStlAlignedAllocator() noexcept = default;
+
+		constexpr NiStlAlignedAllocator(const NiStlAlignedAllocator&) noexcept = default;
+		constexpr NiStlAlignedAllocator(NiStlAlignedAllocator&&) noexcept = default;
+
+		constexpr NiStlAlignedAllocator& operator=(const NiStlAlignedAllocator&) noexcept = default;
+		constexpr NiStlAlignedAllocator& operator=(NiStlAlignedAllocator&&) noexcept = default;
+
+		[[nodiscard]] __declspec(allocator) __declspec(restrict) value_type* allocate(size_type a_count)
+		{
+			auto* mem = ni_aligned_alloc<value_type>(a_count * sizeof(value_type), static_cast<std::align_val_t>(alignof(value_type)));
+			if (!mem) [[unlikely]] {
+				throw std::bad_alloc();
+			}
+
+			return mem;
+		}
+
+		__declspec(noalias) void deallocate(value_type* a_ptr, [[maybe_unused]] size_type a_count) noexcept
+		{
+			ni_free(static_cast<void*>(a_ptr));
+		}
+	};
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator==([[maybe_unused]] const NiStlAlignedAllocator<T1>& a_lhs, [[maybe_unused]] const NiStlAlignedAllocator<T2>& a_rhs) noexcept
+	{
+		return true;
+	}
+
+	template <class T1, class T2>
+	[[nodiscard]] constexpr bool operator!=([[maybe_unused]] const NiStlAlignedAllocator<T1>& a_lhs, [[maybe_unused]] const NiStlAlignedAllocator<T2>& a_rhs) noexcept
+	{
+		return false;
+	}
 }
 
 #define NI_HEAP_REDEFINE_NEW(a_type)                                                                                    \
 	static_assert(std::is_class_v<a_type>);                                                                             \
                                                                                                                         \
-	[[nodiscard]] void* operator new(std::size_t a_size) noexcept                                                       \
+	[[nodiscard]] void* operator new(std::size_t a_size)                                                                \
 	{                                                                                                                   \
 		auto* mem = RE::ni_malloc(a_size);                                                                              \
 		if (!mem) [[unlikely]] {                                                                                        \
-			REX::AllocationFail();                                                                                      \
+			throw std::bad_alloc();                                                                                     \
 		}                                                                                                               \
                                                                                                                         \
 		return mem;                                                                                                     \
 	}                                                                                                                   \
                                                                                                                         \
-	[[nodiscard]] void* operator new[](std::size_t a_size) noexcept                                                     \
+	[[nodiscard]] void* operator new[](std::size_t a_size)                                                              \
 	{                                                                                                                   \
 		auto* mem = RE::ni_malloc(a_size);                                                                              \
 		if (!mem) [[unlikely]] {                                                                                        \
-			REX::AllocationFail();                                                                                      \
+			throw std::bad_alloc();                                                                                     \
 		}                                                                                                               \
                                                                                                                         \
 		return mem;                                                                                                     \
 	}                                                                                                                   \
                                                                                                                         \
-	[[nodiscard]] void* operator new(std::size_t a_size, std::align_val_t a_alignment) noexcept                         \
+	[[nodiscard]] void* operator new(std::size_t a_size, std::align_val_t a_alignment)                                  \
 	{                                                                                                                   \
 		auto* mem = RE::ni_aligned_alloc(a_size, a_alignment);                                                          \
 		if (!mem) [[unlikely]] {                                                                                        \
-			REX::AllocationFail();                                                                                      \
+			throw std::bad_alloc();                                                                                     \
 		}                                                                                                               \
                                                                                                                         \
 		return mem;                                                                                                     \
 	}                                                                                                                   \
                                                                                                                         \
-	[[nodiscard]] void* operator new[](std::size_t a_size, std::align_val_t a_alignment) noexcept                       \
+	[[nodiscard]] void* operator new[](std::size_t a_size, std::align_val_t a_alignment)                                \
 	{                                                                                                                   \
 		auto* mem = RE::ni_aligned_alloc(a_size, a_alignment);                                                          \
 		if (!mem) [[unlikely]] {                                                                                        \
-			REX::AllocationFail();                                                                                      \
+			throw std::bad_alloc();                                                                                     \
 		}                                                                                                               \
                                                                                                                         \
 		return mem;                                                                                                     \

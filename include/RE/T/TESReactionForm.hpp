@@ -26,7 +26,6 @@ namespace RE
 
 		void SetReactions(std::span<std::unique_ptr<GROUP_REACTION>> a_reactions);
 		void ClearReactions();
-		bool AddReactionChange();
 
 		// members
 		BSSimpleList<GROUP_REACTION*> reactionList; // 08

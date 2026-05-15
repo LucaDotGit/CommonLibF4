@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RE/C/ContainerMenuBase.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 #include "msvc/memory.hpp"
 
@@ -29,7 +30,7 @@ namespace RE
 		{
 			using FuncType = decltype(&ContainerMenu::TakeAllItems);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::ContainerMenu::TakeAllItems };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

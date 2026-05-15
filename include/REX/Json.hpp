@@ -16,10 +16,10 @@ namespace REX::Json
 namespace REX::Json::Impl
 {
 	template <class T>
-	bool SettingLoad(const std::any& a_data, const key_t& a_key, T& a_value, const T& a_defaultValue);
+	bool LoadSetting(const std::any& a_data, const key_t& a_key, T& a_value, const T& a_defaultValue);
 
 	template <class T>
-	bool SettingSave(const std::any& a_data, const key_t& a_key, T&& a_value);
+	bool SaveSetting(const std::any& a_data, const key_t& a_key, T&& a_value);
 }
 
 namespace REX::Json
@@ -80,10 +80,10 @@ namespace REX::Json
 		bool Load(const std::any& a_data, bool a_isMain) override
 		{
 			if (!a_isMain) {
-				return Impl::SettingLoad(a_data, _key, this->_value, this->_defaultValue);
+				return Impl::LoadSetting(a_data, _key, this->_value, this->_defaultValue);
 			}
 
-			if (!Impl::SettingLoad(a_data, _key, this->_defaultValue, this->_defaultValue)) {
+			if (!Impl::LoadSetting(a_data, _key, this->_defaultValue, this->_defaultValue)) {
 				return false;
 			}
 
@@ -93,7 +93,7 @@ namespace REX::Json
 
 		bool Save(const std::any& a_data) override
 		{
-			return Impl::SettingSave(a_data, _key, this->_value);
+			return Impl::SaveSetting(a_data, _key, this->_value);
 		}
 
 		[[nodiscard]] std::string ToString() const
@@ -181,17 +181,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const REX::Json::Setting<T>& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const REX::Json::Setting<T>& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, a_value.ToString());
+			return format_to(a_context.out(), "{}"sv, a_value.ToString());
 		}
 	};
 
@@ -237,17 +237,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const REX::Json::Setting<T>& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const REX::Json::Setting<T>& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, a_value.ToString());
+			return format_to(a_context.out(), "{}"sv, a_value.ToString());
 		}
 	};
 

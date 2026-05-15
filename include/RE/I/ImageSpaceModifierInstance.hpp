@@ -37,7 +37,7 @@ namespace RE
 		{
 			using FuncType = decltype(&ImageSpaceModifierInstance::Stop);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::ImageSpaceModifierInstance::Stop };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

@@ -14,7 +14,7 @@ namespace RE
 		{
 			static const auto SINGLETON = REL::Relocation<EventSourceType**>{ ID::ApplyColorUpdateEvent::GetEventSource };
 			if (!*SINGLETON) {
-				*SINGLETON = new EventSourceType(&BSTGlobalEvent::GetSingleton()->eventSourceSDMKiller);
+				*SINGLETON = new EventSourceType(BSTGlobalEvent::GetSingleton()->eventSourceSDMKiller);
 			}
 
 			return *SINGLETON;

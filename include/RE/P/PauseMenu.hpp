@@ -2,6 +2,7 @@
 
 #include "RE/R/Rumble.hpp"
 #include "RE/S/StartMenuBase.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 #include "msvc/memory.hpp"
 

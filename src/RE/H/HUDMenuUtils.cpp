@@ -23,7 +23,7 @@ namespace RE::HUDMenuUtils
 	{
 		using FuncType = void (*)(const NiPoint3&, NiPoint3&);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::HUDMenuUtils::WorldPtToScreenPt3 };
-		FUNC(a_world, a_screen);
+		std::invoke(FUNC, a_world, a_screen);
 	}
 
 	NiPoint3 WorldPtToScreenPt3(const NiPoint3& a_world)

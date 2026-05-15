@@ -27,10 +27,11 @@ namespace RE
 		{
 			using FuncType = decltype(&TESDescription::GetDescription);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::TESDescription::GetDescription };
-			FUNC(this, a_outString, a_parent);
+			std::invoke(FUNC, this, a_outString, a_parent);
 		}
 
-		[[nodiscard]] static auto GetFormDescription(const TESForm* a_form) -> std::optional<BSFixedStringCS>;
+		[[nodiscard]] static auto GetFormDescription(const TESForm* a_form)
+			-> std::optional<BSFixedStringCS>;
 
 		// members
 		std::uint32_t fileOffset;			  // 08

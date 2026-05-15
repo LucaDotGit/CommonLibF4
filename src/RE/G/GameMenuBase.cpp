@@ -1,12 +1,17 @@
 #include "RE/G/GameMenuBase.hpp"
 
+#include "RE/B/BSGFxShaderFXTarget.hpp"
+#include "RE/B/ButtonHintBar.hpp" // IWYU pragma: keep
 #include "RE/F/FlatScreenModel.hpp"
+#include "RE/H/HUDColorTypes.hpp"
+#include "RE/S/SendHUDMessage.hpp"
+#include "RE/U/UI_MENU_FLAGS.hpp"
 
 namespace RE
 {
 	GameMenuBase::GameMenuBase()
 	{
-		REL::EmplaceVtable(this);
+		// REL::EmplaceVtable(this);
 
 		auto* flatScreenModel = FlatScreenModel::GetSingleton();
 		if (!flatScreenModel) [[unlikely]] {
@@ -23,14 +28,14 @@ namespace RE
 	{
 		using FuncType = decltype(&GameMenuBase::SetIsTopButtonBar);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameMenuBase::SetIsTopButtonBar };
-		FUNC(this, a_isTopButtonBar);
+		std::invoke(FUNC, this, a_isTopButtonBar);
 	}
 
 	void GameMenuBase::OnMenuDisplayStateChanged()
 	{
 		using FuncType = decltype(&GameMenuBase::OnMenuDisplayStateChanged);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameMenuBase::OnMenuDisplayStateChanged };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	void GameMenuBase::OnAddedToMenuStack()
@@ -60,28 +65,28 @@ namespace RE
 	{
 		using FuncType = decltype(&GameMenuBase::TransferCachedShaderFXQuadsForRenderer);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameMenuBase::TransferCachedShaderFXQuadsForRenderer };
-		FUNC(this, a_rendererName);
+		std::invoke(FUNC, this, a_rendererName);
 	}
 
 	void GameMenuBase::SetViewportRect(const NiRect<REX::Float32>& a_viewportRect)
 	{
 		using FuncType = decltype(&GameMenuBase::SetViewportRect);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameMenuBase::SetViewportRect };
-		FUNC(this, a_viewportRect);
+		std::invoke(FUNC, this, a_viewportRect);
 	}
 
 	void GameMenuBase::AppendShaderFXInfos(BSTAlignedArray<UIShaderFXInfo>& a_colorFXInfos, BSTAlignedArray<UIShaderFXInfo>& a_backgroundFXInfos) const
 	{
 		using FuncType = decltype(&GameMenuBase::AppendShaderFXInfos);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameMenuBase::AppendShaderFXInfos };
-		FUNC(this, a_colorFXInfos, a_backgroundFXInfos);
+		std::invoke(FUNC, this, a_colorFXInfos, a_backgroundFXInfos);
 	}
 
 	void GameMenuBase::SetUpButtonBar(BSGFxShaderFXTarget& a_parentObject, const char* a_buttonBarPath, HUDColorTypes a_colorType)
 	{
 		using FuncType = decltype(&GameMenuBase::SetUpButtonBar);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameMenuBase::SetUpButtonBar };
-		FUNC(this, a_parentObject, a_buttonBarPath, a_colorType);
+		std::invoke(FUNC, this, a_parentObject, a_buttonBarPath, a_colorType);
 	}
 
 	void GameMenuBase::SetupHUDShaderFXTargets(HUDColorTypes a_colorType, REX::Float32 a_scale)
@@ -91,10 +96,6 @@ namespace RE
 		}
 
 		auto newFilterHolder = msvc::make_unique<BSGFxShaderFXTarget>(menuObj);
-		if (!newFilterHolder) [[unlikely]] {
-			REX::AllocationFail();
-		}
-
 		newFilterHolder->CreateAndSetFiltersToHUD(a_colorType, a_scale);
 
 		if (menuFlags.any(UI_MENU_FLAGS::kCustomRendering)) {

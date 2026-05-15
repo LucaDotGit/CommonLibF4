@@ -36,7 +36,7 @@ namespace RE
 	{
 		using FuncType = decltype(&ConsoleLog::AddString);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::ConsoleLog::AddString };
-		FUNC(this, a_text);
+		std::invoke(FUNC, this, a_text);
 	}
 
 	void ConsoleLog::Print(REX::zstring_view a_text)
@@ -46,11 +46,14 @@ namespace RE
 
 	void ConsoleLog::PrintLine(REX::zstring_view a_text)
 	{
-		const auto newText = REX::Format("{}\n"sv, a_text);
-		AddString(newText.data());
+		auto textBuffer = std::array<char, REX::MESSAGE_BUFFER_SIZE>();
+		REX::FixedFormat(std::span(textBuffer), "{}\n"sv, a_text);
+
+		AddString(textBuffer.data());
 	}
 
-	auto ConsoleLog::GetHistory() const -> std::optional<std::string>
+	auto ConsoleLog::GetHistory() const
+		-> std::optional<std::string>
 	{
 		const auto consoleMenu = Impl::GetConsoleMenu();
 		if (consoleMenu) {

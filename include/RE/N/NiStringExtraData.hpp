@@ -18,10 +18,17 @@ namespace RE
 			REL::EmplaceVtable(this);
 		}
 
+		NiStringExtraData(BSFixedString a_name, BSFixedString a_value)
+			: NiExtraData(std::move(a_name)),
+			  value(std::move(a_value))
+		{
+			REL::EmplaceVtable(this);
+		}
+
 		~NiStringExtraData() override; // 00
 
 		// members
-		BSFixedString data; // 18
+		BSFixedString value; // 18
 	};
 	static_assert(sizeof(NiStringExtraData) == 0x20);
 }

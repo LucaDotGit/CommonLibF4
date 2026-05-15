@@ -5,6 +5,7 @@
 #include "RE/G/GameMenuBase.hpp"
 #include "RE/H/HUDPerkVaultBoySwfDisplayEvent.hpp"
 #include "RE/S/ShowingDialogueSpeechChallengeAnim.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 #include "msvc/memory.hpp"
 

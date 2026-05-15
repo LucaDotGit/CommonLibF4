@@ -27,7 +27,7 @@ namespace RE::Workshop
 	{
 		using FuncType = decltype(&Workshop::InitializePlacementReference);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Workshop::InitializePlacementReference };
-		FUNC(a_context, a_object);
+		std::invoke(FUNC, a_context, a_object);
 	}
 
 	bool IsLocationWithinBuildableArea(const TESObjectREFR& a_workshop, const NiPoint3& a_location)
@@ -55,42 +55,42 @@ namespace RE::Workshop
 	{
 		using FuncType = decltype(&Workshop::RequestExitWorkshop);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Workshop::RequestExitWorkshop };
-		FUNC(a_allowReEntry);
+		std::invoke(FUNC, a_allowReEntry);
 	}
 
 	void ScrapReference(const ContextData& a_context, ObjectRefHandlePtr& a_scrapRef, BSTArray<BSTPair<TESBoundObject*, std::uint32_t>>* a_rewards)
 	{
 		using FuncType = decltype(&Workshop::ScrapReference);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Workshop::ScrapReference };
-		FUNC(a_context, a_scrapRef, a_rewards);
+		std::invoke(FUNC, a_context, a_scrapRef, a_rewards);
 	}
 
 	void SetSelectedEditItem(ObjectRefHandle a_ref)
 	{
 		using FuncType = decltype(&Workshop::SetSelectedEditItem);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Workshop::SetSelectedEditItem };
-		FUNC(a_ref);
+		std::invoke(FUNC, a_ref);
 	}
 
 	void StartWorkshop(TESObjectREFR* a_workshopRef)
 	{
 		using FuncType = decltype(&Workshop::StartWorkshop);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Workshop::StartWorkshop };
-		FUNC(a_workshopRef);
+		std::invoke(FUNC, a_workshopRef);
 	}
 
 	void ToggleEditMode(const ContextData& a_context)
 	{
 		using FuncType = decltype(&Workshop::ToggleEditMode);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Workshop::ToggleEditMode };
-		FUNC(a_context);
+		std::invoke(FUNC, a_context);
 	}
 
 	void UpdateActiveEdit(const ContextData& a_context, bool a_multiselect)
 	{
 		using FuncType = decltype(&Workshop::UpdateActiveEdit);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::Workshop::UpdateActiveEdit };
-		FUNC(a_context, a_multiselect);
+		std::invoke(FUNC, a_context, a_multiselect);
 	}
 
 	bool WorkshopCanShowRecipe(BGSConstructibleObject* a_recipe, BGSKeyword* a_filter)

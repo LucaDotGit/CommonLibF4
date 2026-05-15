@@ -13,7 +13,7 @@ namespace RE::RadioManager
 	{
 		using FuncType = decltype(&RadioManager::EnablePlayerRadio);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::RadioManager::EnablePlayerRadio };
-		FUNC(a_enable, a_playOnOffSound);
+		std::invoke(FUNC, a_enable, a_playOnOffSound);
 	}
 
 	inline bool QPlayerRadioEnabled()

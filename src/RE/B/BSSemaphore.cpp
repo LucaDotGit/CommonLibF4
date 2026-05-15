@@ -13,7 +13,7 @@ namespace RE
 		if (_semaphoreHandle != 0) [[unlikely]] {
 			const auto currentError = REX::GetCurrentSystemError();
 			REX::Fail(
-				"Failed to create system semaphore.\n"
+				"Failed to create semaphore.\n"
 				"System Error (0x{:08X}): {}"sv,
 				currentError.value(), currentError.message());
 		}

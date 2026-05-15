@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RE/B/BSPointerHandle.hpp"
-#include "RE/H/hkVector4f.hpp"
+#include "RE/H/hkVector4.hpp"
 
 namespace RE
 {
@@ -17,8 +17,8 @@ namespace RE
 		REX::Float32 deathPushback; // 14
 		REX::Float32 stagger;		// 18
 		bool continuous;			// 1C
-		hkVector4f pushbackVector;	// 20
-		hkVector4f hitLocation;		// 30
+		hkVector4 pushbackVector;	// 20
+		hkVector4 hitLocation;		// 30
 		std::uint32_t material;		// 40
 	};
 	static_assert(sizeof(TrapData) == 0x50);

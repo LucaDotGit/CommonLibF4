@@ -2,9 +2,8 @@
 
 #include "REX/Concepts.hpp"
 #include "REX/Contract.hpp"
-#include "REX/ErrorCode.hpp"
+#include "REX/Error.hpp"
 #include "REX/Hash.hpp"
-#include "REX/ZString.hpp"
 
 namespace REX
 {
@@ -25,6 +24,11 @@ namespace REX
 		using const_iterator = const_pointer;
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+		template <REX::win32_character CharT>
+		inline static constexpr auto DEFAULT_SEPARATOR = static_cast<CharT>('.');
+
+		inline static constexpr auto MAX_BUFFER_SIZE = REX::buffer_traits<value_type>::buffer_size::value * MAX_SIZE;
 
 		static const Version MIN;
 		static const Version MAX;
@@ -132,81 +136,92 @@ namespace REX
 		[[nodiscard]] constexpr value_type GetPatch() const noexcept { return at(2); }
 		[[nodiscard]] constexpr value_type GetBuild() const noexcept { return at(3); }
 
-		template <REX::win32_character T>
-		[[nodiscard]] static constexpr auto FromString(std::basic_string_view<T> a_version, T a_separator = static_cast<T>('.')) noexcept -> std::expected<Version, REX::PosixErrorCode>
+		template <REX::win32_character CharT>
+		[[nodiscard]] static constexpr auto FromString(std::basic_string_view<CharT> a_version, CharT a_separator = DEFAULT_SEPARATOR<CharT>) noexcept
+			-> std::expected<Version, REX::PosixErrorCode>
 		{
 			auto parts = container_type();
 			auto partIndex = static_cast<std::size_t>(0);
 
-			auto start = a_version.begin();
-			auto end = a_version.end();
-
-			while (start != end) {
-				const auto next = std::find(start, end, a_separator);
-				const auto length = std::distance(start, next);
-
-				if (length == 0) {
-					break;
-				}
-
-				auto buffer = std::array<char, REX::buffer_traits<value_type>::buffer_size::value>();
-
-				for (auto i = 0ui32; i < buffer.size() && i < length; i++) {
-					buffer[i] = static_cast<char>(start[i]);
-				}
-
-				const auto conversion = std::from_chars(buffer.data(), buffer.data() + buffer.size(), parts[partIndex]);
-				if (conversion.ec != REX::POSIX_ERROR_CODE_SUCCESS) {
-					return std::unexpected(conversion.ec);
-				}
-
-				if (next == end) {
-					break;
-				}
-
-				partIndex++;
-
+			for (const auto stringPart : std::ranges::views::split(a_version, a_separator)) {
 				if (partIndex >= parts.size()) {
 					break;
 				}
 
-				start = next + 1;
+				const auto stringPartView = std::basic_string_view<CharT>(stringPart.begin(), stringPart.end());
+				if (stringPartView.empty()) {
+					break;
+				}
+
+				auto stringPartBuffer = std::array<char, REX::buffer_traits<value_type>::buffer_size::value>();
+
+				for (auto i = 0ui32; i < stringPartBuffer.size() && i < stringPartView.size(); i++) {
+					stringPartBuffer[i] = static_cast<char>(stringPartView[i]);
+				}
+
+				const auto conversionResult = std::from_chars(
+					stringPartBuffer.data(),
+					stringPartBuffer.data() + stringPartBuffer.size(),
+					parts[partIndex]);
+				if (conversionResult.ec != REX::POSIX_ERROR_CODE_SUCCESS) {
+					return std::unexpected(conversionResult.ec);
+				}
+
+				partIndex++;
 			}
 
 			return Version(parts);
 		}
 
-		template <REX::win32_character T>
-		[[nodiscard]] constexpr auto ToString(T a_separator = static_cast<T>('.')) const -> std::basic_string<T>
+		template <REX::win32_character CharT>
+		[[nodiscard]] constexpr auto ToString(std::span<CharT> a_buffer, CharT a_separator = DEFAULT_SEPARATOR<CharT>) const noexcept
+			-> std::basic_string_view<CharT>
 		{
-			auto result = std::array<T, REX::buffer_traits<value_type>::buffer_size::value * MAX_SIZE>();
-			auto totalLength = static_cast<std::size_t>(0);
+			auto totalSize = static_cast<std::size_t>(0);
 
 			for (auto it = _data.begin(); it != _data.end(); it++) {
-				auto buffer = std::array<char, REX::buffer_traits<value_type>::buffer_size::value>();
+				auto elementBuffer = std::array<char, REX::buffer_traits<value_type>::buffer_size::value>();
 
-				const auto conversion = std::to_chars(buffer.data(), buffer.data() + buffer.size(), *it);
-				if (conversion.ec != REX::POSIX_ERROR_CODE_SUCCESS) [[unlikely]] {
+				const auto conversionResult = std::to_chars(
+					elementBuffer.data(),
+					elementBuffer.data() + elementBuffer.size(),
+					*it);
+				if (conversionResult.ec != REX::POSIX_ERROR_CODE_SUCCESS) [[unlikely]] {
 					REX::Assert(false);
 					return {};
 				}
 
-				const auto length = std::char_traits<char>::length(buffer.data());
-				std::copy_n(buffer.data(), length, result.data() + totalLength);
+				const auto elementSize = std::distance(elementBuffer.data(), conversionResult.ptr);
+				totalSize += elementSize;
 
-				totalLength += length;
-				if (totalLength >= result.size()) {
+				if (totalSize > a_buffer.size()) {
+					return {};
+				}
+
+				std::copy_n(elementBuffer.data(), elementSize, a_buffer.data() + totalSize - elementSize);
+
+				if (it == std::prev(_data.end())) {
 					break;
 				}
 
-				if (it != std::prev(_data.end())) {
-					result[totalLength] = a_separator;
-					totalLength++;
+				if (totalSize == a_buffer.size()) {
+					return {};
 				}
+
+				a_buffer[totalSize] = a_separator;
+				totalSize++;
 			}
 
-			result[totalLength] = '\0';
-			return std::basic_string<T>{ result.data(), totalLength };
+			return std::basic_string_view<CharT>{ a_buffer.data(), totalSize };
+		}
+
+		template <REX::win32_character CharT>
+		[[nodiscard]] constexpr auto ToString(CharT a_separator = DEFAULT_SEPARATOR<CharT>) const
+			-> std::basic_string<CharT>
+		{
+			auto buffer = std::array<CharT, MAX_BUFFER_SIZE>();
+			auto bufferView = ToString<CharT>(buffer, a_separator);
+			return std::basic_string<CharT>(bufferView);
 		}
 
 		template <REX::unsigned_integer T>
@@ -279,11 +294,20 @@ namespace REX
 		std::numeric_limits<Version::value_type>::max(),
 		std::numeric_limits<Version::value_type>::max());
 
-	extern template auto Version::FromString(std::string_view a_version, char a_separator) noexcept -> std::expected<Version, REX::PosixErrorCode>;
-	extern template auto Version::FromString(std::wstring_view a_version, wchar_t a_separator) noexcept -> std::expected<Version, REX::PosixErrorCode>;
+	extern template auto Version::FromString(std::string_view a_version, char a_separator) noexcept
+		-> std::expected<Version, REX::PosixErrorCode>;
+	extern template auto Version::FromString(std::wstring_view a_version, wchar_t a_separator) noexcept
+		-> std::expected<Version, REX::PosixErrorCode>;
 
-	extern template auto Version::ToString(char a_separator) const -> std::string;
-	extern template auto Version::ToString(wchar_t a_separator) const -> std::wstring;
+	extern template auto Version::ToString(std::span<char> a_buffer, char a_separator) const noexcept
+		-> std::string_view;
+	extern template auto Version::ToString(std::span<wchar_t> a_buffer, wchar_t a_separator) const noexcept
+		-> std::wstring_view;
+
+	extern template auto Version::ToString(char a_separator) const
+		-> std::string;
+	extern template auto Version::ToString(wchar_t a_separator) const
+		-> std::wstring;
 
 	static_assert(std::is_standard_layout_v<Version>);
 	static_assert(std::is_trivially_destructible_v<Version>);
@@ -293,12 +317,6 @@ namespace REX
 	{
 		a_lhs.swap(a_rhs);
 	}
-
-	[[nodiscard]] auto GetFileVersion(REX::zstring_view a_fileName) noexcept -> std::expected<Version, REX::SystemError>;
-	[[nodiscard]] auto GetFileVersion(REX::zwstring_view a_fileName) noexcept -> std::expected<Version, REX::SystemError>;
-
-	[[nodiscard]] auto GetProductVersion(REX::zstring_view a_fileName) noexcept -> std::expected<Version, REX::SystemError>;
-	[[nodiscard]] auto GetProductVersion(REX::zwstring_view a_fileName) noexcept -> std::expected<Version, REX::SystemError>;
 }
 
 namespace std
@@ -323,17 +341,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const REX::Version& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const REX::Version& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, a_value.ToString<char>());
+			return format_to(a_context.out(), "{}"sv, a_value.ToString<char>());
 		}
 	};
 }
@@ -348,17 +366,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const REX::Version& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const REX::Version& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, a_value.ToString<char>());
+			return format_to(a_context.out(), "{}"sv, a_value.ToString<char>());
 		}
 	};
 }

@@ -75,7 +75,7 @@ namespace RE
 		{
 			using FuncType = decltype(&ActorEquipManager::UnequipItem);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::ActorEquipManager::UnequipItem };
-			FUNC(this, a_actor, a_equippedItem, a_queueEquip);
+			std::invoke(FUNC, this, a_actor, a_equippedItem, a_queueEquip);
 		}
 	};
 	static_assert(sizeof(ActorEquipManager) == 0x60);

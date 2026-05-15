@@ -1,6 +1,7 @@
 #pragma once
 
 #include "REX/Concepts.hpp"
+#include "REX/Locale.hpp"
 #include "REX/NotNull.hpp"
 
 namespace REX::Impl
@@ -218,21 +219,30 @@ namespace REX::Impl
 	template <REX::floating_point T>
 	using default_float_distribution = std::uniform_real_distribution<T>;
 
-	template <REX::win32_character T>
-	inline constexpr auto ALPHANUMERIC_CHARACTERS =
-		std::basic_string_view<T>();
+	template <REX::character CharT>
+	inline constexpr auto ALPHANUMERIC_CHARACTERS = []() consteval noexcept {
+		constexpr auto LOWER_LETTER_CHAR_COUNT = REX::MAX_LOWER_LETTER_CHAR<CharT> - REX::MIN_LOWER_LETTER_CHAR<CharT> + 1;
+		constexpr auto UPPER_LETTER_CHAR_COUNT = REX::MAX_UPPER_LETTER_CHAR<CharT> - REX::MIN_UPPER_LETTER_CHAR<CharT> + 1;
+		constexpr auto DIGIT_CHAR_COUNT = REX::MAX_DIGIT_CHAR<CharT> - REX::MIN_DIGIT_CHAR<CharT> + 1;
 
-	template <>
-	inline constexpr auto ALPHANUMERIC_CHARACTERS<char> =
-		"abcdefghijklmnopqrstuvwxyz"
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		"0123456789"sv;
+		constexpr auto CHAR_SIZE = LOWER_LETTER_CHAR_COUNT + UPPER_LETTER_CHAR_COUNT + DIGIT_CHAR_COUNT;
 
-	template <>
-	inline constexpr auto ALPHANUMERIC_CHARACTERS<wchar_t> =
-		L"abcdefghijklmnopqrstuvwxyz"
-		L"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		L"0123456789"sv;
+		auto result = std::array<CharT, CHAR_SIZE>();
+
+		for (auto i = static_cast<std::size_t>(0); i < LOWER_LETTER_CHAR_COUNT; i++) {
+			result[i] = static_cast<CharT>(REX::MIN_LOWER_LETTER_CHAR<CharT> + i);
+		}
+
+		for (auto i = static_cast<std::size_t>(0); i < UPPER_LETTER_CHAR_COUNT; i++) {
+			result[i + LOWER_LETTER_CHAR_COUNT] = static_cast<CharT>(REX::MIN_UPPER_LETTER_CHAR<CharT> + i);
+		}
+
+		for (auto i = static_cast<std::size_t>(0); i < DIGIT_CHAR_COUNT; i++) {
+			result[i + LOWER_LETTER_CHAR_COUNT + UPPER_LETTER_CHAR_COUNT] = static_cast<CharT>(REX::MIN_DIGIT_CHAR<CharT> + i);
+		}
+
+		return result;
+	}();
 
 	template <std::uniform_random_bit_generator T>
 	[[nodiscard]] __forceinline bool NextBool(T& a_engine) noexcept
@@ -242,53 +252,53 @@ namespace REX::Impl
 	}
 
 	template <REX::integer U, std::uniform_random_bit_generator T>
-	[[nodiscard]] __forceinline U NextInt(T& a_engine, U a_min, U a_max) noexcept
+	[[nodiscard]] __forceinline U NextInt(T& a_engine, U a_minInclusive, U a_maxInclusive) noexcept
 	{
-		auto distributor = default_int_distribution<U>(a_min, a_max);
+		auto distributor = default_int_distribution<U>(a_minInclusive, a_maxInclusive);
 		return std::invoke(distributor, a_engine);
 	}
 
 	template <REX::floating_point U, std::uniform_random_bit_generator T>
-	[[nodiscard]] __forceinline U NextFloat(T& a_engine, U a_min, U a_max) noexcept
+	[[nodiscard]] __forceinline U NextFloat(T& a_engine, U a_minInclusive, U a_maxExclusive) noexcept
 	{
-		auto distributor = default_float_distribution<U>(a_min, a_max);
+		auto distributor = default_float_distribution<U>(a_minInclusive, a_maxExclusive);
 		return std::invoke(distributor, a_engine);
 	}
 
-	template <REX::win32_character U, std::uniform_random_bit_generator T>
-	[[nodiscard]] __forceinline U NextChar(T& a_engine) noexcept
+	template <REX::character CharT, std::uniform_random_bit_generator T>
+	[[nodiscard]] __forceinline CharT NextChar(T& a_engine) noexcept
 	{
-		constexpr const auto& ALPHANUMERIC_CHARACTERS = Impl::ALPHANUMERIC_CHARACTERS<U>;
+		constexpr const auto& ALPHANUMERIC_CHARACTERS = Impl::ALPHANUMERIC_CHARACTERS<CharT>;
 
 		auto distributor = default_int_distribution<std::size_t>(0, ALPHANUMERIC_CHARACTERS.size() - 1);
 		const auto index = std::invoke(distributor, a_engine);
 		return ALPHANUMERIC_CHARACTERS[index];
 	}
 
-	template <REX::win32_character U, std::uniform_random_bit_generator T>
-	[[nodiscard]] __forceinline U NextChar(T& a_engine, std::span<const U> a_characters) noexcept
+	template <REX::character CharT, std::uniform_random_bit_generator T>
+	[[nodiscard]] __forceinline CharT NextChar(T& a_engine, std::span<const CharT> a_characters) noexcept
 	{
 		auto distributor = default_int_distribution<std::size_t>(0, a_characters.size() - 1);
 		const auto index = std::invoke(distributor, a_engine);
 		return a_characters[index];
 	}
 
-	template <REX::win32_character U, std::uniform_random_bit_generator T>
-	[[nodiscard]] __forceinline U NextAlphanumericChar(T& a_engine) noexcept
+	template <REX::character CharT, std::uniform_random_bit_generator T>
+	[[nodiscard]] __forceinline CharT NextAlphanumericChar(T& a_engine) noexcept
 	{
-		constexpr const auto& ALPHANUMERIC_CHARACTERS = Impl::ALPHANUMERIC_CHARACTERS<U>;
+		constexpr const auto& ALPHANUMERIC_CHARACTERS = Impl::ALPHANUMERIC_CHARACTERS<CharT>;
 
 		auto distributor = default_int_distribution<std::size_t>(0, ALPHANUMERIC_CHARACTERS.size() - 1);
 		const auto index = std::invoke(distributor, a_engine);
 		return ALPHANUMERIC_CHARACTERS[index];
 	}
 
-	template <REX::win32_character U, std::uniform_random_bit_generator T>
-	[[nodiscard]] __forceinline std::basic_string<U> NextString(T& a_engine, std::size_t a_size, std::basic_string_view<U> a_characters)
+	template <REX::character CharT, std::uniform_random_bit_generator T>
+	[[nodiscard]] __forceinline std::basic_string<CharT> NextString(T& a_engine, std::size_t a_size, std::basic_string_view<CharT> a_characters)
 	{
 		auto distributor = default_int_distribution<std::size_t>(0, a_characters.size() - 1);
 
-		auto result = std::basic_string<U>();
+		auto result = std::basic_string<CharT>();
 		result.reserve(a_size);
 
 		for (auto i = static_cast<std::size_t>(0); i < a_size; i++) {
@@ -299,14 +309,14 @@ namespace REX::Impl
 		return result;
 	}
 
-	template <REX::win32_character U, std::uniform_random_bit_generator T>
-	[[nodiscard]] __forceinline std::basic_string<U> NextAlphanumericString(T& a_engine, std::size_t a_size)
+	template <REX::character CharT, std::uniform_random_bit_generator T>
+	[[nodiscard]] __forceinline std::basic_string<CharT> NextAlphanumericString(T& a_engine, std::size_t a_size)
 	{
-		constexpr const auto& ALPHANUMERIC_CHARACTERS = Impl::ALPHANUMERIC_CHARACTERS<U>;
+		constexpr const auto& ALPHANUMERIC_CHARACTERS = Impl::ALPHANUMERIC_CHARACTERS<CharT>;
 
 		auto distributor = default_int_distribution<std::size_t>(0, ALPHANUMERIC_CHARACTERS.size() - 1);
 
-		auto result = std::basic_string<U>();
+		auto result = std::basic_string<CharT>();
 		result.reserve(a_size);
 
 		for (auto i = static_cast<std::size_t>(0); i < a_size; i++) {
@@ -390,41 +400,41 @@ namespace REX
 			_engine.seed(a_seed);
 		}
 
-		template <REX::win32_character U>
-		[[nodiscard]] std::basic_string<U> LoadState() const
-			requires(Impl::output_stream_writable<T, U>)
+		template <REX::character CharT>
+		[[nodiscard]] std::basic_string<CharT> LoadState() const
+			requires(Impl::output_stream_writable<T, CharT>)
 		{
-			auto stringStream = std::basic_ostringstream<U>();
+			auto stringStream = std::basic_ostringstream<CharT>();
 			stringStream << _engine;
 			return stringStream.str();
 		}
 
-		template <REX::win32_character U>
-		void SaveState(std::basic_string_view<U> a_state)
-			requires(Impl::input_stream_readable<T, U>)
+		template <REX::character CharT>
+		void SaveState(std::basic_string_view<CharT> a_state)
+			requires(Impl::input_stream_readable<T, CharT>)
 		{
-			auto stringStream = std::basic_istringstream<U>(std::basic_string<U>(a_state));
+			auto stringStream = std::basic_istringstream<CharT>(std::basic_string<CharT>(a_state));
 			stringStream >> _engine;
 		}
 
-		template <REX::win32_character U>
-		void SaveState(std::basic_string<U>&& a_state)
-			requires(Impl::input_stream_readable<T, U>)
+		template <REX::character CharT>
+		void SaveState(std::basic_string<CharT>&& a_state)
+			requires(Impl::input_stream_readable<T, CharT>)
 		{
-			auto stringStream = std::basic_istringstream<U>(std::move(a_state));
+			auto stringStream = std::basic_istringstream<CharT>(std::move(a_state));
 			stringStream >> _engine;
 		}
 
-		template <REX::win32_character U>
-		void Deserialize(std::basic_istream<U>& a_stream)
-			requires(Impl::input_stream_readable<T, U>)
+		template <REX::character CharT>
+		void Deserialize(std::basic_istream<CharT>& a_stream)
+			requires(Impl::input_stream_readable<T, CharT>)
 		{
 			a_stream >> _engine;
 		}
 
-		template <REX::win32_character U>
-		void Serialize(std::basic_ostream<U>& a_stream) const
-			requires(Impl::output_stream_writable<T, U>)
+		template <REX::character CharT>
+		void Serialize(std::basic_ostream<CharT>& a_stream) const
+			requires(Impl::output_stream_writable<T, CharT>)
 		{
 			a_stream << _engine;
 		}
@@ -447,15 +457,15 @@ namespace REX
 		}
 
 		template <REX::integer U>
-		[[nodiscard]] U NextInt(U a_max) noexcept
+		[[nodiscard]] U NextInt(U a_maxInclusive) noexcept
 		{
-			return NextInt<U>(static_cast<U>(0), a_max);
+			return NextInt<U>(static_cast<U>(0), a_maxInclusive);
 		}
 
 		template <REX::integer U>
-		[[nodiscard]] U NextInt(U a_min, U a_max) noexcept
+		[[nodiscard]] U NextInt(U a_minInclusive, U a_maxInclusive) noexcept
 		{
-			return Impl::NextInt<U>(_engine, a_min, a_max);
+			return Impl::NextInt<U>(_engine, a_minInclusive, a_maxInclusive);
 		}
 
 		template <REX::floating_point U>
@@ -465,57 +475,57 @@ namespace REX
 		}
 
 		template <REX::floating_point U>
-		[[nodiscard]] U NextFloat(U a_max) noexcept
+		[[nodiscard]] U NextFloat(U a_maxInclusive) noexcept
 		{
-			return NextFloat<U>(static_cast<U>(0), a_max);
+			return NextFloat<U>(static_cast<U>(0), a_maxInclusive);
 		}
 
 		template <REX::floating_point U>
-		[[nodiscard]] U NextFloat(U a_min, U a_max) noexcept
+		[[nodiscard]] U NextFloat(U a_minInclusive, U a_maxExclusive) noexcept
 		{
-			return Impl::NextFloat<U>(_engine, a_min, a_max);
+			return Impl::NextFloat<U>(_engine, a_minInclusive, a_maxExclusive);
 		}
 
-		template <REX::win32_character U>
-		[[nodiscard]] U NextChar() noexcept
+		template <REX::character CharT>
+		[[nodiscard]] CharT NextChar() noexcept
 		{
-			return Impl::NextChar<U>(_engine);
+			return Impl::NextChar<CharT>(_engine);
 		}
 
-		template <REX::win32_character U>
-		[[nodiscard]] U NextChar(std::span<const U> a_characters) noexcept
+		template <REX::character CharT>
+		[[nodiscard]] CharT NextChar(std::span<const CharT> a_characters) noexcept
 		{
 			if (a_characters.empty()) {
-				return static_cast<U>(0);
+				return static_cast<CharT>(0);
 			}
 
-			return Impl::NextChar<U>(_engine, a_characters);
+			return Impl::NextChar<CharT>(_engine, a_characters);
 		}
 
-		template <REX::win32_character U>
-		[[nodiscard]] U NextAlphanumericChar() noexcept
+		template <REX::character CharT>
+		[[nodiscard]] CharT NextAlphanumericChar() noexcept
 		{
-			return Impl::NextAlphanumericChar<U>(_engine);
+			return Impl::NextAlphanumericChar<CharT>(_engine);
 		}
 
-		template <REX::win32_character U>
-		[[nodiscard]] std::basic_string<U> NextString(std::size_t a_size, std::basic_string_view<U> a_characters)
+		template <REX::character CharT>
+		[[nodiscard]] std::basic_string<CharT> NextString(std::size_t a_size, std::basic_string_view<CharT> a_characters)
 		{
 			if (a_size == 0 || a_characters.empty()) {
 				return {};
 			}
 
-			return Impl::NextString<U>(_engine, a_size, a_characters);
+			return Impl::NextString<CharT>(_engine, a_size, a_characters);
 		}
 
-		template <REX::win32_character U>
-		[[nodiscard]] std::basic_string<U> NextAlphanumericString(std::size_t a_size)
+		template <REX::character CharT>
+		[[nodiscard]] std::basic_string<CharT> NextAlphanumericString(std::size_t a_size)
 		{
 			if (a_size == 0) {
 				return {};
 			}
 
-			return Impl::NextAlphanumericString<U>(_engine, a_size);
+			return Impl::NextAlphanumericString<CharT>(_engine, a_size);
 		}
 
 		template <std::random_access_iterator It>
@@ -531,7 +541,8 @@ namespace REX
 		}
 
 		template <std::ranges::random_access_range Range>
-		[[nodiscard]] auto NextElement(Range& a_range) noexcept -> std::ranges::iterator_t<Range>
+		[[nodiscard]] auto NextElement(Range& a_range) noexcept
+			-> std::ranges::iterator_t<Range>
 		{
 			auto begin = std::ranges::begin(a_range);
 			auto end = std::ranges::end(a_range);
@@ -546,7 +557,8 @@ namespace REX
 		}
 
 		template <std::ranges::random_access_range Range>
-		[[nodiscard]] auto NextElement(const Range& a_range) noexcept -> std::ranges::const_iterator_t<Range>
+		[[nodiscard]] auto NextElement(const Range& a_range) noexcept
+			-> std::ranges::const_iterator_t<Range>
 		{
 			const auto begin = std::ranges::begin(a_range);
 			const auto end = std::ranges::end(a_range);
@@ -617,8 +629,10 @@ namespace REX
 		a_lhs.swap(a_rhs);
 	}
 
-	[[nodiscard]] auto GetSharedRandom32() noexcept -> const REX::NotNull<std::unique_ptr<Random32>>&;
-	[[nodiscard]] auto GetSharedRandom64() noexcept -> const REX::NotNull<std::unique_ptr<Random64>>&;
+	[[nodiscard]] auto GetSharedRandom32() noexcept
+		-> const REX::NotNull<std::unique_ptr<Random32>>&;
+	[[nodiscard]] auto GetSharedRandom64() noexcept
+		-> const REX::NotNull<std::unique_ptr<Random64>>&;
 }
 
 #if __cpp_lib_format > 0l
@@ -631,17 +645,17 @@ namespace std
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const REX::BasicRandom<T>& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const REX::BasicRandom<T>& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, a_value.template LoadState<char>());
+			return format_to(a_context.out(), "{}"sv, a_value.template LoadState<char>());
 		}
 	};
 }
@@ -657,17 +671,17 @@ namespace fmt
 	{
 	public:
 		template <class ParseContext>
-		[[nodiscard]] constexpr auto parse(ParseContext& a_ctx) const
+		[[nodiscard]] constexpr auto parse(ParseContext& a_context) const noexcept
 		{
-			return a_ctx.begin();
+			return a_context.begin();
 		}
 
 		template <class FormatContext>
-		[[nodiscard]] constexpr auto format(const REX::BasicRandom<T>& a_value, FormatContext& a_ctx) const
+		[[nodiscard]] constexpr auto format(const REX::BasicRandom<T>& a_value, FormatContext& a_context) const
 		{
 			using namespace std::string_view_literals;
 
-			return format_to(a_ctx.out(), "{}"sv, a_value.template LoadState<char>());
+			return format_to(a_context.out(), "{}"sv, a_value.template LoadState<char>());
 		}
 	};
 }

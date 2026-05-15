@@ -218,7 +218,7 @@ namespace RE
 		{
 			using FuncType = decltype(&PipboyInventoryData::AddItemCardInfoEntry);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyInventoryData::AddItemCardInfoEntry };
-			FUNC(this, a_string, a_value, a_itemCardSection);
+			std::invoke(FUNC, this, a_string, a_value, a_itemCardSection);
 		}
 
 		PipboyObject* BaseAddItemCardInfoEntry(const BSFixedStringCS* a_string, PipboyArray* a_itemCardSection)
@@ -232,14 +232,14 @@ namespace RE
 		{
 			using FuncType = decltype(&PipboyInventoryData::PopulateItemCardInfo);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyInventoryData::PopulateItemCardInfo };
-			FUNC(this, a_inventoryItem, a_stack, a_data);
+			std::invoke(FUNC, this, a_inventoryItem, a_stack, a_data);
 		}
 
 		void RepopulateItemCardsOnSection(FormType itemTypeID)
 		{
 			using FuncType = decltype(&PipboyInventoryData::RepopulateItemCardsOnSection);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::PipboyInventoryData::RepopulateItemCardsOnSection };
-			FUNC(this, itemTypeID);
+			std::invoke(FUNC, this, itemTypeID);
 		}
 
 		// members

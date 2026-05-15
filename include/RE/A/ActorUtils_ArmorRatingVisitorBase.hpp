@@ -23,7 +23,7 @@ namespace RE::ActorUtils
 		{
 			using FuncType = void (ArmorRatingVisitorBase::*)(const Actor*, bool);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::ActorUtils::ArmorRatingVisitorBase::ctor };
-			FUNC(this, a_actor, a_checkEquipped);
+			std::invoke(FUNC, this, a_actor, a_checkEquipped);
 		}
 
 		// add

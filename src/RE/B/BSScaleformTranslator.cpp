@@ -54,7 +54,7 @@ namespace RE
 	{
 		using FuncType = decltype(&BSScaleformTranslator::AddTranslations);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSScaleformTranslator::AddTranslations };
-		FUNC(this, a_parser);
+		std::invoke(FUNC, this, a_parser);
 	}
 
 	void BSScaleformTranslator::AddTranslationsFromFile(const char* a_filePath)

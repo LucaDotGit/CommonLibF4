@@ -1,5 +1,7 @@
 #include "RE/U/UI.hpp"
 
+#include "RE/U/UI_MENU_FLAGS.hpp"
+
 namespace RE
 {
 	UI* UI::GetSingleton()
@@ -38,7 +40,8 @@ namespace RE
 		return menuIt != menuMap.end() ? menuIt->second.menu : nullptr;
 	}
 
-	auto UI::IsMenuOpen(const ::Scaleform::Ptr<IMenu>& a_menu) -> std::optional<bool>
+	auto UI::IsMenuOpen(const ::Scaleform::Ptr<IMenu>& a_menu)
+		-> std::optional<bool>
 	{
 		if (!a_menu) {
 			return std::nullopt;
@@ -47,7 +50,8 @@ namespace RE
 		return a_menu->menuFlags.any(UI_MENU_FLAGS::kOnStack);
 	}
 
-	auto UI::IsMenuOpen(const BSFixedString& a_menuName) const -> std::optional<bool>
+	auto UI::IsMenuOpen(const BSFixedString& a_menuName) const
+		-> std::optional<bool>
 	{
 		const auto menu = GetMenu(a_menuName);
 		return IsMenuOpen(menu);
@@ -63,7 +67,7 @@ namespace RE
 	{
 		using FuncType = decltype(&UI::RefreshCursor);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::UI::RefreshCursor };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 
 	bool UI::RegisterMenu(const BSFixedString& a_menuName, CreateType* a_create, StaticUpdateType* a_staticUpdate)
@@ -102,6 +106,6 @@ namespace RE
 	{
 		using FuncType = decltype(&UI::UpdateControllerType);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::UI::UpdateControllerType };
-		FUNC(this);
+		std::invoke(FUNC, this);
 	}
 }

@@ -65,7 +65,7 @@ namespace RE
 	class DialogueResponse;
 	class ExtraDataList;
 	class hknpBodyId;
-	class hkVector4f;
+	class hkVector4;
 	class INSTANCE_FILTER;
 	class LOADED_REF_DATA;
 	class MagicCaster;
@@ -307,7 +307,7 @@ namespace RE
 		virtual void SetParentCell(TESObjectCELL* a_cell);																																													   // BF
 		virtual bool IsDead(bool a_notEssential) const;																																														   // C0
 		virtual bool ProcessInWater(hknpBodyId a_bodyID, REX::Float32 a_waterHeight, REX::Float32 a_deltaTime);																																   // C1
-		virtual bool ApplyCurrent(REX::Float32 a_deltaTime, const hkVector4f& a_linVel, const hkVector4f& a_unk01);																															   // C2 - { return false; }
+		virtual bool ApplyCurrent(REX::Float32 a_deltaTime, const hkVector4& a_linVel, const hkVector4& a_unk01);																															   // C2 - { return false; }
 		virtual BGSDecalGroup* GetDecalGroup() const;																																														   // C3
 		virtual void InitDefaultWornImpl(bool a_weapon, bool a_allowChanges);																																								   // C4
 		virtual bool HasKeywordHelper(const BGSKeyword* a_keyword, const TBO_InstanceData* a_data) const;																																	   // C5
@@ -327,7 +327,8 @@ namespace RE
 		[[nodiscard]] REX::Float32 GetAngleZ() const noexcept;
 		[[nodiscard]] TESBoundObject* GetBaseObject() const noexcept;
 		[[nodiscard]] BGSLocation* GetCurrentLocation() const;
-		[[nodiscard]] auto GetDisplayName() const -> std::optional<BGSLocalizedString>;
+		[[nodiscard]] auto GetDisplayName() const
+			-> std::optional<BGSLocalizedString>;
 		[[nodiscard]] bool GetEditorDead() const;
 		[[nodiscard]] std::int64_t GetGoldAmount() const;
 		[[nodiscard]] ObjectRefHandle GetHandle() const;
@@ -386,16 +387,24 @@ namespace RE
 		void UpdateDynamicNavmesh(bool a_active);
 		void UpdateReference3D();
 
-		[[nodiscard]] static auto GetRefByNumericID(TESFormID a_formID) -> NiPointer<TESObjectREFR>;
-		[[nodiscard]] static auto GetRefByEditorID(const BSFixedString& a_editorID) -> NiPointer<TESObjectREFR>;
-		[[nodiscard]] static auto FindFormOrRefByNumericID(TESFormID a_formID) -> std::optional<std::variant<TESForm*, NiPointer<TESObjectREFR>>>;
-		[[nodiscard]] static auto FindFormOrRefByEditorID(const BSFixedString& a_editorID) -> std::optional<std::variant<TESForm*, NiPointer<TESObjectREFR>>>;
+		[[nodiscard]] static auto GetRefByNumericID(TESFormID a_formID)
+			-> NiPointer<TESObjectREFR>;
+		[[nodiscard]] static auto GetRefByEditorID(const BSFixedString& a_editorID)
+			-> NiPointer<TESObjectREFR>;
+		[[nodiscard]] static auto FindFormOrRefByNumericID(TESFormID a_formID)
+			-> std::optional<std::variant<TESForm*, NiPointer<TESObjectREFR>>>;
+		[[nodiscard]] static auto FindFormOrRefByEditorID(const BSFixedString& a_editorID)
+			-> std::optional<std::variant<TESForm*, NiPointer<TESObjectREFR>>>;
 
-		[[nodiscard]] static auto ContainsKeyword(const TESObjectREFR* a_ref, const BGSKeyword* a_keyword) -> std::optional<bool>;
-		[[nodiscard]] static auto GetKeywordCount(const TESObjectREFR* a_ref) -> std::optional<std::uint32_t>;
-		[[nodiscard]] static auto GetKeywordIndex(const TESObjectREFR* a_ref, const BGSKeyword* a_keyword) -> std::optional<std::uint32_t>;
+		[[nodiscard]] static auto ContainsKeyword(const TESObjectREFR* a_ref, const BGSKeyword* a_keyword)
+			-> std::optional<bool>;
+		[[nodiscard]] static auto GetKeywordCount(const TESObjectREFR* a_ref)
+			-> std::optional<std::uint32_t>;
+		[[nodiscard]] static auto GetKeywordIndex(const TESObjectREFR* a_ref, const BGSKeyword* a_keyword)
+			-> std::optional<std::uint32_t>;
 
-		[[nodiscard]] static auto GetKeywords(const TESObjectREFR* a_ref) -> std::optional<std::vector<BGSKeyword*>>;
+		[[nodiscard]] static auto GetKeywords(const TESObjectREFR* a_ref)
+			-> std::optional<std::vector<BGSKeyword*>>;
 		static void SetKeywords(TESObjectREFR* a_ref, std::span<BGSKeyword*> a_keywords);
 
 		[[nodiscard]] static BGSKeyword* GetNthKeyword(const TESObjectREFR* a_ref, std::uint32_t a_index);

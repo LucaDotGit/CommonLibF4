@@ -15,9 +15,9 @@ namespace RE
 		~bhkWorldM() override; // 00
 
 		// members
-		hkVector4f worldTotalSize; // 180
-		hkVector4f borderSize;	   // 190
-		hkVector4f broadPhaseSize; // 1A0
+		hkVector4 worldTotalSize; // 180
+		hkVector4 borderSize;	  // 190
+		hkVector4 broadPhaseSize; // 1A0
 	};
 	static_assert(sizeof(bhkWorldM) == 0x1B0);
 }

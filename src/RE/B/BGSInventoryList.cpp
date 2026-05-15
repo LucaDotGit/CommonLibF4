@@ -8,7 +8,7 @@ namespace RE
 	{
 		using FuncType = void (BGSInventoryList::*)(const TESContainer*, ObjectRefHandle);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSInventoryList::ctor };
-		FUNC(this, a_container, a_owner);
+		std::invoke(FUNC, this, a_container, a_owner);
 	}
 
 	bool BGSInventoryList::StandardObjectCompareCallbackFn(TESBoundObject* a_lhs, TESBoundObject* a_rhs)
@@ -25,14 +25,14 @@ namespace RE
 	{
 		using FuncType = decltype(&BGSInventoryList::FindAndWriteStackDataForItem);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSInventoryList::FindAndWriteStackDataForItem };
-		FUNC(this, a_object, a_compareFunc, a_writeFunc, a_objCompFn, a_alwaysContinue);
+		std::invoke(FUNC, this, a_object, a_compareFunc, a_writeFunc, a_objCompFn, a_alwaysContinue);
 	}
 
 	void BGSInventoryList::BuildFromContainer(const TESContainer* a_container)
 	{
 		using FuncType = decltype(&BGSInventoryList::BuildFromContainer);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSInventoryList::BuildFromContainer };
-		FUNC(this, a_container);
+		std::invoke(FUNC, this, a_container);
 	}
 
 	BSContainer::ForEachResult BGSInventoryList::ForEachStack(

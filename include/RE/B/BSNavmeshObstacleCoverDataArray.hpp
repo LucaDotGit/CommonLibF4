@@ -1,7 +1,7 @@
 #pragma once
 
+#include "RE/B/BSNavmeshObstacleCoverData.hpp"
 #include "RE/B/BSTArrayRefCounted.hpp"
-#include "RE/N/BSNavmeshObstacleCoverData.hpp"
 
 namespace RE
 {

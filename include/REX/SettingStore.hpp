@@ -10,9 +10,12 @@ namespace REX
 	public:
 		virtual ~ISettingStore() noexcept = default;
 
-		[[nodiscard]] virtual auto GetMainPath() const noexcept -> const std::filesystem::path& = 0;
-		[[nodiscard]] virtual auto GetCustomPath() const noexcept -> const std::filesystem::path& = 0;
-		[[nodiscard]] virtual auto GetSettings() const noexcept -> std::span<const REX::NotNull<std::shared_ptr<ISetting>>> = 0;
+		[[nodiscard]] virtual auto GetMainPath() const noexcept
+			-> const std::filesystem::path& = 0;
+		[[nodiscard]] virtual auto GetCustomPath() const noexcept
+			-> const std::filesystem::path& = 0;
+		[[nodiscard]] virtual auto GetSettings() const noexcept
+			-> std::span<const REX::NotNull<std::shared_ptr<ISetting>>> = 0;
 
 		virtual void Add(REX::NotNull<std::shared_ptr<ISetting>> a_setting) = 0;
 		virtual void AddRange(std::span<const REX::NotNull<std::shared_ptr<ISetting>>> a_settings) = 0;
@@ -49,9 +52,12 @@ namespace REX
 		SettingStore& operator=(const SettingStore&) = default;
 		SettingStore& operator=(SettingStore&&) noexcept = default;
 
-		[[nodiscard]] auto GetMainPath() const noexcept -> const std::filesystem::path& override { return _mainPath; }
-		[[nodiscard]] auto GetCustomPath() const noexcept -> const std::filesystem::path& override { return _customPath; }
-		[[nodiscard]] auto GetSettings() const noexcept -> std::span<const REX::NotNull<std::shared_ptr<ISetting>>> override { return _settings; }
+		[[nodiscard]] auto GetMainPath() const noexcept
+			-> const std::filesystem::path& override { return _mainPath; }
+		[[nodiscard]] auto GetCustomPath() const noexcept
+			-> const std::filesystem::path& override { return _customPath; }
+		[[nodiscard]] auto GetSettings() const noexcept
+			-> std::span<const REX::NotNull<std::shared_ptr<ISetting>>> override { return _settings; }
 
 		void Add(REX::NotNull<std::shared_ptr<ISetting>> a_setting) override
 		{

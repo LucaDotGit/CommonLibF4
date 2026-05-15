@@ -5,7 +5,8 @@
 
 namespace RE
 {
-	auto TESHealthForm::GetFormHealth(const TESForm* a_form) -> std::optional<std::uint32_t>
+	auto TESHealthForm::GetFormHealth(const TESForm* a_form)
+		-> std::optional<std::uint32_t>
 	{
 		if (!a_form) {
 			return std::nullopt;

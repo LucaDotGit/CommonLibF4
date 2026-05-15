@@ -46,7 +46,8 @@ namespace RE::BSScript
 		[[nodiscard]] bool IsLinkedValid() const noexcept;
 		[[nodiscard]] bool IsLinkedInvalid() const noexcept;
 
-		[[nodiscard]] auto GetVariableIndex(const BSFixedString& a_name) const -> std::optional<std::uint32_t>;
+		[[nodiscard]] auto GetVariableIndex(const BSFixedString& a_name) const
+			-> std::optional<std::uint32_t>;
 
 		// members
 		BSFixedString name;										  // 10

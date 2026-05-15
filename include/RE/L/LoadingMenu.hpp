@@ -5,6 +5,7 @@
 #include "RE/I/ImageSpaceLUTData.hpp"
 #include "RE/N/NiMatrix3.hpp"
 #include "RE/N/NiPoint.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 namespace RE
 {
@@ -38,14 +39,14 @@ namespace RE
 		{
 			using FuncType = decltype(&LoadingMenu::StartTestingLoadingMenu);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::LoadingMenu::StartTestingLoadingMenu };
-			FUNC();
+			std::invoke(FUNC);
 		}
 
 		void PopulateLoadScreens()
 		{
 			using FuncType = decltype(&LoadingMenu::PopulateLoadScreens);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::LoadingMenu::PopulateLoadScreens };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

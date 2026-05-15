@@ -95,7 +95,7 @@ namespace RE::BSScript
 		{
 			const auto scriptVM = GameVM::GetVMInterface();
 			if (!scriptVM) [[unlikely]] {
-				REX::Fail("Failed to get script VM."sv);
+				REX::Fail("Failed to get the game's script VM."sv);
 			}
 
 			auto proxy = BSTSmartPointer<Struct>();
@@ -215,7 +215,8 @@ namespace RE::BSScript
 		}
 
 		template <class T>
-		[[nodiscard]] auto Find(REX::zstring_view a_name) const -> std::optional<T>
+		[[nodiscard]] auto Find(REX::zstring_view a_name) const
+			-> std::optional<T>
 			requires(BSScript::ValidateParameter<T>())
 		{
 			const auto* variable = GetVariableImpl(a_name);
@@ -228,7 +229,8 @@ namespace RE::BSScript
 		}
 
 		template <class T>
-		[[nodiscard]] auto Find_NoLock(REX::zstring_view a_name) const -> std::optional<T>
+		[[nodiscard]] auto Find_NoLock(REX::zstring_view a_name) const
+			-> std::optional<T>
 			requires(BSScript::ValidateParameter<T>())
 		{
 			const auto* variable = GetVariableImpl(a_name);

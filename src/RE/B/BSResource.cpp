@@ -13,6 +13,6 @@ namespace RE::BSResource
 	{
 		using FuncType = decltype(&BSResource::RegisterLocation);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSResource::RegisterLocation };
-		FUNC(a_location, a_priority);
+		std::invoke(FUNC, a_location, a_priority);
 	}
 }

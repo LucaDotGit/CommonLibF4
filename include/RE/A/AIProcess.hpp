@@ -51,14 +51,14 @@ namespace RE
 		{
 			using FuncType = decltype(&AIProcess::AddToProcedureIndexRunning);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::AIProcess::AddToProcedureIndexRunning };
-			FUNC(this, a_actor, a_number);
+			std::invoke(FUNC, this, a_actor, a_number);
 		}
 
 		void ComputeLastTimeProcessed()
 		{
 			using FuncType = decltype(&AIProcess::ComputeLastTimeProcessed);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::AIProcess::ComputeLastTimeProcessed };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		[[nodiscard]] REX::Float32 GetActorLightLevel()
@@ -107,7 +107,7 @@ namespace RE
 		{
 			using FuncType = decltype(&AIProcess::KnockExplosion);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::AIProcess::KnockExplosion };
-			FUNC(this, a_actor, a_location, a_magnitude);
+			std::invoke(FUNC, this, a_actor, a_location, a_magnitude);
 		}
 
 		bool PlayIdle(Actor& a_actor, TESIdleForm* a_idle, TESObjectREFR* a_target)
@@ -133,35 +133,35 @@ namespace RE
 		{
 			using FuncType = decltype(&AIProcess::SetActorsDetectionEvent);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::AIProcess::SetActorsDetectionEvent };
-			FUNC(this, a_actor, a_location, a_soundLevel, a_ref);
+			std::invoke(FUNC, this, a_actor, a_location, a_soundLevel, a_ref);
 		}
 
 		void SetCommandType(COMMAND_TYPE a_type)
 		{
 			using FuncType = decltype(&AIProcess::SetCommandType);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::AIProcess::SetCommandType };
-			FUNC(this, a_type);
+			std::invoke(FUNC, this, a_type);
 		}
 
 		void SetCurrentAmmo(BGSEquipIndex a_equipIndex, TESAmmo* a_ammo)
 		{
 			using FuncType = decltype(&AIProcess::SetCurrentAmmo);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::AIProcess::SetCurrentAmmo };
-			FUNC(this, a_equipIndex, a_ammo);
+			std::invoke(FUNC, this, a_equipIndex, a_ammo);
 		}
 
 		void SetEquippedItem(Actor* a_actor, const BGSObjectInstance& a_instance, const BGSEquipSlot* a_slot)
 		{
 			using FuncType = decltype(&AIProcess::SetEquippedItem);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::AIProcess::SetEquippedItem };
-			FUNC(this, a_actor, a_instance, a_slot);
+			std::invoke(FUNC, this, a_actor, a_instance, a_slot);
 		}
 
 		void SetRunOncePackage(TESPackage* a_package, Actor* a_actor)
 		{
 			using FuncType = decltype(&AIProcess::SetRunOncePackage);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::AIProcess::SetRunOncePackage };
-			FUNC(this, a_package, a_actor);
+			std::invoke(FUNC, this, a_package, a_actor);
 		}
 
 		bool SetWeaponBonesCulled(const Actor& a_actor, bool a_stateToSet, WEAPON_CULL_TYPE a_weaponCullType)
@@ -182,7 +182,7 @@ namespace RE
 		{
 			using FuncType = decltype(&AIProcess::StopCurrentIdle);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::AIProcess::StopCurrentIdle };
-			FUNC(this, a_actor, a_instant, a_killFlavor);
+			std::invoke(FUNC, this, a_actor, a_instant, a_killFlavor);
 		}
 
 		// members

@@ -114,7 +114,7 @@ namespace REL
 		noexcept(std::is_nothrow_constructible_v<Offset<>, V>)
 		requires(std::is_constructible_v<Offset<>, V>)
 	{
-		return Offset(std::forward<V>(a_offset));
+		return Offset<>{ std::forward<V>(a_offset) };
 	}
 
 	template <Runtime R0, Runtime... R, class... V>
@@ -123,7 +123,7 @@ namespace REL
 		requires(std::is_constructible_v<Offset<R0, R...>, V...> &&
 				 (sizeof...(V) == sizeof...(R) + 1))
 	{
-		return Offset<R0, R...>(std::forward<V>(a_offsets)...);
+		return Offset<R0, R...>{ std::forward<V>(a_offsets)... };
 	}
 }
 

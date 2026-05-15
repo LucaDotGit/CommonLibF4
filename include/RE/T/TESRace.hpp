@@ -109,114 +109,42 @@ namespace RE
 		~TESRace() override; // 00
 
 		// members
-		union
-		{
-			struct
-			{
-				TESModel maleSkeletonModel;
-				TESModel femaleSkeletonModel;
-			};
-			std::array<TESModel, std::to_underlying(SEX::kTotal)> skeletonModels;
-		}; // 0C0
-		union
-		{
-			struct
-			{
-				TESModel maleChargenModel;
-				TESModel femaleChargenModel;
-			};
-			std::array<TESModel, std::to_underlying(SEX::kTotal)> skeletonChargenModel;
-		}; // 120
-		RACE_DATA data;					  // 180
-		REX::Float32 clampFaceGeoValue;	  // 280
-		REX::Float32 clampFaceGeoValue02; // 284
-		union
-		{
-			struct
-			{
-				BGSTextureModel maleBodyTextureModel;
-				BGSTextureModel femaleBodyTextureModel;
-			};
-			std::array<BGSTextureModel, std::to_underlying(SEX::kTotal)> bodyTextureModels;
-		}; // 288
-		union
-		{
-			struct
-			{
-				BGSBehaviorGraphModel maleBehaviorGraph;
-				BGSBehaviorGraphModel femaleBehaviorGraph;
-			};
-			std::array<BGSBehaviorGraphModel, std::to_underlying(SEX::kTotal)> behaviorGraph;
-		}; // 2E8
-		union
-		{
-			struct
-			{
-				BSFixedString maleRootBehaviorGraphName;
-				BSFixedString femaleRootBehaviorGraphName;
-			};
-			std::array<BSFixedString, std::to_underlying(SEX::kTotal)> rootBehaviorGraphName;
-		}; // 348
-		union
-		{
-			struct
-			{
-				BSFixedString maleBehaviorGraphProjectName;
-				BSFixedString femaleBehaviorGraphProjectName;
-			};
-			std::array<BSFixedString, std::to_underlying(SEX::kTotal)> behaviorGraphProjectName;
-		}; // 358
-		union
-		{
-			struct
-			{
-				BGSVoiceType* maleDefaultVoiceType;
-				BGSVoiceType* femaleDefaultVoiceType;
-			};
-			std::array<BGSVoiceType*, std::to_underlying(SEX::kTotal)> defaultVoiceType;
-		}; // 368
-		BGSBodyPartData* bodyPartData;										// 378
-		BGSSoundTagComponent soundTagComponent;								// 380
-		BGSAttachParentArray attachParents;									// 388
-		BSFixedString formEditorID;											// 3A0
-		BGSMaterialType* bloodImpactMaterial;								// 3A8
-		BGSArtObject* dismemberBlood;										// 3B0
-		BGSTextureSet* meatCapTextureSet;									// 3B8
-		BGSTextureSet* meatCollarTextureSet;								// 3C0
-		BGSSoundDescriptorForm* corpseOpenSound;							// 3C8
-		BGSSoundDescriptorForm* corpseCloseSound;							// 3D0
-		std::array<BSFixedString, 32> bipedObjectNames;						// 3D8
-		std::array<ActorValueInfo*, 32> bipedObjectConditions;				// 4D8
-		BSTArray<EquipSlotData> equipSlotArray;								// 5D8
-		std::uint32_t validEquipTypes;										// 5F0
-		TESObjectWEAP* unarmedWeapon;										// 5F8
-		TESRace* morphRace;													// 600
-		TESRace* armorParentRace;											// 608
-		TESQuest* dialogueQuest;											// 610
-		BSTArray<MOVEMENT_SPEED_OVERRIDE> speedOverrides;					// 618
-		BSTArray<BSFixedString> phonemeTargets;								// 630
-		BSTHashMap<std::uint32_t, BGSCharacterMorph::Slider*> morphSliders; // 648
-		std::array<BGSMovementType*, 4> baseMoveTypes;						// 678
-		union
-		{
-			struct
-			{
-				FaceRelatedData* maleFaceRelatedData;
-				FaceRelatedData* femaleFaceRelatedData;
-			};
-			std::array<FaceRelatedData*, std::to_underlying(SEX::kTotal)> faceRelatedData;
-		}; // 698
-		union
-		{
-			struct
-			{
-				BodyMorphData* maleBodyMorphData;
-				BodyMorphData* femaleBodyMorphData;
-			};
-			std::array<BodyMorphData*, std::to_underlying(SEX::kTotal)> bodyMorphData;
-		}; // 6A8
-		TESTexture hairColorLookupTexture;	  // 6B8
-		TESTexture hairColorLookupTextureExt; // 6C8
+		std::array<TESModel, std::to_underlying(SEX::kTotal)> skeletonModels;				 // 0C0
+		std::array<TESModel, std::to_underlying(SEX::kTotal)> skeletonChargenModel;			 // 120
+		RACE_DATA data;																		 // 180
+		REX::Float32 clampFaceGeoValue;														 // 280
+		REX::Float32 clampFaceGeoValue02;													 // 284
+		std::array<BGSTextureModel, std::to_underlying(SEX::kTotal)> bodyTextureModels;		 // 288
+		std::array<BGSBehaviorGraphModel, std::to_underlying(SEX::kTotal)> behaviorGraph;	 // 2E8
+		std::array<BSFixedString, std::to_underlying(SEX::kTotal)> rootBehaviorGraphName;	 // 348
+		std::array<BSFixedString, std::to_underlying(SEX::kTotal)> behaviorGraphProjectName; // 358
+		std::array<BGSVoiceType*, std::to_underlying(SEX::kTotal)> defaultVoiceType;		 // 368
+		BGSBodyPartData* bodyPartData;														 // 378
+		BGSSoundTagComponent soundTagComponent;												 // 380
+		BGSAttachParentArray attachParents;													 // 388
+		BSFixedString formEditorID;															 // 3A0
+		BGSMaterialType* bloodImpactMaterial;												 // 3A8
+		BGSArtObject* dismemberBlood;														 // 3B0
+		BGSTextureSet* meatCapTextureSet;													 // 3B8
+		BGSTextureSet* meatCollarTextureSet;												 // 3C0
+		BGSSoundDescriptorForm* corpseOpenSound;											 // 3C8
+		BGSSoundDescriptorForm* corpseCloseSound;											 // 3D0
+		std::array<BSFixedString, 32> bipedObjectNames;										 // 3D8
+		std::array<ActorValueInfo*, 32> bipedObjectConditions;								 // 4D8
+		BSTArray<EquipSlotData> equipSlotArray;												 // 5D8
+		std::uint32_t validEquipTypes;														 // 5F0
+		TESObjectWEAP* unarmedWeapon;														 // 5F8
+		TESRace* morphRace;																	 // 600
+		TESRace* armorParentRace;															 // 608
+		TESQuest* dialogueQuest;															 // 610
+		BSTArray<MOVEMENT_SPEED_OVERRIDE> speedOverrides;									 // 618
+		BSTArray<BSFixedString> phonemeTargets;												 // 630
+		BSTHashMap<std::uint32_t, BGSCharacterMorph::Slider*> morphSliders;					 // 648
+		std::array<BGSMovementType*, 4> baseMoveTypes;										 // 678
+		std::array<FaceRelatedData*, std::to_underlying(SEX::kTotal)> faceRelatedData;		 // 698
+		std::array<BodyMorphData*, std::to_underlying(SEX::kTotal)> bodyMorphData;			 // 6A8
+		TESTexture hairColorLookupTexture;													 // 6B8
+		TESTexture hairColorLookupTextureExt;												 // 6C8
 	};
 	static_assert(sizeof(TESRace) == 0x6D8);
 }

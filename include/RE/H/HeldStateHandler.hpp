@@ -15,7 +15,6 @@ namespace RE
 		explicit HeldStateHandler(PlayerControlsData& a_data) noexcept
 			: PlayerInputHandler(a_data)
 		{
-			// REL::EmplaceVtable(this);
 		}
 
 		~HeldStateHandler() override = default; // 00

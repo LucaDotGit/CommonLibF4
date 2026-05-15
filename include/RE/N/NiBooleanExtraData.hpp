@@ -17,10 +17,17 @@ namespace RE
 			REL::EmplaceVtable(this);
 		}
 
+		NiBooleanExtraData(BSFixedString a_name, bool a_value)
+			: NiExtraData(std::move(a_name)),
+			  value(a_value)
+		{
+			REL::EmplaceVtable(this);
+		}
+
 		~NiBooleanExtraData() override; // 00
 
 		// members
-		bool data{ false }; // 18
+		bool value{ false }; // 18
 	};
 	static_assert(sizeof(NiBooleanExtraData) == 0x20);
 }

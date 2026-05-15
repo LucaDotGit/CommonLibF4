@@ -58,41 +58,41 @@ namespace RE
 	{
 		using FuncType = void (*)(NiMatrix3*, REX::Float32, REX::Float32, REX::Float32) noexcept;
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::NiMatrix3::FromEulerAnglesXYZ };
-		FUNC(this, a_x, a_y, a_z);
+		std::invoke(FUNC, this, a_x, a_y, a_z);
 	}
 
 	void NiMatrix3::FromEulerAnglesXZY(REX::Float32 a_x, REX::Float32 a_z, REX::Float32 a_y) noexcept
 	{
 		using FuncType = decltype(&NiMatrix3::FromEulerAnglesXZY);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::NiMatrix3::FromEulerAnglesXZY };
-		FUNC(this, a_x, a_z, a_y);
+		std::invoke(FUNC, this, a_x, a_z, a_y);
 	}
 
 	void NiMatrix3::FromEulerAnglesYXZ(REX::Float32 a_y, REX::Float32 a_x, REX::Float32 a_z) noexcept
 	{
 		using FuncType = decltype(&NiMatrix3::FromEulerAnglesYXZ);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::NiMatrix3::FromEulerAnglesYXZ };
-		FUNC(this, a_y, a_x, a_z);
+		std::invoke(FUNC, this, a_y, a_x, a_z);
 	}
 
 	void NiMatrix3::FromEulerAnglesYZX(REX::Float32 a_y, REX::Float32 a_z, REX::Float32 a_x) noexcept
 	{
 		using FuncType = decltype(&NiMatrix3::FromEulerAnglesYZX);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::NiMatrix3::FromEulerAnglesYZX };
-		FUNC(this, a_y, a_z, a_x);
+		std::invoke(FUNC, this, a_y, a_z, a_x);
 	}
 
 	void NiMatrix3::FromEulerAnglesZYX(REX::Float32 a_z, REX::Float32 a_y, REX::Float32 a_x) noexcept
 	{
 		using FuncType = decltype(&NiMatrix3::FromEulerAnglesZYX);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::NiMatrix3::FromEulerAnglesZYX };
-		FUNC(this, a_z, a_y, a_x);
+		std::invoke(FUNC, this, a_z, a_y, a_x);
 	}
 
 	void NiMatrix3::FromEulerAnglesZXY(REX::Float32 a_z, REX::Float32 a_x, REX::Float32 a_y) noexcept
 	{
 		using FuncType = decltype(&NiMatrix3::FromEulerAnglesZXY);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::NiMatrix3::FromEulerAnglesZXY };
-		FUNC(this, a_z, a_x, a_y);
+		std::invoke(FUNC, this, a_z, a_x, a_y);
 	}
 }

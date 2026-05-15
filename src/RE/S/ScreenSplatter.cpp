@@ -6,13 +6,13 @@ namespace RE::ScreenSplatter
 	{
 		using FuncType = decltype(&ScreenSplatter::Clear);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::ScreenSplatter::Clear };
-		FUNC();
+		std::invoke(FUNC);
 	}
 
 	void Update()
 	{
 		using FuncType = decltype(&ScreenSplatter::Update);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::ScreenSplatter::Update };
-		FUNC();
+		std::invoke(FUNC);
 	}
 }

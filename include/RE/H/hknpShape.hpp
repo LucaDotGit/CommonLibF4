@@ -4,7 +4,7 @@
 #include "RE/H/hkBlockStream.hpp"
 #include "RE/H/hkReferencedObject.hpp"
 #include "RE/H/hkResult.hpp"
-#include "RE/H/hkVector4f.hpp"
+#include "RE/H/hkVector4.hpp"
 #include "RE/H/hknpShapeType.hpp"
 
 namespace RE::hkcdGsk
@@ -20,7 +20,7 @@ namespace RE
 	class hkDiagonalizedMassProperties;
 	class hkGeometry;
 	class hkRefCountedProperties;
-	class hkTransformf;
+	class hkTransform;
 	class hkcdVertex;
 	class hknpAabbQuery;
 	class hknpCdBody;
@@ -60,25 +60,38 @@ namespace RE
 			kIsQuadShape = 1 << 12
 		};
 
+		class MassConfig
+		{
+		public:
+			enum class Quality : std::int32_t
+			{
+				kLow = 0,
+				kMedium = 1,
+				kHigh = 2
+			};
+		};
+		static_assert(std::is_empty_v<MassConfig>);
+
 		class BuildSurfaceGeometryConfig; // TODO
 		class GetShapeKeysConfig;		  // TODO
-		class MassConfig;				  // TODO
 		class SdfContactPoint;			  // TODO
 		class SdfQuery;					  // TODO
+
+		~hknpShape() override; // 00
 
 		// add
 		virtual hknpShapeType GetType() const;																																																																				  // 04
 		virtual std::int32_t CalcSize() const;																																																																				  // 05
-		virtual void CalcAabb(const hkTransformf& a_transform, hkAabb& a_aabbOut) const;																																																									  // 06
+		virtual void CalcAabb(const hkTransform& a_transform, hkAabb& a_aabbOut) const;																																																										  // 06
 		virtual hknpShapeSignals* GetMutationSignals();																																																																		  // 07
 		virtual std::int32_t GetNumberOfSupportVertices() const;																																																															  // 08
 		virtual const hkcdVertex* GetSupportVertices(hkcdVertex* a_vertexBuffer, std::int32_t a_bufferSize) const;																																																			  // 09
-		virtual void GetSupportingVertex(const hkVector4f& a_direction, hkcdVertex* a_vertexBufferOut) const;																																																				  // 0A
+		virtual void GetSupportingVertex(const hkVector4& a_direction, hkcdVertex* a_vertexBufferOut) const;																																																				  // 0A
 		virtual void ConvertVertexIdsToVertices(const std::uint8_t* a_ids, std::int32_t a_numIDs, hkcdVertex* a_verticesOut) const;																																															  // 0B
 		virtual std::int32_t GetNumberOfFaces() const;																																																																		  // 0C
-		virtual void GetFaceInfo(std::int32_t a_faceID, hkVector4f& a_planeOut, std::int32_t& a_minAngleOut) const;																																																			  // 0D
-		virtual std::int32_t GetFaceVertices(std::int32_t a_faceID, hkVector4f& a_planeOut, hkcdVertex* a_vertexBufferOut) const;																																															  // 0E
-		virtual std::int32_t GetSupportingFace(hkVector4f& a_direction, hkVector4f& a_surfacePoint, const hkcdGsk::Cache* a_gskCache, bool a_useB, std::uint32_t a_prevFaceID, hkVector4f& a_planeOut, std::int32_t& a_minAngleOut) const;																					  // 0F
+		virtual void GetFaceInfo(std::int32_t a_faceID, hkVector4& a_planeOut, std::int32_t& a_minAngleOut) const;																																																			  // 0D
+		virtual std::int32_t GetFaceVertices(std::int32_t a_faceID, hkVector4& a_planeOut, hkcdVertex* a_vertexBufferOut) const;																																															  // 0E
+		virtual std::int32_t GetSupportingFace(hkVector4& a_direction, hkVector4& a_surfacePoint, const hkcdGsk::Cache* a_gskCache, bool a_useB, std::uint32_t a_prevFaceID, hkVector4& a_planeOut, std::int32_t& a_minAngleOut) const;																						  // 0F
 		virtual REX::Float32 CalcMinAngleBetweenFaces() const;																																																																  // 10
 		virtual void GetSignedDistances(const SdfQuery& a_query, SdfContactPoint* a_contactsOut) const;																																																						  // 11
 		virtual std::int32_t GetSignedDistanceContacts(const hknpCdBody& a_queryBody, REX::Float32 a_maxDistance, std::int32_t a_vertexIdOffset, hkBlockStream<SdfContactPoint>::Writer& a_contactPointsOut) const;																											  // 12

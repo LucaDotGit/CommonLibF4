@@ -75,8 +75,10 @@ namespace RE
 
 		[[nodiscard]] bool CustomRendererHasQuads(const BSFixedString& a_customRendererName) const;
 		[[nodiscard]] ::Scaleform::Ptr<IMenu> GetMenu(const BSFixedString& a_menuName) const;
-		[[nodiscard]] static auto IsMenuOpen(const ::Scaleform::Ptr<IMenu>& a_menu) -> std::optional<bool>;
-		[[nodiscard]] auto IsMenuOpen(const BSFixedString& a_menuName) const -> std::optional<bool>;
+		[[nodiscard]] static auto IsMenuOpen(const ::Scaleform::Ptr<IMenu>& a_menu)
+			-> std::optional<bool>;
+		[[nodiscard]] auto IsMenuOpen(const BSFixedString& a_menuName) const
+			-> std::optional<bool>;
 		[[nodiscard]] bool IsMenuRegistered(const BSFixedString& a_menuName) const;
 		void RefreshCursor();
 		bool RegisterMenu(const BSFixedString& a_menuName, CreateType* a_create, StaticUpdateType* a_staticUpdate = nullptr);
@@ -91,7 +93,8 @@ namespace RE
 		}
 
 		template <Impl::UIMenuConstraint T>
-		[[nodiscard]] auto IsMenuOpen() const -> std::optional<bool>
+		[[nodiscard]] auto IsMenuOpen() const
+			-> std::optional<bool>
 		{
 			return IsMenuOpen(BSFixedString(T::MENU_NAME));
 		}

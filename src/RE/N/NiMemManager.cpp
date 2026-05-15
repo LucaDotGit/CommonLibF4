@@ -34,7 +34,7 @@ namespace RE::Impl
 	{
 		using FuncType = decltype(&NiFree);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::NiFree };
-		FUNC(a_ptr);
+		std::invoke(FUNC, a_ptr);
 	}
 }
 
@@ -64,10 +64,11 @@ namespace RE
 	{
 		try {
 			auto* mem = ni_malloc(a_count * a_size);
-			if (mem) {
-				REL::MemWriteZero(mem, a_count * a_size);
+			if (!mem) {
+				return nullptr;
 			}
 
+			REL::MemWriteZero(mem, a_count * a_size);
 			return mem;
 		}
 		catch (...) {
@@ -105,7 +106,7 @@ namespace RE
 			Impl::NiFree(a_ptr);
 		}
 		catch (...) {
-			REX::DeallocationFail();
+			REX::Fail("Failed to free memory."sv);
 		}
 	}
 }

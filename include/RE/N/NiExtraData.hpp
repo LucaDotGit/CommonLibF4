@@ -13,6 +13,17 @@ namespace RE
 		inline static constexpr auto VTABLE{ VTABLE::NiExtraData };
 		inline static constexpr auto NI_RTTI{ Ni_RTTI::NiExtraData };
 
+		NiExtraData()
+		{
+			REL::EmplaceVtable(this);
+		}
+
+		explicit NiExtraData(BSFixedString a_name)
+			: name(std::move(a_name))
+		{
+			REL::EmplaceVtable(this);
+		}
+
 		~NiExtraData() override = default; // 00
 
 		// add

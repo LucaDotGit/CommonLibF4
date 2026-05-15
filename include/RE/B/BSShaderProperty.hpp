@@ -141,7 +141,7 @@ namespace RE
 		{
 			using FuncType = decltype(&BSShaderProperty::SetMaterial);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSShaderProperty::SetMaterial };
-			FUNC(this, a_material, a_unique);
+			std::invoke(FUNC, this, a_material, a_unique);
 		}
 
 		// members

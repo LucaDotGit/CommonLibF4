@@ -3,6 +3,7 @@
 #include "RE/B/BSPointerHandle.hpp"
 #include "RE/G/GameMenuBase.hpp"
 #include "RE/R/Rumble.hpp"
+#include "RE/U/UI_DEPTH_PRIORITY.hpp"
 
 namespace RE
 {
@@ -26,7 +27,8 @@ namespace RE
 		[[nodiscard]] static ObjectRefHandle GetCurrentPickREFR();
 		void SetCurrentPickREFR(ObjectRefHandle& a_ref);
 
-		[[nodiscard]] auto GetHistory() const -> std::optional<std::string>;
+		[[nodiscard]] auto GetHistory() const
+			-> std::optional<std::string>;
 		bool SetHistory(REX::zstring_view a_history);
 		bool Clear();
 

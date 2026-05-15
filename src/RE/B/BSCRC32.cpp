@@ -2,8 +2,8 @@
 
 namespace RE::Impl
 {
-	template std::uint32_t GenerateCRC32Hash<std::byte>(std::span<const std::byte> a_data) noexcept;
-	template std::uint32_t GenerateCRC32Hash<char>(std::span<const char> a_data) noexcept;
+	template std::uint32_t GenerateCRC32Hash<std::byte>(std::span<const std::byte>) noexcept;
+	template std::uint32_t GenerateCRC32Hash<char>(std::span<const char>) noexcept;
 }
 
 namespace RE

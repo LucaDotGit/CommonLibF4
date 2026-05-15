@@ -101,7 +101,7 @@ namespace REL
 		noexcept(std::is_nothrow_constructible_v<Size<>, V>)
 		requires(std::is_constructible_v<Size<>, V>)
 	{
-		return Size<>(std::forward<V>(a_size));
+		return Size<>{ std::forward<V>(a_size) };
 	}
 
 	template <Runtime R0, Runtime... R, class... V>
@@ -110,7 +110,7 @@ namespace REL
 		requires(std::is_constructible_v<Size<R0, R...>, V...> &&
 				 (sizeof...(V) == sizeof...(R) + 1))
 	{
-		return Size<R0, R...>(std::forward<V>(a_sizes)...);
+		return Size<R0, R...>{ std::forward<V>(a_sizes)... };
 	}
 }
 

@@ -7,9 +7,10 @@
 
 namespace RE
 {
-	auto TESLeveledList::GetSpecialChanceGlobalMap() -> BSTHashMap<TESLeveledList*, TESGlobal*>&
+	auto TESLeveledList::GetSpecialChanceGlobalMap()
+		-> BSTHashMap<const TESLeveledList*, TESGlobal*>&
 	{
-		static const auto SPECIAL_CHANCE_GLOBAL_MAP = REL::Relocation<BSTHashMap<TESLeveledList*, TESGlobal*>*>{ ID::TESLeveledList::SpecialChanceGlobalMap, Offset::TESLeveledList::SpecialChanceGlobalMap };
+		static const auto SPECIAL_CHANCE_GLOBAL_MAP = REL::Relocation<BSTHashMap<const TESLeveledList*, TESGlobal*>*>{ ID::TESLeveledList::SpecialChanceGlobalMap, Offset::TESLeveledList::SpecialChanceGlobalMap };
 		return *SPECIAL_CHANCE_GLOBAL_MAP;
 	}
 
@@ -24,17 +25,18 @@ namespace RE
 	{
 		using FuncType = decltype(&TESLeveledList::CalculateCurrentFormList);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESLeveledList::CalculateCurrentFormList };
-		FUNC(this, a_level, a_count, a_outCont, a_allBelowForce, a_clampToPlayer, a_instanceFilter, a_overrideName);
+		std::invoke(FUNC, this, a_level, a_count, a_outCont, a_allBelowForce, a_clampToPlayer, a_instanceFilter, a_overrideName);
 	}
 
 	void TESLeveledList::CalculateCurrentFormListForRef(TESObjectREFR* a_ref, BSScrapArray<CALCED_OBJECT>& a_outCont, bool a_legendary)
 	{
 		using FuncType = decltype(&TESLeveledList::CalculateCurrentFormListForRef);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESLeveledList::CalculateCurrentFormListForRef };
-		FUNC(this, a_ref, a_outCont, a_legendary);
+		std::invoke(FUNC, this, a_ref, a_outCont, a_legendary);
 	}
 
-	auto TESLeveledList::GetKeywordChances() const -> std::optional<std::vector<std::pair<BGSKeyword*, std::int32_t>>>
+	auto TESLeveledList::GetKeywordChances() const
+		-> std::optional<std::vector<std::pair<BGSKeyword*, std::int32_t>>>
 	{
 		if (!keywordChances) {
 			return std::nullopt;

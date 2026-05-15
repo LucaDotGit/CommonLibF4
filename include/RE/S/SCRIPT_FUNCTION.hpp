@@ -79,8 +79,10 @@ namespace RE
 		};
 		static_assert(sizeof(ScriptData) == 0x06);
 
-		[[nodiscard]] static auto GetConsoleFunctions() -> std::span<SCRIPT_FUNCTION>;
-		[[nodiscard]] static auto GetScriptFunctions() -> std::span<SCRIPT_FUNCTION>;
+		[[nodiscard]] static auto GetConsoleFunctions()
+			-> std::span<SCRIPT_FUNCTION>;
+		[[nodiscard]] static auto GetScriptFunctions()
+			-> std::span<SCRIPT_FUNCTION>;
 
 		[[nodiscard]] static SCRIPT_FUNCTION* GetConsoleFunctionByName(std::string_view a_name);
 		[[nodiscard]] static SCRIPT_FUNCTION* GetScriptFunctionByName(std::string_view a_name);

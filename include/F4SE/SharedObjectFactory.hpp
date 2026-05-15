@@ -56,19 +56,22 @@ namespace F4SE
 		void Delete(REX::Owner<IObject*> a_object) const override { DeleteObjectImpl(a_object); }									   // 02
 		[[nodiscard]] const char* GetObjectName() const override { return OBJECT_NAME.data(); }										   // 03
 
-		[[nodiscard]] auto GetObject(const value_type* a_object) const -> std::shared_ptr<value_type>
+		[[nodiscard]] auto GetObject(const value_type* a_object) const
+			-> std::shared_ptr<value_type>
 		{
 			return GetObjectImpl(a_object);
 		}
 
-		[[nodiscard]] auto CreateObject() const -> REX::NotNull<std::shared_ptr<value_type>>
+		[[nodiscard]] auto CreateObject() const
+			-> REX::NotNull<std::shared_ptr<value_type>>
 			requires(std::is_default_constructible_v<value_type>)
 		{
 			return CreateObjectImpl();
 		}
 
 		template <class... Args>
-		[[nodiscard]] auto CreateObject(Args&&... a_args) const -> REX::NotNull<std::shared_ptr<value_type>>
+		[[nodiscard]] auto CreateObject(Args&&... a_args) const
+			-> REX::NotNull<std::shared_ptr<value_type>>
 			requires(std::is_constructible_v<value_type, Args...>)
 		{
 			return CreateObjectImpl(std::forward<Args>(a_args)...);
@@ -80,7 +83,8 @@ namespace F4SE
 		}
 
 	private:
-		[[nodiscard]] auto GetObjectImpl(const IObject* a_object) const -> std::shared_ptr<value_type>
+		[[nodiscard]] auto GetObjectImpl(const IObject* a_object) const
+			-> std::shared_ptr<value_type>
 		{
 			if (!a_object) {
 				return nullptr;
@@ -98,7 +102,8 @@ namespace F4SE
 			return std::static_pointer_cast<value_type>(objectIt->second.get());
 		}
 
-		[[nodiscard]] auto CreateObjectImpl() const -> REX::NotNull<std::shared_ptr<value_type>>
+		[[nodiscard]] auto CreateObjectImpl() const
+			-> REX::NotNull<std::shared_ptr<value_type>>
 			requires(std::is_default_constructible_v<value_type>)
 		{
 			const auto& objectData = Impl::SharedObjectFactoryData::GetSingleton();
@@ -111,7 +116,8 @@ namespace F4SE
 		}
 
 		template <class... Args>
-		[[nodiscard]] auto CreateObjectImpl(Args&&... a_args) const -> REX::NotNull<std::shared_ptr<value_type>>
+		[[nodiscard]] auto CreateObjectImpl(Args&&... a_args) const
+			-> REX::NotNull<std::shared_ptr<value_type>>
 			requires(std::is_constructible_v<value_type, Args...>)
 		{
 			const auto& objectData = Impl::SharedObjectFactoryData::GetSingleton();

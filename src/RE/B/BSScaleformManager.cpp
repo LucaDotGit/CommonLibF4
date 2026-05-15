@@ -35,7 +35,7 @@ namespace RE
 	{
 		using FuncType = decltype(&BSScaleformManager::InitMovieViewport);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSScaleformManager::InitMovieViewport };
-		FUNC(this, a_movie, a_dynamicWidthRatio, a_dynamicHeightRatio);
+		std::invoke(FUNC, this, a_movie, a_dynamicWidthRatio, a_dynamicHeightRatio);
 	}
 
 	bool BSScaleformManager::LoadMovie(
@@ -263,7 +263,7 @@ namespace RE
 			return nullptr;
 		}
 
-		auto* scaleformTranslator = RE::DynamicCast<RE::BSScaleformTranslator*>(gfxTranslator);
+		auto* scaleformTranslator = DynamicCast<BSScaleformTranslator*>(gfxTranslator);
 		if (!scaleformTranslator) {
 			return nullptr;
 		}

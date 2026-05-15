@@ -11,7 +11,7 @@ namespace RE
 		{
 			using FuncType = decltype(&SavefileMetadata::FillDataFromFileName);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::SavefileMetadata::FillDataFromFileName };
-			FUNC(this, a_saveName);
+			std::invoke(FUNC, this, a_saveName);
 		}
 
 		// members

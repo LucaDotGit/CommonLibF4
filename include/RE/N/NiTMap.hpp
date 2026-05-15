@@ -279,11 +279,11 @@ namespace RE
 		{
 			for (auto i = static_cast<size_type>(0); i < _capacity; i++) {
 				while (_data[i]) {
-					auto* elem = _data[i];
+					auto* element = _data[i];
 					_data[i] = _data[i]->next;
 
-					clear_value(elem);
-					free_value(elem);
+					clear_value(element);
+					free_value(element);
 				}
 			}
 

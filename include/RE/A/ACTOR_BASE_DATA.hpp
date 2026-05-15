@@ -63,7 +63,8 @@ namespace RE
 				   kKeywords
 		};
 
-		[[nodiscard]] static constexpr auto GetTemplateUseFlagIndex(TEMPLATE_USE_FLAG a_flag) noexcept -> std::optional<std::underlying_type_t<TEMPLATE_USE_FLAG>>
+		[[nodiscard]] static constexpr auto GetTemplateUseFlagIndex(TEMPLATE_USE_FLAG a_flag) noexcept
+			-> std::optional<std::underlying_type_t<TEMPLATE_USE_FLAG>>
 		{
 			const auto flagSet = REX::EnumSet(a_flag);
 			const auto flagMask = flagSet & TEMPLATE_USE_FLAG::kAll;

@@ -94,7 +94,7 @@ namespace RE
 		{
 			using FuncType = decltype(&WorkbenchMenuBase::UpdateOptimizedAutoBuildInv);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::WorkbenchMenuBase::UpdateOptimizedAutoBuildInv };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

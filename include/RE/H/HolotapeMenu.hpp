@@ -40,14 +40,14 @@ namespace RE
 		{
 			using FuncType = decltype(&HolotapeMenu::ShowHolotapeInPipboy);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::HolotapeMenu::ShowHolotapeInPipboy };
-			FUNC(a_holotapePath);
+			std::invoke(FUNC, a_holotapePath);
 		}
 
 		static void ShowHolotapeInTerminal(const BSFixedString& a_holotapePath)
 		{
 			using FuncType = decltype(&HolotapeMenu::ShowHolotapeInTerminal);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::HolotapeMenu::ShowHolotapeInTerminal };
-			FUNC(a_holotapePath);
+			std::invoke(FUNC, a_holotapePath);
 		}
 
 		// members

@@ -27,7 +27,7 @@ namespace RE
 		{
 			using FuncType = decltype(&BGSAttachParentArray::SetParentGroupNumber);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSAttachParentArray::SetParentGroupNumber };
-			FUNC(this, a_parent, a_groupID);
+			std::invoke(FUNC, this, a_parent, a_groupID);
 		}
 	};
 	static_assert(sizeof(BGSAttachParentArray) == 0x18);

@@ -12,11 +12,12 @@ namespace RE
 	public:
 		InventoryItemDisplayData() = default;
 
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
 		InventoryItemDisplayData(const ObjectRefHandle a_inventoryRef, const InventoryUserUIInterfaceEntry& a_entry)
 		{
 			using FuncType = void (InventoryItemDisplayData::*)(const ObjectRefHandle, const InventoryUserUIInterfaceEntry&);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::InventoryItemDisplayData::ctor };
-			FUNC(this, a_inventoryRef, a_entry);
+			std::invoke(FUNC, this, a_inventoryRef, a_entry);
 		}
 
 		void PopulateFlashObject(::Scaleform::GFx::Value& a_flashObject) const

@@ -96,7 +96,7 @@ namespace RE
 		{
 			using FuncType = decltype(&Sky::ForceWeather);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Sky::ForceWeather };
-			FUNC(this, a_weather, a_override);
+			std::invoke(FUNC, this, a_weather, a_override);
 		}
 
 		void ReleaseWeatherOverride()
@@ -111,7 +111,7 @@ namespace RE
 		{
 			using FuncType = decltype(&Sky::ResetWeather);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::Sky::ResetWeather };
-			FUNC(this);
+			std::invoke(FUNC, this);
 		}
 
 		// members

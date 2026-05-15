@@ -1,19 +1,22 @@
 #pragma once
 
-#include "RE/B/BSGFxShaderFXTarget.hpp"
 #include "RE/B/BSSpinLock.hpp"
 #include "RE/B/BSTArray.hpp"
 #include "RE/B/BSTOptional.hpp"
-#include "RE/B/ButtonHintBar.hpp"
 #include "RE/H/HUDModeType.hpp"
 #include "RE/I/IMenu.hpp"
-#include "RE/S/SendHUDMessage.hpp"
+#include "RE/U/UIShaderFXInfo.hpp"
 
 #include "msvc/memory.hpp"
 
 namespace RE
 {
-	class __declspec(novtable) GameMenuBase
+	enum class HUDColorTypes : std::int32_t;
+
+	class BSGFxShaderFXTarget;
+	class ButtonHintBar;
+
+	class /*__declspec(novtable)*/ GameMenuBase
 		: public IMenu // 00
 	{
 	public:

@@ -6,6 +6,6 @@ namespace RE::BSShaderUtil
 	{
 		using FuncType = decltype(&BSShaderUtil::SetMaterialAlpha);
 		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSShaderUtil::SetMaterialAlpha };
-		FUNC(a_object, a_alpha, a_onlyFade);
+		std::invoke(FUNC, a_object, a_alpha, a_onlyFade);
 	}
 }

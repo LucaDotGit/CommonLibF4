@@ -12,7 +12,8 @@ namespace RE
 		return *SINGLETON;
 	}
 
-	auto Calendar::GetAllDayNames() -> std::span<const std::string_view, DAY_SETTING_KEYS.size()>
+	auto Calendar::GetAllDayNames()
+		-> std::span<const std::string_view, DAY_SETTING_KEYS.size()>
 	{
 		static const auto ALL_DAY_NAMES = []() {
 			auto result = std::array<std::string_view, DAY_SETTING_KEYS.size()>();
@@ -32,7 +33,8 @@ namespace RE
 		return ALL_DAY_NAMES;
 	}
 
-	auto Calendar::GetAllMonthNames() -> std::span<const std::string_view, MONTH_SETTING_KEYS.size()>
+	auto Calendar::GetAllMonthNames()
+		-> std::span<const std::string_view, MONTH_SETTING_KEYS.size()>
 	{
 		static const auto ALL_MONTH_NAMES = []() {
 			auto result = std::array<std::string_view, MONTH_SETTING_KEYS.size()>();

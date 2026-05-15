@@ -10,7 +10,7 @@ namespace REL::RTTI
 	class ClassHierarchyDescriptor;
 
 	template <class TypeDescriptor>
-	class BaseClassDescriptor
+	class BaseClassDescriptor final
 	{
 	public:
 		enum class Attribute : std::uint32_t
@@ -25,7 +25,7 @@ namespace REL::RTTI
 			kHasHierarchyDescriptor = 1 << 6
 		};
 
-		class PMD
+		class PMD final
 		{
 		public:
 			// members

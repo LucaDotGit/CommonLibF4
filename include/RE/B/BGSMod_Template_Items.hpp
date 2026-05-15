@@ -34,7 +34,7 @@ namespace RE::BGSMod::Template
 		{
 			using FuncType = decltype(&Items::CreateInstanceDataForObjectAndExtra);
 			static const auto FUNC = REL::Relocation<FuncType>{ ID::BGSMod::Template::Items::CreateInstanceDataForObjectAndExtra };
-			FUNC(a_object, a_extra, a_filter, a_useDefault);
+			std::invoke(FUNC, a_object, a_extra, a_filter, a_useDefault);
 		}
 
 		// members

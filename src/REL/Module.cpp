@@ -4,8 +4,9 @@
 
 #include "REX/Locale.hpp"
 #include "REX/Message.hpp"
-#include "REX/Version.hpp"
+#include "REX/W32/CORE.hpp"
 #include "REX/W32/KERNEL32.hpp"
+#include "REX/Windows.hpp"
 
 namespace REL
 {
@@ -42,16 +43,6 @@ namespace REL
 		return REL::SetImportFunctionPointer(modulePtr, a_library, a_function, a_newFunc);
 	}
 
-	bool Module::IsModuleLoaded(REX::zstring_view a_moduleName) noexcept
-	{
-		return REX::W32::GetModuleHandleA(a_moduleName.data()) != 0;
-	}
-
-	bool Module::IsModuleLoaded(REX::zwstring_view a_moduleName) noexcept
-	{
-		return REX::W32::GetModuleHandleW(a_moduleName.data()) != 0;
-	}
-
 	void Module::Init()
 	{
 		InitLocale();
@@ -82,11 +73,11 @@ namespace REL
 
 	void Module::InitVersion()
 	{
-		const auto version = REX::GetFileVersion(_filePath.generic_string());
+		const auto version = REX::GetModuleFileVersion(_filePath.generic_string());
 		if (!version) [[unlikely]] {
 			REX::Fail(
 				"Failed to obtain file version.\n"
-				"Path: \"{}\""sv,
+				"File Path: \"{}\""sv,
 				_filePath.generic_string());
 		}
 

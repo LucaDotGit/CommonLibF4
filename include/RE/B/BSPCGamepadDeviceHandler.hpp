@@ -13,7 +13,7 @@ namespace RE
 		inline static constexpr auto RTTI{ RTTI::BSPCGamepadDeviceHandler };
 		inline static constexpr auto VTABLE{ VTABLE::BSPCGamepadDeviceHandler };
 
-		// override(BSGamepadDevice)
+		// override (BSGamepadDevice)
 		void Initialize() override;																						  // 00
 		void Poll(REX::Float32 a_deltaTime) override;																	  // 01
 		void Shutdown() override;																						  // 02

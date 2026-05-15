@@ -11,7 +11,7 @@ namespace RE
 			return false;
 		}
 
-		return ForEachKeyword([a_keyword](const BGSKeyword* a_current) {
+		return ForEachKeyword([a_keyword](const BGSKeyword* a_current) -> BSContainer::ForEachResult {
 			if (a_current == a_keyword) {
 				return BSContainer::ForEachResult::kStop;
 			}
@@ -22,7 +22,7 @@ namespace RE
 
 	bool BGSKeywordForm::ContainsPartialKeywordString(std::string_view a_editorID) const
 	{
-		return ForEachKeyword([a_editorID](const BGSKeyword* a_keyword) {
+		return ForEachKeyword([a_editorID](const BGSKeyword* a_keyword) -> BSContainer::ForEachResult {
 			if (a_keyword->formEditorID.contains(a_editorID)) {
 				return BSContainer::ForEachResult::kStop;
 			}
@@ -33,7 +33,7 @@ namespace RE
 
 	bool BGSKeywordForm::ContainsExactKeywordString(std::string_view a_editorID) const
 	{
-		return ForEachKeyword([a_editorID](const BGSKeyword* a_keyword) {
+		return ForEachKeyword([a_editorID](const BGSKeyword* a_keyword) -> BSContainer::ForEachResult {
 			if (a_keyword->formEditorID == a_editorID) {
 				return BSContainer::ForEachResult::kStop;
 			}
@@ -47,7 +47,8 @@ namespace RE
 		return numKeywords;
 	}
 
-	auto BGSKeywordForm::GetKeywordIndex(const BGSKeyword* a_keyword) const -> std::optional<std::uint32_t>
+	auto BGSKeywordForm::GetKeywordIndex(const BGSKeyword* a_keyword) const
+		-> std::optional<std::uint32_t>
 	{
 		for (auto i = 0ui32; i < numKeywords; i++) {
 			if (keywords[i] == a_keyword) {

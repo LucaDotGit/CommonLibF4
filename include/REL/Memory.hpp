@@ -1,7 +1,7 @@
 #pragma once
 
 #include "REX/Concepts.hpp"
-#include "REX/ErrorCode.hpp"
+#include "REX/Error.hpp"
 
 namespace REL
 {
@@ -103,3 +103,68 @@ namespace REL
 		return WriteSafe(a_target.data(), std::addressof(a_source), a_target.size_bytes());
 	}
 }
+
+#if _WIN32 == 1
+#define REL_ALIGNED_ALLOC(a_size, a_alignment) ::_aligned_malloc(a_size, static_cast<std::size_t>(a_alignment))
+#define REL_ALIGNED_FREE(a_ptr) ::_aligned_free(a_ptr)
+#else
+#define REL_ALIGNED_ALLOC(a_size, a_alignment) std::aligned_alloc(a_size, static_cast<std::size_t>(a_alignment))
+#define REL_ALIGNED_FREE(a_ptr) std::free(a_ptr)
+#endif
+
+#define REL_HEAP_REDEFINE_NEW(a_type)                                                                                   \
+	static_assert(std::is_class_v<a_type>);                                                                             \
+                                                                                                                        \
+	[[nodiscard]] void* operator new(std::size_t a_size)                                                                \
+	{                                                                                                                   \
+		auto* mem = std::malloc(a_size);                                                                                \
+		if (!mem) [[unlikely]] {                                                                                        \
+			throw std::bad_alloc();                                                                                     \
+		}                                                                                                               \
+                                                                                                                        \
+		return mem;                                                                                                     \
+	}                                                                                                                   \
+                                                                                                                        \
+	[[nodiscard]] void* operator new[](std::size_t a_size)                                                              \
+	{                                                                                                                   \
+		auto* mem = std::malloc(a_size);                                                                                \
+		if (!mem) [[unlikely]] {                                                                                        \
+			throw std::bad_alloc();                                                                                     \
+		}                                                                                                               \
+                                                                                                                        \
+		return mem;                                                                                                     \
+	}                                                                                                                   \
+                                                                                                                        \
+	[[nodiscard]] void* operator new(std::size_t a_size, std::align_val_t a_alignment)                                  \
+	{                                                                                                                   \
+		auto* mem = REL_ALIGNED_ALLOC(a_size, a_alignment);                                                             \
+		if (!mem) [[unlikely]] {                                                                                        \
+			throw std::bad_alloc();                                                                                     \
+		}                                                                                                               \
+                                                                                                                        \
+		return mem;                                                                                                     \
+	}                                                                                                                   \
+                                                                                                                        \
+	[[nodiscard]] void* operator new[](std::size_t a_size, std::align_val_t a_alignment)                                \
+	{                                                                                                                   \
+		auto* mem = REL_ALIGNED_ALLOC(a_size, a_alignment);                                                             \
+		if (!mem) [[unlikely]] {                                                                                        \
+			throw std::bad_alloc();                                                                                     \
+		}                                                                                                               \
+                                                                                                                        \
+		return mem;                                                                                                     \
+	}                                                                                                                   \
+                                                                                                                        \
+	[[nodiscard]] constexpr void* operator new(std::size_t, void* a_ptr) noexcept { return a_ptr; }                     \
+	[[nodiscard]] constexpr void* operator new[](std::size_t, void* a_ptr) noexcept { return a_ptr; }                   \
+	[[nodiscard]] constexpr void* operator new(std::size_t, std::align_val_t, void* a_ptr) noexcept { return a_ptr; }   \
+	[[nodiscard]] constexpr void* operator new[](std::size_t, std::align_val_t, void* a_ptr) noexcept { return a_ptr; } \
+                                                                                                                        \
+	void operator delete(void* a_ptr) noexcept { std::free(a_ptr); }                                                    \
+	void operator delete[](void* a_ptr) noexcept { std::free(a_ptr); }                                                  \
+	void operator delete(void* a_ptr, std::align_val_t) noexcept { REL_ALIGNED_FREE(a_ptr); }                           \
+	void operator delete[](void* a_ptr, std::align_val_t) noexcept { REL_ALIGNED_FREE(a_ptr); }                         \
+	void operator delete(void* a_ptr, std::size_t) noexcept { std::free(a_ptr); }                                       \
+	void operator delete[](void* a_ptr, std::size_t) noexcept { std::free(a_ptr); }                                     \
+	void operator delete(void* a_ptr, std::size_t, std::align_val_t) noexcept { REL_ALIGNED_FREE(a_ptr); }              \
+	void operator delete[](void* a_ptr, std::size_t, std::align_val_t) noexcept { REL_ALIGNED_FREE(a_ptr); }
