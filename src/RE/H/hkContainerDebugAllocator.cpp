@@ -2,13 +2,13 @@
 
 namespace RE
 {
-	hkContainerDebugAllocator::Allocator& hkContainerDebugAllocator::GetAllocator()
+	auto hkContainerDebugAllocator::GetAllocator() noexcept -> hkContainerDebugAllocator::Allocator&
 	{
-		static const auto ALLOCATOR = REL::Relocation<Allocator*>{ ID::hkContainerDebugAllocator::Allocator };
+		static const auto ALLOCATOR = REL::Relocation<Allocator*>(ID::hkContainerDebugAllocator::Allocator);
 		return *ALLOCATOR;
 	}
 
-	__declspec(allocator) __declspec(restrict) void* hk_container_debug_malloc(std::size_t a_size) noexcept
+	__declspec(allocator) __declspec(restrict) auto hk_container_debug_malloc(std::size_t a_size) noexcept -> void*
 	{
 		try {
 			auto& allocator = hkContainerDebugAllocator::GetAllocator();
@@ -19,7 +19,8 @@ namespace RE
 		}
 	}
 
-	__declspec(allocator) __declspec(restrict) void* hk_container_debug_calloc(std::size_t a_count, std::size_t a_size) noexcept
+	__declspec(allocator) __declspec(restrict) auto hk_container_debug_calloc(std::size_t a_count, std::size_t a_size)
+		noexcept -> void*
 	{
 		try {
 			auto& allocator = hkContainerDebugAllocator::GetAllocator();

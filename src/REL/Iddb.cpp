@@ -1,30 +1,39 @@
 #include "REL/Iddb.hpp"
 
 #include "REL/Module.hpp"
-
+#include "REL/Runtime.hpp"
 #include "REX/Crc.hpp"
 #include "REX/Error.hpp"
-#include "REX/Format.hpp"
-#include "REX/Locale.hpp"
+#include "REX/FileMemoryMap.hpp"
+#include "REX/FileStream.hpp"
+#include "REX/Formatting.hpp"
+#include "REX/Localization.hpp"
 #include "REX/Message.hpp"
-#include "REX/W32/KERNEL32.hpp"
+#include "REX/NotNull.hpp"
+#include "REX/StaticString.hpp"
+#include "REX/System.hpp"
+#include "REX/Version.hpp"
 
-#if COMMONLIB_RUNTIME_VR == 1
-#include "REX/Convert.hpp"
-
-#include <rapidcsv.h>
+#if (COMMONLIB_RUNTIME_VR == 1)
+#include "REX/Conversion.hpp"
 #endif
 
 namespace REL
 {
 	enum class Iddb::FormatVersion : std::int32_t
 	{
-		kNone = std::numeric_limits<std::underlying_type_t<FormatVersion>>::min(),
-		kVR = -1,
-		kV0 = 0,
-		kV1 = 1,
-		kV2 = 2,
-		kV5 = 5
+		None = std::numeric_limits<std::underlying_type_t<FormatVersion>>::min(),
+		VR = -1,
+
+		Zero = 0,
+		One = 1,
+		Two = 2,
+		Five = 5,
+
+		_Min = Zero,
+		_Max = Five,
+
+		_Count = _Max - 1
 	};
 
 	class Iddb::Mapping final
@@ -34,612 +43,791 @@ namespace REL
 		std::ptrdiff_t offset;
 	};
 
-	class Iddb::Stream final
+	class Iddb::IHeader
 	{
 	public:
-		using value_type = std::fstream;
+		IHeader() = default;
+		virtual ~IHeader() noexcept = default;
 
-		Stream() = default;
-		~Stream() noexcept = default;
+		IHeader(const IHeader&) = delete;
+		IHeader(IHeader&&) noexcept = default;
 
-		Stream(const Stream&) = delete;
-		Stream(Stream&&) noexcept = default;
+		auto operator=(const IHeader&) -> IHeader& = delete;
+		auto operator=(IHeader&&) noexcept -> IHeader& = default;
 
-		Stream& operator=(const Stream&) = delete;
-		Stream& operator=(Stream&&) noexcept = default;
+		[[nodiscard]]
+		virtual auto GetName() const noexcept -> std::string_view = 0;
+		[[nodiscard]]
+		virtual auto GetPointerSize() const noexcept -> std::size_t = 0;
+		[[nodiscard]]
+		virtual auto GetAddressCount() const noexcept -> std::size_t = 0;
+		[[nodiscard]]
+		virtual auto GetGameVersion() const noexcept -> REX::Version = 0;
 
-		void Open(const std::filesystem::path& a_path, std::ios::openmode a_mode) noexcept(false)
-		{
-			_stream.exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
-			_stream.open(a_path, a_mode);
-		}
-
-		template <class T>
-		void ReadIn(T& a_in) noexcept(false)
-		{
-			_stream.read(reinterpret_cast<char*>(std::addressof(a_in)), sizeof(T));
-		}
-
-		void ReadIn(std::span<char> a_in) noexcept(false)
-		{
-			_stream.read(a_in.data(), static_cast<std::streamsize>(a_in.size()));
-		}
-
-		template <class T>
-		[[nodiscard]] T ReadOut() noexcept(false)
-			requires(std::is_arithmetic_v<T>)
-		{
-			auto result = T();
-			ReadIn(result);
-			return result;
-		}
-
-	private:
-		value_type _stream;
+		[[nodiscard]]
+		virtual auto LoadStream(REX::FileStream& a_stream) noexcept -> REX::SystemError = 0;
 	};
 
-	class Iddb::HeaderV2 final
+	class Iddb::HeaderV2 final : public IHeader
 	{
 	public:
 		HeaderV2() = default;
-		~HeaderV2() noexcept = default;
+		~HeaderV2() noexcept override = default;
 
 		HeaderV2(const HeaderV2&) = delete;
 		HeaderV2(HeaderV2&&) noexcept = default;
 
-		HeaderV2& operator=(const HeaderV2&) = delete;
-		HeaderV2& operator=(HeaderV2&&) noexcept = default;
+		auto operator=(const HeaderV2&) -> HeaderV2& = delete;
+		auto operator=(HeaderV2&&) noexcept -> HeaderV2& = default;
 
-		[[nodiscard]] std::string_view GetName() const noexcept { return { _name.data(), _nameSize }; }
-		[[nodiscard]] std::size_t GetPointerSize() const noexcept { return static_cast<std::size_t>(_pointerSize); }
-		[[nodiscard]] std::size_t GetAddressCount() const noexcept { return static_cast<std::size_t>(_addressCount); }
+		[[nodiscard]]
+		auto GetName() const noexcept -> std::string_view override
+		{
+			return {_name.data(), _nameSize};
+		}
 
-		[[nodiscard]] REX::Version GetGameVersion() const noexcept
+		[[nodiscard]]
+		auto GetPointerSize() const noexcept -> std::size_t override
+		{
+			return static_cast<std::size_t>(_pointerSize);
+		}
+
+		[[nodiscard]]
+		auto GetAddressCount() const noexcept -> std::size_t override
+		{
+			return static_cast<std::size_t>(_addressCount);
+		}
+
+		[[nodiscard]]
+		auto GetGameVersion() const noexcept -> REX::Version override
 		{
 			auto version = REX::Version();
-			for (auto i = static_cast<REX::Version::size_type>(0); i < REX::Version::MAX_SIZE; i++) {
-				version[i] = static_cast<REX::Version::value_type>(_gameVersion[i]);
+			for (auto i = static_cast<decltype(version)::size_type>(0); i < version.size(); i++) {
+				version[i] = static_cast<decltype(version)::value_type>(_gameVersion[i]);
 			}
 
 			return version;
 		}
 
-		void Load(Iddb::Stream& a_stream) noexcept(false)
+		auto LoadStream(REX::FileStream& a_stream) noexcept -> REX::SystemError override
 		{
-			a_stream.ReadIn(_gameVersion);
-			a_stream.ReadIn(_nameSize);
-			a_stream.ReadIn(std::span(_name.data(), _nameSize));
-			a_stream.ReadIn(_pointerSize);
-			a_stream.ReadIn(_addressCount);
+			const auto readGameVersionError = a_stream.Read(_gameVersion);
+			if (readGameVersionError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				return readGameVersionError;
+			}
+
+			const auto readNameSizeError = a_stream.Read(_nameSize);
+			if (readNameSizeError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				return readNameSizeError;
+			}
+
+			const auto readNameError = a_stream.Read(std::span{_name.data(), _nameSize});
+			if (readNameError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				return readNameError;
+			}
+
+			const auto readPointerSizeError = a_stream.Read(_pointerSize);
+			if (readPointerSizeError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				return readPointerSizeError;
+			}
+
+			const auto readAddressCountError = a_stream.Read(_addressCount);
+			if (readAddressCountError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				return readAddressCountError;
+			}
+
+			return REX::CreateSystemError(REX::ERROR_NUMBER_SUCCESS);
 		}
 
 	private:
-		std::array<std::uint32_t, 4> _gameVersion{ 0 };
-		std::uint32_t _nameSize{ 0 };
-		std::array<char, 64> _name{ '\0' };
-		std::int32_t _pointerSize{ 0 };
-		std::int32_t _addressCount{ 0 };
+		std::array<std::uint32_t, 4> _gameVersion{0};
+		std::uint32_t _nameSize{0};
+		REX::StaticString<0x40> _name{REX::EMPTY_CHAR<char>};
+		std::int32_t _pointerSize{0};
+		std::int32_t _addressCount{0};
 	};
 
-	class Iddb::HeaderV5 final
+	class Iddb::HeaderV5 final : public IHeader
 	{
 	public:
 		HeaderV5() = default;
-		~HeaderV5() noexcept = default;
+		~HeaderV5() noexcept override = default;
 
 		HeaderV5(const HeaderV5&) = delete;
 		HeaderV5(HeaderV5&&) noexcept = default;
 
-		HeaderV5& operator=(const HeaderV5&) = delete;
-		HeaderV5& operator=(HeaderV5&&) noexcept = default;
+		auto operator=(const HeaderV5&) -> HeaderV5& = delete;
+		auto operator=(HeaderV5&&) noexcept -> HeaderV5& = default;
 
-		[[nodiscard]] std::string_view GetName() const noexcept { return _name.data(); }
-		[[nodiscard]] std::size_t GetPointerSize() const noexcept { return static_cast<std::size_t>(_pointerSize); }
-		[[nodiscard]] std::int32_t GetDataFormat() const noexcept { return _dataFormat; }
-		[[nodiscard]] std::size_t GetOffsetCount() const noexcept { return static_cast<std::size_t>(_offsetCount); }
+		[[nodiscard]]
+		auto GetName() const noexcept -> std::string_view override
+		{
+			return _name.data();
+		}
 
-		[[nodiscard]] REX::Version GetGameVersion() const noexcept
+		[[nodiscard]]
+		auto GetPointerSize() const noexcept -> std::size_t override
+		{
+			return static_cast<std::size_t>(_pointerSize);
+		}
+
+		[[nodiscard]]
+		auto GetDataFormat() const noexcept -> std::int32_t
+		{
+			return _dataFormat;
+		}
+
+		[[nodiscard]]
+		auto GetAddressCount() const noexcept -> std::size_t override
+		{
+			return static_cast<std::size_t>(_offsetCount);
+		}
+
+		[[nodiscard]]
+		auto GetOffsetCount() const noexcept -> std::size_t
+		{
+			return static_cast<std::size_t>(_offsetCount);
+		}
+
+		[[nodiscard]]
+		auto GetGameVersion() const noexcept -> REX::Version override
 		{
 			auto version = REX::Version();
-			for (auto i = static_cast<REX::Version::size_type>(0); i < REX::Version::MAX_SIZE; i++) {
-				version[i] = static_cast<REX::Version::value_type>(_gameVersion[i]);
+			for (auto i = static_cast<decltype(version)::size_type>(0); i < version.size(); i++) {
+				version[i] = static_cast<decltype(version)::value_type>(_gameVersion[i]);
 			}
 
 			return version;
 		}
 
-		void Load(Iddb::Stream& a_stream) noexcept(false)
+		auto LoadStream(REX::FileStream& a_stream) noexcept -> REX::SystemError override
 		{
-			a_stream.ReadIn(_gameVersion);
-			a_stream.ReadIn(_name);
-			a_stream.ReadIn(_pointerSize);
-			a_stream.ReadIn(_dataFormat);
-			a_stream.ReadIn(_offsetCount);
+			const auto readGameVersionError = a_stream.Read(_gameVersion);
+			if (readGameVersionError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				return readGameVersionError;
+			}
+
+			const auto readNameError = a_stream.Read(_name);
+			if (readNameError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				return readNameError;
+			}
+
+			const auto readPointerSizeError = a_stream.Read(_pointerSize);
+			if (readPointerSizeError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				return readPointerSizeError;
+			}
+
+			const auto readDataFormatError = a_stream.Read(_dataFormat);
+			if (readDataFormatError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				return readDataFormatError;
+			}
+
+			const auto readOffsetCountError = a_stream.Read(_offsetCount);
+			if (readOffsetCountError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				return readOffsetCountError;
+			}
+
+			return REX::CreateSystemError(REX::ERROR_NUMBER_SUCCESS);
 		}
 
 	private:
-		std::array<std::uint32_t, 4> _gameVersion{ 0 };
-		std::array<char, 64> _name{ '\0' };
-		std::int32_t _pointerSize{ 0 };
-		std::int32_t _dataFormat{ 0 };
-		std::int32_t _offsetCount{ 0 };
+		std::array<std::uint32_t, 4> _gameVersion{0};
+		REX::StaticString<0x40> _name{REX::EMPTY_CHAR<char>};
+		std::int32_t _pointerSize{0};
+		std::int32_t _dataFormat{0};
+		std::int32_t _offsetCount{0};
 	};
 
 	class Iddb::LoaderInfo final
 	{
 	public:
 		std::vector<std::string> rootNames;
-		std::unordered_map<REX::Version, std::uint64_t> versionCrcMap;
-		bool supportsStreaming{ true };
+		std::flat_map<REX::Version, std::uint64_t> versionCrcMap;
+		bool supportsStreaming{true};
 	};
 
-	class Iddb::IFormatInfo
-		: public std::enable_shared_from_this<IFormatInfo>
+	class Iddb::IFormatInfo : public std::enable_shared_from_this<IFormatInfo>
 	{
 	public:
 		class LoadContext final
 		{
 		public:
 			std::filesystem::path path;
-			Stream stream;
+			REX::FileStream fileStream;
 			REX::NotNull<std::shared_ptr<LoaderInfo>> loaderInfo;
-			REX::NotNull<std::shared_ptr<REX::MemoryMap>> memoryMap;
+			REX::NotNull<std::shared_ptr<REX::FileMemoryMap>> memoryMap;
 		};
 
-		IFormatInfo() = default;
+		IFormatInfo() noexcept = default;
 		virtual ~IFormatInfo() noexcept = default;
 
 		IFormatInfo(const IFormatInfo&) = delete;
 		IFormatInfo(IFormatInfo&&) = delete;
 
-		IFormatInfo& operator=(const IFormatInfo&) = delete;
-		IFormatInfo& operator=(IFormatInfo&&) = delete;
+		auto operator=(const IFormatInfo&) -> IFormatInfo& = delete;
+		auto operator=(IFormatInfo&&) -> IFormatInfo& = delete;
 
-		[[nodiscard]] virtual std::ptrdiff_t GetOffset(std::uintptr_t a_id) const noexcept = 0;
-		virtual void Load(LoadContext& a_context) = 0;
+		[[nodiscard]]
+		virtual auto GetOffset(std::uintptr_t a_id) const noexcept -> std::optional<std::ptrdiff_t> = 0;
+
+		virtual auto Load(LoadContext& a_context) -> std::optional<std::string> = 0;
 
 	protected:
-		static void ValidateFile(const REX::NotNull<std::shared_ptr<LoaderInfo>>& a_loaderInfo, const REX::NotNull<std::shared_ptr<REX::MemoryMap>>& a_memoryMap)
+		static auto ValidateFile(
+			const REX::NotNull<std::shared_ptr<LoaderInfo>>& a_loaderInfo,
+			const REX::NotNull<std::shared_ptr<REX::FileMemoryMap>>& a_memoryMap) noexcept -> std::optional<std::string>
 		{
-			const auto moduleVersion = REL::Module::GetSingleton()->GetVersion();
+			const auto moduleVersion = REL::Module::GetSingleton().GetVersion();
 
 			const auto crcHashIt = a_loaderInfo->versionCrcMap.find(moduleVersion);
 			if (crcHashIt == a_loaderInfo->versionCrcMap.end()) {
-				return;
+				return std::nullopt;
 			}
 
 			const auto expectedHash = crcHashIt->second;
-			const auto actualHash = REX::HashCrc64(std::string_view{ reinterpret_cast<const char*>(a_memoryMap->data()), a_memoryMap->size() });
+			const auto actualHash = REX::HashCrc64(std::span<const std::byte>(*(a_memoryMap.get())));
 
 			if (expectedHash != actualHash) [[unlikely]] {
-				REX::Fail(
-					"Invalid Address Library loaded.\n"
-					"Please redownload Address Library for your module version.\n"
-					"Module Version: {}"sv,
-					moduleVersion);
+				return REX::Format(
+					"Failed to load Address Library.\n"
+					"The database is not compatible with the current module version.\n"
+					"Module Version: {}\n"
+					"Expected Hash: 0x{:016X}\n"
+					"Actual Hash: 0x{:016X}"sv,
+					REL::Module::GetSingleton().GetVersion(),
+					expectedHash,
+					actualHash);
 			}
+
+			return std::nullopt;
 		}
 	};
 
-	class Iddb::FormatInfoV0
-		: public IFormatInfo
+	class Iddb::FormatInfoZero : public IFormatInfo
 	{
 	public:
-		FormatInfoV0() = default;
-		~FormatInfoV0() noexcept override = default;
+		FormatInfoZero() noexcept = default;
+		~FormatInfoZero() noexcept override = default;
 
-		FormatInfoV0(const FormatInfoV0&) = delete;
-		FormatInfoV0(FormatInfoV0&&) = delete;
+		FormatInfoZero(const FormatInfoZero&) = delete;
+		FormatInfoZero(FormatInfoZero&&) = delete;
 
-		FormatInfoV0& operator=(const FormatInfoV0&) = delete;
-		FormatInfoV0& operator=(FormatInfoV0&&) = delete;
+		auto operator=(const FormatInfoZero&) -> FormatInfoZero& = delete;
+		auto operator=(FormatInfoZero&&) -> FormatInfoZero& = delete;
 
-		[[nodiscard]] std::ptrdiff_t GetOffset(std::uintptr_t a_id) const noexcept override
+		[[nodiscard]]
+		auto GetOffset(std::uintptr_t a_id) const noexcept -> std::optional<std::ptrdiff_t> override
 		{
-			if (_mapping.empty()) [[unlikely]] {
-				REX::Fail("Failed to find Address Library offset due to empty mapping."sv);
+			if (_mapping.empty()) {
+				return std::nullopt;
 			}
 
-			const auto mappingElement = Mapping{
-				.id = a_id,
-				.offset = 0
-			};
+			const auto mappingElement = Mapping{.id = a_id, .offset = 0};
 
-			const auto mappingIt = std::ranges::lower_bound(_mapping, mappingElement,
-				[](const Mapping& a_lhs, const Mapping& a_rhs) -> auto {
+			const auto mappingIt = std::ranges::lower_bound(
+				_mapping,
+				mappingElement,
+				[](const Mapping& a_lhs, const Mapping& a_rhs) noexcept -> bool {
 					return a_lhs.id < a_rhs.id;
 				});
 
-			if (mappingIt == _mapping.end()) [[unlikely]] {
-				REX::Fail(
-					"Failed to find offset for Address Library ID.\n"
-					"Invalid ID: {}\n"
-					"Module Version: {}"sv,
-					a_id, REL::Module::GetSingleton()->GetVersion());
+			if (mappingIt == _mapping.end() || mappingIt->id != a_id) {
+				return std::nullopt;
 			}
 
 			return mappingIt->offset;
 		}
 
-		void Load(LoadContext& a_context) override
+		auto Load(LoadContext& a_context) -> std::optional<std::string> override
 		{
-			const auto mapName = GetMemoryMapName(REL::Module::GetSingleton()->GetVersion());
+			const auto mapName = GetMemoryMapName(REL::Module::GetSingleton().GetVersion());
 
-			const auto createError = a_context.memoryMap->Create(false, a_context.path, mapName);
+			const auto createError =
+				a_context.memoryMap->Create(a_context.path, mapName, REX::FileMemoryMap::Options::Read);
 			if (createError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
-				REX::Fail(
-					"Failed to create Address Library memory map.\n"
+				return REX::Format(
+					"Failed to load Address Library.\n"
+					"The database memory map could not be created.\n"
 					"File Path: \"{}\"\n"
 					"System Error (0x{:08X}): {}"sv,
-					a_context.path.generic_string(), createError.value(), createError.message());
+					a_context.path.generic_string(),
+					createError.value(),
+					createError.message());
 			}
 
-			ValidateFile(a_context.loaderInfo, a_context.memoryMap);
+			auto validateError = ValidateFile(a_context.loaderInfo, a_context.memoryMap);
+			if (validateError.has_value()) [[unlikely]] {
+				return validateError;
+			}
 
 			_mapping = {
 				reinterpret_cast<Mapping*>(a_context.memoryMap->data() + sizeof(std::uintptr_t)),
 				*reinterpret_cast<std::uintptr_t*>(a_context.memoryMap->data())
 			};
+
+			return std::nullopt;
 		}
 
 	protected:
 		std::span<Mapping> _mapping;
 	};
 
-	class Iddb::FormatInfoV1 final
-		: public FormatInfoV0
+	class Iddb::FormatInfoOne final : public FormatInfoZero
 	{
 	public:
-		FormatInfoV1() = default;
-		~FormatInfoV1() noexcept override = default;
+		FormatInfoOne() noexcept = default;
+		~FormatInfoOne() noexcept override = default;
 
-		FormatInfoV1(const FormatInfoV1&) = delete;
-		FormatInfoV1(FormatInfoV1&&) = delete;
+		FormatInfoOne(const FormatInfoOne&) = delete;
+		FormatInfoOne(FormatInfoOne&&) = delete;
 
-		FormatInfoV1& operator=(const FormatInfoV1&) = delete;
-		FormatInfoV1& operator=(FormatInfoV1&&) = delete;
+		auto operator=(const FormatInfoOne&) -> FormatInfoOne& = delete;
+		auto operator=(FormatInfoOne&&) -> FormatInfoOne& = delete;
 	};
 
-	class Iddb::FormatInfoV2 final
-		: public FormatInfoV0
+	class Iddb::FormatInfoTwo final : public FormatInfoZero
 	{
 	public:
-		FormatInfoV2() = default;
-		~FormatInfoV2() noexcept override = default;
+		FormatInfoTwo() noexcept = default;
+		~FormatInfoTwo() noexcept override = default;
 
-		FormatInfoV2(const FormatInfoV2&) = delete;
-		FormatInfoV2(FormatInfoV2&&) = delete;
+		FormatInfoTwo(const FormatInfoTwo&) = delete;
+		FormatInfoTwo(FormatInfoTwo&&) = delete;
 
-		FormatInfoV2& operator=(const FormatInfoV2&) = delete;
-		FormatInfoV2& operator=(FormatInfoV2&&) = delete;
+		auto operator=(const FormatInfoTwo&) -> FormatInfoTwo& = delete;
+		auto operator=(FormatInfoTwo&&) -> FormatInfoTwo& = delete;
 
-		void Load(LoadContext& a_context) override
+		auto Load(LoadContext& a_context) -> std::optional<std::string> override
 		{
 			auto header = HeaderV2();
 
-			try {
-				header.Load(a_context.stream);
-			}
-			catch (const std::ios::failure& error) {
-				REX::Fail(
-					"Failed to open Address Library file.\n"
+			const auto loadError = header.LoadStream(a_context.fileStream);
+			if (loadError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				return REX::Format(
+					"Failed to load Address Library.\n"
+					"The database file could not be loaded.\n"
 					"File Path: \"{}\"\n"
-					"Exception Error: {}"sv,
-					a_context.path.generic_string(), error.what());
+					"System Error (0x{:08X}): {}"sv,
+					a_context.path.generic_string(),
+					loadError.value(),
+					loadError.message());
 			}
 
-			const auto& module = REL::Module::GetSingleton();
-			if (header.GetGameVersion() != module->GetVersion()) [[unlikely]] {
-				REX::Fail(
-					"Address Library version mismatch.\n"
+			if (header.GetGameVersion() != REL::Module::GetSingleton().GetVersion()) [[unlikely]] {
+				return REX::Format(
+					"Failed to load Address Library.\n"
+					"The database is not compatible with the current module version.\n"
+					"File Path: \"{}\"\n"
 					"Expected Version: {}\n"
 					"Actual Version: {}"sv,
-					module->GetVersion(), header.GetGameVersion());
+					a_context.path.generic_string(),
+					REL::Module::GetSingleton().GetVersion(),
+					header.GetGameVersion());
 			}
 
-			const auto mapName = GetMemoryMapName(module->GetVersion());
+			const auto mapName = GetMemoryMapName(REL::Module::GetSingleton().GetVersion());
 			const auto byteSize = header.GetAddressCount() * sizeof(Mapping);
 
-			if (!a_context.memoryMap->Create(true, mapName, byteSize)) [[unlikely]] {
+			if (!a_context.memoryMap->Create(mapName, REX::FileMemoryMap::Options::ReadWrite, byteSize)) [[unlikely]] {
 				const auto currentError = REX::GetCurrentSystemError();
-				REX::Fail(
-					"Failed to create Address Library memory map.\n"
+				return REX::Format(
+					"Failed to load Address Library.\n"
+					"The database memory map could not be created.\n"
+					"File Path: \"{}\"\n"
 					"System Error (0x{:08X}): {}"sv,
-					currentError.value(), currentError.message());
+					a_context.path.generic_string(),
+					currentError.value(),
+					currentError.message());
 			}
 
-			ValidateFile(a_context.loaderInfo, a_context.memoryMap);
+			auto validateError = ValidateFile(a_context.loaderInfo, a_context.memoryMap);
+			if (validateError.has_value()) [[unlikely]] {
+				return validateError;
+			}
 
-			_mapping = { reinterpret_cast<Mapping*>(a_context.memoryMap->data()), header.GetAddressCount() };
+			_mapping = {reinterpret_cast<Mapping*>(a_context.memoryMap->data()), header.GetAddressCount()};
 
 			if (!a_context.memoryMap->IsOwner()) {
-				return;
+				return std::nullopt;
 			}
 
-			UnpackFile(a_context.stream, header);
+			const auto unpackError = UnpackFile(a_context.fileStream, header);
+			if (unpackError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				return REX::Format(
+					"Failed to load Address Library.\n"
+					"The database file could not be unpacked.\n"
+					"File Path: \"{}\"\n"
+					"System Error (0x{:08X}): {}"sv,
+					a_context.path.generic_string(),
+					unpackError.value(),
+					unpackError.message());
+			}
 
-			std::sort(std::execution::par, _mapping.begin(), _mapping.end(),
-				[](const Mapping& a_lhs, const Mapping& a_rhs) -> auto {
+			std::sort(
+				std::execution::par_unseq,
+				_mapping.begin(),
+				_mapping.end(),
+				[](const Mapping& a_lhs, const Mapping& a_rhs) noexcept -> bool {
 					return a_lhs.id < a_rhs.id;
 				});
+
+			return std::nullopt;
 		}
 
 	private:
-		void UnpackFile(Stream& a_stream, const HeaderV2& a_header)
+		auto UnpackFile(REX::FileStream& a_stream, const HeaderV2& a_header) -> REX::SystemError
 		{
-			auto type = 0ui8;
+			auto type = static_cast<std::uint8_t>(0);
 			auto currentId = static_cast<std::uintptr_t>(0);
 			auto currentOffset = static_cast<std::ptrdiff_t>(0);
 			auto previousId = static_cast<std::uintptr_t>(0);
 			auto previousOffset = static_cast<std::ptrdiff_t>(0);
 
 			for (auto& mapping : _mapping) {
-				a_stream.ReadIn(type);
+				const auto readTypeError = a_stream.Read(type);
+				if (readTypeError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+					return readTypeError;
+				}
 
 				const auto lowPart = static_cast<std::uint8_t>(type & 0x0F);
 				const auto highPart = static_cast<std::uint8_t>(type >> 4);
 
-				switch (lowPart) {
-					case 0: {
-						a_stream.ReadIn(currentId);
-						break;
+				const auto handlePart = []<typename T>(
+											REX::FileStream& a_stream,
+											T& a_outValue,
+											T a_previousValue,
+											std::uint8_t a_delta) -> REX::SystemError {
+					switch (a_delta) {
+						case 0: {
+							const auto readValueError = a_stream.Read(a_outValue);
+							if (readValueError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+								return readValueError;
+							}
+
+							break;
+						}
+						case 1: {
+							a_outValue = a_previousValue + 1;
+							break;
+						}
+						case 2: {
+							const auto readDeltaError = a_stream.Read<std::uint8_t>();
+							if (!readDeltaError.has_value()) [[unlikely]] {
+								return readDeltaError.error();
+							}
+
+							a_outValue = a_previousValue + readDeltaError.value();
+							break;
+						}
+						case 3: {
+							const auto readDeltaError = a_stream.Read<std::uint8_t>();
+							if (!readDeltaError.has_value()) [[unlikely]] {
+								return readDeltaError.error();
+							}
+
+							a_outValue = a_previousValue - readDeltaError.value();
+							break;
+						}
+						case 4: {
+							const auto readDeltaError = a_stream.Read<std::uint16_t>();
+							if (!readDeltaError.has_value()) [[unlikely]] {
+								return readDeltaError.error();
+							}
+
+							a_outValue = a_previousValue + readDeltaError.value();
+							break;
+						}
+						case 5: {
+							const auto readDeltaError = a_stream.Read<std::uint16_t>();
+							if (!readDeltaError.has_value()) [[unlikely]] {
+								return readDeltaError.error();
+							}
+
+							a_outValue = a_previousValue - readDeltaError.value();
+							break;
+						}
+						case 6: {
+							const auto readValueError = a_stream.Read<std::uint16_t>();
+							if (!readValueError.has_value()) [[unlikely]] {
+								return readValueError.error();
+							}
+
+							a_outValue = readValueError.value();
+							break;
+						}
+						case 7: {
+							const auto readValueError = a_stream.Read<std::uint32_t>();
+							if (!readValueError.has_value()) [[unlikely]] {
+								return readValueError.error();
+							}
+
+							a_outValue = readValueError.value();
+							break;
+						}
+						[[unlikely]]
+						default: {
+							break;
+						}
 					}
-					case 1: {
-						currentId = previousId + 1;
-						break;
-					}
-					case 2: {
-						currentId = previousId + a_stream.ReadOut<std::uint8_t>();
-						break;
-					}
-					case 3: {
-						currentId = previousId - a_stream.ReadOut<std::uint8_t>();
-						break;
-					}
-					case 4: {
-						currentId = previousId + a_stream.ReadOut<std::uint16_t>();
-						break;
-					}
-					case 5: {
-						currentId = previousId - a_stream.ReadOut<std::uint16_t>();
-						break;
-					}
-					case 6: {
-						currentId = a_stream.ReadOut<std::uint16_t>();
-						break;
-					}
-					case 7: {
-						currentId = a_stream.ReadOut<std::uint32_t>();
-						break;
-					}
-					[[unlikely]] default: {
-						REX::Fail("Failed to load Address Library due to unhandled low type."sv);
-					}
+
+					return REX::CreateSystemError(REX::ERROR_NUMBER_SUCCESS);
+				};
+
+				const auto lowPartError = handlePart(a_stream, currentId, previousId, lowPart);
+				if (lowPartError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+					return lowPartError;
 				}
 
-				const auto temp = static_cast<std::ptrdiff_t>((highPart & 8) != 0 ? (previousOffset / a_header.GetPointerSize()) : previousOffset);
+				const auto tempValue = (highPart & 8) != 0 ?
+										   (previousOffset / static_cast<std::ptrdiff_t>(a_header.GetPointerSize())) :
+										   previousOffset;
 
-				switch (highPart & 7) {
-					case 0: {
-						a_stream.ReadIn(currentOffset);
-						break;
-					}
-					case 1: {
-						currentOffset = temp + 1;
-						break;
-					}
-					case 2: {
-						currentOffset = temp + a_stream.ReadOut<std::uint8_t>();
-						break;
-					}
-					case 3: {
-						currentOffset = temp - a_stream.ReadOut<std::uint8_t>();
-						break;
-					}
-					case 4: {
-						currentOffset = temp + a_stream.ReadOut<std::uint16_t>();
-						break;
-					}
-					case 5: {
-						currentOffset = temp - a_stream.ReadOut<std::uint16_t>();
-						break;
-					}
-					case 6: {
-						currentOffset = a_stream.ReadOut<std::uint16_t>();
-						break;
-					}
-					case 7: {
-						currentOffset = a_stream.ReadOut<std::uint32_t>();
-						break;
-					}
-					[[unlikely]] default: {
-						REX::Fail("Failed to load Address Library due to unhandled high type."sv);
-					}
+				const auto highPartError = handlePart(a_stream, currentOffset, tempValue, highPart & 7);
+				if (highPartError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+					return highPartError;
 				}
 
 				if ((highPart & 8) != 0) {
 					currentOffset *= static_cast<std::ptrdiff_t>(a_header.GetPointerSize());
 				}
 
-				mapping = { .id = currentId, .offset = currentOffset };
+				mapping = {.id = currentId, .offset = currentOffset};
 				previousOffset = currentOffset;
 				previousId = currentId;
 			}
+
+			return REX::CreateSystemError(REX::ERROR_NUMBER_SUCCESS);
 		}
 	};
 
-	class Iddb::FormatInfoV5 final
-		: public IFormatInfo
+	class Iddb::FormatInfoFive final : public IFormatInfo
 	{
 	public:
-		FormatInfoV5() = default;
-		~FormatInfoV5() noexcept override = default;
+		FormatInfoFive() noexcept = default;
+		~FormatInfoFive() noexcept override = default;
 
-		FormatInfoV5(const FormatInfoV5&) = delete;
-		FormatInfoV5(FormatInfoV5&&) = delete;
+		FormatInfoFive(const FormatInfoFive&) = delete;
+		FormatInfoFive(FormatInfoFive&&) = delete;
 
-		FormatInfoV5& operator=(const FormatInfoV5&) = delete;
-		FormatInfoV5& operator=(FormatInfoV5&&) = delete;
+		auto operator=(const FormatInfoFive&) -> FormatInfoFive& = delete;
+		auto operator=(FormatInfoFive&&) -> FormatInfoFive& = delete;
 
-		[[nodiscard]] std::ptrdiff_t GetOffset(std::uintptr_t a_id) const noexcept override
+		[[nodiscard]]
+		auto GetOffset(std::uintptr_t a_id) const noexcept -> std::optional<std::ptrdiff_t> override
 		{
-			if (_mapping.empty()) [[unlikely]] {
-				REX::Fail("Failed to find Address Library offset due to empty mapping."sv);
+			if (_mapping.empty()) {
+				return std::nullopt;
 			}
 
 			const auto offset = static_cast<std::ptrdiff_t>(_mapping[a_id]);
-			if (offset == 0) [[unlikely]] {
-				REX::Fail(
-					"Failed to find offset for Address Library ID.\n"
-					"Invalid ID: {}\n"
-					"Module Version: {}"sv,
-					a_id, REL::Module::GetSingleton()->GetVersion());
+			if (offset == 0) {
+				return std::nullopt;
 			}
 
 			return offset;
 		}
 
-		void Load(LoadContext& a_context) override
+		auto Load(LoadContext& a_context) -> std::optional<std::string> override
 		{
 			auto header = HeaderV5();
 
-			try {
-				header.Load(a_context.stream);
-			}
-			catch (const std::ios::failure& error) {
-				REX::Fail(
-					"Failed to open Address Library file.\n"
-					"File Path: \"{}\"\n"
-					"Exception Error: {}"sv,
-					a_context.path.generic_string(), error.what());
-			}
-
-			const auto& module = REL::Module::GetSingleton();
-			if (header.GetGameVersion() != module->GetVersion()) [[unlikely]] {
-				REX::Fail(
-					"Address Library version mismatch.\n"
-					"Expected Version: {}\n"
-					"Actual Version: {}"sv,
-					module->GetVersion(), header.GetGameVersion());
-			}
-
-			const auto mapName = GetMemoryMapName(module->GetVersion());
-
-			const auto createError = a_context.memoryMap->Create(false, a_context.path, mapName);
-			if (createError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
-				REX::Fail(
-					"Failed to create Address Library memory map.\n"
+			const auto loadError = header.LoadStream(a_context.fileStream);
+			if (loadError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				return REX::Format(
+					"Failed to load Address Library.\n"
+					"The database file could not be loaded.\n"
 					"File Path: \"{}\"\n"
 					"System Error (0x{:08X}): {}"sv,
-					a_context.path.generic_string(), createError.value(), createError.message());
+					a_context.path.generic_string(),
+					loadError.value(),
+					loadError.message());
 			}
 
-			ValidateFile(a_context.loaderInfo, a_context.memoryMap);
+			if (header.GetGameVersion() != REL::Module::GetSingleton().GetVersion()) [[unlikely]] {
+				return REX::Format(
+					"Failed to load Address Library.\n"
+					"The database is not compatible with the current module version.\n"
+					"File Path: \"{}\"\n"
+					"Expected Version: {}\n"
+					"Actual Version: {}"sv,
+					a_context.path.generic_string(),
+					REL::Module::GetSingleton().GetVersion(),
+					header.GetGameVersion());
+			}
 
-			_mapping = { reinterpret_cast<std::uint32_t*>(a_context.memoryMap->data() + sizeof(HeaderV5)), header.GetOffsetCount() };
+			const auto mapName = GetMemoryMapName(REL::Module::GetSingleton().GetVersion());
+
+			const auto createError =
+				a_context.memoryMap->Create(a_context.path, mapName, REX::FileMemoryMap::Options::Read);
+			if (createError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
+				return REX::Format(
+					"Failed to load Address Library.\n"
+					"The database memory map could not be created.\n"
+					"File Path: \"{}\"\n"
+					"System Error (0x{:08X}): {}"sv,
+					a_context.path.generic_string(),
+					createError.value(),
+					createError.message());
+			}
+
+			auto validateError = ValidateFile(a_context.loaderInfo, a_context.memoryMap);
+			if (validateError) {
+				return validateError;
+			}
+
+			_mapping = {
+				reinterpret_cast<std::uint32_t*>(a_context.memoryMap->data() + sizeof(HeaderV5)),
+				header.GetOffsetCount()
+			};
+
+			return std::nullopt;
 		}
 
 	private:
 		std::span<std::uint32_t> _mapping;
 	};
 
-#if COMMONLIB_RUNTIME_VR == 1
-	class Iddb::FormatInfoVR final
-		: public IFormatInfo
+#if (COMMONLIB_RUNTIME_VR == 1)
+	class Iddb::FormatInfoVR final : public IFormatInfo
 	{
 	public:
-		FormatInfoVR() = default;
+		FormatInfoVR() noexcept = default;
 		~FormatInfoVR() noexcept override = default;
 
 		FormatInfoVR(const FormatInfoVR&) = delete;
 		FormatInfoVR(FormatInfoVR&&) = delete;
 
-		FormatInfoVR& operator=(const FormatInfoVR&) = delete;
-		FormatInfoVR& operator=(FormatInfoVR&&) = delete;
+		auto operator=(const FormatInfoVR&) -> FormatInfoVR& = delete;
+		auto operator=(FormatInfoVR&&) -> FormatInfoVR& = delete;
 
-		[[nodiscard]] std::ptrdiff_t GetOffset(std::uintptr_t a_id) const noexcept override
+		[[nodiscard]]
+		auto GetOffset(std::uintptr_t a_id) const noexcept -> std::optional<std::ptrdiff_t> override
 		{
-			if (_mapping.empty()) [[unlikely]] {
-				REX::Fail("Failed to find Address Library offset due to empty mapping."sv);
+			if (_mapping.empty()) {
+				return std::nullopt;
 			}
 
-			const auto mappingElement = Mapping{
-				.id = a_id,
-				.offset = 0
-			};
+			const auto mappingElement = Mapping{.id = a_id, .offset = 0};
 
-			const auto mappingIt = std::ranges::lower_bound(_mapping, mappingElement,
-				[](const Mapping& a_lhs, const Mapping& a_rhs) -> auto {
+			const auto mappingIt = std::ranges::lower_bound(
+				_mapping,
+				mappingElement,
+				[](const Mapping& a_lhs, const Mapping& a_rhs) noexcept -> bool {
 					return a_lhs.id < a_rhs.id;
 				});
 
-			if (mappingIt == _mapping.end()) [[unlikely]] {
-				REX::Fail(
-					"Failed to find offset for Address Library ID.\n"
-					"Invalid ID: {}\n"
-					"Module Version: {}"sv,
-					a_id, REL::Module::GetSingleton()->GetVersion());
+			if (mappingIt == _mapping.end() || mappingIt->id != a_id) {
+				return std::nullopt;
 			}
 
 			return mappingIt->offset;
 		}
 
-		void Load(LoadContext& a_context) override
+		auto Load(LoadContext& a_context) -> std::optional<std::string> override
 		{
-			auto file = rapidcsv::Document(a_context.path.generic_string());
-
-			auto id = 0ui64;
-			auto offset = std::string();
-
-			auto addressCount = file.GetCell<std::size_t>(0, 0);
-			auto version = file.GetCell<std::string>(1, 0);
-
-			if (file.GetRowCount() > addressCount + 1) [[unlikely]] {
-				REX::Fail(
-					"The VR Address Library has more entries than expected.\n"
-					"Version: {}\n"
-					"Expected Entries: {}\n"
-					"Actual Entries: {}"sv,
-					version, addressCount, file.GetRowCount() - 1);
+			const auto fileContent = a_context.fileStream.ReadText();
+			if (!fileContent.has_value()) [[unlikely]] {
+				return REX::Format(
+					"Failed to load Address Library VR.\n"
+					"The database file could not be read.\n"
+					"File Path: \"{}\"\n"
+					"System Error (0x{:08X}): {}"sv,
+					a_context.path.generic_string(),
+					fileContent.error().value(),
+					fileContent.error().message());
 			}
 
-			if (file.GetRowCount() < addressCount + 1) [[unlikely]] {
-				REX::Fail(
-					"The VR Address Library has fewer entries than expected.\n"
-					"Version: {}\n"
-					"Expected Entries: {}\n"
-					"Actual Entries: {}"sv,
-					version, addressCount, file.GetRowCount() - 1);
+			class Row
+			{
+			public:
+				std::size_t number;
+				std::string text;
+			};
+
+			constexpr auto OPTIONS = glz::opts_csv{.use_headers = false};
+
+			auto rows = std::vector<Row>();
+
+			const auto readError = glz::read<OPTIONS>(rows, fileContent.value());
+			if (readError.ec != glz::error_code::none) [[unlikely]] {
+				return REX::Format(
+					"Failed to load Address Library VR.\n"
+					"The database contains invalid CSV data.\n"
+					"File Path: \"{}\"\n"
+					"CSV Error: {}"sv,
+					a_context.path.generic_string(),
+					glz::format_error(readError, fileContent.value()));
 			}
 
-			auto index = static_cast<std::size_t>(1);
+			if (rows.empty()) [[unlikely]] {
+				return REX::Format(
+					"Failed to load Address Library VR.\n"
+					"The database contains no entries."sv);
+			}
 
-			for (; index < file.GetRowCount(); index++) {
-				id = file.GetCell<std::size_t>(0, index);
-				offset = file.GetCell<std::string_view>(1, index);
+			const auto& metadata = rows.front();
+			const auto addressCount = metadata.number;
+			const auto& formatVersion = metadata.text;
+			const auto actualEntryCount = rows.size() - 1;
 
-				const auto offsetNumber = REX::FromString<std::ptrdiff_t>(offset, REX::IntFormat::kHexadecimal);
-				if (!offsetNumber) [[unlikely]] {
-					REX::Fail(
-						"The VR Address Library found an invalid offset.\n"
-						"Version: {}\n"
-						"Invalid ID: {}\n"
-						"Invalid Offset: {}"sv,
-						version, id, offset);
+			if (actualEntryCount > addressCount) [[unlikely]] {
+				return REX::Format(
+					"Failed to load Address Library VR.\n"
+					"The database contains more entries than expected.\n"
+					"Format Version: {}\n"
+					"Expected Entries: {}\n"
+					"Actual Entries: {}"sv,
+					formatVersion,
+					addressCount,
+					actualEntryCount);
+			}
+
+			if (actualEntryCount < addressCount) [[unlikely]] {
+				return REX::Format(
+					"Failed to load Address Library VR.\n"
+					"The database contains fewer entries than expected.\n"
+					"Format Version: {}\n"
+					"Expected Entries: {}\n"
+					"Actual Entries: {}"sv,
+					formatVersion,
+					addressCount,
+					actualEntryCount);
+			}
+
+			for (auto index = static_cast<std::size_t>(1); index < rows.size(); index++) {
+				const auto& row = rows[index];
+
+				const auto id = static_cast<std::uintptr_t>(row.number);
+				const auto& offset = row.text;
+
+				const auto offsetNumber = REX::FromString<std::ptrdiff_t>(offset, REX::IntFormat::Hexadecimal);
+
+				if (!offsetNumber.has_value()) [[unlikely]] {
+					return REX::Format(
+						"Failed to load Address Library VR.\n"
+						"The database contains an invalid offset entry.\n"
+						"Format Version: {}\n"
+						"Entry Index: {}\n"
+						"Entry ID: {}\n"
+						"Entry Offset: {}"sv,
+						formatVersion,
+						index,
+						id,
+						offset);
 				}
 
-				auto mappingElement = Mapping{
-					.id = id,
-					.offset = *offsetNumber
-				};
-
-				_mapping.push_back(mappingElement);
+				_mapping.emplace_back(id, offsetNumber.value());
 			}
 
-			std::sort(std::execution::par, _mapping.begin(), _mapping.end(),
-				[](const Mapping& a_lhs, const Mapping& a_rhs) -> auto {
+			std::sort(
+				std::execution::par_unseq,
+				_mapping.begin(),
+				_mapping.end(),
+				[](const Mapping& a_lhs, const Mapping& a_rhs) noexcept -> bool {
 					return a_lhs.id < a_rhs.id;
 				});
+
+			return std::nullopt;
 		}
 
 	private:
@@ -650,112 +838,132 @@ namespace REL
 
 namespace REL
 {
-	Iddb::Iddb()
+	Iddb::Iddb() :
 		// clang-format off
-		: _loaderInfoMap{
+		_loaderInfoMap{
 			{
-				"SKSE"sv,
+				"SKSE"s,
 				std::make_shared<LoaderInfo>(LoaderInfo{
 					.rootNames = { "versionlib"s, "version"s },
 					.versionCrcMap = {
-						{ REX::Version(1, 5, 97, 0), 0x7ED322899C8999D7ui64 },
-						{ REX::Version(1, 6, 640, 0), 0x77C2AD2AEF8A9417ui64 },
-						{ REX::Version(1, 6, 659, 0), 0xEFA49B8046A44D50ui64 },
-						{ REX::Version(1, 6, 1170, 0), 0x0A6C2093652D2622ui64 },
-						{ REX::Version(1, 6, 1179, 0), 0xE2D655E897B0D016ui64 }
+						std::make_pair(REX::Version(1, 5, 97, 0), static_cast<std::uint64_t>(0x7ED3'2289'9C89'99D7)),
+						std::make_pair(REX::Version(1, 6, 1'170, 0), static_cast<std::uint64_t>(0x0A6C'2093'652D'2622)),
+						std::make_pair(REX::Version(1, 6, 1'179, 0), static_cast<std::uint64_t>(0xE2D6'55E8'97B0'D016)),
+						std::make_pair(REX::Version(1, 7, 104, 0), static_cast<std::uint64_t>(0x16A8'8691'1F6C'0C84))
 					}
 				})
 			},
 			{
-				"F4SE"sv,
+				"F4SE"s,
 				std::make_shared<LoaderInfo>(LoaderInfo{
 					.rootNames = { "version"s },
 					.versionCrcMap = {
-						{ REX::Version(1, 10, 163, 0), 0x9FACC538CC3422A1ui64 },
-						{ REX::Version(1, 10, 984, 0), 0x7E4586F67B484062ui64 },
-						{ REX::Version(1, 11, 159, 0), 0xAC7DF73ABF00FFEBui64 },
-						{ REX::Version(1, 11, 191, 0), 0xB3991DE2AC1EB7F9ui64 }
+						std::make_pair(REX::Version(1, 10, 163, 0), static_cast<std::uint64_t>(0x9FAC'C538'CC34'22A1)),
+						std::make_pair(REX::Version(1, 10, 984, 0), static_cast<std::uint64_t>(0x7E45'86F6'7B48'4062)),
+						std::make_pair(REX::Version(1, 11, 240, 0), static_cast<std::uint64_t>(0xC205'D6B0'6926'6A04))
 					},
 					.supportsStreaming = false
 				})
 			},
 			{
-				"SFSE"sv,
+				"SFSE"s,
 				std::make_shared<LoaderInfo>(LoaderInfo{
 					.rootNames = { "versionlib"s },
 					.versionCrcMap = {
-						{ REX::Version(1, 16, 236, 0), 0x38F2B17245B91198ui64 }
+						std::make_pair(REX::Version(1, 16, 244, 0), static_cast<std::uint64_t>(0x4675'C162'D17D'E844))
 					}
 				})
 			},
 			{
-				"OBSE"sv,
+				"OBSE"s,
 				std::make_shared<LoaderInfo>(LoaderInfo{
 					.rootNames = { "versionlib"s },
 					.versionCrcMap = {
-						{ REX::Version(1, 512, 105, 0), 0x6FF49281899E8B89ui64 }
+						std::make_pair(REX::Version(1, 512, 105, 0), static_cast<std::uint64_t>(0x6FF4'9281'899E'8B89))
 					}
 				})
-			},
-			},
-		  _formatInfoMap{
-#if COMMONLIB_RUNTIME_VR == 1
-			  { FormatVersion::kVR, std::make_shared<FormatInfoVR>() },
+			}
+		},
+		// clang-format on
+		_formatInfoMap{
+#if (COMMONLIB_RUNTIME_VR == 1)
+			std::make_pair(FormatVersion::VR, std::make_shared<FormatInfoVR>()),
 #endif
-			  { FormatVersion::kV0, std::make_shared<FormatInfoV0>() },
-			  { FormatVersion::kV1, std::make_shared<FormatInfoV1>() },
-			  { FormatVersion::kV2, std::make_shared<FormatInfoV2>() },
-			  { FormatVersion::kV5, std::make_shared<FormatInfoV5>() }
-		  },
-		  // clang-format on
-		  _memoryMap(std::make_shared<REX::MemoryMap>())
+			std::make_pair(FormatVersion::Zero, std::make_shared<FormatInfoZero>()),
+			std::make_pair(FormatVersion::One, std::make_shared<FormatInfoOne>()),
+			std::make_pair(FormatVersion::Two, std::make_shared<FormatInfoTwo>()),
+			std::make_pair(FormatVersion::Five, std::make_shared<FormatInfoFive>())
+		},
+		_memoryMap(std::make_shared<REX::FileMemoryMap>())
 	{
 	}
 
 	Iddb::~Iddb() noexcept = default;
 
-	std::string Iddb::GetMemoryMapName(REX::Version a_version)
+	auto Iddb::GetMemoryMapName(REX::Version a_version) -> std::string
 	{
 		return REX::Format("COMMONLIB_IDDB_OFFSETS_{}"sv, a_version.ToString('_'));
 	}
 
-	std::ptrdiff_t Iddb::GetOffset(std::uintptr_t a_id) const noexcept
+	auto Iddb::GetOffset(std::uintptr_t a_id) const noexcept -> std::ptrdiff_t
 	{
 		if (!_currentFormatInfo) [[unlikely]] {
-			REX::Fail("Failed to get Address Library offset due to missing format info."sv);
+			REX::Fail(
+				"Failed to find the offset for an Address Library ID.\n"
+				"The database has not been initialized.\n"
+				"Requested ID: {}\n"
+				"Module Version: {}"sv,
+				a_id,
+				REL::Module::GetSingleton().GetVersion());
 		}
 
-		return _currentFormatInfo->GetOffset(a_id);
+		const auto offset = _currentFormatInfo->GetOffset(a_id);
+		if (!offset.has_value()) [[unlikely]] {
+			REX::Fail(
+				"Failed to find the offset for an Address Library ID.\n"
+				"The ID is not present in the database.\n"
+				"Requested ID: {}\n"
+				"Module Version: {}"sv,
+				a_id,
+				REL::Module::GetSingleton().GetVersion());
+		}
+
+		return offset.value();
 	}
 
-	void Iddb::Init()
+	void Iddb::Setup()
 	{
-		auto pluginPathBuffer = std::array<wchar_t, REX::W32::MAX_PATH>();
-		REX::W32::GetModuleFileNameW(REX::W32::GetCurrentModule(), pluginPathBuffer.data(), static_cast<std::uint32_t>(pluginPathBuffer.size()));
+		const auto moduleFilePath = REX::GetModuleFilePath(REX::GetCurrentModuleHandle());
+		if (!moduleFilePath.has_value()) [[unlikely]] {
+			REX::Fail(
+				"Failed to load Address Library.\n"
+				"The module file path could not be retrieved.\n"
+				"System Error (0x{:08X}): {}"sv,
+				moduleFilePath.error().value(),
+				moduleFilePath.error().message());
+		}
 
-		const auto pluginPath = std::filesystem::path(pluginPathBuffer.data(), std::filesystem::path::generic_format);
-		const auto loaderName = pluginPath.parent_path().parent_path().filename().generic_string();
+		const auto loaderName = moduleFilePath->parent_path().parent_path().filename().generic_string();
 
-		const auto loaderIt = _loaderInfoMap.find(REX::ToUpper(loaderName));
+		const auto loaderIt = _loaderInfoMap.find(REX::ToUpper(std::string_view(loaderName)));
 		if (loaderIt == _loaderInfoMap.end()) [[unlikely]] {
 			REX::Fail(
-				"Failed to determine Address Library loader.\n"
-				"File Loader: \"{}\""sv,
+				"Failed to load Address Library.\n"
+				"The database loader is not supported in this build.\n"
+				"Loader Name: \"{}\""sv,
 				loaderName);
 		}
 
-		const auto loaderInfo = loaderIt->second;
+		_currentLoaderInfo = loaderIt->second.get();
 
-		const auto& module = REL::Module::GetSingleton();
-		const auto moduleVersion = module->GetVersion().ToString('-');
-		const auto moduleFileExtension = module->GetIsRuntimeVR() ? ".csv"sv : ".bin"sv;
+		const auto moduleVersion = REL::Module::GetSingleton().GetVersion().ToString('-');
+		const auto moduleFileExtension = REL::Module::GetSingleton().GetRuntime().GetFileExtension();
 
-		for (const auto& rootName : loaderInfo->rootNames) {
-			const auto fullLoaderName = REX::Format("{}-{}{}"sv, rootName, moduleVersion, moduleFileExtension);
+		for (const auto& loaderRootName : _currentLoaderInfo->rootNames) {
+			const auto fullLoaderName = REX::Format("{}-{}{}"sv, loaderRootName, moduleVersion, moduleFileExtension);
+			auto fullLoaderPath = moduleFilePath->parent_path() / fullLoaderName;
 
 			auto isFileError = REX::SystemError();
-			auto fullLoaderPath = pluginPath.parent_path() / fullLoaderName;
-
 			if (!std::filesystem::is_regular_file(fullLoaderPath, isFileError)) {
 				continue;
 			}
@@ -766,47 +974,66 @@ namespace REL
 
 		if (_filePath.empty()) [[unlikely]] {
 			REX::Fail(
-				"Failed to determine Address Library path.\n"
-				"File Loader: \"{}\"\n"
+				"Failed to load Address Library.\n"
+				"The database file could not be found.\n"
+				"Loader Name: \"{}\"\n"
 				"Module Version: {}"sv,
 				loaderName,
 				moduleVersion);
 		}
 
-		_currentLoaderInfo = loaderInfo.get();
+		auto fileStream = REX::FileStream::Open(
+			_filePath,
+			REX::FileMode::Open,
+			REX::FileAccess::Read,
+			REX::FileShare::Read,
+			REX::FileOptions::SequentialScan);
+		if (!fileStream.has_value()) [[unlikely]] {
+			REX::Fail(
+				"Failed to load Address Library.\n"
+				"The database file could not be opened for reading.\n"
+				"File Path: \"{}\"\n"
+				"System Error (0x{:08X}): {}"sv,
+				_filePath.generic_string(),
+				fileStream.error().value(),
+				fileStream.error().message());
+		}
 
-		auto stream = Stream();
-		auto formatVersion = FormatVersion::kNone;
+		auto formatVersion = FormatVersion::None;
 
-		if (module->GetIsRuntimeVR())
-#if COMMONLIB_RUNTIME_VR == 0
+		if (moduleFileExtension == REL::DEFAULT_RUNTIME_FILE_EXTENSION_VR)
+#if (COMMONLIB_RUNTIME_VR == 0)
 			[[unlikely]]
 #endif
 		{
-#if COMMONLIB_RUNTIME_VR == 1
-			formatVersion = FormatVersion::kVR;
+#if (COMMONLIB_RUNTIME_VR == 1)
+			formatVersion = FormatVersion::VR;
 #else
-			REX::Fail("Failed to initialize Address Library due to VR not being supported in this build."sv);
+			REX::Fail(
+				"Failed to load Address Library VR.\n"
+				"The VR runtime is not supported in this build."sv);
 #endif
 		}
 		else if (!_currentLoaderInfo->supportsStreaming) {
-			formatVersion = FormatVersion::kV0;
+			formatVersion = FormatVersion::Zero;
 		}
 		else {
-			try {
-				stream.Open(_filePath, std::ios::in | std::ios::binary);
-				formatVersion = static_cast<FormatVersion>(stream.ReadOut<std::uint32_t>());
-			}
-			catch (const std::ios::failure& error) {
+			const auto formatVersionError = fileStream->Read(formatVersion);
+			if (formatVersionError.value() != REX::ERROR_NUMBER_SUCCESS) [[unlikely]] {
 				REX::Fail(
-					"Failed to read Address Library format version.\n"
-					"Exception Error: {}"sv,
-					error.what());
+					"Failed to load Address Library.\n"
+					"The database format version could not be read.\n"
+					"File Path: \"{}\"\n"
+					"System Error (0x{:08X}): {}"sv,
+					_filePath.generic_string(),
+					formatVersionError.value(),
+					formatVersionError.message());
 			}
 
-			if (formatVersion <= FormatVersion::kV0 || formatVersion > FormatVersion::kV5) [[unlikely]] {
+			if (formatVersion <= FormatVersion::_Min || formatVersion > FormatVersion::_Max) [[unlikely]] {
 				REX::Fail(
-					"Unsupported Address Library format version.\n"
+					"Failed to load Address Library.\n"
+					"The database format version is not supported in this build.\n"
 					"Format Version: {}"sv,
 					std::to_underlying(formatVersion));
 			}
@@ -815,7 +1042,8 @@ namespace REL
 		const auto formatIt = _formatInfoMap.find(formatVersion);
 		if (formatIt == _formatInfoMap.end()) [[unlikely]] {
 			REX::Fail(
-				"Failed to find Address Library format info.\n"
+				"Failed to load Address Library.\n"
+				"The database format version is not supported in this build.\n"
 				"Format Version: {}"sv,
 				std::to_underlying(formatVersion));
 		}
@@ -824,11 +1052,14 @@ namespace REL
 
 		auto loadContext = IFormatInfo::LoadContext{
 			.path = _filePath,
-			.stream = std::move(stream),
+			.fileStream = std::move(fileStream).value(),
 			.loaderInfo = _currentLoaderInfo,
 			.memoryMap = _memoryMap
 		};
 
-		_currentFormatInfo->Load(loadContext);
+		const auto loadError = _currentFormatInfo->Load(loadContext);
+		if (loadError.has_value()) [[unlikely]] {
+			REX::Fail(loadError.value());
+		}
 	}
 }

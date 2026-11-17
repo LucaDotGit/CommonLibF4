@@ -1,48 +1,50 @@
 #include "RE/B/BSScript_NF_util_NativeFunctionBase.hpp"
 
+#include "RE/B/BSScript_ObjectTypeInfo.hpp"
+#include "RE/B/BSScript_UserFlags.hpp"
+
 namespace RE::BSScript::NF_util
 {
 	NativeFunctionBase::NativeFunctionBase(
-		std::string_view a_scriptName,
-		std::string_view a_funcName,
+		BSFixedString a_scriptName,
+		BSFixedString a_funcName,
 		std::uint16_t a_paramCount,
 		bool a_isStatic,
-		bool a_isLatent)
-		: name(a_funcName),
-		  scriptName(a_scriptName),
-		  stateName(""sv),
-		  descTable(a_paramCount, 0),
-		  isStatic(a_isStatic),
-		  taskletCallable(false),
-		  isLatent(a_isLatent),
-		  userFlags(0),
-		  docString(""sv)
+		bool a_isLatent) :
+		name(std::move(a_funcName)),
+		scriptName(std::move(a_scriptName)),
+		stateName(ObjectTypeInfo::GetEmptyStateName()),
+		descTable(a_paramCount, 0),
+		isStatic(a_isStatic),
+		taskletCallable(false),
+		isLatent(a_isLatent),
+		userFlags(UserFlags::None)
 	{
 	}
 
 	NativeFunctionBase::~NativeFunctionBase() = default;
 
-	const BSFixedString& NativeFunctionBase::GetName() const
+	auto NativeFunctionBase::GetName() const -> const BSFixedString&
 	{
 		return name;
 	}
 
-	const BSFixedString& NativeFunctionBase::GetObjectTypeName() const
+	auto NativeFunctionBase::GetObjectTypeName() const -> const BSFixedString&
 	{
 		return scriptName;
 	}
 
-	const BSFixedString& NativeFunctionBase::GetStateName() const
+	auto NativeFunctionBase::GetStateName() const -> const BSFixedString&
 	{
 		return stateName;
 	}
 
-	TypeInfo NativeFunctionBase::GetReturnType() const
+	auto NativeFunctionBase::GetReturnType() const -> TypeInfo
 	{
 		return returnType;
 	}
 
-	std::uint32_t NativeFunctionBase::GetParamCount() const
+	auto NativeFunctionBase::GetParamCount() const -> std::uint32_t
 	{
 		return descTable.GetParamCount();
 	}
@@ -61,37 +63,37 @@ namespace RE::BSScript::NF_util
 		a_paramType = paramEntry->second;
 	}
 
-	std::uint32_t NativeFunctionBase::GetStackFrameSize() const
+	auto NativeFunctionBase::GetStackFrameSize() const -> std::uint32_t
 	{
 		return descTable.GetTotalEntryCount();
 	}
 
-	bool NativeFunctionBase::GetIsNative() const
+	auto NativeFunctionBase::GetIsNative() const -> bool
 	{
 		return true;
 	}
 
-	bool NativeFunctionBase::GetIsStatic() const
+	auto NativeFunctionBase::GetIsStatic() const -> bool
 	{
 		return isStatic;
 	}
 
-	bool NativeFunctionBase::GetIsEmpty() const
+	auto NativeFunctionBase::GetIsEmpty() const -> bool
 	{
 		return false;
 	}
 
-	IFunction::FunctionType NativeFunctionBase::GetFunctionType() const
+	auto NativeFunctionBase::GetFunctionType() const -> IFunction::FunctionType
 	{
-		return FunctionType::kNormal;
+		return FunctionType::Normal;
 	}
 
-	UserFlags NativeFunctionBase::GetUserFlags() const
+	auto NativeFunctionBase::GetUserFlags() const -> UserFlags
 	{
 		return userFlags.get();
 	}
 
-	const BSFixedString& NativeFunctionBase::GetDocString() const
+	auto NativeFunctionBase::GetDocString() const -> const BSFixedString&
 	{
 		return docString;
 	}
@@ -101,39 +103,44 @@ namespace RE::BSScript::NF_util
 		return;
 	}
 
-	NativeFunctionBase::CallResult NativeFunctionBase::Call(const BSTSmartPointer<Stack>& a_stack, ErrorLogger& a_errorLogger, Internal::VirtualMachine& a_vm, bool a_inScriptTasklet) const
+	auto NativeFunctionBase::Call(
+		const BSTSmartPointer<Stack>& a_stack,
+		ErrorLogger& a_errorLogger,
+		Internal::VirtualMachine& a_vm,
+		bool a_inScriptTasklet) const -> NativeFunctionBase::CallResult
 	{
 		using FuncType = decltype(&NativeFunctionBase::Call);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSScript::NF_util::NativeFunctionBase::Call };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::BSScript::NF_util::NativeFunctionBase::Call);
 		return std::invoke(FUNC, this, a_stack, a_errorLogger, a_vm, a_inScriptTasklet);
 	}
 
-	const BSFixedString& NativeFunctionBase::GetSourceFilename() const
+	auto NativeFunctionBase::GetSourceFilename() const -> const BSFixedString&
 	{
 		static const auto NATIVE_STRING = BSFixedString("<native>"sv);
 		return NATIVE_STRING;
 	}
 
-	bool NativeFunctionBase::TranslateIPToLineNumber([[maybe_unused]] std::uint32_t a_ip, std::uint32_t& a_lineNumber) const
+	auto NativeFunctionBase::TranslateIPToLineNumber([[maybe_unused]] std::uint32_t a_ip, std::uint32_t& a_lineNumber)
+		const -> bool
 	{
 		a_lineNumber = 0;
 		return false;
 	}
 
-	bool NativeFunctionBase::GetVarNameForStackIndex(std::uint32_t a_index, BSFixedString& a_outName) const
+	auto NativeFunctionBase::GetVarNameForStackIndex(std::uint32_t a_index, BSFixedString& a_outName) const -> bool
 	{
 		auto entryName = descTable.GetNthEntryName(static_cast<Internal::VDescTable::size_type>(a_index));
-		if (!entryName) [[unlikely]] {
+		if (!entryName.has_value()) [[unlikely]] {
 			REX::Assert(false);
 			a_outName = ""sv;
 			return false;
 		}
 
-		a_outName = *std::move(entryName);
+		a_outName = std::move(entryName).value();
 		return true;
 	}
 
-	bool NativeFunctionBase::CanBeCalledFromTasklets() const
+	auto NativeFunctionBase::CanBeCalledFromTasklets() const -> bool
 	{
 		return taskletCallable;
 	}
@@ -143,7 +150,7 @@ namespace RE::BSScript::NF_util
 		taskletCallable = a_taskletCallable;
 	}
 
-	bool NativeFunctionBase::GetIsLatent() const
+	auto NativeFunctionBase::GetIsLatent() const -> bool
 	{
 		return isLatent;
 	}

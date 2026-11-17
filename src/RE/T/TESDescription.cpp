@@ -4,8 +4,7 @@
 
 namespace RE
 {
-	auto TESDescription::GetFormDescription(const TESForm* a_form)
-		-> std::optional<BSFixedStringCS>
+	auto TESDescription::GetFormDescription(const TESForm* a_form) -> std::optional<BSFixedStringCS>
 	{
 		if (!a_form) {
 			return std::nullopt;
@@ -27,6 +26,6 @@ namespace RE
 			return std::nullopt;
 		}
 
-		return BSFixedStringCS{ stringBuffer.data() };
+		return BSFixedStringCS{stringBuffer.data()};
 	}
 }

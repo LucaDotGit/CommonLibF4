@@ -1,0 +1,39 @@
+#pragma once
+
+#include "REX/W32/CORE.hpp"
+
+namespace REX::W32
+{
+	inline constexpr auto FOLDERID_Documents =
+		GUID{0xFDD3'9AD0, 0x238F, 0x46AF, {0xAD, 0xB4, 0x6C, 0x85, 0x48, 0x03, 0x69, 0xC7}};
+	inline constexpr auto FOLDERID_Pictures =
+		GUID{0x33E2'8130, 0x4E1E, 0x4676, {0x83, 0x5A, 0x98, 0x39, 0x5C, 0x3B, 0xC3, 0xBBu}};
+	inline constexpr auto FOLDERID_ProgramData =
+		GUID{0x62AB'5D82, 0xFDC1, 0x4DC3, {0xA9, 0xDD, 0x07, 0x0D, 0x1D, 0x49, 0x5D, 0x97}};
+
+	enum KF : std::uint32_t
+	{
+		KF_FLAG_DEFAULT = 0x00,
+		KF_FLAG_FORCE_APP_DATA_REDIRECTION = 0x8'0000,
+		KF_FLAG_RETURN_FILTER_REDIRECTION_TARGET = 0x4'0000,
+		KF_FLAG_FORCE_PACKAGE_REDIRECTION = 0x2'0000,
+		KF_FLAG_NO_PACKAGE_REDIRECTION = 0x1'0000,
+		KF_FLAG_FORCE_APPCONTAINER_REDIRECTION = 0x2'0000,
+		KF_FLAG_NO_APPCONTAINER_REDIRECTION = 0x1'0000,
+		KF_FLAG_CREATE = 0x8000,
+		KF_FLAG_DONT_VERIFY = 0x4000,
+		KF_FLAG_DONT_UNEXPAND = 0x2000,
+		KF_FLAG_NO_ALIAS = 0x1000,
+		KF_FLAG_INIT = 0x800,
+		KF_FLAG_DEFAULT_PATH = 0x400,
+		KF_FLAG_NOT_PARENT_RELATIVE = 0x200,
+		KF_FLAG_SIMPLE_IDLIST = 0x100,
+		KF_FLAG_ALIAS_ONLY = 0x8000'0000
+	};
+}
+
+namespace REX::W32
+{
+	auto SHGetKnownFolderPath(const GUID& a_id, std::uint32_t a_flags, void* a_token, wchar_t** a_path) noexcept
+		-> std::int32_t;
+}

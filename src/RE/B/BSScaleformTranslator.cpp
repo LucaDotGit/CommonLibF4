@@ -7,27 +7,30 @@
 
 namespace RE
 {
-	Setting& BSScaleformTranslator::GetLanguageSetting()
+	auto BSScaleformTranslator::GetLanguageSetting() -> Setting&
 	{
-		static auto* Language = GetINISetting(LANGUAGE_SETTING_KEY);
+		static auto* Language = GetINISetting("sLanguage:General"sv);
+		REX::Assert(Language != nullptr);
 		return *Language;
 	}
 
-	std::string_view BSScaleformTranslator::GetLanguage()
+	auto BSScaleformTranslator::GetLanguage() -> BSFixedString
 	{
-		auto& languageSetting = GetLanguageSetting();
+		const auto& languageSetting = GetLanguageSetting();
 		if (!languageSetting.IsString()) [[unlikely]] {
 			REX::Assert(false);
-			return DEFAULT_LANGUAGE;
+			return BSFixedString(DEFAULT_LANGUAGE);
 		}
 
-		return languageSetting.GetString();
+		return {languageSetting.GetString()};
 	}
 
-	std::filesystem::path BSScaleformTranslator::GetTranslationFilePath(std::string_view a_rawName, std::string_view a_language)
+	auto BSScaleformTranslator::GetTranslationFilePath(std::string_view a_rawName, std::string_view a_language)
+		-> std::filesystem::path
 	{
 		return std::filesystem::path{
-			REX::Format("{}/{}{}{}{}"sv,
+			REX::Format(
+				"{}/{}{}{}{}"sv,
 				TRANSLATION_DIRECTORY_PATH,
 				a_rawName,
 				TRANSLATION_LANGUAGE_SEPARATOR<char>,
@@ -37,10 +40,12 @@ namespace RE
 		};
 	}
 
-	std::filesystem::path BSScaleformTranslator::GetRelativeTranslationFilePath(std::string_view a_rawName, std::string_view a_language)
+	auto BSScaleformTranslator::GetRelativeTranslationFilePath(std::string_view a_rawName, std::string_view a_language)
+		-> std::filesystem::path
 	{
 		return std::filesystem::path{
-			REX::Format("{}/{}{}{}{}"sv,
+			REX::Format(
+				"{}/{}{}{}{}"sv,
 				TRANSLATION_RELATIVE_DIRECTORY_PATH,
 				a_rawName,
 				TRANSLATION_LANGUAGE_SEPARATOR<char>,
@@ -53,14 +58,14 @@ namespace RE
 	void BSScaleformTranslator::AddTranslations(BSStreamParser<wchar_t>& a_parser)
 	{
 		using FuncType = decltype(&BSScaleformTranslator::AddTranslations);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSScaleformTranslator::AddTranslations };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::BSScaleformTranslator::AddTranslations);
 		std::invoke(FUNC, this, a_parser);
 	}
 
 	void BSScaleformTranslator::AddTranslationsFromFile(const char* a_filePath)
 	{
 		auto resourceParser = BSResourceStreamParser(a_filePath);
-		auto parser = BSStreamParser<wchar_t>(std::addressof(resourceParser));
+		auto parser = BSStreamParser<wchar_t>(resourceParser);
 		AddTranslations(parser);
 	}
 
@@ -70,7 +75,4 @@ namespace RE
 		const auto filePath = GetRelativeTranslationFilePath(a_rawName, currentLanguage);
 		AddTranslationsFromFile(filePath.generic_string().data());
 	}
-
-	template bool BSScaleformTranslator::IsKeyValid(std::string_view) noexcept;
-	template bool BSScaleformTranslator::IsKeyValid(std::wstring_view) noexcept;
 }

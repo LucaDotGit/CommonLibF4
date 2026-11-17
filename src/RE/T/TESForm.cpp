@@ -1,6 +1,7 @@
 #include "RE/T/TESForm.hpp"
 
 #include "RE/B/BGSKeywordForm.hpp"
+#include "RE/B/BSReadWriteLock.hpp"
 #include "RE/F/FORM_ENUM_STRING.hpp"
 #include "RE/F/FormFlags.hpp"
 #include "RE/T/TESDataHandler.hpp"
@@ -9,7 +10,7 @@
 
 namespace RE
 {
-	std::int32_t TESForm::FormSortFunc::operator()(const TESForm* a_lhs, const TESForm* a_rhs) const noexcept
+	auto TESForm::FormSortFunc::operator()(const TESForm* a_lhs, const TESForm* a_rhs) const noexcept -> std::int32_t
 	{
 		if (!a_lhs && !a_rhs) {
 			return 0;
@@ -32,39 +33,40 @@ namespace RE
 	void TESForm::AddCompileIndex(std::uint32_t& a_id, TESFile* a_file)
 	{
 		using FuncType = decltype(&TESForm::AddCompileIndex);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESForm::AddCompileIndex };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::TESForm::AddCompileIndex);
 		std::invoke(FUNC, a_id, a_file);
 	}
 
-	std::uint32_t& TESForm::GetTotalFormCount()
+	auto TESForm::GetTotalFormCount() noexcept -> std::uint32_t&
 	{
-		static const auto TOTAL_FORM_COUNT = REL::Relocation<std::uint32_t*>{ ID::TESForm::TotalFormCount };
+		static const auto TOTAL_FORM_COUNT = REL::Relocation<std::uint32_t*>(ID::TESForm::TotalFormCount);
 		return *TOTAL_FORM_COUNT;
 	}
 
-	auto TESForm::GetAllFormsByEditorID()
+	auto TESForm::GetAllFormsByEditorID() noexcept
 		-> std::pair<BSTHashMap<BSFixedString, TESForm*>*, std::reference_wrapper<BSReadWriteLock>>
 	{
-		static const auto FORM_MAP = REL::Relocation<BSTHashMap<BSFixedString, TESForm*>**>{ ID::TESForm::FormEditorIDMap };
-		static const auto FORM_MAP_LOCK = REL::Relocation<BSReadWriteLock*>{ ID::TESForm::FormEditorIDMapLock };
+		static const auto FORM_MAP =
+			REL::Relocation<BSTHashMap<BSFixedString, TESForm*>**>{ID::TESForm::FormEditorIDMap};
+		static const auto FORM_MAP_LOCK = REL::Relocation<BSReadWriteLock*>(ID::TESForm::FormEditorIDMapLock);
 		return std::make_pair(*FORM_MAP, std::ref(*FORM_MAP_LOCK));
 	}
 
-	auto TESForm::GetAllFormsByID()
+	auto TESForm::GetAllFormsByID() noexcept
 		-> std::pair<BSTHashMap<TESFormID, TESForm*>*, std::reference_wrapper<BSReadWriteLock>>
 	{
 		return GetAllFormsByNumericID();
 	}
 
-	auto TESForm::GetAllFormsByNumericID()
+	auto TESForm::GetAllFormsByNumericID() noexcept
 		-> std::pair<BSTHashMap<TESFormID, TESForm*>*, std::reference_wrapper<BSReadWriteLock>>
 	{
-		static const auto FORM_MAP = REL::Relocation<BSTHashMap<TESFormID, TESForm*>**>{ ID::TESForm::FormNumericIDMap };
-		static const auto FORM_MAP_LOCK = REL::Relocation<BSReadWriteLock*>{ ID::TESForm::FormNumericIDMapLock };
+		static const auto FORM_MAP = REL::Relocation<BSTHashMap<TESFormID, TESForm*>**>(ID::TESForm::FormNumericIDMap);
+		static const auto FORM_MAP_LOCK = REL::Relocation<BSReadWriteLock*>(ID::TESForm::FormNumericIDMapLock);
 		return std::make_pair(*FORM_MAP, std::ref(*FORM_MAP_LOCK));
 	}
 
-	TESFile* TESForm::GetFile(std::int32_t a_index) const
+	auto TESForm::GetFile(std::int32_t a_index) const -> TESFile*
 	{
 		const auto* files = sourceFiles.array;
 		if (!files || files->empty()) {
@@ -80,10 +82,10 @@ namespace RE
 			return files->back();
 		}
 
-		return (*files)[a_index];
+		return (*files)[REX::ToUnsigned(a_index)];
 	}
 
-	TESForm* TESForm::FindFormByEditorID(const BSFixedString& a_editorID)
+	auto TESForm::FindFormByEditorID(const BSFixedString& a_editorID) noexcept -> TESForm*
 	{
 		if (a_editorID.empty()) {
 			return nullptr;
@@ -94,7 +96,7 @@ namespace RE
 			return nullptr;
 		}
 
-		const auto editorIDLock = BSAutoReadLock(editorIDMutex);
+		const auto editorIDLock = BSAutoReadLock(editorIDMutex.get());
 
 		const auto formIt = editorIDMap->find(a_editorID);
 		if (formIt == editorIDMap->end()) {
@@ -104,12 +106,12 @@ namespace RE
 		return formIt->second;
 	}
 
-	TESForm* TESForm::FindFormByID(TESFormID a_formID)
+	auto TESForm::FindFormByID(TESFormID a_formID) noexcept -> TESForm*
 	{
 		return FindFormByNumericID(a_formID);
 	}
 
-	TESForm* TESForm::FindFormByNumericID(TESFormID a_formID)
+	auto TESForm::FindFormByNumericID(TESFormID a_formID) noexcept -> TESForm*
 	{
 		if (a_formID == 0) {
 			return nullptr;
@@ -120,7 +122,7 @@ namespace RE
 			return nullptr;
 		}
 
-		const auto formIDLock = BSAutoReadLock(formIDMutex);
+		const auto formIDLock = BSAutoReadLock(formIDMutex.get());
 
 		const auto formIt = formIDMap->find(a_formID);
 		if (formIt == formIDMap->end()) {
@@ -130,8 +132,7 @@ namespace RE
 		return formIt->second;
 	}
 
-	auto TESForm::GetEditorIDByForm(const TESForm* a_form)
-		-> std::optional<BSFixedString>
+	auto TESForm::GetEditorIDByForm(const TESForm* a_form) noexcept -> std::optional<BSFixedString>
 	{
 		if (!a_form) {
 			return std::nullopt;
@@ -146,89 +147,89 @@ namespace RE
 			return std::nullopt;
 		}
 
-		const auto editorIDLock = BSAutoReadLock(editorIdMutex);
+		const auto editorIDLock = BSAutoReadLock(editorIdMutex.get());
 		return a_form->GetFormEditorID();
 	}
 
-	std::string_view TESForm::GetFormTypeString() const
+	auto TESForm::GetFormTypeString() const -> std::string_view
 	{
 		return FORM_ENUM_STRING::GetFormStringByType(GetFormType());
 	}
 
-	FormFlags TESForm::GetFormFlags() const noexcept
+	auto TESForm::GetFormFlags() const noexcept -> FormFlags
 	{
-		return *formFlags;
+		return formFlags.get();
 	}
 
-	TESFormID TESForm::GetFormID() const noexcept
+	auto TESForm::GetFormID() const noexcept -> TESFormID
 	{
 		return formID;
 	}
 
-	FormType TESForm::GetFormType() const noexcept
+	auto TESForm::GetFormType() const noexcept -> FormType
 	{
-		return *formType;
+		return formType.get();
 	}
 
-	TESFormID TESForm::GetLocalFormID() const
+	auto TESForm::GetLocalFormID() const -> TESFormID
 	{
 		return TESDataHandler::GetLocalFormID(GetFormID());
 	}
 
-	bool TESForm::IsAlchemyItem() const noexcept
+	auto TESForm::IsAlchemyItem() const noexcept -> bool
 	{
-		return Is(FormType::kPotion);
+		return Is(FormType::Potion);
 	}
 
-	bool TESForm::IsCreated() const noexcept
+	auto TESForm::IsCreated() const noexcept -> bool
 	{
-		return formID > 0xFF000000;
+		return formID > 0xFF00'0000;
 	}
 
-	bool TESForm::IsDeleted() const noexcept
+	auto TESForm::IsDeleted() const noexcept -> bool
 	{
-		return formFlags.any(FormFlags::kDeleted);
+		return formFlags.any(FormFlags::Deleted);
 	}
 
-	bool TESForm::IsDisabled() const noexcept
+	auto TESForm::IsDisabled() const noexcept -> bool
 	{
-		return formFlags.any(FormFlags::kDisabled);
+		return formFlags.any(FormFlags::Disabled);
 	}
 
-	bool TESForm::IsInitialized() const noexcept
+	auto TESForm::IsInitialized() const noexcept -> bool
 	{
-		return formFlags.any(FormFlags::kInitialized);
+		return formFlags.any(FormFlags::Initialized);
 	}
 
-	bool TESForm::IsPlayer() const noexcept
+	auto TESForm::IsPlayer() const noexcept -> bool
 	{
 		return GetFormID() == PLAYER_BASE_FORM_ID;
 	}
 
-	bool TESForm::IsPlayerRef() const noexcept
+	auto TESForm::IsPlayerRef() const noexcept -> bool
 	{
 		return GetFormID() == PLAYER_REF_FORM_ID;
 	}
 
-	bool TESForm::IsWeapon() const noexcept
+	auto TESForm::IsWeapon() const noexcept -> bool
 	{
-		return Is(FormType::kWeapon);
+		return Is(FormType::Weapon);
 	}
 
 	void TESForm::SetInGameFormFlags(InGameFormFlags a_flags, bool a_value)
 	{
 		inGameFormFlags.set(a_value, a_flags);
-		AddChange(ChangeFlags::kFlags);
+		AddChange(ChangeFlags::Flags);
 	}
 
 	void TESForm::SetTemporary()
 	{
 		using FuncType = decltype(&TESForm::SetTemporary);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESForm::SetTemporary };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::TESForm::SetTemporary);
 		std::invoke(FUNC, this);
 	}
 
-	bool TESForm::CanHoldKeywords(const TESForm* a_form)
+	auto TESForm::CanHoldKeywords(const TESForm* a_form) noexcept -> bool
 	{
 		if (!a_form) {
 			return false;
@@ -238,8 +239,7 @@ namespace RE
 			   (DynamicCast<const TESObjectREFR*>(a_form) != nullptr);
 	}
 
-	auto TESForm::ContainsKeyword(const TESForm* a_form, const BGSKeyword* a_keyword)
-		-> std::optional<bool>
+	auto TESForm::ContainsKeyword(const TESForm* a_form, const BGSKeyword* a_keyword) noexcept -> std::optional<bool>
 	{
 		const auto* keywordForm = DynamicCast<const BGSKeywordForm*>(a_form);
 		if (!keywordForm) {
@@ -249,8 +249,7 @@ namespace RE
 		return keywordForm->ContainsKeyword(a_keyword);
 	}
 
-	auto TESForm::GetKeywordCount(const TESForm* a_form)
-		-> std::optional<std::uint32_t>
+	auto TESForm::GetKeywordCount(const TESForm* a_form) noexcept -> std::optional<std::uint32_t>
 	{
 		const auto* ref = DynamicCast<const TESObjectREFR*>(a_form);
 		if (ref) {
@@ -265,7 +264,7 @@ namespace RE
 		return keywordForm->numKeywords;
 	}
 
-	auto TESForm::GetKeywordIndex(const TESForm* a_form, const BGSKeyword* a_keyword)
+	auto TESForm::GetKeywordIndex(const TESForm* a_form, const BGSKeyword* a_keyword) noexcept
 		-> std::optional<std::uint32_t>
 	{
 		const auto* ref = DynamicCast<const TESObjectREFR*>(a_form);
@@ -281,8 +280,7 @@ namespace RE
 		return keywordForm->GetKeywordIndex(a_keyword);
 	}
 
-	auto TESForm::GetKeywords(const TESForm* a_form)
-		-> std::optional<std::vector<BGSKeyword*>>
+	auto TESForm::GetKeywords(const TESForm* a_form) -> std::optional<BSTArray<BGSKeyword*>>
 	{
 		const auto* ref = DynamicCast<const TESObjectREFR*>(a_form);
 		if (ref) {
@@ -295,11 +293,10 @@ namespace RE
 		}
 
 		const auto keywords = keywordForm->GetKeywords();
-		return std::vector<BGSKeyword*>{ keywords.begin(), keywords.end() };
+		return BSTArray<BGSKeyword*>{keywords.begin(), keywords.end()};
 	}
 
-	auto TESForm::SetKeywords(TESForm* a_form, std::span<BGSKeyword*> a_keywords)
-		-> std::optional<bool>
+	auto TESForm::SetKeywords(TESForm* a_form, std::span<BGSKeyword*> a_keywords) -> std::optional<bool>
 	{
 		auto* ref = DynamicCast<TESObjectREFR*>(a_form);
 		if (ref) {
@@ -316,8 +313,7 @@ namespace RE
 		return true;
 	}
 
-	auto TESForm::GetNthKeyword(const TESForm* a_form, std::uint32_t a_index)
-		-> std::optional<BGSKeyword*>
+	auto TESForm::GetNthKeyword(const TESForm* a_form, std::uint32_t a_index) noexcept -> std::optional<BGSKeyword*>
 	{
 		const auto* ref = DynamicCast<const TESObjectREFR*>(a_form);
 		if (ref) {
@@ -332,8 +328,7 @@ namespace RE
 		return keywordForm->GetNthKeyword(a_index);
 	}
 
-	auto TESForm::SetNthKeyword(TESForm* a_form, std::uint32_t a_index, BGSKeyword* a_keyword)
-		-> std::optional<bool>
+	auto TESForm::SetNthKeyword(TESForm* a_form, std::uint32_t a_index, BGSKeyword* a_keyword) -> std::optional<bool>
 	{
 		auto* ref = DynamicCast<TESObjectREFR*>(a_form);
 		if (ref) {
@@ -348,8 +343,7 @@ namespace RE
 		return keywordForm->SetNthKeyword(a_index, a_keyword);
 	}
 
-	auto TESForm::RemoveNthKeyword(TESForm* a_form, std::uint32_t a_index)
-		-> std::optional<bool>
+	auto TESForm::RemoveNthKeyword(TESForm* a_form, std::uint32_t a_index) -> std::optional<bool>
 	{
 		auto* ref = DynamicCast<TESObjectREFR*>(a_form);
 		if (ref) {
@@ -364,8 +358,7 @@ namespace RE
 		return keywordForm->RemoveNthKeyword(a_index);
 	}
 
-	auto TESForm::AddKeyword(TESForm* a_form, BGSKeyword* a_keyword)
-		-> std::optional<bool>
+	auto TESForm::AddKeyword(TESForm* a_form, BGSKeyword* a_keyword) -> std::optional<bool>
 	{
 		auto* ref = DynamicCast<TESObjectREFR*>(a_form);
 		if (ref) {
@@ -380,8 +373,7 @@ namespace RE
 		return keywordForm->AddKeyword(a_keyword);
 	}
 
-	auto TESForm::RemoveKeyword(TESForm* a_form, BGSKeyword* a_keyword)
-		-> std::optional<bool>
+	auto TESForm::RemoveKeyword(TESForm* a_form, BGSKeyword* a_keyword) -> std::optional<bool>
 	{
 		auto* ref = DynamicCast<TESObjectREFR*>(a_form);
 		if (ref) {
@@ -412,7 +404,7 @@ namespace RE
 		return keywordForm->ReplaceKeyword(a_oldKeyword, a_newKeyword);
 	}
 
-	bool TESForm::AddKeywords(TESForm* a_form, std::span<BGSKeyword*> a_keywords)
+	auto TESForm::AddKeywords(TESForm* a_form, std::span<BGSKeyword*> a_keywords) -> bool
 	{
 		auto* ref = DynamicCast<TESObjectREFR*>(a_form);
 		if (ref) {
@@ -423,7 +415,7 @@ namespace RE
 		return keywordForm ? keywordForm->AddKeywords(a_keywords) : false;
 	}
 
-	bool TESForm::RemoveKeywords(TESForm* a_form, std::span<BGSKeyword*> a_keywords)
+	auto TESForm::RemoveKeywords(TESForm* a_form, std::span<BGSKeyword*> a_keywords) -> bool
 	{
 		auto* ref = DynamicCast<TESObjectREFR*>(a_form);
 		if (ref) {
@@ -434,7 +426,7 @@ namespace RE
 		return keywordForm ? keywordForm->RemoveKeywords(a_keywords) : false;
 	}
 
-	bool TESForm::ClearKeywords(TESForm* a_form)
+	auto TESForm::ClearKeywords(TESForm* a_form) noexcept -> bool
 	{
 		auto* ref = DynamicCast<TESObjectREFR*>(a_form);
 		if (ref) {
@@ -450,8 +442,10 @@ namespace RE
 		return true;
 	}
 
-	BSContainer::ForEachResult TESForm::ForEachKeyword(const TESForm* a_form,
-		const REX::NotNull<std::function<BSContainer::ForEachResult(BGSKeyword*)>>& a_predicate)
+	auto TESForm::ForEachKeyword(
+		const TESForm* a_form,
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(BGSKeyword*) const>>& a_predicate)
+		-> BSContainer::ForEachResult
 	{
 		const auto* ref = DynamicCast<const TESObjectREFR*>(a_form);
 		if (ref) {
@@ -460,7 +454,7 @@ namespace RE
 
 		const auto* keywordForm = DynamicCast<const BGSKeywordForm*>(a_form);
 		if (!keywordForm) {
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		}
 
 		return keywordForm->ForEachKeyword(a_predicate);

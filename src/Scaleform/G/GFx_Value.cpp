@@ -5,229 +5,198 @@
 
 namespace Scaleform::GFx
 {
-	Value::ValueUnion::ValueUnion() noexcept
-		: undefined(nullptr)
-	{
-	}
-
-	Value::ValueUnion::~ValueUnion() noexcept
-	{
-	}
-
 	Value::ValueUnion::ValueUnion(std::nullptr_t) noexcept
-		: null(nullptr)
 	{
 	}
 
-	Value::ValueUnion::ValueUnion(bool a_rhs) noexcept
-		: boolean(a_rhs)
+	Value::ValueUnion::ValueUnion(bool a_rhs) noexcept :
+		boolean(a_rhs)
 	{
 	}
 
-	Value::ValueUnion::ValueUnion(std::int32_t a_rhs) noexcept
-		: int32(a_rhs)
+	Value::ValueUnion::ValueUnion(std::int32_t a_rhs) noexcept :
+		int32(a_rhs)
 	{
 	}
 
-	Value::ValueUnion::ValueUnion(std::uint32_t a_rhs) noexcept
-		: uint32(a_rhs)
+	Value::ValueUnion::ValueUnion(std::uint32_t a_rhs) noexcept :
+		uint32(a_rhs)
 	{
 	}
 
-	Value::ValueUnion::ValueUnion(REX::Float64 a_rhs) noexcept
-		: number(a_rhs)
+	Value::ValueUnion::ValueUnion(REX::Float64 a_rhs) noexcept :
+		number(a_rhs)
 	{
 	}
 
-	Value::ValueUnion::ValueUnion(const char* a_rhs) noexcept
-		: string(a_rhs)
+	Value::ValueUnion::ValueUnion(const char* a_rhs) noexcept :
+		string(a_rhs)
 	{
 	}
 
-	Value::ValueUnion::ValueUnion(const wchar_t* a_rhs) noexcept
-		: wstring(a_rhs)
+	Value::ValueUnion::ValueUnion(const wchar_t* a_rhs) noexcept :
+		wstring(a_rhs)
 	{
 	}
 
-	Value::ValueUnion::ValueUnion(REX::zstring_view a_rhs) noexcept
-		: string(a_rhs.data())
+	Value::ValueUnion::ValueUnion(REX::ZStringView a_rhs) noexcept :
+		string(a_rhs.data())
 	{
 	}
 
-	Value::ValueUnion::ValueUnion(REX::zwstring_view a_rhs) noexcept
-		: wstring(a_rhs.data())
+	Value::ValueUnion::ValueUnion(REX::ZWStringView a_rhs) noexcept :
+		wstring(a_rhs.data())
 	{
 	}
 
-	Value::ValueUnion::ValueUnion(const ValueUnion& a_rhs) noexcept
-		: data(a_rhs.data)
-	{
-	}
-
-	Value::ValueUnion::ValueUnion(ValueUnion&& a_rhs) noexcept
-		: data(std::exchange(a_rhs.data, nullptr))
-	{
-	}
-
-	Value::ValueUnion& Value::ValueUnion::operator=(std::nullptr_t) noexcept
+	auto Value::ValueUnion::operator=(std::nullptr_t) noexcept -> Value::ValueUnion&
 	{
 		data = nullptr;
 		return *this;
 	}
 
-	Value::ValueUnion& Value::ValueUnion::operator=(bool a_rhs) noexcept
+	auto Value::ValueUnion::operator=(bool a_rhs) noexcept -> Value::ValueUnion&
 	{
 		boolean = a_rhs;
 		return *this;
 	}
 
-	Value::ValueUnion& Value::ValueUnion::operator=(std::int32_t a_rhs) noexcept
+	auto Value::ValueUnion::operator=(std::int32_t a_rhs) noexcept -> Value::ValueUnion&
 	{
 		int32 = a_rhs;
 		return *this;
 	}
 
-	Value::ValueUnion& Value::ValueUnion::operator=(std::uint32_t a_rhs) noexcept
+	auto Value::ValueUnion::operator=(std::uint32_t a_rhs) noexcept -> Value::ValueUnion&
 	{
 		uint32 = a_rhs;
 		return *this;
 	}
 
-	Value::ValueUnion& Value::ValueUnion::operator=(REX::Float64 a_rhs) noexcept
+	auto Value::ValueUnion::operator=(REX::Float64 a_rhs) noexcept -> Value::ValueUnion&
 	{
 		number = a_rhs;
 		return *this;
 	}
 
-	Value::ValueUnion& Value::ValueUnion::operator=(const char* a_rhs) noexcept
+	auto Value::ValueUnion::operator=(const char* a_rhs) noexcept -> Value::ValueUnion&
 	{
 		string = a_rhs;
 		return *this;
 	}
 
-	Value::ValueUnion& Value::ValueUnion::operator=(const wchar_t* a_rhs) noexcept
+	auto Value::ValueUnion::operator=(const wchar_t* a_rhs) noexcept -> Value::ValueUnion&
 	{
 		wstring = a_rhs;
 		return *this;
 	}
 
-	Value::ValueUnion& Value::ValueUnion::operator=(REX::zstring_view a_rhs) noexcept
+	auto Value::ValueUnion::operator=(REX::ZStringView a_rhs) noexcept -> Value::ValueUnion&
 	{
 		string = a_rhs.data();
 		return *this;
 	}
 
-	Value::ValueUnion& Value::ValueUnion::operator=(REX::zwstring_view a_rhs) noexcept
+	auto Value::ValueUnion::operator=(REX::ZWStringView a_rhs) noexcept -> Value::ValueUnion&
 	{
 		wstring = a_rhs.data();
 		return *this;
 	}
 
-	Value::ValueUnion& Value::ValueUnion::operator=(const ValueUnion& a_rhs) noexcept
+	void Value::ValueUnion::swap(ValueUnion& a_other) noexcept
 	{
-		if (this == std::addressof(a_rhs)) {
-			return *this;
+		if (this == std::addressof(a_other)) {
+			return;
 		}
 
-		data = a_rhs.data;
-		return *this;
+		std::swap(data, a_other.data);
 	}
 
-	Value::ValueUnion& Value::ValueUnion::operator=(ValueUnion&& a_rhs) noexcept
-	{
-		if (this == std::addressof(a_rhs)) {
-			return *this;
-		}
-
-		data = std::exchange(a_rhs.data, nullptr);
-		return *this;
-	}
-
-	REX::Float64 Value::DisplayInfo::GetX() const noexcept
+	auto Value::DisplayInfo::GetX() const noexcept -> REX::Float64
 	{
 		REX::Assert(_varsSet.any(SetFlags::kX));
 		return _x;
 	}
 
-	REX::Float64 Value::DisplayInfo::GetY() const noexcept
+	auto Value::DisplayInfo::GetY() const noexcept -> REX::Float64
 	{
 		REX::Assert(_varsSet.any(SetFlags::kY));
 		return _y;
 	}
 
-	REX::Float64 Value::DisplayInfo::GetZ() const noexcept
+	auto Value::DisplayInfo::GetZ() const noexcept -> REX::Float64
 	{
 		REX::Assert(_varsSet.any(SetFlags::kZ));
 		return _z;
 	}
 
-	REX::Float64 Value::DisplayInfo::GetXScale() const noexcept
+	auto Value::DisplayInfo::GetXScale() const noexcept -> REX::Float64
 	{
-		REX::Assert(_varsSet.any(SetFlags::kXScale));
+		REX::Assert(_varsSet.any(SetFlags::XScale));
 		return _xScale;
 	}
 
-	REX::Float64 Value::DisplayInfo::GetYScale() const noexcept
+	auto Value::DisplayInfo::GetYScale() const noexcept -> REX::Float64
 	{
-		REX::Assert(_varsSet.any(SetFlags::kYScale));
+		REX::Assert(_varsSet.any(SetFlags::YScale));
 		return _yScale;
 	}
 
-	REX::Float64 Value::DisplayInfo::GetZScale() const noexcept
+	auto Value::DisplayInfo::GetZScale() const noexcept -> REX::Float64
 	{
-		REX::Assert(_varsSet.any(SetFlags::kZScale));
+		REX::Assert(_varsSet.any(SetFlags::ZScale));
 		return _zScale;
 	}
 
-	REX::Float64 Value::DisplayInfo::GetRotation() const noexcept
+	auto Value::DisplayInfo::GetRotation() const noexcept -> REX::Float64
 	{
-		REX::Assert(_varsSet.any(SetFlags::kRotation));
+		REX::Assert(_varsSet.any(SetFlags::Rotation));
 		return _rotation;
 	}
 
-	REX::Float64 Value::DisplayInfo::GetXRotation() const noexcept
+	auto Value::DisplayInfo::GetXRotation() const noexcept -> REX::Float64
 	{
-		REX::Assert(_varsSet.any(SetFlags::kXRotation));
+		REX::Assert(_varsSet.any(SetFlags::XRotation));
 		return _xRotation;
 	}
 
-	REX::Float64 Value::DisplayInfo::GetYRotation() const noexcept
+	auto Value::DisplayInfo::GetYRotation() const noexcept -> REX::Float64
 	{
-		REX::Assert(_varsSet.any(SetFlags::kYRotation));
+		REX::Assert(_varsSet.any(SetFlags::YRotation));
 		return _yRotation;
 	}
 
-	REX::Float64 Value::DisplayInfo::GetAlpha() const noexcept
+	auto Value::DisplayInfo::GetAlpha() const noexcept -> REX::Float64
 	{
-		REX::Assert(_varsSet.any(SetFlags::kAlpha));
+		REX::Assert(_varsSet.any(SetFlags::Alpha));
 		return _alpha;
 	}
 
-	bool Value::DisplayInfo::GetVisible() const noexcept
+	auto Value::DisplayInfo::GetVisible() const noexcept -> bool
 	{
-		REX::Assert(_varsSet.any(SetFlags::kVisible));
+		REX::Assert(_varsSet.any(SetFlags::Visible));
 		return _visible;
 	}
 
-	REX::Float64 Value::DisplayInfo::GetFOV() const noexcept
+	auto Value::DisplayInfo::GetFOV() const noexcept -> REX::Float64
 	{
-		REX::Assert(_varsSet.any(SetFlags::kFOV));
+		REX::Assert(_varsSet.any(SetFlags::FOV));
 		return _fov;
 	}
 
-	const Render::Matrix3x4<REX::Float32>* Value::DisplayInfo::GetViewMatrix3D() const noexcept
+	auto Value::DisplayInfo::GetViewMatrix3D() const noexcept -> const Render::Matrix3x4<REX::Float32>*
 	{
-		return _varsSet.any(SetFlags::kViewMatrix3D) ? std::addressof(_viewMatrix3D) : nullptr;
+		return _varsSet.any(SetFlags::ViewMatrix3D) ? std::addressof(_viewMatrix3D) : nullptr;
 	}
 
-	const Render::Matrix4x4<REX::Float32>* Value::DisplayInfo::GetProjectionMatrix3D() const noexcept
+	auto Value::DisplayInfo::GetProjectionMatrix3D() const noexcept -> const Render::Matrix4x4F*
 	{
-		return _varsSet.any(SetFlags::kProjMatrix3D) ? std::addressof(_projectionMatrix3D) : nullptr;
+		return _varsSet.any(SetFlags::ProjMatrix3D) ? std::addressof(_projectionMatrix3D) : nullptr;
 	}
 
-	Render::EdgeAAMode Value::DisplayInfo::GetEdgeAAMode() const noexcept
+	auto Value::DisplayInfo::GetEdgeAAMode() const noexcept -> Render::EdgeAAMode
 	{
-		REX::Assert(_varsSet.any(SetFlags::kEdgeAAMode));
+		REX::Assert(_varsSet.any(SetFlags::EdgeAAMode));
 		return _edgeAAMode.get();
 	}
 
@@ -251,285 +220,325 @@ namespace Scaleform::GFx
 
 	void Value::DisplayInfo::SetXScale(REX::Float64 a_xScale) noexcept
 	{
-		_varsSet.set(SetFlags::kXScale);
+		_varsSet.set(SetFlags::XScale);
 		_xScale = a_xScale;
 	}
 
 	void Value::DisplayInfo::SetYScale(REX::Float64 a_yScale) noexcept
 	{
-		_varsSet.set(SetFlags::kYScale);
+		_varsSet.set(SetFlags::YScale);
 		_yScale = a_yScale;
 	}
 
 	void Value::DisplayInfo::SetZScale(REX::Float64 a_zScale) noexcept
 	{
-		_varsSet.set(SetFlags::kZScale);
+		_varsSet.set(SetFlags::ZScale);
 		_zScale = a_zScale;
 	}
 
 	void Value::DisplayInfo::SetRotation(REX::Float64 a_rotation) noexcept
 	{
-		_varsSet.set(SetFlags::kRotation);
+		_varsSet.set(SetFlags::Rotation);
 		_rotation = a_rotation;
 	}
 
 	void Value::DisplayInfo::SetXRotation(REX::Float64 a_xRotation) noexcept
 	{
-		_varsSet.set(SetFlags::kXRotation);
+		_varsSet.set(SetFlags::XRotation);
 		_xRotation = a_xRotation;
 	}
 
 	void Value::DisplayInfo::SetYRotation(REX::Float64 a_yRotation) noexcept
 	{
-		_varsSet.set(SetFlags::kYRotation);
+		_varsSet.set(SetFlags::YRotation);
 		_yRotation = a_yRotation;
 	}
 
 	void Value::DisplayInfo::SetAlpha(REX::Float64 a_alpha) noexcept
 	{
-		_varsSet.set(SetFlags::kAlpha);
+		_varsSet.set(SetFlags::Alpha);
 		_alpha = a_alpha;
 	}
 
 	void Value::DisplayInfo::SetVisible(bool a_visible) noexcept
 	{
-		_varsSet.set(SetFlags::kVisible);
+		_varsSet.set(SetFlags::Visible);
 		_visible = a_visible;
 	}
 
 	void Value::DisplayInfo::SetFOV(REX::Float64 a_fov) noexcept
 	{
-		_varsSet.set(SetFlags::kFOV);
+		_varsSet.set(SetFlags::FOV);
 		_fov = a_fov;
 	}
 
-	void Value::DisplayInfo::SetViewMatrix3D(const Render::Matrix3x4<REX::Float32>* a_matrix) noexcept
+	void Value::DisplayInfo::SetViewMatrix3D(std::optional<Render::Matrix3x4<REX::Float32>> a_matrix) noexcept
 	{
-		if (a_matrix) {
-			_varsSet.set(SetFlags::kViewMatrix3D);
-			_viewMatrix3D = *a_matrix;
+		if (!a_matrix) {
+			_varsSet.reset(SetFlags::ViewMatrix3D);
+			return;
 		}
-		else {
-			_varsSet.reset(SetFlags::kViewMatrix3D);
-		}
+
+		_varsSet.set(SetFlags::ViewMatrix3D);
+		_viewMatrix3D = *a_matrix;
 	}
 
-	void Value::DisplayInfo::SetProjectionMatrix3D(const Render::Matrix4x4<REX::Float32>* a_matrix) noexcept
+	void Value::DisplayInfo::SetProjectionMatrix3D(std::optional<Render::Matrix4x4F> a_matrix) noexcept
 	{
-		if (a_matrix) {
-			_varsSet.set(SetFlags::kProjMatrix3D);
-			_projectionMatrix3D = *a_matrix;
+		if (!a_matrix) {
+			_varsSet.reset(SetFlags::ProjMatrix3D);
+			return;
 		}
-		else {
-			_varsSet.reset(SetFlags::kProjMatrix3D);
-		}
+
+		_varsSet.set(SetFlags::ProjMatrix3D);
+		_projectionMatrix3D = *a_matrix;
 	}
 
 	void Value::DisplayInfo::SetEdgeAAMode(Render::EdgeAAMode a_mode) noexcept
 	{
-		_varsSet.set(SetFlags::kEdgeAAMode);
+		_varsSet.set(SetFlags::EdgeAAMode);
 		_edgeAAMode = a_mode;
+	}
+
+	void Value::DisplayInfo::swap(DisplayInfo& a_other) noexcept
+	{
+		std::swap(_x, a_other._x);
+		std::swap(_y, a_other._y);
+		std::swap(_z, a_other._z);
+		std::swap(_xScale, a_other._xScale);
+		std::swap(_yScale, a_other._yScale);
+		std::swap(_zScale, a_other._zScale);
+		std::swap(_rotation, a_other._rotation);
+		std::swap(_xRotation, a_other._xRotation);
+		std::swap(_yRotation, a_other._yRotation);
+		std::swap(_alpha, a_other._alpha);
+		std::swap(_visible, a_other._visible);
+		std::swap(_fov, a_other._fov);
+		std::swap(_viewMatrix3D, a_other._viewMatrix3D);
+		std::swap(_projectionMatrix3D, a_other._projectionMatrix3D);
+		std::swap(_edgeAAMode, a_other._edgeAAMode);
+		std::swap(_varsSet, a_other._varsSet);
 	}
 
 	void Value::ObjectInterface::ObjectAddRef(Value* a_value, void* a_object)
 	{
 		using FuncType = decltype(&ObjectInterface::ObjectRelease);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::ObjectAddRef };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::ObjectAddRef);
 		std::invoke(FUNC, this, a_value, a_object);
 	}
 
 	void Value::ObjectInterface::ObjectRelease(Value* a_value, void* a_object)
 	{
 		using FuncType = decltype(&ObjectInterface::ObjectRelease);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::ObjectRelease };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::ObjectRelease);
 		std::invoke(FUNC, this, a_value, a_object);
 	}
 
-	bool Value::ObjectInterface::IsInstanceOf(void* a_data, const char* a_className) const
+	auto Value::ObjectInterface::IsInstanceOf(void* a_data, const char* a_className) const -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::IsInstanceOf);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::IsInstanceOf };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::IsInstanceOf);
 		return std::invoke(FUNC, this, a_data, a_className);
 	}
 
-	bool Value::ObjectInterface::GetParent(void* a_data, Value* a_value) const
+	auto Value::ObjectInterface::GetParent(void* a_data, Value* a_value) const -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::GetParent);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::GetParent };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::GetParent);
 		return std::invoke(FUNC, this, a_data, a_value);
 	}
 
-	bool Value::ObjectInterface::HasMember(void* a_data, const char* a_name, bool a_isDisplayObject) const
+	auto Value::ObjectInterface::HasMember(void* a_data, const char* a_name, bool a_isDisplayObject) const -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::HasMember);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::HasMember };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::HasMember);
 		return std::invoke(FUNC, this, a_data, a_name, a_isDisplayObject);
 	}
 
-	bool Value::ObjectInterface::GetMember(void* a_data, const char* a_name, Value* a_value, bool a_isDisplayObject) const
+	auto Value::ObjectInterface::GetMember(void* a_data, const char* a_name, Value* a_value, bool a_isDisplayObject)
+		const -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::GetMember);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::GetMember };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::GetMember);
 		return std::invoke(FUNC, this, a_data, a_name, a_value, a_isDisplayObject);
 	}
 
-	bool Value::ObjectInterface::SetMember(void* a_data, const char* a_name, const Value& a_value, bool a_isDisplayObject)
+	auto Value::ObjectInterface::SetMember(
+		void* a_data,
+		const char* a_name,
+		const Value& a_value,
+		bool a_isDisplayObject) -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::SetMember);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::SetMember };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::SetMember);
 		return std::invoke(FUNC, this, a_data, a_name, a_value, a_isDisplayObject);
 	}
 
-	bool Value::ObjectInterface::DeleteMember(void* a_data, const char* a_name, bool a_isDisplayObject)
+	auto Value::ObjectInterface::DeleteMember(void* a_data, const char* a_name, bool a_isDisplayObject) -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::DeleteMember);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::DeleteMember };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::DeleteMember);
 		return std::invoke(FUNC, this, a_data, a_name, a_isDisplayObject);
 	}
 
 	void Value::ObjectInterface::VisitMembers(void* a_data, ObjVisitor* a_visitor, bool a_isDisplayObject) const
 	{
 		using FuncType = decltype(&ObjectInterface::VisitMembers);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::VisitMembers };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::VisitMembers);
 		std::invoke(FUNC, this, a_data, a_visitor, a_isDisplayObject);
 	}
 
-	std::uint32_t Value::ObjectInterface::GetArraySize(void* a_data) const
+	auto Value::ObjectInterface::GetArraySize(void* a_data) const -> std::uint32_t
 	{
 		using FuncType = decltype(&ObjectInterface::GetArraySize);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::GetArraySize };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::GetArraySize);
 		return std::invoke(FUNC, this, a_data);
 	}
 
-	bool Value::ObjectInterface::SetArraySize(void* a_data, std::uint32_t a_size)
+	auto Value::ObjectInterface::SetArraySize(void* a_data, std::uint32_t a_size) -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::SetArraySize);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::SetArraySize };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::SetArraySize);
 		return std::invoke(FUNC, this, a_data, a_size);
 	}
 
-	bool Value::ObjectInterface::GetElement(void* a_data, std::uint32_t a_index, Value* a_value) const
+	auto Value::ObjectInterface::GetElement(void* a_data, std::uint32_t a_index, Value* a_value) const -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::GetElement);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::GetElement };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::GetElement);
 		return std::invoke(FUNC, this, a_data, a_index, a_value);
 	}
 
-	bool Value::ObjectInterface::SetElement(void* a_data, std::uint32_t a_index, const Value& a_value)
+	auto Value::ObjectInterface::SetElement(void* a_data, std::uint32_t a_index, const Value& a_value) -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::SetElement);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::SetElement };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::SetElement);
 		return std::invoke(FUNC, this, a_data, a_index, a_value);
 	}
 
-	bool Value::ObjectInterface::PushBack(void* a_data, const Value& a_value)
+	auto Value::ObjectInterface::PushBack(void* a_data, const Value& a_value) -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::PushBack);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::PushBack };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::PushBack);
 		return std::invoke(FUNC, this, a_data, a_value);
 	}
 
-	bool Value::ObjectInterface::PopBack(void* a_data, Value* a_value)
+	auto Value::ObjectInterface::PopBack(void* a_data, Value* a_value) -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::PopBack);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::PopBack };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::PopBack);
 		return std::invoke(FUNC, this, a_data, a_value);
 	}
 
-	bool Value::ObjectInterface::RemoveElements(void* a_data, std::uint32_t a_startIndex, std::int32_t a_count)
+	auto Value::ObjectInterface::RemoveElements(void* a_data, std::uint32_t a_startIndex, std::int32_t a_count) -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::RemoveElements);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::RemoveElements };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::RemoveElements);
 		return std::invoke(FUNC, this, a_data, a_startIndex, a_count);
 	}
 
-	void Value::ObjectInterface::VisitElements(void* a_data, ArrVisitor* a_visitor, std::uint32_t a_startIndex, std::int32_t a_count) const
+	void Value::ObjectInterface::VisitElements(
+		void* a_data,
+		ArrVisitor* a_visitor,
+		std::uint32_t a_startIndex,
+		std::int32_t a_count) const
 	{
 		using FuncType = decltype(&ObjectInterface::VisitElements);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::VisitElements };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::VisitElements);
 		std::invoke(FUNC, this, a_data, a_visitor, a_startIndex, a_count);
 	}
 
-	bool Value::ObjectInterface::GetDisplayInfo(void* a_data, DisplayInfo* a_info) const
+	auto Value::ObjectInterface::GetDisplayInfo(void* a_data, DisplayInfo* a_info) const -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::GetDisplayInfo);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::GetDisplayInfo };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::GetDisplayInfo);
 		return std::invoke(FUNC, this, a_data, a_info);
 	}
 
-	bool Value::ObjectInterface::SetDisplayInfo(void* a_data, const DisplayInfo& a_info)
+	auto Value::ObjectInterface::SetDisplayInfo(void* a_data, const DisplayInfo& a_info) -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::SetDisplayInfo);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::SetDisplayInfo };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::SetDisplayInfo);
 		return std::invoke(FUNC, this, a_data, a_info);
 	}
 
-	bool Value::ObjectInterface::GetDisplayMatrix(void* a_data, Render::Matrix2x4<REX::Float32>* a_matrix) const
+	auto Value::ObjectInterface::GetDisplayMatrix(void* a_data, Render::Matrix2x4F* a_matrix) const -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::GetDisplayMatrix);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::GetDisplayMatrix };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::GetDisplayMatrix);
 		return std::invoke(FUNC, this, a_data, a_matrix);
 	}
 
-	bool Value::ObjectInterface::SetDisplayMatrix(void* a_data, const Render::Matrix2x4<REX::Float32>* a_matrix)
+	auto Value::ObjectInterface::SetDisplayMatrix(void* a_data, const Render::Matrix2x4F* a_matrix) -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::SetDisplayMatrix);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::SetDisplayMatrix };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::SetDisplayMatrix);
 		return std::invoke(FUNC, this, a_data, a_matrix);
 	}
 
-	bool Value::ObjectInterface::GetCxform(void* a_data, Render::Cxform* a_cxform) const
+	auto Value::ObjectInterface::GetCxform(void* a_data, Render::Cxform* a_cxform) const -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::GetCxform);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::GetCxform };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::GetCxform);
 		return std::invoke(FUNC, this, a_data, a_cxform);
 	}
 
-	bool Value::ObjectInterface::SetCxform(void* a_data, const Render::Cxform* a_cxform)
+	auto Value::ObjectInterface::SetCxform(void* a_data, const Render::Cxform* a_cxform) -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::SetCxform);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::SetCxform };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::SetCxform);
 		return std::invoke(FUNC, this, a_data, a_cxform);
 	}
 
-	bool Value::ObjectInterface::AttachMovie(void* a_data, Value* a_movieClip, const char* a_symbolName, const char* a_instanceName, std::int32_t a_depth, const MemberValueSet* a_initList)
+	auto Value::ObjectInterface::AttachMovie(
+		void* a_data,
+		Value* a_movieClip,
+		const char* a_symbolName,
+		const char* a_instanceName,
+		std::int32_t a_depth,
+		const MemberValueSet* a_initList) -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::AttachMovie);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::AttachMovie };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::AttachMovie);
 		return std::invoke(FUNC, this, a_data, a_movieClip, a_symbolName, a_instanceName, a_depth, a_initList);
 	}
 
-	bool Value::ObjectInterface::CreateEmptyMovieClip(void* a_data, Value* a_movieClip, const char* a_instanceName, std::int32_t a_depth)
+	auto Value::ObjectInterface::CreateEmptyMovieClip(
+		void* a_data,
+		Value* a_movieClip,
+		const char* a_instanceName,
+		std::int32_t a_depth) -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::CreateEmptyMovieClip);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::CreateEmptyMovieClip };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::CreateEmptyMovieClip);
 		return std::invoke(FUNC, this, a_data, a_movieClip, a_instanceName, a_depth);
 	}
 
-	bool Value::ObjectInterface::GotoAndPlay(void* a_data, std::uint32_t a_frame, bool a_stop)
+	auto Value::ObjectInterface::GotoAndPlay(void* a_data, std::uint32_t a_frame, bool a_stop) -> bool
 	{
 		using FuncType = bool (ObjectInterface::*)(void*, std::int32_t, bool);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::GotoAndPlay_Int };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::GotoAndPlay_Int);
 		return std::invoke(FUNC, this, a_data, a_frame, a_stop);
 	}
 
-	bool Value::ObjectInterface::GotoAndPlay(void* a_data, const char* a_frame, bool a_stop)
+	auto Value::ObjectInterface::GotoAndPlay(void* a_data, const char* a_frame, bool a_stop) -> bool
 	{
 		using FuncType = bool (ObjectInterface::*)(void*, const char*, bool);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::GotoAndPlay_String };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::GotoAndPlay_String);
 		return std::invoke(FUNC, this, a_data, a_frame, a_stop);
 	}
 
-	bool Value::ObjectInterface::Invoke(void* a_data, Value* a_result, const char* a_name, const Value* a_args, std::size_t a_numArgs, bool a_isDisplayObject)
+	auto Value::ObjectInterface::Invoke(
+		void* a_data,
+		Value* a_result,
+		const char* a_name,
+		const Value* a_args,
+		std::size_t a_numArgs,
+		bool a_isDisplayObject) -> bool
 	{
 		using FuncType = decltype(&ObjectInterface::Invoke);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Value::Invoke };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Value::Invoke);
 		return std::invoke(FUNC, this, a_data, a_result, a_name, a_args, a_numArgs, a_isDisplayObject);
-	}
-
-	Value::Value() noexcept
-		: _type(ValueType::kUndefined)
-	{
 	}
 
 	Value::~Value() noexcept
@@ -538,135 +547,135 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kUndefined;
+		_type = ValueType::Undefined;
 	}
 
-	Value::Value(std::nullptr_t) noexcept
-		: _type(ValueType::kNull)
+	Value::Value(std::nullptr_t) noexcept :
+		_type(ValueType::Null)
 	{
 	}
 
-	Value::Value(bool a_rhs) noexcept
-		: _type(ValueType::kBoolean),
-		  _value(a_rhs)
+	Value::Value(bool a_rhs) noexcept :
+		_type(ValueType::Boolean),
+		_value(a_rhs)
 	{
 	}
 
-	Value::Value(std::int32_t a_rhs) noexcept
-		: _type(ValueType::kInt),
-		  _value(a_rhs)
+	Value::Value(std::int32_t a_rhs) noexcept :
+		_type(ValueType::Int),
+		_value(a_rhs)
 	{
 	}
 
-	Value::Value(std::uint32_t a_rhs) noexcept
-		: _type(ValueType::kUInt),
-		  _value(a_rhs)
+	Value::Value(std::uint32_t a_rhs) noexcept :
+		_type(ValueType::UInt),
+		_value(a_rhs)
 	{
 	}
 
-	Value::Value(REX::Float64 a_rhs) noexcept
-		: _type(ValueType::kNumber),
-		  _value(a_rhs)
+	Value::Value(REX::Float64 a_rhs) noexcept :
+		_type(ValueType::Number),
+		_value(a_rhs)
 	{
 	}
 
-	Value::Value(const char* a_rhs) noexcept
-		: _type(ValueType::kString),
-		  _value(a_rhs)
+	Value::Value(const char* a_rhs) noexcept :
+		_type(ValueType::String),
+		_value(a_rhs)
 	{
 	}
 
-	Value::Value(const wchar_t* a_rhs) noexcept
-		: _type(ValueType::kStringW),
-		  _value(a_rhs)
+	Value::Value(const wchar_t* a_rhs) noexcept :
+		_type(ValueType::StringW),
+		_value(a_rhs)
 	{
 	}
 
-	Value::Value(REX::zstring_view a_rhs) noexcept
-		: _type(ValueType::kString),
-		  _value(a_rhs.data())
+	Value::Value(REX::ZStringView a_rhs) noexcept :
+		_type(ValueType::String),
+		_value(a_rhs.data())
 	{
 	}
 
-	Value::Value(REX::zwstring_view a_rhs) noexcept
-		: _type(ValueType::kStringW),
-		  _value(a_rhs.data())
+	Value::Value(REX::ZWStringView a_rhs) noexcept :
+		_type(ValueType::StringW),
+		_value(a_rhs.data())
 	{
 	}
 
-	Value::Value(const Value& a_rhs) noexcept
-		: _type(a_rhs._type),
-		  _value(a_rhs._value),
-		  _dataAux(a_rhs._dataAux)
+	Value::Value(const Value& a_rhs) noexcept :
+		_type(a_rhs._type),
+		_value(a_rhs._value),
+		_dataAux(a_rhs._dataAux)
 	{
 		if (a_rhs.IsManagedValue()) {
 			AcquireManagedValue(a_rhs);
 		}
 	}
 
-	Value::Value(Value&& a_rhs) noexcept
-		: _objectInterface(std::exchange(a_rhs._objectInterface, nullptr)),
-		  _type(std::exchange(a_rhs._type, ValueType::kUndefined)),
-		  _value(std::move(a_rhs._value)),
-		  _dataAux(std::exchange(a_rhs._dataAux, 0))
+	Value::Value(Value&& a_rhs) noexcept :
+		_objectInterface(std::exchange(a_rhs._objectInterface, nullptr)),
+		_type(std::exchange(a_rhs._type, ValueType::Undefined)),
+		_value(a_rhs._value),
+		_dataAux(std::exchange(a_rhs._dataAux, 0))
 	{
 	}
 
-	Value& Value::operator=(std::nullptr_t) noexcept
+	auto Value::operator=(std::nullptr_t) noexcept -> Value&
 	{
 		SetNull();
 		return *this;
 	}
 
-	Value& Value::operator=(bool a_rhs) noexcept
+	auto Value::operator=(bool a_rhs) noexcept -> Value&
 	{
 		SetBoolean(a_rhs);
 		return *this;
 	}
 
-	Value& Value::operator=(std::int32_t a_rhs) noexcept
+	auto Value::operator=(std::int32_t a_rhs) noexcept -> Value&
 	{
 		SetInt(a_rhs);
 		return *this;
 	}
 
-	Value& Value::operator=(std::uint32_t a_rhs) noexcept
+	auto Value::operator=(std::uint32_t a_rhs) noexcept -> Value&
 	{
 		SetUInt(a_rhs);
 		return *this;
 	}
 
-	Value& Value::operator=(REX::Float64 a_rhs) noexcept
+	auto Value::operator=(REX::Float64 a_rhs) noexcept -> Value&
 	{
 		SetNumber(a_rhs);
 		return *this;
 	}
 
-	Value& Value::operator=(const char* a_rhs) noexcept
+	auto Value::operator=(const char* a_rhs) noexcept -> Value&
 	{
 		SetString(a_rhs);
 		return *this;
 	}
 
-	Value& Value::operator=(const wchar_t* a_rhs) noexcept
+	auto Value::operator=(const wchar_t* a_rhs) noexcept -> Value&
 	{
 		SetWString(a_rhs);
 		return *this;
 	}
 
-	Value& Value::operator=(REX::zstring_view a_rhs) noexcept
+	auto Value::operator=(REX::ZStringView a_rhs) noexcept -> Value&
 	{
 		SetStringView(a_rhs);
 		return *this;
 	}
 
-	Value& Value::operator=(REX::zwstring_view a_rhs) noexcept
+	auto Value::operator=(REX::ZWStringView a_rhs) noexcept -> Value&
 	{
 		SetWStringView(a_rhs);
 		return *this;
 	}
 
-	Value& Value::operator=(const Value& a_rhs) noexcept
+	auto Value::operator=(const Value& a_rhs) noexcept -> Value&
 	{
 		if (this == std::addressof(a_rhs)) {
 			return *this;
@@ -687,7 +696,7 @@ namespace Scaleform::GFx
 		return *this;
 	}
 
-	Value& Value::operator=(Value&& a_rhs) noexcept
+	auto Value::operator=(Value&& a_rhs) noexcept -> Value&
 	{
 		if (this == std::addressof(a_rhs)) {
 			return *this;
@@ -698,128 +707,123 @@ namespace Scaleform::GFx
 		}
 
 		_objectInterface = std::exchange(a_rhs._objectInterface, nullptr);
-		_type = std::exchange(a_rhs._type, ValueType::kUndefined);
-		_value = std::move(a_rhs._value);
+		_type = std::exchange(a_rhs._type, ValueType::Undefined);
+		_value = a_rhs._value;
 		_dataAux = std::exchange(a_rhs._dataAux, 0);
 
 		return *this;
 	}
 
-	bool Value::operator==(const Value& a_rhs) const noexcept
+	auto Value::operator==(const Value& a_rhs) const noexcept -> bool
 	{
 		return Equals(a_rhs);
 	}
 
-	bool Value::operator!=(const Value& a_rhs) const noexcept
-	{
-		return !(*this == a_rhs);
-	}
-
-	std::partial_ordering Value::operator<=>(const Value& a_rhs) const noexcept
+	auto Value::operator<=>(const Value& a_rhs) const noexcept -> std::partial_ordering
 	{
 		return Compare(a_rhs);
 	}
 
-	Value::ValueType Value::GetType() const noexcept
+	auto Value::GetType() const noexcept -> Value::ValueType
 	{
-		return *(_type & ValueType::kTypeMask);
+		return (_type & ValueType::_TypeMask).get();
 	}
 
-	bool Value::IsNull() const noexcept
+	auto Value::IsNull() const noexcept -> bool
 	{
-		return GetType() == ValueType::kNull;
+		return GetType() == ValueType::Null;
 	}
 
-	bool Value::IsUndefined() const noexcept
+	auto Value::IsUndefined() const noexcept -> bool
 	{
-		return GetType() == ValueType::kUndefined;
+		return GetType() == ValueType::Undefined;
 	}
 
-	bool Value::IsBoolean() const noexcept
+	auto Value::IsBoolean() const noexcept -> bool
 	{
-		return GetType() == ValueType::kBoolean;
+		return GetType() == ValueType::Boolean;
 	}
 
-	bool Value::IsInt() const noexcept
+	auto Value::IsInt() const noexcept -> bool
 	{
-		return GetType() == ValueType::kInt;
+		return GetType() == ValueType::Int;
 	}
 
-	bool Value::IsUInt() const noexcept
+	auto Value::IsUInt() const noexcept -> bool
 	{
-		return GetType() == ValueType::kUInt;
+		return GetType() == ValueType::UInt;
 	}
 
-	bool Value::IsNumber() const noexcept
+	auto Value::IsNumber() const noexcept -> bool
 	{
-		return GetType() == ValueType::kNumber;
+		return GetType() == ValueType::Number;
 	}
 
-	bool Value::IsString() const noexcept
+	auto Value::IsString() const noexcept -> bool
 	{
-		return GetType() == ValueType::kString;
+		return GetType() == ValueType::String;
 	}
 
-	bool Value::IsStringW() const noexcept
+	auto Value::IsStringW() const noexcept -> bool
 	{
-		return GetType() == ValueType::kStringW;
+		return GetType() == ValueType::StringW;
 	}
 
-	bool Value::IsObject() const noexcept
+	auto Value::IsObject() const noexcept -> bool
 	{
-		return GetType() == ValueType::kObject;
+		return GetType() == ValueType::Object;
 	}
 
-	bool Value::IsArray() const noexcept
+	auto Value::IsArray() const noexcept -> bool
 	{
-		return GetType() == ValueType::kArray;
+		return GetType() == ValueType::Array;
 	}
 
-	bool Value::IsDisplayObject() const noexcept
+	auto Value::IsDisplayObject() const noexcept -> bool
 	{
-		return GetType() == ValueType::kDisplayObject;
+		return GetType() == ValueType::DisplayObject;
 	}
 
-	bool Value::IsClosure() const noexcept
+	auto Value::IsClosure() const noexcept -> bool
 	{
-		return GetType() == ValueType::kClosure;
+		return GetType() == ValueType::Closure;
 	}
 
-	bool Value::IsConvertBoolean() const noexcept
+	auto Value::IsConvertBoolean() const noexcept -> bool
 	{
-		return GetType() == ValueType::kConvertBoolean;
+		return GetType() == ValueType::ConvertBoolean;
 	}
 
-	bool Value::IsConvertInt() const noexcept
+	auto Value::IsConvertInt() const noexcept -> bool
 	{
-		return GetType() == ValueType::kConvertInt;
+		return GetType() == ValueType::ConvertInt;
 	}
 
-	bool Value::IsConvertUInt() const noexcept
+	auto Value::IsConvertUInt() const noexcept -> bool
 	{
-		return GetType() == ValueType::kConvertUInt;
+		return GetType() == ValueType::ConvertUInt;
 	}
 
-	bool Value::IsConvertNumber() const noexcept
+	auto Value::IsConvertNumber() const noexcept -> bool
 	{
-		return GetType() == ValueType::kConvertNumber;
+		return GetType() == ValueType::ConvertNumber;
 	}
 
-	bool Value::IsConvertString() const noexcept
+	auto Value::IsConvertString() const noexcept -> bool
 	{
-		return GetType() == ValueType::kConvertString;
+		return GetType() == ValueType::ConvertString;
 	}
 
-	bool Value::IsConvertStringW() const noexcept
+	auto Value::IsConvertStringW() const noexcept -> bool
 	{
-		return GetType() == ValueType::kConvertStringW;
+		return GetType() == ValueType::ConvertStringW;
 	}
 
-	bool Value::IsNullOrUndefined() const noexcept
+	auto Value::IsNullOrUndefined() const noexcept -> bool
 	{
 		switch (GetType()) {
-			case ValueType::kNull:
-			case ValueType::kUndefined: {
+			case ValueType::Null:
+			case ValueType::Undefined: {
 				return true;
 			}
 			default: {
@@ -828,11 +832,11 @@ namespace Scaleform::GFx
 		}
 	}
 
-	bool Value::IsAnyInt() const noexcept
+	auto Value::IsAnyInt() const noexcept -> bool
 	{
 		switch (GetType()) {
-			case ValueType::kInt:
-			case ValueType::kUInt: {
+			case ValueType::Int:
+			case ValueType::UInt: {
 				return true;
 			}
 			default: {
@@ -841,12 +845,12 @@ namespace Scaleform::GFx
 		}
 	}
 
-	bool Value::IsAnyNumber() const noexcept
+	auto Value::IsAnyNumber() const noexcept -> bool
 	{
 		switch (GetType()) {
-			case ValueType::kInt:
-			case ValueType::kUInt:
-			case ValueType::kNumber: {
+			case ValueType::Int:
+			case ValueType::UInt:
+			case ValueType::Number: {
 				return true;
 			}
 			default: {
@@ -855,11 +859,11 @@ namespace Scaleform::GFx
 		}
 	}
 
-	bool Value::IsAnyString() const noexcept
+	auto Value::IsAnyString() const noexcept -> bool
 	{
 		switch (GetType()) {
-			case ValueType::kString:
-			case ValueType::kStringW: {
+			case ValueType::String:
+			case ValueType::StringW: {
 				return true;
 			}
 			default: {
@@ -868,12 +872,12 @@ namespace Scaleform::GFx
 		}
 	}
 
-	bool Value::IsAnyObject() const noexcept
+	auto Value::IsAnyObject() const noexcept -> bool
 	{
 		switch (GetType()) {
-			case ValueType::kObject:
-			case ValueType::kDisplayObject:
-			case ValueType::kArray: {
+			case ValueType::Object:
+			case ValueType::DisplayObject:
+			case ValueType::Array: {
 				return true;
 			}
 			default: {
@@ -882,22 +886,22 @@ namespace Scaleform::GFx
 		}
 	}
 
-	bool Value::IsOrphaned() const noexcept
+	auto Value::IsOrphaned() const noexcept -> bool
 	{
-		return _type.any(ValueType::kOrphanedBit);
+		return _type.any(ValueType::OrphanedBit);
 	}
 
-	bool Value::IsManaged() const noexcept
+	auto Value::IsManaged() const noexcept -> bool
 	{
-		return _type.any(ValueType::kManagedBit);
+		return _type.any(ValueType::ManagedBit);
 	}
 
-	bool Value::IsConversion() const noexcept
+	auto Value::IsConversion() const noexcept -> bool
 	{
-		return _type.any(ValueType::kConvertBit);
+		return _type.any(ValueType::ConvertBit);
 	}
 
-	bool Value::IsFunction() const
+	auto Value::IsFunction() const -> bool
 	{
 		if (!IsAnyObject()) {
 			return false;
@@ -906,7 +910,7 @@ namespace Scaleform::GFx
 		return _objectInterface->IsInstanceOf(_value.data, "Function");
 	}
 
-	bool Value::IsMovieClip() const
+	auto Value::IsMovieClip() const -> bool
 	{
 		if (!IsAnyObject()) {
 			return false;
@@ -915,7 +919,7 @@ namespace Scaleform::GFx
 		return _objectInterface->IsInstanceOf(_value.data, "flash.display.MovieClip");
 	}
 
-	bool Value::Equals(const Value& a_rhs) const noexcept
+	auto Value::Equals(const Value& a_rhs) const noexcept -> bool
 	{
 		if (this == std::addressof(a_rhs)) {
 			return true;
@@ -929,32 +933,32 @@ namespace Scaleform::GFx
 		}
 
 		switch (leftType) {
-			case ValueType::kNull:
-			case ValueType::kUndefined: {
+			case ValueType::Null:
+			case ValueType::Undefined: {
 				return true;
 			}
-			case ValueType::kBoolean: {
+			case ValueType::Boolean: {
 				return GetBoolean() == a_rhs.GetBoolean();
 			}
-			case ValueType::kInt: {
+			case ValueType::Int: {
 				return GetInt() == a_rhs.GetInt();
 			}
-			case ValueType::kUInt: {
+			case ValueType::UInt: {
 				return GetUInt() == a_rhs.GetUInt();
 			}
-			case ValueType::kNumber: {
+			case ValueType::Number: {
 				return GetNumber() == a_rhs.GetNumber();
 			}
-			case ValueType::kString: {
+			case ValueType::String: {
 				return REX::Equals(GetStringView(), a_rhs.GetStringView());
 			}
-			case ValueType::kStringW: {
+			case ValueType::StringW: {
 				return REX::Equals(GetWStringView(), a_rhs.GetWStringView());
 			}
-			case ValueType::kObject:
-			case ValueType::kDisplayObject:
-			case ValueType::kArray:
-			case ValueType::kClosure: {
+			case ValueType::Object:
+			case ValueType::DisplayObject:
+			case ValueType::Array:
+			case ValueType::Closure: {
 				return GetUserData() == a_rhs.GetUserData();
 			}
 			default: {
@@ -963,7 +967,7 @@ namespace Scaleform::GFx
 		}
 	}
 
-	std::partial_ordering Value::Compare(const Value& a_rhs) const noexcept
+	auto Value::Compare(const Value& a_rhs) const noexcept -> std::partial_ordering
 	{
 		if (this == std::addressof(a_rhs)) {
 			return std::partial_ordering::equivalent;
@@ -977,32 +981,32 @@ namespace Scaleform::GFx
 		}
 
 		switch (leftType) {
-			case ValueType::kNull:
-			case ValueType::kUndefined: {
+			case ValueType::Null:
+			case ValueType::Undefined: {
 				return std::partial_ordering::equivalent;
 			}
-			case ValueType::kBoolean: {
+			case ValueType::Boolean: {
 				return GetBoolean() <=> a_rhs.GetBoolean();
 			}
-			case ValueType::kInt: {
+			case ValueType::Int: {
 				return GetInt() <=> a_rhs.GetInt();
 			}
-			case ValueType::kUInt: {
+			case ValueType::UInt: {
 				return GetUInt() <=> a_rhs.GetUInt();
 			}
-			case ValueType::kNumber: {
+			case ValueType::Number: {
 				return GetNumber() <=> a_rhs.GetNumber();
 			}
-			case ValueType::kString: {
+			case ValueType::String: {
 				return GetStringView() <=> a_rhs.GetStringView();
 			}
-			case ValueType::kStringW: {
+			case ValueType::StringW: {
 				return GetWStringView() <=> a_rhs.GetWStringView();
 			}
-			case ValueType::kObject:
-			case ValueType::kDisplayObject:
-			case ValueType::kArray:
-			case ValueType::kClosure: {
+			case ValueType::Object:
+			case ValueType::DisplayObject:
+			case ValueType::Array:
+			case ValueType::Closure: {
 				return GetUserData() <=> a_rhs.GetUserData();
 			}
 			default: {
@@ -1011,67 +1015,67 @@ namespace Scaleform::GFx
 		}
 	}
 
-	std::nullptr_t Value::GetNull() const noexcept
+	auto Value::GetNull() const noexcept -> std::nullptr_t
 	{
 		REX::Assert(IsNull());
 		REX::Assert(_value.null == nullptr);
 		return nullptr;
 	}
 
-	std::nullptr_t Value::GetUndefined() const noexcept
+	auto Value::GetUndefined() const noexcept -> std::nullptr_t
 	{
 		REX::Assert(IsUndefined());
 		REX::Assert(_value.undefined == nullptr);
 		return nullptr;
 	}
 
-	bool Value::GetBoolean() const noexcept
+	auto Value::GetBoolean() const noexcept -> bool
 	{
 		REX::Assert(IsBoolean());
 		return _value.boolean;
 	}
 
-	std::int32_t Value::GetInt() const noexcept
+	auto Value::GetInt() const noexcept -> std::int32_t
 	{
 		REX::Assert(IsInt());
 		return _value.int32;
 	}
 
-	std::uint32_t Value::GetUInt() const noexcept
+	auto Value::GetUInt() const noexcept -> std::uint32_t
 	{
 		REX::Assert(IsUInt());
 		return _value.uint32;
 	}
 
-	REX::Float64 Value::GetNumber() const noexcept
+	auto Value::GetNumber() const noexcept -> REX::Float64
 	{
 		REX::Assert(IsNumber());
 		return _value.number;
 	}
 
-	const char* Value::GetString() const noexcept
+	auto Value::GetString() const noexcept -> const char*
 	{
 		REX::Assert(IsString());
 		return IsManagedValue() ? *_value.mstring : _value.string;
 	}
 
-	const wchar_t* Value::GetWString() const noexcept
+	auto Value::GetWString() const noexcept -> const wchar_t*
 	{
 		REX::Assert(IsStringW());
 		return _value.wstring;
 	}
 
-	REX::zstring_view Value::GetStringView() const noexcept
+	auto Value::GetStringView() const noexcept -> REX::ZStringView
 	{
 		return GetString();
 	}
 
-	REX::zwstring_view Value::GetWStringView() const noexcept
+	auto Value::GetWStringView() const noexcept -> REX::ZWStringView
 	{
 		return GetWString();
 	}
 
-	void* Value::GetUserData() const noexcept
+	auto Value::GetUserData() const noexcept -> void*
 	{
 		REX::Assert(IsAnyObject());
 		return _value.data;
@@ -1083,7 +1087,7 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kNull;
+		_type = ValueType::Null;
 		_value.null = nullptr;
 	}
 
@@ -1093,7 +1097,7 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kUndefined;
+		_type = ValueType::Undefined;
 		_value.undefined = nullptr;
 	}
 
@@ -1103,7 +1107,7 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kBoolean;
+		_type = ValueType::Boolean;
 		_value = a_value;
 	}
 
@@ -1113,7 +1117,7 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kInt;
+		_type = ValueType::Int;
 		_value = a_value;
 	}
 
@@ -1123,7 +1127,7 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kUInt;
+		_type = ValueType::UInt;
 		_value = a_value;
 	}
 
@@ -1133,7 +1137,7 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kNumber;
+		_type = ValueType::Number;
 		_value = a_value;
 	}
 
@@ -1143,7 +1147,7 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kString;
+		_type = ValueType::String;
 		_value = a_value;
 	}
 
@@ -1153,27 +1157,27 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kStringW;
+		_type = ValueType::StringW;
 		_value = a_value;
 	}
 
-	void Value::SetStringView(REX::zstring_view a_value) noexcept
+	void Value::SetStringView(REX::ZStringView a_value) noexcept
 	{
 		if (IsManagedValue()) {
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kString;
+		_type = ValueType::String;
 		_value = a_value.data();
 	}
 
-	void Value::SetWStringView(REX::zwstring_view a_value) noexcept
+	void Value::SetWStringView(REX::ZWStringView a_value) noexcept
 	{
 		if (IsManagedValue()) {
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kStringW;
+		_type = ValueType::StringW;
 		_value = a_value.data();
 	}
 
@@ -1183,7 +1187,7 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kConvertBoolean;
+		_type = ValueType::ConvertBoolean;
 	}
 
 	void Value::SetConvertInt() noexcept
@@ -1192,7 +1196,7 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kConvertInt;
+		_type = ValueType::ConvertInt;
 	}
 
 	void Value::SetConvertUInt() noexcept
@@ -1201,7 +1205,7 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kConvertUInt;
+		_type = ValueType::ConvertUInt;
 	}
 
 	void Value::SetConvertNumber() noexcept
@@ -1210,7 +1214,7 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kConvertNumber;
+		_type = ValueType::ConvertNumber;
 	}
 
 	void Value::SetConvertString() noexcept
@@ -1219,7 +1223,7 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kConvertString;
+		_type = ValueType::ConvertString;
 	}
 
 	void Value::SetConvertStringW() noexcept
@@ -1228,10 +1232,10 @@ namespace Scaleform::GFx
 			ReleaseManagedValue();
 		}
 
-		_type = ValueType::kConvertStringW;
+		_type = ValueType::ConvertStringW;
 	}
 
-	bool Value::IsInstanceOf(const char* a_className) const
+	auto Value::IsInstanceOf(const char* a_className) const -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsAnyObject());
@@ -1239,7 +1243,7 @@ namespace Scaleform::GFx
 		return _objectInterface->IsInstanceOf(_value.data, a_className);
 	}
 
-	bool Value::GetParent(Value* a_value) const
+	auto Value::GetParent(Value* a_value) const -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsAnyObject());
@@ -1247,7 +1251,7 @@ namespace Scaleform::GFx
 		return _objectInterface->GetParent(_value.data, a_value);
 	}
 
-	bool Value::HasMember(const char* a_name) const
+	auto Value::HasMember(const char* a_name) const -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsAnyObject());
@@ -1255,7 +1259,7 @@ namespace Scaleform::GFx
 		return _objectInterface->HasMember(_value.data, a_name, IsDisplayObject());
 	}
 
-	bool Value::GetMember(const char* a_name, Value* a_value) const
+	auto Value::GetMember(const char* a_name, Value* a_value) const -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsAnyObject());
@@ -1263,7 +1267,7 @@ namespace Scaleform::GFx
 		return _objectInterface->GetMember(_value.data, a_name, a_value, IsDisplayObject());
 	}
 
-	bool Value::SetMember(const char* a_name, const Value& a_value)
+	auto Value::SetMember(const char* a_name, const Value& a_value) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsAnyObject());
@@ -1271,7 +1275,7 @@ namespace Scaleform::GFx
 		return _objectInterface->SetMember(_value.data, a_name, a_value, IsDisplayObject());
 	}
 
-	bool Value::DeleteMember(const char* a_name)
+	auto Value::DeleteMember(const char* a_name) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsAnyObject());
@@ -1287,47 +1291,46 @@ namespace Scaleform::GFx
 		_objectInterface->VisitMembers(_value.data, a_visitor.get(), IsDisplayObject());
 	}
 
-	void Value::VisitMembers(REX::NotNull<ObjectVisitFunctor> a_visitor) const
+	void Value::VisitMembers(REX::NotNull<std::move_only_function<ObjectVisitFunctor>> a_visitor) const
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsAnyObject());
 
-		class MemberVisitor final
-			: public ObjectInterface::ObjVisitor
+		class MemberVisitor final : public ObjectInterface::ObjVisitor
 		{
 		public:
-			MemberVisitor(REX::NotNull<ObjectVisitFunctor>&& a_func)
-				: _func(std::move(a_func))
+			explicit MemberVisitor(REX::NotNull<std::move_only_function<ObjectVisitFunctor>> a_func) noexcept :
+				_func(std::move(a_func))
 			{
 			}
 
-			~MemberVisitor() override = default;
+			~MemberVisitor() noexcept override = default;
 
 			MemberVisitor(const MemberVisitor&) = delete;
 			MemberVisitor(MemberVisitor&&) = delete;
 
-			MemberVisitor& operator=(const MemberVisitor&) = delete;
-			MemberVisitor& operator=(MemberVisitor&&) = delete;
+			auto operator=(const MemberVisitor&) -> MemberVisitor& = delete;
+			auto operator=(MemberVisitor&&) -> MemberVisitor& = delete;
 
-			bool IncludeAS3PublicMembers() const override
+			auto IncludeAS3PublicMembers() const noexcept -> bool override
 			{
 				return true;
 			}
 
 			void Visit(const char* a_name, const Value& a_value) override
 			{
-				std::invoke(*_func, a_name, a_value);
+				std::invoke(_func.get(), a_name, a_value);
 			}
 
 		private:
-			REX::NotNull<ObjectVisitFunctor> _func;
+			REX::NotNull<std::move_only_function<ObjectVisitFunctor>> _func;
 		};
 
 		auto visitor = MemberVisitor(std::move(a_visitor));
 		_objectInterface->VisitMembers(_value.data, std::addressof(visitor), IsDisplayObject());
 	}
 
-	std::uint32_t Value::GetArraySize() const
+	auto Value::GetArraySize() const -> std::uint32_t
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsArray());
@@ -1335,7 +1338,7 @@ namespace Scaleform::GFx
 		return _objectInterface->GetArraySize(_value.data);
 	}
 
-	bool Value::SetArraySize(std::uint32_t a_size)
+	auto Value::SetArraySize(std::uint32_t a_size) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsArray());
@@ -1343,7 +1346,7 @@ namespace Scaleform::GFx
 		return _objectInterface->SetArraySize(_value.data, a_size);
 	}
 
-	bool Value::GetElement(std::uint32_t a_index, Value* a_value) const
+	auto Value::GetElement(std::uint32_t a_index, Value* a_value) const -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsArray());
@@ -1351,7 +1354,7 @@ namespace Scaleform::GFx
 		return _objectInterface->GetElement(_value.data, a_index, a_value);
 	}
 
-	bool Value::SetElement(std::uint32_t a_index, const Value& a_value)
+	auto Value::SetElement(std::uint32_t a_index, const Value& a_value) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsArray());
@@ -1359,7 +1362,7 @@ namespace Scaleform::GFx
 		return _objectInterface->SetElement(_value.data, a_index, a_value);
 	}
 
-	bool Value::PushBack(const Value& a_value)
+	auto Value::PushBack(const Value& a_value) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsArray());
@@ -1367,7 +1370,7 @@ namespace Scaleform::GFx
 		return _objectInterface->PushBack(_value.data, a_value);
 	}
 
-	bool Value::PopBack(Value* a_value)
+	auto Value::PopBack(Value* a_value) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsArray());
@@ -1375,7 +1378,7 @@ namespace Scaleform::GFx
 		return _objectInterface->PopBack(_value.data, a_value);
 	}
 
-	bool Value::RemoveElements(std::uint32_t a_startIndex, std::int32_t a_count)
+	auto Value::RemoveElements(std::uint32_t a_startIndex, std::int32_t a_count) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsArray());
@@ -1383,17 +1386,18 @@ namespace Scaleform::GFx
 		return _objectInterface->RemoveElements(_value.data, a_startIndex, a_count);
 	}
 
-	bool Value::RemoveElement(std::uint32_t a_index)
+	auto Value::RemoveElement(std::uint32_t a_index) -> bool
 	{
 		return RemoveElements(a_index, 1);
 	}
 
-	bool Value::ClearElements()
+	auto Value::ClearElements() -> bool
 	{
 		return RemoveElements(0);
 	}
 
-	void Value::VisitElements(REX::NotNull<ArrayVisitor*> a_visitor, std::uint32_t a_startIndex, std::int32_t a_count) const
+	void Value::VisitElements(REX::NotNull<ArrayVisitor*> a_visitor, std::uint32_t a_startIndex, std::int32_t a_count)
+		const
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsArray());
@@ -1401,58 +1405,60 @@ namespace Scaleform::GFx
 		_objectInterface->VisitElements(_value.data, a_visitor.get(), a_startIndex, a_count);
 	}
 
-	void Value::VisitElements(REX::NotNull<ArrayVisitFunctor> a_visitor, std::uint32_t a_startIndex, std::int32_t a_count) const
+	void Value::VisitElements(
+		REX::NotNull<std::move_only_function<ArrayVisitFunctor>> a_visitor,
+		std::uint32_t a_startIndex,
+		std::int32_t a_count) const
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsArray());
 
-		class ElementVisitor final
-			: public ObjectInterface::ArrVisitor
+		class ElementVisitor final : public ObjectInterface::ArrVisitor
 		{
 		public:
-			ElementVisitor(REX::NotNull<ArrayVisitFunctor>&& a_func)
-				: _func(std::move(a_func))
+			explicit ElementVisitor(REX::NotNull<std::move_only_function<ArrayVisitFunctor>> a_func) noexcept :
+				_func(std::move(a_func))
 			{
 			}
 
-			~ElementVisitor() override = default;
+			~ElementVisitor() noexcept override = default;
 
 			ElementVisitor(const ElementVisitor&) = delete;
 			ElementVisitor(ElementVisitor&&) = delete;
 
-			ElementVisitor& operator=(const ElementVisitor&) = delete;
-			ElementVisitor& operator=(ElementVisitor&&) = delete;
+			auto operator=(const ElementVisitor&) -> ElementVisitor& = delete;
+			auto operator=(ElementVisitor&&) -> ElementVisitor& = delete;
 
 			void Visit(std::uint32_t a_index, const Value& a_value) override
 			{
-				std::invoke(*_func, a_index, a_value);
+				std::invoke(_func.get(), a_index, a_value);
 			}
 
 		private:
-			REX::NotNull<ArrayVisitFunctor> _func;
+			REX::NotNull<std::move_only_function<ArrayVisitFunctor>> _func;
 		};
 
 		auto visitor = ElementVisitor(std::move(a_visitor));
 		_objectInterface->VisitElements(_value.data, std::addressof(visitor), a_startIndex, a_count);
 	}
 
-	Movie* Value::GetMovie() const
+	auto Value::GetMovie() const -> Ptr<Movie>
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsAnyObject());
 
-		return static_cast<Movie*>(_objectInterface->movieRoot);
+		return Ptr(RE::DynamicCast<Movie*>(_objectInterface->movieRoot));
 	}
 
-	MovieImpl* Value::GetMovieImpl() const
+	auto Value::GetMovieImpl() const -> Ptr<MovieImpl>
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsAnyObject());
 
-		return _objectInterface->movieRoot;
+		return Ptr(_objectInterface->movieRoot);
 	}
 
-	bool Value::GetDisplayInfo(DisplayInfo* a_info) const
+	auto Value::GetDisplayInfo(DisplayInfo* a_info) const -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsDisplayObject());
@@ -1460,7 +1466,7 @@ namespace Scaleform::GFx
 		return _objectInterface->GetDisplayInfo(_value.data, a_info);
 	}
 
-	bool Value::SetDisplayInfo(const DisplayInfo& a_info)
+	auto Value::SetDisplayInfo(const DisplayInfo& a_info) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsDisplayObject());
@@ -1468,7 +1474,7 @@ namespace Scaleform::GFx
 		return _objectInterface->SetDisplayInfo(_value.data, a_info);
 	}
 
-	bool Value::GetDisplayMatrix(Render::Matrix2x4<REX::Float32>* a_matrix) const
+	auto Value::GetDisplayMatrix(Render::Matrix2x4F* a_matrix) const -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsDisplayObject());
@@ -1476,7 +1482,7 @@ namespace Scaleform::GFx
 		return _objectInterface->GetDisplayMatrix(_value.data, a_matrix);
 	}
 
-	bool Value::SetDisplayMatrix(const Render::Matrix2x4<REX::Float32>* a_matrix)
+	auto Value::SetDisplayMatrix(const Render::Matrix2x4F* a_matrix) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsDisplayObject());
@@ -1484,7 +1490,7 @@ namespace Scaleform::GFx
 		return _objectInterface->SetDisplayMatrix(_value.data, a_matrix);
 	}
 
-	bool Value::GetCxform(Render::Cxform* a_cxform) const
+	auto Value::GetCxform(Render::Cxform* a_cxform) const -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsDisplayObject());
@@ -1492,7 +1498,7 @@ namespace Scaleform::GFx
 		return _objectInterface->GetCxform(_value.data, a_cxform);
 	}
 
-	bool Value::SetCxform(const Render::Cxform* a_cxform)
+	auto Value::SetCxform(const Render::Cxform* a_cxform) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsDisplayObject());
@@ -1500,15 +1506,26 @@ namespace Scaleform::GFx
 		return _objectInterface->SetCxform(_value.data, a_cxform);
 	}
 
-	bool Value::AttachMovie(Value* a_movieClip, const char* a_symbolName, const char* a_instanceName, std::int32_t a_depth, const MemberValueSet* a_initList)
+	auto Value::AttachMovie(
+		Value* a_movieClip,
+		const char* a_symbolName,
+		const char* a_instanceName,
+		std::int32_t a_depth,
+		const MemberValueSet* a_initList) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsDisplayObject());
 
-		return _objectInterface->AttachMovie(_value.data, a_movieClip, a_symbolName, a_instanceName, a_depth, a_initList);
+		return _objectInterface->AttachMovie(
+			_value.data,
+			a_movieClip,
+			a_symbolName,
+			a_instanceName,
+			a_depth,
+			a_initList);
 	}
 
-	bool Value::CreateEmptyMovieClip(Value* a_movieClip, const char* a_instanceName, std::int32_t a_depth)
+	auto Value::CreateEmptyMovieClip(Value* a_movieClip, const char* a_instanceName, std::int32_t a_depth) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsDisplayObject());
@@ -1516,7 +1533,7 @@ namespace Scaleform::GFx
 		return _objectInterface->CreateEmptyMovieClip(_value.data, a_movieClip, a_instanceName, a_depth);
 	}
 
-	bool Value::GotoAndPlay(std::uint32_t a_frame)
+	auto Value::GotoAndPlay(std::uint32_t a_frame) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsDisplayObject());
@@ -1524,7 +1541,7 @@ namespace Scaleform::GFx
 		return _objectInterface->GotoAndPlay(_value.data, a_frame, false);
 	}
 
-	bool Value::GotoAndPlay(const char* a_frame)
+	auto Value::GotoAndPlay(const char* a_frame) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsDisplayObject());
@@ -1532,7 +1549,7 @@ namespace Scaleform::GFx
 		return _objectInterface->GotoAndPlay(_value.data, a_frame, false);
 	}
 
-	bool Value::GotoAndStop(std::uint32_t a_frame)
+	auto Value::GotoAndStop(std::uint32_t a_frame) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsDisplayObject());
@@ -1540,7 +1557,7 @@ namespace Scaleform::GFx
 		return _objectInterface->GotoAndPlay(_value.data, a_frame, true);
 	}
 
-	bool Value::GotoAndStop(const char* a_frame)
+	auto Value::GotoAndStop(const char* a_frame) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsDisplayObject());
@@ -1548,7 +1565,7 @@ namespace Scaleform::GFx
 		return _objectInterface->GotoAndPlay(_value.data, a_frame, true);
 	}
 
-	bool Value::Invoke(const char* a_name, Value* a_result, const Value* a_args, std::uint32_t a_numArgs)
+	auto Value::Invoke(const char* a_name, Value* a_result, const Value* a_args, std::uint32_t a_numArgs) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsAnyObject());
@@ -1556,65 +1573,77 @@ namespace Scaleform::GFx
 		return _objectInterface->Invoke(_value.data, a_result, a_name, a_args, a_numArgs, IsDisplayObject());
 	}
 
-	bool Value::Invoke(const char* a_name, std::span<const Value> a_args)
+	auto Value::Invoke(const char* a_name, std::span<const Value> a_args) -> bool
 	{
 		return Invoke(a_name, nullptr, a_args.data(), static_cast<std::uint32_t>(a_args.size()));
 	}
 
-	bool Value::Invoke(const char* a_name, Value* a_result, std::span<const Value> a_args)
+	auto Value::Invoke(const char* a_name, Value* a_result, std::span<const Value> a_args) -> bool
 	{
 		return Invoke(a_name, a_result, a_args.data(), static_cast<std::uint32_t>(a_args.size()));
 	}
 
-	bool Value::InvokeFunction(Value* a_result, const Value* a_args, std::uint32_t a_numArgs)
+	auto Value::InvokeFunction(Value* a_result, const Value* a_args, std::uint32_t a_numArgs) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsFunction());
 
-		auto thisArg = Value(nullptr);
+		auto thisArg = NULL_VALUE;
 
-		auto callArgs = std::vector<Value>();
+		auto callArgs = std::vector<Value, StlAllocator<Value>>();
 		callArgs.reserve(a_numArgs + 1);
 
 		callArgs.push_back(std::move(thisArg));
 		callArgs.insert(callArgs.end(), a_args, a_args + a_numArgs);
 
-		return _objectInterface->Invoke(_value.data, a_result, "call", callArgs.data(), static_cast<std::uint32_t>(callArgs.size()), false);
+		return _objectInterface->Invoke(
+			_value.data,
+			a_result,
+			"call",
+			callArgs.data(),
+			static_cast<std::uint32_t>(callArgs.size()),
+			false);
 	}
 
-	bool Value::InvokeFunction(std::span<const Value> a_args)
+	auto Value::InvokeFunction(std::span<const Value> a_args) -> bool
 	{
 		return InvokeFunction(nullptr, a_args.data(), static_cast<std::uint32_t>(a_args.size()));
 	}
 
-	bool Value::InvokeFunction(Value* a_result, std::span<const Value> a_args)
+	auto Value::InvokeFunction(Value* a_result, std::span<const Value> a_args) -> bool
 	{
 		return InvokeFunction(a_result, a_args.data(), static_cast<std::uint32_t>(a_args.size()));
 	}
 
-	bool Value::ApplyFunction(Value* a_result, const Value* a_args)
+	auto Value::ApplyFunction(Value* a_result, const Value* a_args) -> bool
 	{
 		REX::Assert(_objectInterface != nullptr);
 		REX::Assert(IsFunction());
 		REX::Assert(a_args == nullptr || a_args->IsNull() || a_args->IsArray());
 
-		auto thisArg = Value(nullptr);
+		auto thisArg = NULL_VALUE;
 		auto applyArgs = std::array<Value, 2>();
 
 		applyArgs[0] = std::move(thisArg);
-		applyArgs[1] = a_args ? *a_args : Value(nullptr);
+		applyArgs[1] = a_args ? *a_args : NULL_VALUE;
 
-		return _objectInterface->Invoke(_value.data, a_result, "apply", applyArgs.data(), static_cast<std::uint32_t>(applyArgs.size()), false);
+		return _objectInterface->Invoke(
+			_value.data,
+			a_result,
+			"apply",
+			applyArgs.data(),
+			static_cast<std::uint32_t>(applyArgs.size()),
+			false);
 	}
 
-	bool Value::ApplyFunction(const Value* a_args)
+	auto Value::ApplyFunction(const Value* a_args) -> bool
 	{
 		return ApplyFunction(nullptr, a_args);
 	}
 
-	bool Value::IsManagedValue() const noexcept
+	auto Value::IsManagedValue() const noexcept -> bool
 	{
-		const auto managed = _type.all(ValueType::kManagedBit);
+		const auto managed = _type.all(ValueType::ManagedBit);
 		REX::Assert(managed ? _objectInterface != nullptr : true);
 		return managed;
 	}
@@ -1654,49 +1683,44 @@ namespace Scaleform::GFx
 		std::swap(_value, a_other._value);
 		std::swap(_dataAux, a_other._dataAux);
 	}
-
-	void swap(Value& a_lhs, Value& a_rhs) noexcept
-	{
-		a_lhs.swap(a_rhs);
-	}
 }
 
 namespace std
 {
-	std::size_t hash<Scaleform::GFx::Value>::operator()(const Scaleform::GFx::Value& a_key) const noexcept
+	auto hash<Scaleform::GFx::Value>::operator()(const Scaleform::GFx::Value& a_key) const noexcept -> std::size_t
 	{
 		using ValueType = Scaleform::GFx::Value::ValueType;
 
 		const auto type = a_key.GetType();
 		switch (type) {
-			case ValueType::kNull: {
+			case ValueType::Null: {
 				return REX::HashCombine(type, a_key.GetNull());
 			}
-			case ValueType::kUndefined: {
+			case ValueType::Undefined: {
 				return REX::HashCombine(type, a_key.GetUndefined());
 			}
-			case ValueType::kBoolean: {
+			case ValueType::Boolean: {
 				return REX::HashCombine(type, a_key.GetBoolean());
 			}
-			case ValueType::kInt: {
+			case ValueType::Int: {
 				return REX::HashCombine(type, a_key.GetInt());
 			}
-			case ValueType::kUInt: {
+			case ValueType::UInt: {
 				return REX::HashCombine(type, a_key.GetUInt());
 			}
-			case ValueType::kNumber: {
+			case ValueType::Number: {
 				return REX::HashCombine(type, a_key.GetNumber());
 			}
-			case ValueType::kString: {
+			case ValueType::String: {
 				return REX::HashCombine(type, a_key.GetStringView());
 			}
-			case ValueType::kStringW: {
+			case ValueType::StringW: {
 				return REX::HashCombine(type, a_key.GetWStringView());
 			}
-			case ValueType::kObject:
-			case ValueType::kDisplayObject:
-			case ValueType::kArray:
-			case ValueType::kClosure: {
+			case ValueType::Object:
+			case ValueType::DisplayObject:
+			case ValueType::Array:
+			case ValueType::Closure: {
 				return REX::HashCombine(type, a_key.GetUserData());
 			}
 			default: {

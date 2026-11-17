@@ -1,0 +1,15 @@
+#pragma once
+
+namespace RE
+{
+	class CombatBehaviorStack
+	{
+	public:
+		// members
+		std::byte* buffer;		  // 0x00
+		std::uint32_t bufferSize; // 0x08
+		std::uint32_t size;		  // 0x0C
+	};
+
+	static_assert(sizeof(CombatBehaviorStack) == 0x10);
+}

@@ -2,38 +2,38 @@
 
 namespace RE
 {
-	PlayerCamera* PlayerCamera::GetSingleton()
+	auto PlayerCamera::GetSingleton() noexcept -> PlayerCamera*
 	{
-		static const auto SINGLETON = REL::Relocation<PlayerCamera**>{ ID::PlayerCamera::Singleton };
+		static const auto SINGLETON = REL::Relocation<PlayerCamera**>(ID::PlayerCamera::Singleton);
 		return *SINGLETON;
 	}
 
-	bool PlayerCamera::IsStateActive(CameraStates a_state) const noexcept
+	auto PlayerCamera::IsStateActive(CameraStates a_state) const noexcept -> bool
 	{
 		return currentState && currentState->id == a_state;
 	}
 
-	bool PlayerCamera::IsStateActive(const BSTSmartPointer<TESCameraState>& a_state) const noexcept
+	auto PlayerCamera::IsStateActive(const BSTSmartPointer<TESCameraState>& a_state) const noexcept -> bool
 	{
 		return currentState && a_state && currentState->id == a_state->id;
 	}
 
-	BSTSmartPointer<TESCameraState> PlayerCamera::GetState(CameraStates a_state) const
+	auto PlayerCamera::GetState(CameraStates a_state) const -> BSTSmartPointer<TESCameraState>
 	{
-		REX::Assert(a_state >= CameraStates::kMin && a_state < CameraStates::kMax);
-		return cameraStates[std::to_underlying(a_state)];
+		REX::Assert(a_state >= CameraStates::_Min && a_state < CameraStates::_Max);
+		return cameraStates[REX::ToUnsigned(std::to_underlying(a_state))];
 	}
 
-	BSTSmartPointer<TESCameraState> PlayerCamera::GetState() const
+	auto PlayerCamera::GetState() const -> BSTSmartPointer<TESCameraState>
 	{
 		return currentState;
 	}
 
 	void PlayerCamera::SetState(TESCameraState* a_newState)
 	{
-		// F4SE injects into this function
+		// F4SE injects into this function.
 		using FuncType = void(PlayerCamera*, TESCameraState*);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::PlayerCamera::SetState };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::PlayerCamera::SetState);
 		std::invoke(FUNC, this, a_newState);
 	}
 
@@ -42,31 +42,31 @@ namespace RE
 		SetState(a_newState.get());
 	}
 
-	bool PlayerCamera::GetCameraPosition(NiPoint3& a_outPosition, bool a_addPlayerPos) const
+	auto PlayerCamera::GetCameraPosition(NiPoint3& a_outPosition, bool a_addPlayerPos) const -> bool
 	{
 		using FuncType = decltype(&PlayerCamera::GetCameraPosition);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::PlayerCamera::GetCameraPosition };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::PlayerCamera::GetCameraPosition);
 		return std::invoke(FUNC, this, std::ref(a_outPosition), a_addPlayerPos);
 	}
 
 	void PlayerCamera::ToggleFreeCameraMode(bool a_freezeTime)
 	{
 		using FuncType = decltype(&PlayerCamera::ToggleFreeCameraMode);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::PlayerCamera::ToggleFreeCameraMode };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::PlayerCamera::ToggleFreeCameraMode);
 		std::invoke(FUNC, this, a_freezeTime);
 	}
 
 	void PlayerCamera::StartPipboyMode(bool a_forcePipboyModeCamera)
 	{
 		using FuncType = decltype(&PlayerCamera::StartPipboyMode);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::PlayerCamera::StartPipboyMode };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::PlayerCamera::StartPipboyMode);
 		std::invoke(FUNC, this, a_forcePipboyModeCamera);
 	}
 
 	void PlayerCamera::StopPipboyMode()
 	{
 		using FuncType = decltype(&PlayerCamera::StopPipboyMode);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::PlayerCamera::StopPipboyMode };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::PlayerCamera::StopPipboyMode);
 		std::invoke(FUNC, this);
 	}
 }

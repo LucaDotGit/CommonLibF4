@@ -1,0 +1,54 @@
+#pragma once
+
+#include "Scaleform/G/GFx_StatGroup.hpp"
+
+namespace Scaleform::GFx
+{
+	enum StatMovieView : std::int32_t
+	{
+		StatMV_Default = StatGroup_GFxMovieView,
+
+		StatMV_Mem,
+		StatMV_MovieClip_Mem,
+		StatMV_ActionScript_Mem,
+		StatMV_ASString_Mem,
+		StatMV_Text_Mem,
+		StatMV_XML_Mem,
+		StatMV_Other_Mem,
+		StatMV_VM,
+		StatMV_VM_VM_Mem,
+		StatMV_VM_CallFrame_Mem,
+		StatMV_VM_VTable_Mem,
+		StatMV_VM_SlotInfo_Mem,
+		StatMV_VM_SlotInfoHash_Mem,
+		StatMV_VM_CTraits_Mem,
+		StatMV_VM_Class_Mem,
+		StatMV_VM_ITraits_Mem,
+		StatMV_VM_Instance_Mem,
+		StatMV_VM_AbcFile_Mem,
+		StatMV_VM_AbcConstPool_Mem,
+		StatMV_VM_VMAbcFile_Mem,
+		StatMV_VM_Tracer_Mem,
+
+		StatMV_Tks,
+		StatMV_Advance_Tks,
+		StatMV_Action_Tks,
+		StatMV_Seek_Tks,
+		StatMV_Timeline_Tks,
+		StatMV_Input_Tks,
+		StatMV_Mouse_Tks,
+		StatMV_ScriptCommunication_Tks,
+		StatMV_GetVariable_Tks,
+		StatMV_SetVariable_Tks,
+		StatMV_Invoke_Tks,
+		StatMV_InvokeAction_Tks,
+		StatMV_Display_Tks,
+		StatMV_Tessellate_Tks,
+		StatMV_GradientGen_Tks,
+
+		StatMV_Counters,
+		StatMV_Invoke_Cnt,
+		StatMV_MCAdvance_Cnt,
+		StatMV_Tessellate_Cnt
+	};
+}

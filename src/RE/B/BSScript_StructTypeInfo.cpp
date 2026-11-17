@@ -5,16 +5,16 @@
 
 namespace RE::BSScript
 {
-	BSTSmartPointer<ObjectTypeInfo> StructTypeInfo::GetParentTypeInfo() const noexcept
+	auto StructTypeInfo::GetParentTypeInfo() const noexcept -> BSTSmartPointer<ObjectTypeInfo>
 	{
 		return containingObjTypeInfo;
 	}
 
-	bool StructTypeInfo::IsLinked() const noexcept
+	auto StructTypeInfo::IsLinked() const noexcept -> bool
 	{
 		switch (linkedValid.get()) {
-			case LinkValidState::kLinkedValid:
-			case LinkValidState::kLinkedInvalid: {
+			case LinkValidState::LinkedValid:
+			case LinkValidState::LinkedInvalid: {
 				return true;
 			}
 			default: {
@@ -23,18 +23,17 @@ namespace RE::BSScript
 		}
 	}
 
-	bool StructTypeInfo::IsLinkedValid() const noexcept
+	auto StructTypeInfo::IsLinkedValid() const noexcept -> bool
 	{
-		return linkedValid == LinkValidState::kLinkedValid;
+		return linkedValid == LinkValidState::LinkedValid;
 	}
 
-	bool StructTypeInfo::IsLinkedInvalid() const noexcept
+	auto StructTypeInfo::IsLinkedInvalid() const noexcept -> bool
 	{
-		return linkedValid == LinkValidState::kLinkedInvalid;
+		return linkedValid == LinkValidState::LinkedInvalid;
 	}
 
-	auto StructTypeInfo::GetVariableIndex(const BSFixedString& a_name) const
-		-> std::optional<std::uint32_t>
+	auto StructTypeInfo::GetVariableIndexByName(const BSFixedString& a_name) const -> std::optional<std::uint32_t>
 	{
 		const auto varIt = varNameIndexMap.find(a_name);
 		if (varIt == varNameIndexMap.end()) {

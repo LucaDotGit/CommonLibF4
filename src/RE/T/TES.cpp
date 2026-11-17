@@ -3,55 +3,78 @@
 #include "RE/B/BSContainer_ForEachResult.hpp"
 #include "RE/E/EXTERIOR_DATA.hpp"
 #include "RE/G/GridCellArray.hpp"
-#include "RE/N/NiPoint.hpp"
+#include "RE/N/NiPoint2.hpp"
 #include "RE/T/TESObjectCELL.hpp"
 #include "RE/T/TESObjectREFR.hpp"
 #include "RE/T/TESWorldSpace.hpp"
 
 namespace RE
 {
-	TES* TES::GetSingleton()
+	auto TES::GetSingleton() noexcept -> TES*
 	{
-		static const auto SINGLETON = REL::Relocation<TES**>{ ID::TES::Singleton };
+		static const auto SINGLETON = REL::Relocation<TES**>(ID::TES::Singleton);
 		return *SINGLETON;
 	}
 
-	BSContainer::ForEachResult TES::ForEachRefInSkyCell(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(const NiPointer<TESObjectREFR>&)>>& a_predicate) const
+	void TES::CreateTextureImage(
+		const char* a_filePath,
+		NiPointer<NiTexture>& a_outTexture,
+		bool a_mustFindFile,
+		bool a_archiveOnly) const
+	{
+		using FuncType = decltype(&TES::CreateTextureImage);
+		static const auto FUNC = REL::Relocation<FuncType>(ID::TES::CreateTextureImage);
+		std::invoke(FUNC, this, a_filePath, a_outTexture, a_mustFindFile, a_archiveOnly);
+	}
+
+	void TES::UpdateMultiBoundVisibility(BSCullingProcess* a_cullingProcess)
+	{
+		using FuncType = decltype(&TES::UpdateMultiBoundVisibility);
+		static const auto FUNC = REL::Relocation<FuncType>(ID::TES::UpdateMultiBoundVisibility);
+		std::invoke(FUNC, this, a_cullingProcess);
+	}
+
+	auto TES::ForEachRefInSkyCell(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const NiPointer<TESObjectREFR>&) const>>&
+			a_predicate) const -> BSContainer::ForEachResult
 	{
 		if (!worldSpace) {
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		}
 
 		const auto* skyCell = worldSpace->GetSkyCell();
 		if (!skyCell) {
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		}
 
 		return skyCell->ForEachRef(a_predicate);
 	}
 
-	BSContainer::ForEachResult TES::ForEachRefInSkyCell(const NiPoint3& a_origin, REX::Float32 a_radius,
-		const REX::NotNull<std::function<BSContainer::ForEachResult(const NiPointer<TESObjectREFR>&)>>& a_predicate) const
+	auto TES::ForEachRefInSkyCell(
+		const NiPoint3& a_origin,
+		REX::Float32 a_radius,
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const NiPointer<TESObjectREFR>&) const>>&
+			a_predicate) const -> BSContainer::ForEachResult
 	{
 		if (!worldSpace) {
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		}
 
 		const auto* skyCell = worldSpace->GetSkyCell();
 		if (!skyCell) {
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		}
 
 		return skyCell->ForEachRefInRange(a_origin, a_radius, a_predicate);
 	}
 
-	BSContainer::ForEachResult TES::ForEachRef(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(const NiPointer<TESObjectREFR>&)>>& a_predicate) const
+	auto TES::ForEachRef(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const NiPointer<TESObjectREFR>&) const>>&
+			a_predicate) const -> BSContainer::ForEachResult
 	{
 		if (interiorCell) {
-			if (interiorCell->ForEachRef(a_predicate) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (interiorCell->ForEachRef(a_predicate) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 
 			return ForEachRefInSkyCell(a_predicate);
@@ -62,15 +85,15 @@ namespace RE
 			return ForEachRefInSkyCell(a_predicate);
 		}
 
-		for (auto x = 0ui32; x < gridLength; x++) {
-			for (auto y = 0ui32; y < gridLength; y++) {
+		for (auto x = static_cast<std::uint32_t>(0); x < gridLength; x++) {
+			for (auto y = static_cast<std::uint32_t>(0); y < gridLength; y++) {
 				const auto* cell = gridCells->GetCell(x, y);
 				if (!cell || !cell->IsAttached()) {
 					continue;
 				}
 
-				if (cell->ForEachRef(a_predicate) == BSContainer::ForEachResult::kStop) {
-					return BSContainer::ForEachResult::kStop;
+				if (cell->ForEachRef(a_predicate) == BSContainer::ForEachResult::Stop) {
+					return BSContainer::ForEachResult::Stop;
 				}
 			}
 		}
@@ -78,16 +101,19 @@ namespace RE
 		return ForEachRefInSkyCell(a_predicate);
 	}
 
-	BSContainer::ForEachResult TES::ForEachRefInRange(const NiPoint3& a_center, REX::Float32 a_radius,
-		const REX::NotNull<std::function<BSContainer::ForEachResult(const NiPointer<TESObjectREFR>&)>>& a_predicate) const
+	auto TES::ForEachRefInRange(
+		const NiPoint3& a_center,
+		REX::Float32 a_radius,
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const NiPointer<TESObjectREFR>&) const>>&
+			a_predicate) const -> BSContainer::ForEachResult
 	{
-		if (a_radius <= 0.0_f32) {
+		if (a_radius <= static_cast<REX::Float32>(0.0)) {
 			return ForEachRef(a_predicate);
 		}
 
 		if (interiorCell) {
-			if (interiorCell->ForEachRefInRange(a_center, a_radius, a_predicate) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (interiorCell->ForEachRefInRange(a_center, a_radius, a_predicate) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 
 			return ForEachRefInSkyCell(a_center, a_radius, a_predicate);
@@ -98,13 +124,11 @@ namespace RE
 			return ForEachRefInSkyCell(a_center, a_radius, a_predicate);
 		}
 
-		constexpr auto CELL_SIZE = GridCellArray::CELL_SIZE;
+		const auto coordsPlus = NiPoint2{a_center.x + a_radius, a_center.y + a_radius};
+		const auto coordsMinus = NiPoint2{a_center.x - a_radius, a_center.y - a_radius};
 
-		const auto coordsPlus = NiPoint2{ a_center.x + a_radius, a_center.y + a_radius };
-		const auto coordsMinus = NiPoint2{ a_center.x - a_radius, a_center.y - a_radius };
-
-		for (auto x = 0ui32; x < gridLength; x++) {
-			for (auto y = 0ui32; y < gridLength; y++) {
+		for (auto x = static_cast<std::uint32_t>(0); x < gridLength; x++) {
+			for (auto y = static_cast<std::uint32_t>(0); y < gridLength; y++) {
 				const auto* cell = gridCells->GetCell(x, y);
 				if (!cell || !cell->IsAttached()) {
 					continue;
@@ -115,15 +139,19 @@ namespace RE
 					continue;
 				}
 
-				const auto worldPos = NiPoint2{ cellCoords->worldX, cellCoords->worldY };
-				const auto cellPlus = NiPoint2{ worldPos.x + CELL_SIZE, worldPos.y + CELL_SIZE };
+				const auto worldPos = NiPoint2{cellCoords->worldX, cellCoords->worldY};
+				const auto cellPlus =
+					NiPoint2{worldPos.x + GridCellArray::CELL_SIZE, worldPos.y + GridCellArray::CELL_SIZE};
 
-				if (coordsPlus.x < worldPos.x || coordsPlus.y < worldPos.y || coordsMinus.x > cellPlus.x || coordsMinus.y > cellPlus.y) {
+				if (coordsPlus.x < worldPos.x ||
+					coordsPlus.y < worldPos.y ||
+					coordsMinus.x > cellPlus.x ||
+					coordsMinus.y > cellPlus.y) {
 					continue;
 				}
 
-				if (cell->ForEachRefInRange(a_center, a_radius, a_predicate) == BSContainer::ForEachResult::kStop) {
-					return BSContainer::ForEachResult::kStop;
+				if (cell->ForEachRefInRange(a_center, a_radius, a_predicate) == BSContainer::ForEachResult::Stop) {
+					return BSContainer::ForEachResult::Stop;
 				}
 			}
 		}
@@ -131,11 +159,14 @@ namespace RE
 		return ForEachRefInSkyCell(a_center, a_radius, a_predicate);
 	}
 
-	BSContainer::ForEachResult TES::ForEachRefInRange(const TESObjectREFR* a_origin, REX::Float32 a_radius,
-		const REX::NotNull<std::function<BSContainer::ForEachResult(const NiPointer<TESObjectREFR>&)>>& a_predicate) const
+	auto TES::ForEachRefInRange(
+		const TESObjectREFR* a_origin,
+		REX::Float32 a_radius,
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const NiPointer<TESObjectREFR>&) const>>&
+			a_predicate) const -> BSContainer::ForEachResult
 	{
 		if (!a_origin) {
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		}
 
 		return ForEachRefInRange(a_origin->GetPosition(), a_radius, a_predicate);

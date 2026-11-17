@@ -1,0 +1,500 @@
+#pragma once
+
+#include "REX/W32/CORE.hpp"
+#include "REX/W32/D3D11.hpp"
+#include "REX/W32/DXGI.hpp"
+
+namespace REX::W32
+{
+	struct ID3DDeviceContextState;
+	struct ID3DUserDefinedAnnotation;
+	struct ID3D11BlendState1;
+	struct ID3D11Device1;
+	struct ID3D11DeviceContext1;
+	struct ID3D11RasterizerState1;
+	struct ID3D11VideoContext1;
+	struct ID3D11VideoDevice1;
+	struct ID3D11VideoProcessorEnumerator1;
+}
+
+namespace REX::W32
+{
+	enum D3D11_1_CREATE_DEVICE_CONTEXT_STATE_FLAG : std::uint32_t
+	{
+		D3D11_1_CREATE_DEVICE_CONTEXT_STATE_SINGLETHREADED = 0x01
+	};
+
+	enum D3D11_COPY_FLAGS : std::uint32_t
+	{
+		D3D11_COPY_NO_OVERWRITE = 0x01,
+		D3D11_COPY_DISCARD = 0x02
+	};
+
+	enum D3D11_CRYPTO_SESSION_STATUS : std::int32_t
+	{
+		D3D11_CRYPTO_SESSION_STATUS_OK = 0,
+		D3D11_CRYPTO_SESSION_STATUS_KEY_LOST = 1,
+		D3D11_CRYPTO_SESSION_STATUS_KEY_AND_CONTENT_LOST = 2
+	};
+
+	enum D3D11_LOGIC_OP : std::int32_t
+	{
+		D3D11_LOGIC_OP_CLEAR = 0,
+		D3D11_LOGIC_OP_SET = 1,
+		D3D11_LOGIC_OP_COPY = 2,
+		D3D11_LOGIC_OP_COPY_INVERTED = 3,
+		D3D11_LOGIC_OP_NOOP = 4,
+		D3D11_LOGIC_OP_INVERT = 5,
+		D3D11_LOGIC_OP_AND = 6,
+		D3D11_LOGIC_OP_NAND = 7,
+		D3D11_LOGIC_OP_OR = 8,
+		D3D11_LOGIC_OP_NOR = 9,
+		D3D11_LOGIC_OP_XOR = 10,
+		D3D11_LOGIC_OP_EQUIV = 11,
+		D3D11_LOGIC_OP_AND_REVERSE = 12,
+		D3D11_LOGIC_OP_AND_INVERTED = 13,
+		D3D11_LOGIC_OP_OR_REVERSE = 14,
+		D3D11_LOGIC_OP_OR_INVERTED = 15
+	};
+
+	enum D3D11_VIDEO_DECODER_CAPS : std::int32_t
+	{
+		D3D11_VIDEO_DECODER_CAPS_DOWNSAMPLE = 0x01,
+		D3D11_VIDEO_DECODER_CAPS_NON_REAL_TIME = 0x02,
+		D3D11_VIDEO_DECODER_CAPS_DOWNSAMPLE_DYNAMIC = 0x04,
+		D3D11_VIDEO_DECODER_CAPS_DOWNSAMPLE_REQUIRED = 0x08,
+		D3D11_VIDEO_DECODER_CAPS_UNSUPPORTED = 0x10
+	};
+
+	enum D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINTS : std::int32_t
+	{
+		D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINT_MULTIPLANE_OVERLAY_ROTATION = 0x01,
+		D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINT_MULTIPLANE_OVERLAY_RESIZE = 0x02,
+		D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINT_MULTIPLANE_OVERLAY_COLOR_SPACE_CONVERSION = 0x04,
+		D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINT_TRIPLE_BUFFER_OUTPUT = 0x08
+	};
+}
+
+namespace REX::W32
+{
+	struct D3D11_KEY_EXCHANGE_HW_PROTECTION_INPUT_DATA;
+	struct D3D11_KEY_EXCHANGE_HW_PROTECTION_OUTPUT_DATA;
+	struct D3D11_VIDEO_DECODER_SUB_SAMPLE_MAPPING_BLOCK;
+
+	struct D3D11_KEY_EXCHANGE_HW_PROTECTION_DATA
+	{
+		std::uint32_t hwProtectionFunctionID;
+		D3D11_KEY_EXCHANGE_HW_PROTECTION_INPUT_DATA* inputData;
+		D3D11_KEY_EXCHANGE_HW_PROTECTION_OUTPUT_DATA* outputData;
+		HRESULT status;
+	};
+
+	struct D3D11_KEY_EXCHANGE_HW_PROTECTION_INPUT_DATA
+	{
+		std::uint32_t privateDataSize;
+		std::uint32_t hwProtectionDataSize;
+		std::array<std::uint8_t, 4> input;
+	};
+
+	struct D3D11_KEY_EXCHANGE_HW_PROTECTION_OUTPUT_DATA
+	{
+		std::uint32_t privateDataSize;
+		std::uint32_t maxHWProtectionDataSize;
+		std::uint32_t hwProtectionDataSize;
+		std::uint64_t transportTime;
+		std::uint64_t executionTime;
+		std::array<std::uint8_t, 4> output;
+	};
+
+	struct D3D11_RASTERIZER_DESC1
+	{
+		D3D11_FILL_MODE fillMode;
+		D3D11_CULL_MODE cullMode;
+		BOOL frontCounterClockwise;
+		std::int32_t depthBias;
+		REX::Float32 depthBiasClamp;
+		REX::Float32 slopeScaledDepthBias;
+		BOOL depthClipEnable;
+		BOOL scissorEnable;
+		BOOL multisampleEnable;
+		BOOL antialiasedLineEnable;
+		std::uint32_t forcedSampleCount;
+	};
+
+	struct D3D11_RENDER_TARGET_BLEND_DESC1
+	{
+		BOOL blendEnable;
+		BOOL logicOpEnable;
+		D3D11_BLEND srcBlend;
+		D3D11_BLEND destBlend;
+		D3D11_BLEND_OP blendOp;
+		D3D11_BLEND srcBlendAlpha;
+		D3D11_BLEND destBlendAlpha;
+		D3D11_BLEND_OP blendOpAlpha;
+		D3D11_LOGIC_OP logicOp;
+		std::uint8_t renderTargetWriteMask;
+	};
+
+	struct D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION
+	{
+		ID3D11CryptoSession* cryptoSession;
+		std::uint32_t blobSize;
+		void* blob;
+		GUID* keyInfoId;
+		std::uint32_t privateDataSize;
+		void* privateData;
+	};
+
+	struct D3D11_VIDEO_DECODER_BUFFER_DESC1
+	{
+		D3D11_VIDEO_DECODER_BUFFER_TYPE bufferType;
+		std::uint32_t dataOffset;
+		std::uint32_t dataSize;
+		void* iv;
+		std::uint32_t ivSize;
+		D3D11_VIDEO_DECODER_SUB_SAMPLE_MAPPING_BLOCK* subSampleMappingBlock;
+		std::uint32_t subSampleMappingCount;
+	};
+
+	struct D3D11_VIDEO_DECODER_SUB_SAMPLE_MAPPING_BLOCK
+	{
+		std::uint32_t clearSize;
+		std::uint32_t encryptedSize;
+	};
+
+	struct D3D11_VIDEO_PROCESSOR_STREAM_BEHAVIOR_HINT
+	{
+		BOOL enable;
+		std::uint32_t width;
+		std::uint32_t height;
+		DXGI_FORMAT format;
+	};
+
+	struct D3D11_VIDEO_SAMPLE_DESC
+	{
+		std::uint32_t width;
+		std::uint32_t height;
+		DXGI_FORMAT format;
+		DXGI_COLOR_SPACE_TYPE colorSpace;
+	};
+
+	struct D3D11_BLEND_DESC1
+	{
+		BOOL alphaToCoverageEnable;
+		BOOL independentBlendEnable;
+		std::array<D3D11_RENDER_TARGET_BLEND_DESC1, 8> renderTarget;
+	};
+}
+
+namespace REX::W32
+{
+#if (__clang__ == 1)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnon-virtual-dtor"
+#endif
+
+#if (_MSC_VER > 0l)
+#pragma warning(push)
+#pragma warning(disable : 4'265)
+#endif
+
+	// NOLINTBEGIN(cppcoreguidelines-virtual-class-destructor)
+
+	struct __declspec(novtable, uuid("5C1E0D8A-7C23-48F9-8C59-A92958CEFF11")) ID3DDeviceContextState :
+		public ID3D11DeviceChild
+	{
+	};
+
+	struct __declspec(novtable, uuid("B2DAAD8B-03D4-4DBF-95EB-32AB4B63D0AB")) ID3DUserDefinedAnnotation :
+		public IUnknown
+	{
+		virtual auto BeginEvent(const wchar_t* a_name) -> std::int32_t = 0;
+		virtual auto EndEvent() -> std::int32_t = 0;
+		virtual void SetMarker(const wchar_t* a_name) = 0;
+		virtual auto GetStatus() -> BOOL = 0;
+	};
+
+	struct __declspec(novtable, uuid("CC86FABE-DA55-401D-85E7-E3C9DE2877E9")) ID3D11BlendState1 :
+		public ID3D11BlendState
+	{
+		virtual void GetDesc1(D3D11_BLEND_DESC1* a_desc) = 0;
+	};
+
+	struct __declspec(novtable, uuid("A04BFB29-08EF-43D6-A49C-A9BDBDCBE686")) ID3D11Device1 : public ID3D11Device
+	{
+		virtual void GetImmediateContext1(ID3D11DeviceContext1** a_immediateContext) = 0;
+		virtual auto CreateDeferredContext1(std::uint32_t a_contextFlags, ID3D11DeviceContext1** a_deferredContext)
+			-> HRESULT = 0;
+		virtual auto CreateBlendState1(const D3D11_BLEND_DESC1* a_blendStateDesc, ID3D11BlendState1** a_blendState)
+			-> HRESULT = 0;
+		virtual auto CreateRasterizerState1(
+			const D3D11_RASTERIZER_DESC1* a_rasterizerDesc,
+			ID3D11RasterizerState1** a_rasterizerState) -> HRESULT = 0;
+		virtual auto CreateDeviceContextState(
+			std::uint32_t a_flags,
+			const D3D_FEATURE_LEVEL* a_pFeatureLevels,
+			std::uint32_t a_featureLevels,
+			std::uint32_t a_sdkVersion,
+			const IID& a_emulatedInterface,
+			D3D_FEATURE_LEVEL* a_pFeatureLevel,
+			ID3DDeviceContextState** a_contextState) -> HRESULT = 0;
+		virtual auto OpenSharedResource1(HANDLE a_resourceHandle, const IID& a_returnedInterface, void** a_resource)
+			-> HRESULT = 0;
+		virtual auto OpenSharedResourceByName(
+			const wchar_t* a_name,
+			std::uint32_t a_desiredAccess,
+			const IID& a_returnedInterface,
+			void** a_resource) -> HRESULT = 0;
+	};
+
+	struct __declspec(novtable, uuid("BB2C6FAA-B5FB-4082-8E6B-388B8CFA90E1")) ID3D11DeviceContext1 :
+		public ID3D11DeviceContext
+	{
+		virtual void CopySubresourceRegion1(
+			ID3D11Resource* a_targetResource,
+			std::uint32_t a_targetSubresource,
+			std::uint32_t a_targetX,
+			std::uint32_t a_targetY,
+			std::uint32_t a_targetZ,
+			ID3D11Resource* a_sourceResource,
+			std::uint32_t a_sourceSubresource,
+			const D3D11_BOX* a_sourceBox,
+			std::uint32_t a_copyFlags) = 0;
+		virtual void UpdateSubresource1(
+			ID3D11Resource* a_targetResource,
+			std::uint32_t a_targetSubresource,
+			const D3D11_BOX* a_targetBox,
+			const void* a_sourceData,
+			std::uint32_t a_sourceRowPitch,
+			std::uint32_t a_sourceDepthPitch,
+			std::uint32_t a_copyFlags) = 0;
+		virtual void DiscardResource(ID3D11Resource* a_resource) = 0;
+		virtual void DiscardView(ID3D11View* a_resourceView) = 0;
+		virtual void VSSetConstantBuffers1(
+			std::uint32_t a_startSlot,
+			std::uint32_t a_numBuffers,
+			ID3D11Buffer* const* a_constantBuffers,
+			const std::uint32_t* a_firstConstant,
+			const std::uint32_t* a_numConstants) = 0;
+		virtual void HSSetConstantBuffers1(
+			std::uint32_t a_startSlot,
+			std::uint32_t a_numBuffers,
+			ID3D11Buffer* const* a_constantBuffers,
+			const std::uint32_t* a_firstConstant,
+			const std::uint32_t* a_numConstants) = 0;
+		virtual void DSSetConstantBuffers1(
+			std::uint32_t a_startSlot,
+			std::uint32_t a_numBuffers,
+			ID3D11Buffer* const* a_constantBuffers,
+			const std::uint32_t* a_firstConstant,
+			const std::uint32_t* a_numConstants) = 0;
+		virtual void GSSetConstantBuffers1(
+			std::uint32_t a_startSlot,
+			std::uint32_t a_numBuffers,
+			ID3D11Buffer* const* a_constantBuffers,
+			const std::uint32_t* a_firstConstant,
+			const std::uint32_t* a_numConstants) = 0;
+		virtual void PSSetConstantBuffers1(
+			std::uint32_t a_startSlot,
+			std::uint32_t a_numBuffers,
+			ID3D11Buffer* const* a_constantBuffers,
+			const std::uint32_t* a_firstConstant,
+			const std::uint32_t* a_numConstants) = 0;
+		virtual void CSSetConstantBuffers1(
+			std::uint32_t a_startSlot,
+			std::uint32_t a_numBuffers,
+			ID3D11Buffer* const* a_constantBuffers,
+			const std::uint32_t* a_firstConstant,
+			const std::uint32_t* a_numConstants) = 0;
+		virtual void VSGetConstantBuffers1(
+			std::uint32_t a_startSlot,
+			std::uint32_t a_numBuffers,
+			ID3D11Buffer** a_constantBuffers,
+			std::uint32_t* a_firstConstant,
+			std::uint32_t* a_numConstants) = 0;
+		virtual void HSGetConstantBuffers1(
+			std::uint32_t a_startSlot,
+			std::uint32_t a_numBuffers,
+			ID3D11Buffer** a_constantBuffers,
+			std::uint32_t* a_firstConstant,
+			std::uint32_t* a_numConstants) = 0;
+		virtual void DSGetConstantBuffers1(
+			std::uint32_t a_startSlot,
+			std::uint32_t a_numBuffers,
+			ID3D11Buffer** a_constantBuffers,
+			std::uint32_t* a_firstConstant,
+			std::uint32_t* a_numConstants) = 0;
+		virtual void GSGetConstantBuffers1(
+			std::uint32_t a_startSlot,
+			std::uint32_t a_numBuffers,
+			ID3D11Buffer** a_constantBuffers,
+			std::uint32_t* a_firstConstant,
+			std::uint32_t* a_numConstants) = 0;
+		virtual void PSGetConstantBuffers1(
+			std::uint32_t a_startSlot,
+			std::uint32_t a_numBuffers,
+			ID3D11Buffer** a_constantBuffers,
+			std::uint32_t* a_firstConstant,
+			std::uint32_t* a_numConstants) = 0;
+		virtual void CSGetConstantBuffers1(
+			std::uint32_t a_startSlot,
+			std::uint32_t a_numBuffers,
+			ID3D11Buffer** a_constantBuffers,
+			std::uint32_t* a_firstConstant,
+			std::uint32_t* a_numConstants) = 0;
+		virtual void SwapDeviceContextState(
+			ID3DDeviceContextState* a_state,
+			ID3DDeviceContextState** a_previousState) = 0;
+		virtual void ClearView(
+			ID3D11View* a_view,
+			std::array<const REX::Float32, 4> a_color,
+			const D3D11_RECT* a_rect,
+			std::uint32_t a_numRects) = 0;
+		virtual void DiscardView1(ID3D11View* a_resourceView, const D3D11_RECT* a_rects, std::uint32_t a_numRects) = 0;
+	};
+
+	struct __declspec(novtable, uuid("1217D7A6-5039-418C-B042-9CBE256AFD6E")) ID3D11RasterizerState1 :
+		public ID3D11RasterizerState
+	{
+		virtual void GetDesc1(D3D11_RASTERIZER_DESC1* a_desc) = 0;
+	};
+
+	struct __declspec(novtable, uuid("A7F026DA-A5F8-4487-A564-15E34357651E")) ID3D11VideoContext1 :
+		public ID3D11VideoContext
+	{
+		virtual auto SubmitDecoderBuffers1(
+			ID3D11VideoDecoder* a_decoder,
+			std::uint32_t a_numBuffers,
+			const D3D11_VIDEO_DECODER_BUFFER_DESC1* a_bufferDesc) -> HRESULT = 0;
+		virtual auto GetDataForNewHardwareKey(
+			ID3D11CryptoSession* a_cryptoSession,
+			std::uint32_t a_privateInputSize,
+			const void* a_privateInputData,
+			std::uint64_t* a_privateOutputData) -> HRESULT = 0;
+		virtual auto CheckCryptoSessionStatus(
+			ID3D11CryptoSession* a_cryptoSession,
+			D3D11_CRYPTO_SESSION_STATUS* a_status) -> HRESULT = 0;
+		virtual auto DecoderEnableDownsampling(
+			ID3D11VideoDecoder* a_decoder,
+			DXGI_COLOR_SPACE_TYPE a_inputColorSpace,
+			const D3D11_VIDEO_SAMPLE_DESC* a_outputDesc,
+			std::uint32_t a_referenceFrameCount) -> HRESULT = 0;
+		virtual auto DecoderUpdateDownsampling(
+			ID3D11VideoDecoder* a_decoder,
+			const D3D11_VIDEO_SAMPLE_DESC* a_outputDesc) -> HRESULT = 0;
+		virtual void VideoProcessorSetOutputColorSpace1(
+			ID3D11VideoProcessor* a_videoProcessor,
+			DXGI_COLOR_SPACE_TYPE a_colorSpace) = 0;
+		virtual void VideoProcessorSetOutputShaderUsage(ID3D11VideoProcessor* a_videoProcessor, BOOL a_shaderUsage) = 0;
+		virtual void VideoProcessorGetOutputColorSpace1(
+			ID3D11VideoProcessor* a_videoProcessor,
+			DXGI_COLOR_SPACE_TYPE* a_colorSpace) = 0;
+		virtual void VideoProcessorGetOutputShaderUsage(
+			ID3D11VideoProcessor* a_videoProcessor,
+			BOOL* a_shaderUsage) = 0;
+		virtual void VideoProcessorSetStreamColorSpace1(
+			ID3D11VideoProcessor* a_videoProcessor,
+			std::uint32_t a_streamIndex,
+			DXGI_COLOR_SPACE_TYPE a_colorSpace) = 0;
+		virtual void VideoProcessorSetStreamMirror(
+			ID3D11VideoProcessor* a_videoProcessor,
+			std::uint32_t a_streamIndex,
+			BOOL a_enable,
+			BOOL a_flipHorizontal,
+			BOOL a_flipVertical) = 0;
+		virtual void VideoProcessorGetStreamColorSpace1(
+			ID3D11VideoProcessor* a_videoProcessor,
+			std::uint32_t a_streamIndex,
+			DXGI_COLOR_SPACE_TYPE* a_colorSpace) = 0;
+		virtual void VideoProcessorGetStreamMirror(
+			ID3D11VideoProcessor* a_videoProcessor,
+			std::uint32_t a_streamIndex,
+			BOOL* a_enable,
+			BOOL* a_flipHorizontal,
+			BOOL* a_flipVertical) = 0;
+		virtual auto VideoProcessorGetBehaviorHints(
+			ID3D11VideoProcessor* a_videoProcessor,
+			std::uint32_t a_outputWidth,
+			std::uint32_t a_outputHeight,
+			DXGI_FORMAT a_outputFormat,
+			std::uint32_t a_streamCount,
+			const D3D11_VIDEO_PROCESSOR_STREAM_BEHAVIOR_HINT* a_streams,
+			std::uint32_t* a_behaviorHints) -> HRESULT = 0;
+	};
+
+	struct __declspec(novtable, uuid("29DA1D51-1321-4454-804B-F5FC9F861F0F")) ID3D11VideoDevice1 :
+		public ID3D11VideoDevice
+	{
+		virtual auto GetCryptoSessionPrivateDataSize(
+			const GUID* a_cryptoType,
+			const GUID* a_decoderProfile,
+			const GUID* a_keyExchangeType,
+			std::uint32_t* a_privateInputSize,
+			std::uint32_t* a_privateOutputSize) -> HRESULT = 0;
+		virtual auto GetVideoDecoderCaps(
+			const GUID* a_decoderProfile,
+			std::uint32_t a_sampleWidth,
+			std::uint32_t a_sampleHeight,
+			const DXGI_RATIONAL* a_frameRate,
+			std::uint32_t a_bitRate,
+			const GUID* a_cryptoType,
+			std::uint32_t* a_decoderCaps) -> HRESULT = 0;
+		virtual auto CheckVideoDecoderDownsampling(
+			const D3D11_VIDEO_DECODER_DESC* a_inputDesc,
+			DXGI_COLOR_SPACE_TYPE a_inputColorSpace,
+			const D3D11_VIDEO_DECODER_CONFIG* a_inputConfig,
+			const DXGI_RATIONAL* a_frameRate,
+			const D3D11_VIDEO_SAMPLE_DESC* a_outputDesc,
+			BOOL* a_supported,
+			BOOL* a_realTimeHint) -> HRESULT = 0;
+		virtual auto RecommendVideoDecoderDownsampleParameters(
+			const D3D11_VIDEO_DECODER_DESC* a_inputDesc,
+			DXGI_COLOR_SPACE_TYPE a_inputColorSpace,
+			const D3D11_VIDEO_DECODER_CONFIG* a_inputConfig,
+			const DXGI_RATIONAL* a_frameRate,
+			D3D11_VIDEO_SAMPLE_DESC* a_recommendedOutputDesc) -> HRESULT = 0;
+	};
+
+	struct __declspec(novtable, uuid("465217F2-5568-43CF-B5B9-F61D54531CA1")) ID3D11VideoProcessorEnumerator1 :
+		public ID3D11VideoProcessorEnumerator
+	{
+		virtual auto CheckVideoProcessorFormatConversion(
+			DXGI_FORMAT a_inputFormat,
+			DXGI_COLOR_SPACE_TYPE a_inputColorSpace,
+			DXGI_FORMAT a_outputFormat,
+			DXGI_COLOR_SPACE_TYPE a_outputColorSpace,
+			BOOL* a_supported) -> HRESULT = 0;
+	};
+
+	// NOLINTEND(cppcoreguidelines-virtual-class-destructor)
+
+#if (_MSC_VER > 0l)
+#pragma warning(pop)
+#endif
+
+#if (__clang__ == 1)
+#pragma clang diagnostic pop
+#endif
+}
+
+namespace REX::W32
+{
+	inline constexpr auto IID_ID3DDeviceContextState =
+		IID{0x5C1E'0D8A, 0x7C23, 0x48F9, {0x8C, 0x59, 0xA9, 0x29, 0x58, 0xCE, 0xFF, 0x11}};
+	inline constexpr auto IID_ID3DUserDefinedAnnotation =
+		IID{0xB2DA'AD8B, 0x03D4, 0x4DBF, {0x95, 0xEB, 0x32, 0xAB, 0x4B, 0x63, 0xD0, 0xAB}};
+	inline constexpr auto IID_ID3D11BlendState1 =
+		IID{0xCC86'FABE, 0xDA55, 0x401D, {0x85, 0xE7, 0xE3, 0xC9, 0xDE, 0x28, 0x77, 0xE9}};
+	inline constexpr auto IID_ID3D11Device1 =
+		IID{0xA04B'FB29, 0x08EF, 0x43D6, {0xA4, 0x9C, 0xA9, 0xBD, 0xBD, 0xCB, 0xE6, 0x86}};
+	inline constexpr auto IID_ID3D11DeviceContext1 =
+		IID{0xBB2C'6FAA, 0xB5FB, 0x4082, {0x8E, 0x6B, 0x38, 0x8B, 0x8C, 0xFA, 0x90, 0xE1}};
+	inline constexpr auto IID_ID3D11RasterizerState1 =
+		IID{0x1217'D7A6, 0x5039, 0x418C, {0xB0, 0x42, 0x9C, 0xBE, 0x25, 0x6A, 0xFD, 0x6E}};
+	inline constexpr auto IID_ID3D11VideoContext1 =
+		IID{0xA7F0'26DA, 0xA5F8, 0x4487, {0xA5, 0x64, 0x15, 0xE3, 0x43, 0x57, 0x65, 0x1E}};
+	inline constexpr auto IID_ID3D11VideoDevice1 =
+		IID{0x29DA'1D51, 0x1321, 0x4454, {0x80, 0x4B, 0xF5, 0xFC, 0x9F, 0x86, 0x1F, 0x0F}};
+	inline constexpr auto IID_ID3D11VideoProcessorEnumerator1 =
+		IID{0x4652'17F2, 0x5568, 0x43CF, {0xB5, 0xB9, 0xF6, 0x1D, 0x54, 0x53, 0x1C, 0xA1}};
+}

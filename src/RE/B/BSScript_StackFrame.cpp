@@ -6,17 +6,16 @@
 
 namespace RE::BSScript
 {
-	std::uint32_t StackFrame::GetPageForFrame() const
+	auto StackFrame::GetPageForFrame() const -> std::uint32_t
 	{
-		if (!parentStack) [[unlikely]] {
-			REX::Assert(false);
+		if (!parentStack) {
 			return std::numeric_limits<std::uint32_t>::max();
 		}
 
 		return parentStack->GetPageForFrame(this);
 	}
 
-	BSTSmartPointer<Object> StackFrame::GetSelfObject() const
+	auto StackFrame::GetSelfObject() const -> BSTSmartPointer<Object>
 	{
 		if (!self.IsObject()) {
 			return nullptr;
@@ -25,7 +24,7 @@ namespace RE::BSScript
 		return self.GetObject();
 	}
 
-	ObjectHandle StackFrame::GetSelfObjectHandle() const
+	auto StackFrame::GetSelfObjectHandle() const -> ObjectHandle
 	{
 		if (!self.IsObject()) {
 			return GameScript::HandlePolicy::EMPTY_HANDLE;
@@ -39,10 +38,9 @@ namespace RE::BSScript
 		return selfObject->GetHandle();
 	}
 
-	Variable* StackFrame::GetStackFrameVariable(std::uint32_t a_index, std::uint32_t a_pageHint) const
+	auto StackFrame::GetStackFrameVariable(std::uint32_t a_index, std::uint32_t a_pageHint) const -> const Variable*
 	{
-		if (!parentStack) [[unlikely]] {
-			REX::Assert(false);
+		if (!parentStack) {
 			return nullptr;
 		}
 

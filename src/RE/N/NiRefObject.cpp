@@ -16,24 +16,29 @@ namespace RE
 		atomicObjectCount.fetch_sub(1, std::memory_order_acq_rel);
 	}
 
-	std::uint32_t& NiRefObject::GetTotalObjectCount()
+	void NiRefObject::DeleteThis() const
 	{
-		static const auto TOTAL_OBJECT_COUNT = REL::Relocation<std::uint32_t*>{ ID::NiRefObject::TotalObjectCount };
+		delete this;
+	}
+
+	auto NiRefObject::GetTotalObjectCount() noexcept -> std::uint32_t&
+	{
+		static const auto TOTAL_OBJECT_COUNT = REL::Relocation<std::uint32_t*>(ID::NiRefObject::TotalObjectCount);
 		return *TOTAL_OBJECT_COUNT;
 	}
 
-	std::uint32_t NiRefObject::QRefCount() const noexcept
+	auto NiRefObject::QRefCount() const noexcept -> std::uint32_t
 	{
 		return refCount;
 	}
 
-	std::uint32_t NiRefObject::IncRefCount() noexcept
+	auto NiRefObject::IncRefCount() const noexcept -> std::uint32_t
 	{
 		auto atomicRefCount = REX::AtomicRef(refCount);
 		return atomicRefCount.fetch_add(1, std::memory_order_acq_rel) + 1;
 	}
 
-	std::uint32_t NiRefObject::DecRefCount() noexcept
+	auto NiRefObject::DecRefCount() const noexcept -> std::uint32_t
 	{
 		auto atomicRefCount = REX::AtomicRef(refCount);
 		auto newRefCount = atomicRefCount.fetch_sub(1, std::memory_order_acq_rel) - 1;
@@ -46,7 +51,7 @@ namespace RE
 			DeleteThis();
 		}
 		catch (...) {
-			REX::Fail("Failed to delete ref object."sv);
+			REX::Fail("Failed to delete object."sv);
 		}
 
 		return 0;

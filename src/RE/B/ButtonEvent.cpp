@@ -4,59 +4,53 @@
 
 namespace RE
 {
-	REX::Float32 ButtonEvent::QAnalogValue() const noexcept
+	auto ButtonEvent::QAnalogValue() const noexcept -> REX::Float32
 	{
 		return value;
 	}
 
-	bool ButtonEvent::QHeldDown(REX::Float32 a_heldDownSecs) const noexcept
+	auto ButtonEvent::QHeldDown(REX::Float32 a_heldDownSecs) const noexcept -> bool
 	{
-		return value != 0.0_f32 && a_heldDownSecs <= heldDownSecs;
+		return value != static_cast<REX::Float32>(0.0) && a_heldDownSecs <= heldDownSecs;
 	}
 
-	bool ButtonEvent::QHeldDown() const noexcept
+	auto ButtonEvent::QHeldDown() const noexcept -> bool
 	{
-		return value != 0.0_f32 && heldDownSecs > 0.0_f32;
+		return value != static_cast<REX::Float32>(0.0) && heldDownSecs > static_cast<REX::Float32>(0.0);
 	}
 
-	REX::Float32 ButtonEvent::QHeldDownSecs() const noexcept
+	auto ButtonEvent::QHeldDownSecs() const noexcept -> REX::Float32
 	{
 		return heldDownSecs;
 	}
 
-	bool ButtonEvent::QJustPressed() const noexcept
+	auto ButtonEvent::QJustPressed() const noexcept -> bool
 	{
-		return value != 0.0_f32 && heldDownSecs == 0.0_f32;
+		return value != static_cast<REX::Float32>(0.0) && heldDownSecs == static_cast<REX::Float32>(0.0);
 	}
 
-	bool ButtonEvent::QPressed() const noexcept
+	auto ButtonEvent::QPressed() const noexcept -> bool
 	{
-		return value != 0.0_f32;
+		return value != static_cast<REX::Float32>(0.0);
 	}
 
-	bool ButtonEvent::QReleased(REX::Float32 a_heldDownSecs) const noexcept
+	auto ButtonEvent::QReleased(REX::Float32 a_heldDownSecs) const noexcept -> bool
 	{
-		return value == 0.0_f32 && a_heldDownSecs <= heldDownSecs;
+		return value == static_cast<REX::Float32>(0.0) && a_heldDownSecs <= heldDownSecs;
 	}
 
-	bool ButtonEvent::QReleased() const noexcept
+	auto ButtonEvent::QReleased() const noexcept -> bool
 	{
-		return value == 0.0_f32 && heldDownSecs > 0.0_f32;
+		return value == static_cast<REX::Float32>(0.0) && heldDownSecs > static_cast<REX::Float32>(0.0);
 	}
 
-	BS_BUTTON_CODE ButtonEvent::GetBSButtonCode() const noexcept
+	auto ButtonEvent::GetBSButtonCode() const noexcept -> BS_BUTTON_CODE
 	{
 		auto result = REX::EnumSet(static_cast<BS_BUTTON_CODE>(idCode));
-		if (device.get() == INPUT_DEVICE::kGamepad) {
-			result.set(BS_BUTTON_CODE::kGamepad);
+		if (device.get() == INPUT_DEVICE::Gamepad) {
+			result.set(BS_BUTTON_CODE::Gamepad);
 		}
 
 		return result.get();
 	}
-
-	template bool InputEvent::Is<ButtonEvent>() const noexcept;
-	template bool InputEvent::IsNot<ButtonEvent>() const noexcept;
-
-	template ButtonEvent* InputEvent::As() noexcept;
-	template const ButtonEvent* InputEvent::As() const noexcept;
 }

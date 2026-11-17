@@ -7,14 +7,17 @@
 
 namespace RE
 {
-	auto TESNPC::GetAlternateHeadPartListMap()
-		-> BSTHashMap<const TESNPC*, BSTArray<BGSHeadPart*>>&
+	auto TESNPC::GetAlternateHeadPartListMap() noexcept -> BSTHashMap<const TESNPC*, BSTArray<BGSHeadPart*>>&
 	{
-		static const auto ALTERNATIVE_HEAD_PART_LIST_MAP = REL::Relocation<BSTHashMap<const TESNPC*, BSTArray<BGSHeadPart*>>*>{ ID::TESNPC::AlternateHeadPartListMap, Offset::TESNPC::AlternateHeadPartListMap };
+		static const auto ALTERNATIVE_HEAD_PART_LIST_MAP =
+			REL::Relocation<BSTHashMap<const TESNPC*, BSTArray<BGSHeadPart*>>*>{
+				ID::TESNPC::AlternateHeadPartListMap,
+				Offset::TESNPC::AlternateHeadPartListMap
+		};
 		return *ALTERNATIVE_HEAD_PART_LIST_MAP;
 	}
 
-	bool TESNPC::HasApplicableKeywordString(std::string_view a_editorID) const
+	auto TESNPC::HasApplicableKeywordString(std::string_view a_editorID) const -> bool
 	{
 		if (ContainsExactKeywordString(a_editorID)) {
 			return true;
@@ -27,32 +30,32 @@ namespace RE
 		return false;
 	}
 
-	BGSColorForm* TESNPC::GetFacialHairColor() const noexcept
+	auto TESNPC::GetFacialHairColor() const noexcept -> BGSColorForm*
 	{
 		return headRelatedData ? headRelatedData->facialHairColor : nullptr;
 	}
 
-	REX::Float32 TESNPC::GetFacialBoneMorphIntensity() const
+	auto TESNPC::GetFacialBoneMorphIntensity() const -> REX::Float32
 	{
 		using FuncType = decltype(&TESNPC::GetFacialBoneMorphIntensity);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESNPC::GetFacialBoneMorphIntensity };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::TESNPC::GetFacialBoneMorphIntensity);
 		return std::invoke(FUNC, this);
 	}
 
-	BGSTextureSet* TESNPC::GetFaceDetails() const noexcept
+	auto TESNPC::GetFaceDetails() const noexcept -> BGSTextureSet*
 	{
 		return headRelatedData ? headRelatedData->faceDetails : nullptr;
 	}
 
-	BGSColorForm* TESNPC::GetHairColor() const noexcept
+	auto TESNPC::GetHairColor() const noexcept -> BGSColorForm*
 	{
 		return headRelatedData ? headRelatedData->hairColor : nullptr;
 	}
 
-	std::span<BGSHeadPart*> TESNPC::GetHeadParts(bool a_alternate)
+	auto TESNPC::GetHeadParts(bool a_alternate) -> std::span<BGSHeadPart*>
 	{
 		if (!a_alternate || !UsesAlternateHeadPartList()) {
-			return { headParts.data(), numHeadParts };
+			return {headParts.data(), numHeadParts};
 		}
 
 		const auto& headPartMap = GetAlternateHeadPartListMap();
@@ -62,13 +65,13 @@ namespace RE
 			return {};
 		}
 
-		return { headPartIt->second.data(), headPartIt->second.size() };
+		return {headPartIt->second.data(), headPartIt->second.size()};
 	}
 
-	std::span<BGSHeadPart* const> TESNPC::GetHeadParts(bool a_alternate) const
+	auto TESNPC::GetHeadParts(bool a_alternate) const -> std::span<BGSHeadPart* const>
 	{
 		if (!a_alternate || !UsesAlternateHeadPartList()) {
-			return { headParts.data(), numHeadParts };
+			return {headParts.data(), numHeadParts};
 		}
 
 		const auto& headPartMap = GetAlternateHeadPartListMap();
@@ -78,10 +81,10 @@ namespace RE
 			return {};
 		}
 
-		return { headPartIt->second.data(), headPartIt->second.size() };
+		return {headPartIt->second.data(), headPartIt->second.size()};
 	}
 
-	TESNPC* TESNPC::GetRootFaceNPC() noexcept
+	auto TESNPC::GetRootFaceNPC() noexcept -> TESNPC*
 	{
 		auto* root = this;
 		while (root->faceNPC) {
@@ -91,7 +94,7 @@ namespace RE
 		return root;
 	}
 
-	const TESNPC* TESNPC::GetRootFaceNPC() const noexcept
+	auto TESNPC::GetRootFaceNPC() const noexcept -> const TESNPC*
 	{
 		const auto* root = this;
 		while (root->faceNPC) {
@@ -101,21 +104,21 @@ namespace RE
 		return root;
 	}
 
-	SEX TESNPC::GetSex() const noexcept
+	auto TESNPC::GetSex() const noexcept -> SEX
 	{
-		return actorData.actorBaseFlags.any(ACTOR_BASE_DATA::Flags::kFemale) ? SEX::kFemale : SEX::kMale;
+		return actorData.actorBaseFlags.any(ACTOR_BASE_DATA::Flags::Female) ? SEX::Female : SEX::Male;
 	}
 
-	const char* TESNPC::GetShortName() const
+	auto TESNPC::GetShortName() const -> const char*
 	{
 		using FuncType = decltype(&TESNPC::GetShortName);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESNPC::GetShortName };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::TESNPC::GetShortName);
 		return std::invoke(FUNC, this);
 	}
 
-	bool TESNPC::IsInFaction(const TESFaction* a_faction) const
+	auto TESNPC::IsInFaction(const TESFaction* a_faction) const -> bool
 	{
-		return std::ranges::any_of(factions, [a_faction](const FACTION_RANK& a_factionRank) -> bool {
+		return std::ranges::any_of(factions, [a_faction](const FACTION_RANK& a_factionRank) noexcept -> bool {
 			return a_factionRank.faction == a_faction && a_factionRank.rank > -1;
 		});
 	}
@@ -170,17 +173,17 @@ namespace RE
 		}
 
 		auto& headPartMap = GetAlternateHeadPartListMap();
-		headPartMap.insert_or_assign(this, BSTArray<BGSHeadPart*>{ a_headParts.begin(), a_headParts.end() });
+		headPartMap.insert_or_assign(this, BSTArray<BGSHeadPart*>{a_headParts.begin(), a_headParts.end()});
 	}
 
 	void TESNPC::SetTintingData(std::uint16_t a_uniqueID, REX::Float32 a_value, std::uint32_t a_color)
 	{
 		using FuncType = decltype(&TESNPC::SetTintingData);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESNPC::SetTintingData };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::TESNPC::SetTintingData);
 		std::invoke(FUNC, this, a_uniqueID, a_value, a_color);
 	}
 
-	bool TESNPC::UsesAlternateHeadPartList() const
+	auto TESNPC::UsesAlternateHeadPartList() const -> bool
 	{
 		const auto* player = PlayerCharacter::GetSingleton();
 

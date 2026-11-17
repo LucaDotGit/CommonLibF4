@@ -1,0 +1,14 @@
+#pragma once
+
+namespace Scaleform::GFx::AS3
+{
+	template <class T>
+	class SPtr
+	{
+	public:
+		// members
+		T* object; // 0x00
+	};
+
+	static_assert(sizeof(SPtr<void*>) == 0x08);
+}

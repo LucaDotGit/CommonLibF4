@@ -1,64 +1,126 @@
 ---
-BasedOnStyle: LLVM
 Language: Cpp
-
-AlignConsecutiveBitFields:
-  Enabled: true
-  AcrossComments: true
+Standard: Latest
+BasedOnStyle: LLVM
 
 BreakBeforeBraces: Custom
 BraceWrapping:
-  AfterCaseLabel: false
-  AfterClass: true
-  AfterEnum: true
-  AfterExternBlock: true
-  AfterFunction: true
-  AfterNamespace: true
-  AfterStruct: true
-  AfterUnion: true
-  BeforeCatch: true
-  BeforeElse: true
-  BeforeLambdaBody: false
-  BeforeWhile: true
-  IndentBraces: false
-  SplitEmptyFunction: true
-  SplitEmptyNamespace: true
-  SplitEmptyRecord: true
-  AfterControlStatement: Never
+    AfterCaseLabel: false
+    AfterClass: true
+    AfterControlStatement: Never
+    AfterEnum: true
+    # AfterExportBlock: true
+    AfterExternBlock: true
+    AfterFunction: true
+    AfterNamespace: true
+    # AfterRequiresExpression: true
+    AfterStruct: true
+    AfterUnion: true
+    BeforeCatch: true
+    BeforeElse: true
+    BeforeLambdaBody: false
+    BeforeWhile: true
+    IndentBraces: false
+    SplitEmptyFunction: true
+    SplitEmptyNamespace: true
+    SplitEmptyRecord: true
+
+IntegerLiteralSeparator:
+    Binary: 4
+    Decimal: 3
+    Hex: 4
+
+KeepEmptyLines:
+    # AtEndOfBlock: false
+    AtEndOfFile: false
+    AtStartOfBlock: false
+    AtStartOfFile: false
 
 NumericLiteralCase:
-  ExponentLetter: Lower
-  HexDigit: Upper
-  Prefix: Lower
-  Suffix: Lower
+    ExponentLetter: Lower
+    HexDigit: Upper
+    Prefix: Lower
+    Suffix: Lower
+
+PackArguments:
+    BinPack: OnePerLine
+
+PackParameters:
+    BinPack: OnePerLine
 
 QualifierAlignment: Custom
 QualifierOrder:
-  [inline, static, constexpr, friend, restrict, volatile, const, type]
+    [inline, static, constexpr, const, friend, restrict, volatile, type]
+
+# QualifierOrder:
+#     [
+#         inline,
+#         static,
+#         extern,
+#         thread_local,
+#         constexpr,
+#         constinit,
+#         consteval,
+#         explicit,
+#         friend,
+#         const,
+#         volatile,
+#         restrict,
+#         mutable,
+#         typedef,
+#         signed,
+#         unsigned,
+#         short,
+#         long,
+#         type
+#     ]
 
 AccessModifierOffset: -4
-AlignAfterOpenBracket: false
+AlignConsecutiveBitFields: Consecutive
+AlignEscapedNewlines: LeftWithLastLine
+AllowAllArgumentsOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowBreakBeforeNoexceptSpecifier: Always
+AllowShortCaseExpressionOnASingleLine: false
+AllowShortCompoundRequirementOnASingleLine: false
 AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortLambdasOnASingleLine: None
+AllowShortRecordOnASingleLine: Never
+AlwaysBreakBeforeMultilineStrings: true
 BinPackLongBracedList: false
+BreakAfterAttributes: Always
+BreakAfterOpenBracketBracedList: true
+BreakAfterOpenBracketFunction: true
+BreakAfterReturnType: Automatic
+BreakBeforeCloseBracketBracedList: true
 BreakBeforeTernaryOperators: false
 BreakBinaryOperations: RespectPrecedence
-BreakConstructorInitializers: BeforeColon
-BreakInheritanceList: BeforeColon
-ColumnLimit: 0
-Cpp11BracedListStyle: false
-EmptyLineBeforeAccessModifier: LogicalBlock
+BreakConstructorInitializers: AfterColon
+BreakInheritanceList: AfterColon
+BreakTemplateDeclarations: Yes
+ColumnLimit: 120
+EmptyLineBeforeAccessModifier: Always
 EnumTrailingComma: Remove
 FixNamespaceComments: false
+IncludeBlocks: Regroup
 IndentCaseLabels: true
 IndentWidth: 4
 InsertBraces: true
+InsertNewlineAtEOF: true
 LineEnding: LF
 NamespaceIndentation: All
-PackConstructorInitializers: NextLineOnly
+PackConstructorInitializers: Never
+PenaltyBreakBeforeMemberAccess: 1000000
+PenaltyBreakFirstLessLess: 1000000
+PenaltyBreakScopeResolution: 1000000
+PenaltyExcessCharacter: 1000000
+PenaltyReturnTypeOnItsOwnLine: 1000000
 PointerAlignment: Left
-RemoveParentheses: ReturnStatement
+RemoveEmptyLinesInUnwrappedLines: true
+RemoveParentheses: MultipleParentheses
 RemoveSemicolon: true
+SeparateDefinitionBlocks: Always
+SortUsingDeclarations: Never
 TabWidth: 4
 UseTab: Always

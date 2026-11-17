@@ -1,20 +1,24 @@
-#include "RE/H//hkMemoryRouter.hpp"
+#include "RE/H/hkMemoryRouter.hpp"
 
 namespace RE
 {
-	hkMemoryRouter* hkMemoryRouter::GetInstance()
+	auto hkMemoryRouter::GetThreadLocalIndex() noexcept -> std::uint32_t
 	{
-		static const auto THREAD_LOCAL_INSTANCE = REL::Relocation<std::uint32_t*>{ ID::hkMemoryRouter::ThreadLocalInstance };
-		return reinterpret_cast<hkMemoryRouter*>(REX::W32::TlsGetValue(*THREAD_LOCAL_INSTANCE));
+		static const auto THREAD_LOCAL_INDEX = REL::Relocation<std::uint32_t*>(ID::hkMemoryRouter::ThreadLocalIndex);
+		return *THREAD_LOCAL_INDEX;
 	}
 
-	void hkMemoryRouter::SetInstance(hkMemoryRouter* a_router)
+	auto hkMemoryRouter::GetInstance() noexcept -> hkMemoryRouter*
 	{
-		static const auto THREAD_LOCAL_INSTANCE = REL::Relocation<std::uint32_t*>{ ID::hkMemoryRouter::ThreadLocalInstance };
-		REX::W32::TlsSetValue(*THREAD_LOCAL_INSTANCE, a_router);
+		return static_cast<hkMemoryRouter*>(REX::W32::TlsGetValue(GetThreadLocalIndex()));
 	}
 
-	__declspec(allocator) __declspec(restrict) void* hk_malloc(std::size_t a_size) noexcept
+	void hkMemoryRouter::SetInstance(hkMemoryRouter* a_router) noexcept
+	{
+		REX::W32::TlsSetValue(GetThreadLocalIndex(), a_router);
+	}
+
+	__declspec(allocator) __declspec(restrict) auto hk_malloc(std::size_t a_size) noexcept -> void*
 	{
 		auto* router = hkMemoryRouter::GetInstance();
 		if (!router) {
@@ -29,7 +33,7 @@ namespace RE
 		return allocator->malloc(a_size);
 	}
 
-	__declspec(allocator) __declspec(restrict) void* hk_temp_malloc(std::size_t a_size) noexcept
+	__declspec(allocator) __declspec(restrict) auto hk_temp_malloc(std::size_t a_size) noexcept -> void*
 	{
 		auto* router = hkMemoryRouter::GetInstance();
 		if (!router) {
@@ -44,7 +48,7 @@ namespace RE
 		return allocator->malloc(a_size);
 	}
 
-	__declspec(allocator) __declspec(restrict) void* hk_debug_malloc(std::size_t a_size) noexcept
+	__declspec(allocator) __declspec(restrict) auto hk_debug_malloc(std::size_t a_size) noexcept -> void*
 	{
 		auto* router = hkMemoryRouter::GetInstance();
 		if (!router) {
@@ -59,7 +63,7 @@ namespace RE
 		return allocator->malloc(a_size);
 	}
 
-	__declspec(allocator) __declspec(restrict) void* hk_calloc(std::size_t a_count, std::size_t a_size) noexcept
+	__declspec(allocator) __declspec(restrict) auto hk_calloc(std::size_t a_count, std::size_t a_size) noexcept -> void*
 	{
 		auto* router = hkMemoryRouter::GetInstance();
 		if (!router) {
@@ -74,7 +78,8 @@ namespace RE
 		return allocator->calloc(a_count, a_size);
 	}
 
-	__declspec(allocator) __declspec(restrict) void* hk_temp_calloc(std::size_t a_count, std::size_t a_size) noexcept
+	__declspec(allocator) __declspec(restrict) auto hk_temp_calloc(std::size_t a_count, std::size_t a_size) noexcept
+		-> void*
 	{
 		auto* router = hkMemoryRouter::GetInstance();
 		if (!router) {
@@ -89,7 +94,8 @@ namespace RE
 		return allocator->calloc(a_count, a_size);
 	}
 
-	__declspec(allocator) __declspec(restrict) void* hk_debug_calloc(std::size_t a_count, std::size_t a_size) noexcept
+	__declspec(allocator) __declspec(restrict) auto hk_debug_calloc(std::size_t a_count, std::size_t a_size) noexcept
+		-> void*
 	{
 		auto* router = hkMemoryRouter::GetInstance();
 		if (!router) {

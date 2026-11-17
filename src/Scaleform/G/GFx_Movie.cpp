@@ -5,7 +5,7 @@
 
 namespace Scaleform::GFx
 {
-	bool Movie::IsAvailable(const char* a_pathToVar) const
+	auto Movie::IsAvailable(const char* a_pathToVar) const -> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -14,7 +14,7 @@ namespace Scaleform::GFx
 		return asMovieRoot->IsAvailable(a_pathToVar);
 	}
 
-	bool Movie::CreateString(Value* a_value, const char* a_string) const
+	auto Movie::CreateString(Value* a_value, const char* a_string) const -> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -24,7 +24,7 @@ namespace Scaleform::GFx
 		return true;
 	}
 
-	bool Movie::CreateStringW(Value* a_value, const wchar_t* a_string) const
+	auto Movie::CreateStringW(Value* a_value, const wchar_t* a_string) const -> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -34,7 +34,8 @@ namespace Scaleform::GFx
 		return true;
 	}
 
-	bool Movie::CreateObject(Value* a_value, const char* a_className, const Value* a_args, std::uint32_t a_numArgs) const
+	auto Movie::CreateObject(Value* a_value, const char* a_className, const Value* a_args, std::uint32_t a_numArgs)
+		const -> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -44,7 +45,7 @@ namespace Scaleform::GFx
 		return true;
 	}
 
-	bool Movie::CreateObject(Value* a_value, const char* a_className, std::span<const Value> a_args) const
+	auto Movie::CreateObject(Value* a_value, const char* a_className, std::span<const Value> a_args) const -> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -54,7 +55,7 @@ namespace Scaleform::GFx
 		return true;
 	}
 
-	bool Movie::CreateArray(Value* a_value, std::uint32_t a_size) const
+	auto Movie::CreateArray(Value* a_value, std::uint32_t a_size) const -> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -64,7 +65,7 @@ namespace Scaleform::GFx
 		return true;
 	}
 
-	bool Movie::CreateFunction(Value* a_value, FunctionHandler* a_func, void* a_userData) const
+	auto Movie::CreateFunction(Value* a_value, FunctionHandler* a_func, void* a_userData) const -> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -74,7 +75,7 @@ namespace Scaleform::GFx
 		return true;
 	}
 
-	bool Movie::GetVariable(Value* a_val, const char* a_pathToVar) const
+	auto Movie::GetVariable(Value* a_val, const char* a_pathToVar) const -> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -83,7 +84,7 @@ namespace Scaleform::GFx
 		return asMovieRoot->GetVariable(a_val, a_pathToVar);
 	}
 
-	bool Movie::SetVariable(const char* a_pathToVar, const Value& a_value, Movie::SetVarType a_setType) const
+	auto Movie::SetVariable(const char* a_pathToVar, const Value& a_value, Movie::SetVarType a_setType) const -> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -92,7 +93,12 @@ namespace Scaleform::GFx
 		return asMovieRoot->SetVariable(a_pathToVar, a_value, a_setType);
 	}
 
-	bool Movie::GetVariableArray(Movie::SetArrayType a_type, const char* a_pathToVar, std::uint32_t a_index, void* a_data, std::uint32_t a_count) const
+	auto Movie::GetVariableArray(
+		Movie::SetArrayType a_type,
+		const char* a_pathToVar,
+		std::uint32_t a_index,
+		void* a_data,
+		std::uint32_t a_count) const -> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -101,7 +107,13 @@ namespace Scaleform::GFx
 		return asMovieRoot->GetVariableArray(a_type, a_pathToVar, a_index, a_data, a_count);
 	}
 
-	bool Movie::SetVariableArray(Movie::SetArrayType a_type, const char* a_pathToVar, std::uint32_t a_index, const void* a_data, std::uint32_t a_count, Movie::SetVarType a_setType) const
+	auto Movie::SetVariableArray(
+		Movie::SetArrayType a_type,
+		const char* a_pathToVar,
+		std::uint32_t a_index,
+		const void* a_data,
+		std::uint32_t a_count,
+		Movie::SetVarType a_setType) const -> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -110,7 +122,7 @@ namespace Scaleform::GFx
 		return asMovieRoot->SetVariableArray(a_type, a_pathToVar, a_index, a_data, a_count, a_setType);
 	}
 
-	std::uint32_t Movie::GetVariableArraySize(const char* a_pathToVar) const
+	auto Movie::GetVariableArraySize(const char* a_pathToVar) const -> std::uint32_t
 	{
 		if (!asMovieRoot) {
 			return 0;
@@ -119,7 +131,8 @@ namespace Scaleform::GFx
 		return asMovieRoot->GetVariableArraySize(a_pathToVar);
 	}
 
-	bool Movie::SetVariableArraySize(const char* a_pathToVar, std::uint32_t a_count, Movie::SetVarType a_setType) const
+	auto Movie::SetVariableArraySize(const char* a_pathToVar, std::uint32_t a_count, Movie::SetVarType a_setType) const
+		-> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -128,7 +141,8 @@ namespace Scaleform::GFx
 		return asMovieRoot->SetVariableArraySize(a_pathToVar, a_count, a_setType);
 	}
 
-	bool Movie::Invoke(const char* a_pathToMethod, Value* a_result, const Value* a_args, std::uint32_t a_numArgs) const
+	auto Movie::Invoke(const char* a_pathToMethod, Value* a_result, const Value* a_args, std::uint32_t a_numArgs) const
+		-> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -137,7 +151,8 @@ namespace Scaleform::GFx
 		return asMovieRoot->Invoke(a_pathToMethod, a_result, a_args, a_numArgs);
 	}
 
-	bool Movie::Invoke(const char* a_pathToMethod, Value* a_result, const char* a_argFmt, ...) const // NOLINT(modernize-avoid-variadic-functions)
+	// NOLINTNEXTLINE(modernize-avoid-variadic-functions)
+	auto Movie::Invoke(const char* a_pathToMethod, Value* a_result, const char* a_argFmt, ...) const -> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -150,7 +165,8 @@ namespace Scaleform::GFx
 		return result;
 	}
 
-	bool Movie::InvokeArgs(const char* a_pathToMethod, Value* a_result, const char* a_argFmt, std::va_list a_args) const
+	auto Movie::InvokeArgs(const char* a_pathToMethod, Value* a_result, const char* a_argFmt, std::va_list a_args) const
+		-> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -159,7 +175,7 @@ namespace Scaleform::GFx
 		return asMovieRoot->InvokeArgs(a_pathToMethod, a_result, a_argFmt, a_args);
 	}
 
-	bool Movie::Invoke(const char* a_methodName, std::span<const Value> a_args) const
+	auto Movie::Invoke(const char* a_methodName, std::span<const Value> a_args) const -> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -168,7 +184,7 @@ namespace Scaleform::GFx
 		return asMovieRoot->Invoke(a_methodName, nullptr, a_args.data(), static_cast<std::uint32_t>(a_args.size()));
 	}
 
-	bool Movie::Invoke(const char* a_methodName, Value* a_result, std::span<const Value> a_args) const
+	auto Movie::Invoke(const char* a_methodName, Value* a_result, std::span<const Value> a_args) const -> bool
 	{
 		if (!asMovieRoot) {
 			return false;
@@ -180,7 +196,7 @@ namespace Scaleform::GFx
 	void Movie::Release()
 	{
 		using FuncType = decltype(&Movie::Release);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GFx::Movie::Release };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GFx::Movie::Release);
 		std::invoke(FUNC, this);
 	}
 }

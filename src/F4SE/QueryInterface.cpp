@@ -1,77 +1,96 @@
 #include "F4SE/QueryInterface.hpp"
 
+#include "F4SE/Core.hpp"
+#include "F4SE/Runtimes.hpp"
+#include "REX/Macros.hpp"
+#include "REX/Ownership.hpp"
+
 namespace F4SE::Impl
 {
-	struct F4SEInterface final
+	namespace
 	{
-		std::uint32_t f4seVersion;
-		std::uint32_t runtimeVersion;
-		std::uint32_t editorVersion;
-		std::uint32_t isEditor;
-		void*(F4SE_API* QueryInterface)(std::uint32_t);
-		PluginHandle(F4SE_API* GetPluginHandle)();
-		std::uint32_t(F4SE_API* GetReleaseIndex)();
-		const void*(F4SE_API* GetPluginInfo)(const char*);
-		const char*(F4SE_API* GetSaveFolderName)(); // since F4SE v0.7.1
-	};
+		class F4SEInterface final
+		{
+		public:
+			F4SEInterface() = delete;
+			~F4SEInterface() = delete;
 
-	[[nodiscard]] __forceinline static const F4SEInterface& GetProxy(const QueryInterface* a_interface) noexcept
-	{
-		return reinterpret_cast<const F4SEInterface&>(*a_interface);
+			F4SEInterface(const F4SEInterface&) = delete;
+			F4SEInterface(F4SEInterface&&) = delete;
+
+			auto operator=(const F4SEInterface&) -> F4SEInterface& = delete;
+			auto operator=(F4SEInterface&&) -> F4SEInterface& = delete;
+
+			std::uint32_t f4seVersion;
+			std::uint32_t runtimeVersion;
+			std::uint32_t editorVersion;
+			std::uint32_t isEditor;
+			void*(F4SE_API* queryInterface)(std::uint32_t);
+			F4SE::PluginHandle(F4SE_API* getPluginHandle)();
+			std::uint32_t(F4SE_API* getReleaseIndex)();
+			const F4SE::PluginInfo*(F4SE_API* getPluginInfo)(const char*);
+			const char*(F4SE_API* getSaveFolderName)(); // since F4SE v0.7.1
+		};
+
+		[[nodiscard]] [[REX_ALWAYS_INLINE]]
+		auto GetProxy(const QueryInterface& a_interface) noexcept -> const F4SEInterface&
+		{
+			return reinterpret_cast<const F4SEInterface&>(a_interface);
+		}
 	}
 }
 
 namespace F4SE
 {
-	REX::Version QueryInterface::GetF4SEVersion() const noexcept
+	auto QueryInterface::GetXseVersion() const noexcept -> REX::Version
 	{
-		return REX::Version::Unpack(Impl::GetProxy(this).f4seVersion);
+		return REX::Version::Unpack(Impl::GetProxy(*this).f4seVersion);
 	}
 
-	REX::Version QueryInterface::GetRuntimeVersion() const noexcept
+	auto QueryInterface::GetRuntimeVersion() const noexcept -> REX::Version
 	{
-		return REX::Version::Unpack(Impl::GetProxy(this).runtimeVersion);
+		return REX::Version::Unpack(Impl::GetProxy(*this).runtimeVersion);
 	}
 
-	REX::Version QueryInterface::GetEditorVersion() const noexcept
+	auto QueryInterface::GetEditorVersion() const noexcept -> REX::Version
 	{
-		return REX::Version::Unpack(Impl::GetProxy(this).editorVersion);
+		return REX::Version::Unpack(Impl::GetProxy(*this).editorVersion);
 	}
 
-	bool QueryInterface::IsEditor() const noexcept
+	auto QueryInterface::IsEditor() const noexcept -> bool
 	{
-		return Impl::GetProxy(this).isEditor != 0;
+		return Impl::GetProxy(*this).isEditor != 0;
 	}
 
-	REX::Observer<void*> QueryInterface::Query(InterfaceID a_id) const
+	auto QueryInterface::Query(InterfaceID a_id) const -> REX::Observer<void*>
 	{
-		return Impl::GetProxy(this).QueryInterface(std::to_underlying(a_id));
+		return Impl::GetProxy(*this).queryInterface(std::to_underlying(a_id));
 	}
 
-	PluginHandle QueryInterface::GetPluginHandle() const
+	auto QueryInterface::GetPluginHandle() const -> F4SE::PluginHandle
 	{
-		return Impl::GetProxy(this).GetPluginHandle();
+		return Impl::GetProxy(*this).getPluginHandle();
 	}
 
-	std::uint32_t QueryInterface::GetReleaseIndex() const
+	auto QueryInterface::GetReleaseIndex() const -> std::uint32_t
 	{
-		return Impl::GetProxy(this).GetReleaseIndex();
+		return Impl::GetProxy(*this).getReleaseIndex();
 	}
 
-	REX::Observer<const PluginInfo*> QueryInterface::GetPluginInfo(const char* a_name) const
+	auto QueryInterface::GetPluginInfo(const char* a_name) const -> REX::Observer<const PluginInfo*>
 	{
-		return std::invoke(GetPluginInfoAccessor(), a_name);
+		return std::invoke(GetPluginInfoFunctor(), a_name);
 	}
 
-	QueryInterface::PluginInfoAccessor QueryInterface::GetPluginInfoAccessor() const
+	auto QueryInterface::GetPluginInfoFunctor() const -> PluginInfoFunctor
 	{
-		return reinterpret_cast<PluginInfoAccessor>(Impl::GetProxy(this).GetPluginInfo);
+		return Impl::GetProxy(*this).getPluginInfo;
 	}
 
-	std::string_view QueryInterface::GetSaveFolderName() const
+	auto QueryInterface::GetSaveFolderName() const -> std::string_view
 	{
 		if (F4SE::IsRuntimeAtLeastNG()) {
-			return Impl::GetProxy(this).GetSaveFolderName();
+			return Impl::GetProxy(*this).getSaveFolderName();
 		}
 
 		if (F4SE::IsRuntimeOnlyVR()) {

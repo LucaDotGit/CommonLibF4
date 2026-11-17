@@ -2,12 +2,12 @@
 
 namespace Scaleform::GFx
 {
-	void Resource::AddRef() noexcept
+	void Resource::AddRef() const noexcept
 	{
 		refCount++;
 	}
 
-	void Resource::Release() noexcept
+	void Resource::Release() const noexcept
 	{
 		if (--refCount != 0) {
 			return;
@@ -15,7 +15,7 @@ namespace Scaleform::GFx
 
 		try {
 			delete lib;
-			lib = nullptr;
+			const_cast<Resource*>(this)->lib = nullptr;
 			delete this;
 		}
 		catch (...) {

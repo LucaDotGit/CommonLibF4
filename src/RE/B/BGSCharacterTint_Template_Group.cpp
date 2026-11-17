@@ -5,9 +5,9 @@
 
 namespace RE::BGSCharacterTint::Template
 {
-	Entry* Group::GetEntryByID(std::uint16_t a_id) noexcept
+	auto Group::GetEntryByID(std::uint16_t a_id) noexcept -> Entry*
 	{
-		const auto* entryIt = std::ranges::find_if(entries, [a_id](const Entry* a_entry) -> bool {
+		const auto* entryIt = std::ranges::find_if(entries, [a_id](const Entry* a_entry) noexcept -> bool {
 			return a_entry && a_entry->uniqueID == a_id;
 		});
 
@@ -18,9 +18,9 @@ namespace RE::BGSCharacterTint::Template
 		return *entryIt;
 	}
 
-	const Entry* Group::GetEntryByID(std::uint16_t a_id) const noexcept
+	auto Group::GetEntryByID(std::uint16_t a_id) const noexcept -> const Entry*
 	{
-		const auto* entryIt = std::ranges::find_if(entries, [a_id](const Entry* a_entry) -> bool {
+		const auto* entryIt = std::ranges::find_if(entries, [a_id](const Entry* a_entry) noexcept -> bool {
 			return a_entry && a_entry->uniqueID == a_id;
 		});
 
@@ -31,9 +31,9 @@ namespace RE::BGSCharacterTint::Template
 		return *entryIt;
 	}
 
-	Entry* Group::GetEntryBySlot(EntrySlot a_slot) noexcept
+	auto Group::GetEntryBySlot(EntrySlot a_slot) noexcept -> Entry*
 	{
-		const auto* entryIt = std::ranges::find_if(entries, [a_slot](const Entry* a_entry) -> bool {
+		const auto* entryIt = std::ranges::find_if(entries, [a_slot](const Entry* a_entry) noexcept -> bool {
 			return a_entry && a_entry->slot == a_slot;
 		});
 
@@ -44,9 +44,9 @@ namespace RE::BGSCharacterTint::Template
 		return *entryIt;
 	}
 
-	const Entry* Group::GetEntryBySlot(EntrySlot a_slot) const noexcept
+	auto Group::GetEntryBySlot(EntrySlot a_slot) const noexcept -> const Entry*
 	{
-		const auto* entryIt = std::ranges::find_if(entries, [a_slot](const Entry* a_entry) -> bool {
+		const auto* entryIt = std::ranges::find_if(entries, [a_slot](const Entry* a_entry) noexcept -> bool {
 			return a_entry && a_entry->slot == a_slot;
 		});
 

@@ -1,0 +1,25 @@
+#pragma once
+
+#include "RE/B/BSTEvent.hpp"
+#include "RE/N/NiPointer.hpp"
+
+namespace RE::Workshop
+{
+	class PowerOnEvent
+	{
+	public:
+		[[nodiscard]]
+		static auto GetEventSource() -> BSTEventSource<PowerOnEvent>*
+		{
+			using FuncType = decltype(&PowerOnEvent::GetEventSource);
+			static const auto FUNC = REL::Relocation<FuncType>(ID::Workshop::PowerOnEvent::GetEventSource);
+			return std::invoke(FUNC);
+		}
+
+		// members
+		NiPointer<TESObjectREFR> itemRef;		 // 0x00
+		NiPointer<TESObjectREFR> powerSourceRef; // 0x08
+	};
+
+	static_assert(sizeof(PowerOnEvent) == 0x10);
+}

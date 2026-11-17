@@ -7,9 +7,5 @@ namespace RE
 		REL::EmplaceVtable(this);
 	}
 
-	template bool BGSEntryPointFunctionData::Is<BGSEntryPointFunctionDataOneValue>() const noexcept;
-	template bool BGSEntryPointFunctionData::IsNot<BGSEntryPointFunctionDataOneValue>() const noexcept;
-
-	template BGSEntryPointFunctionDataOneValue* BGSEntryPointFunctionData::As<BGSEntryPointFunctionDataOneValue>() noexcept;
-	template const BGSEntryPointFunctionDataOneValue* BGSEntryPointFunctionData::As<BGSEntryPointFunctionDataOneValue>() const noexcept;
+	BGSEntryPointFunctionDataOneValue::~BGSEntryPointFunctionDataOneValue() = default;
 }

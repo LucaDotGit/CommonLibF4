@@ -1,20 +1,22 @@
 #include "RE/E/ExtraKeywords.hpp"
 
 #include "RE/B/BSContainer_ForEachResult.hpp"
+#include "RE/B/BSReadWriteLock.hpp"
 
 namespace RE
 {
-	BSContainer::ForEachResult ExtraKeywords::ForEachKeyword(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(BGSKeyword*)>>& a_predicate) const
+	auto ExtraKeywords::ForEachKeyword(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(BGSKeyword*) const>>& a_predicate) const
+		-> BSContainer::ForEachResult
 	{
 		const auto extraLock = BSAutoReadLock(extraRWLock);
 
 		for (auto* keyword : extraKeywords) {
-			if (keyword && std::invoke(*a_predicate, keyword) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), keyword) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 }

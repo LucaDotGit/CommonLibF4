@@ -2,83 +2,39 @@
 
 namespace RE
 {
-	BSTimer* BSTimer::GetSingleton()
+	auto BSTimer::GetSingleton() noexcept -> BSTimer*
 	{
-		static const auto SINGLETON = REL::Relocation<BSTimer*>{ ID::BSTimer::Singleton };
+		static const auto SINGLETON = REL::Relocation<BSTimer*>(ID::BSTimer::Singleton);
 		return SINGLETON.get();
 	}
 
-	BSTimer::RuntimeData& BSTimer::GetRuntimeData() noexcept
+	auto BSTimer::GetRuntimeData() noexcept -> BSTimer::RuntimeData&
 	{
 		return REL::GetMemberAt<RuntimeData>(Offset::BSTimer::RuntimeData, this);
 	}
 
-	const BSTimer::RuntimeData& BSTimer::GetRuntimeData() const noexcept
+	auto BSTimer::GetRuntimeData() const noexcept -> const BSTimer::RuntimeData&
 	{
 		return REL::GetMemberAt<const RuntimeData>(Offset::BSTimer::RuntimeData, this);
 	}
 
-	REX::Float32& BSTimer::QGlobalTimeMultiplier()
+	auto BSTimer::GetGlobalTimeMultiplier() noexcept -> REX::Float32&
 	{
-		static const auto GLOBAL_TIME_MULTIPLIER = REL::Relocation<REX::Float32*>{ ID::BSTimer::GlobalTimeMultiplier };
+		static const auto GLOBAL_TIME_MULTIPLIER = REL::Relocation<REX::Float32*>(ID::BSTimer::GlobalTimeMultiplier);
 		return *GLOBAL_TIME_MULTIPLIER;
 	}
 
-	REX::Float32& BSTimer::QGlobalTimeMultiplierTarget()
+	auto BSTimer::GetGlobalTimeMultiplierTarget() noexcept -> REX::Float32&
 	{
-		static const auto GLOBAL_TIME_MULTIPLIER_TARGET = REL::Relocation<REX::Float32*>{ ID::BSTimer::GlobalTimeMultiplierTarget };
+		static const auto GLOBAL_TIME_MULTIPLIER_TARGET =
+			REL::Relocation<REX::Float32*>{ID::BSTimer::GlobalTimeMultiplierTarget};
 		return *GLOBAL_TIME_MULTIPLIER_TARGET;
 	}
 
-	BSTimer::Seconds BSTimer::GetGlobalTimeMultiplier()
-	{
-		return Seconds(QGlobalTimeMultiplier());
-	}
-
-	BSTimer::Seconds BSTimer::GetGlobalTimeMultiplierTarget()
-	{
-		return Seconds(QGlobalTimeMultiplierTarget());
-	}
-
-	void BSTimer::SetGlobalTimeMultiplier(REX::Float32 a_mult, bool a_now)
+	void BSTimer::SetGlobalTimeMultiplier(REX::Float32 a_timeMult, bool a_now)
 	{
 		using FuncType = decltype(&BSTimer::SetGlobalTimeMultiplier);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::BSTimer::SetGlobalTimeMultiplier };
-		std::invoke(FUNC, this, a_mult, a_now);
-	}
-
-	BSTimer::Milliseconds BSTimer::GetInitTime() const noexcept
-	{
-		return Milliseconds(highPrecisionInitTime);
-	}
-
-	BSTimer::Seconds BSTimer::GetDeltaTime() const noexcept
-	{
-		return Seconds(delta);
-	}
-
-	BSTimer::Seconds BSTimer::GetRealTimeDeltaTime() const noexcept
-	{
-		return Seconds(realTimeDelta);
-	}
-
-	BSTimer::Milliseconds BSTimer::GetLastTime() const noexcept
-	{
-		return Milliseconds(lastTime);
-	}
-
-	BSTimer::Milliseconds BSTimer::GetFirstTime() const noexcept
-	{
-		return Milliseconds(GetRuntimeData().firstTime);
-	}
-
-	BSTimer::Milliseconds BSTimer::GetDisabledLastTime() const noexcept
-	{
-		return Milliseconds(GetRuntimeData().disabledLastTime);
-	}
-
-	BSTimer::Milliseconds BSTimer::GetDisabledFirstTime() const noexcept
-	{
-		return Milliseconds(GetRuntimeData().disabledFirstTime);
+		static const auto FUNC = REL::Relocation<FuncType>(ID::BSTimer::SetGlobalTimeMultiplier);
+		std::invoke(FUNC, this, a_timeMult, a_now);
 	}
 }

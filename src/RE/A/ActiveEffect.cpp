@@ -6,19 +6,19 @@
 namespace RE
 {
 	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-	FormType ActiveEffect::GetFormType() const noexcept
+	auto ActiveEffect::GetFormType() const noexcept -> FormType
 	{
 		return FORM_TYPE;
 	}
 
-	bool ActiveEffect::CheckDisplacementSpellOnTarget()
+	auto ActiveEffect::CheckDisplacementSpellOnTarget() -> bool
 	{
 		using FuncType = decltype(&ActiveEffect::CheckDisplacementSpellOnTarget);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::ActiveEffect::CheckDisplacementSpellOnTarget };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::ActiveEffect::CheckDisplacementSpellOnTarget);
 		return std::invoke(FUNC, this);
 	}
 
-	NiPointer<Actor> ActiveEffect::GetTargetActor() const
+	auto ActiveEffect::GetTargetActor() const -> NiPointer<Actor>
 	{
 		if (!target) {
 			return nullptr;

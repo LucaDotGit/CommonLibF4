@@ -1,0 +1,136 @@
+#pragma once
+
+namespace Scaleform::Render
+{
+	template <class T>
+	class Matrix3x4
+	{
+	public:
+		constexpr Matrix3x4() noexcept = default;
+
+		constexpr explicit Matrix3x4(const std::array<std::array<T, 3>, 4>& a_rhs) noexcept :
+			matrix(a_rhs)
+		{
+		}
+
+		constexpr Matrix3x4(
+			const std::array<T, 3>& a_row0,
+			const std::array<T, 3>& a_row1,
+			const std::array<T, 3>& a_row2,
+			const std::array<T, 3>& a_row3) noexcept :
+			matrix{a_row0, a_row1, a_row2, a_row3}
+		{
+		}
+
+		constexpr Matrix3x4(
+			T a_m00,
+			T a_m01,
+			T a_m02,
+			T a_m10,
+			T a_m11,
+			T a_m12,
+			T a_m20,
+			T a_m21,
+			T a_m22,
+			T a_m30,
+			T a_m31,
+			T a_m32) noexcept :
+			matrix{{{a_m00, a_m01, a_m02}, {a_m10, a_m11, a_m12}, {a_m20, a_m21, a_m22}, {a_m30, a_m31, a_m32}}}
+		{
+		}
+
+		constexpr ~Matrix3x4() noexcept = default;
+
+		constexpr Matrix3x4(const Matrix3x4&) noexcept = default;
+		constexpr Matrix3x4(Matrix3x4&&) noexcept = default;
+
+		constexpr auto operator=(const Matrix3x4&) noexcept -> Matrix3x4& = default;
+		constexpr auto operator=(Matrix3x4&&) noexcept -> Matrix3x4& = default;
+
+		[[nodiscard]]
+		constexpr auto operator==(const Matrix3x4&) const noexcept -> bool = default;
+		[[nodiscard]]
+		constexpr auto operator<=>(const Matrix3x4&) const noexcept = default;
+
+		[[nodiscard]]
+		constexpr auto operator[](std::size_t a_index) noexcept -> std::array<T, 3>&
+		{
+			REX::Assert(a_index < matrix.size());
+			return matrix[a_index];
+		}
+
+		[[nodiscard]]
+		constexpr auto operator[](std::size_t a_index) const noexcept -> const std::array<T, 3>&
+		{
+			REX::Assert(a_index < matrix.size());
+			return matrix[a_index];
+		}
+
+		constexpr void swap(Matrix3x4& a_other) noexcept
+		{
+			if (this == std::addressof(a_other)) {
+				return;
+			}
+
+			std::swap(matrix, a_other.matrix);
+		}
+
+		// members
+		std::array<std::array<T, 3>, 4> matrix; // 0x00
+	};
+
+	using Matrix3x4F = Matrix3x4<REX::Float32>;
+	static_assert(sizeof(Matrix3x4F) == 0x30);
+}
+
+#if (__cpp_lib_format > 0l)
+namespace std
+{
+	template <class T>
+	struct formatter<Scaleform::Render::Matrix3x4<T>> : public formatter<std::string>
+	{
+	public:
+		template <class ParseContext>
+		[[nodiscard]]
+		constexpr auto parse(ParseContext& a_context) const noexcept
+		{
+			return a_context.begin();
+		}
+
+		template <class FormatContext>
+		[[nodiscard]]
+		constexpr auto format(const Scaleform::Render::Matrix3x4<T>& a_value, FormatContext& a_context) const
+		{
+			using namespace std::string_view_literals;
+
+			return format_to(a_context.out(), "[{}, {}, {}, {}]"sv, a_value[0], a_value[1], a_value[2], a_value[3]);
+		}
+	};
+}
+#endif
+
+#if (FMT_VERSION > 0l)
+namespace fmt
+{
+	template <class T>
+	struct formatter<Scaleform::Render::Matrix3x4<T>> : public formatter<std::string>
+	{
+	public:
+		template <class ParseContext>
+		[[nodiscard]]
+		constexpr auto parse(ParseContext& a_context) const noexcept
+		{
+			return a_context.begin();
+		}
+
+		template <class FormatContext>
+		[[nodiscard]]
+		constexpr auto format(const Scaleform::Render::Matrix3x4<T>& a_value, FormatContext& a_context) const
+		{
+			using namespace std::string_view_literals;
+
+			return format_to(a_context.out(), "[{}, {}, {}, {}]"sv, a_value[0], a_value[1], a_value[2], a_value[3]);
+		}
+	};
+}
+#endif

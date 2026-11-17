@@ -2,8 +2,8 @@
 
 namespace RE
 {
-	BSCriticalSection::BSCriticalSection() noexcept
-		: _criticalSection()
+	BSCriticalSection::BSCriticalSection() noexcept :
+		_criticalSection()
 	{
 		REX::W32::InitializeCriticalSection(std::addressof(_criticalSection));
 	}
@@ -13,7 +13,7 @@ namespace RE
 		REX::W32::DeleteCriticalSection(std::addressof(_criticalSection));
 	}
 
-	bool BSCriticalSection::try_lock() noexcept
+	auto BSCriticalSection::try_lock() noexcept -> bool
 	{
 		return REX::W32::TryEnterCriticalSection(std::addressof(_criticalSection));
 	}
@@ -27,10 +27,4 @@ namespace RE
 	{
 		REX::W32::LeaveCriticalSection(std::addressof(_criticalSection));
 	}
-
-	template class BSAutoLockDefaultPolicy<BSCriticalSection>;
-	static_assert(std::is_empty_v<BSAutoLockDefaultPolicy<BSCriticalSection>>);
-
-	template class BSAutoLock<BSCriticalSection, BSAutoLockDefaultPolicy>;
-	static_assert(sizeof(BSAutoLock<BSCriticalSection, BSAutoLockDefaultPolicy>) == 0x08);
 }

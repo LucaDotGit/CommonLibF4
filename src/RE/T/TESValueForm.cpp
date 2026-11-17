@@ -7,8 +7,7 @@
 
 namespace RE
 {
-	auto TESValueForm::GetFormValue(const TESForm* a_form)
-		-> std::optional<std::int32_t>
+	auto TESValueForm::GetFormValue(const TESForm* a_form) -> std::optional<std::int32_t>
 	{
 		if (!a_form) {
 			return std::nullopt;
@@ -38,7 +37,7 @@ namespace RE
 		return std::nullopt;
 	}
 
-	bool TESValueForm::SetFormValue(TESForm* a_form, std::int32_t a_value, bool a_addChange)
+	auto TESValueForm::SetFormValue(TESForm* a_form, std::int32_t a_value) -> bool
 	{
 		if (!a_form) {
 			return false;
@@ -47,12 +46,8 @@ namespace RE
 		{
 			auto* armor = DynamicCast<TESObjectARMO*>(a_form);
 			if (armor) {
-				armor->armorData.value = a_value;
-
-				if (a_addChange) {
-					armor->AddChange(TESObjectARMO::ChangeFlags::kValue);
-				}
-
+				armor->armorData.value = static_cast<std::uint32_t>(a_value);
+				armor->AddChange(TESObjectARMO::ChangeFlags::Value);
 				return true;
 			}
 		}
@@ -60,12 +55,8 @@ namespace RE
 		{
 			auto* weapon = DynamicCast<TESObjectWEAP*>(a_form);
 			if (weapon) {
-				weapon->weaponData.value = a_value;
-
-				if (a_addChange) {
-					weapon->AddChange(TESObjectWEAP::ChangeFlags::kValue);
-				}
-
+				weapon->weaponData.value = static_cast<std::uint32_t>(a_value);
+				weapon->AddChange(TESObjectWEAP::ChangeFlags::Value);
 				return true;
 			}
 		}
@@ -74,11 +65,7 @@ namespace RE
 			auto* valueHolder = DynamicCast<TESValueForm*>(a_form);
 			if (valueHolder) {
 				valueHolder->value = a_value;
-
-				if (a_addChange) {
-					a_form->AddChange(TESBoundObject::ChangeFlags::kValue);
-				}
-
+				a_form->AddChange(TESBoundObject::ChangeFlags::Value);
 				return true;
 			}
 		}

@@ -2,7 +2,7 @@
 
 namespace RE
 {
-	__declspec(allocator) __declspec(restrict) void* hkMemoryAllocator::malloc(std::size_t a_size) noexcept
+	__declspec(allocator) __declspec(restrict) auto hkMemoryAllocator::malloc(std::size_t a_size) noexcept -> void*
 	{
 		try {
 			return BlockAlloc(static_cast<std::int32_t>(a_size));
@@ -12,7 +12,8 @@ namespace RE
 		}
 	}
 
-	__declspec(allocator) __declspec(restrict) void* hkMemoryAllocator::calloc(std::size_t a_count, std::size_t a_size) noexcept
+	__declspec(allocator) __declspec(restrict) auto hkMemoryAllocator::calloc(std::size_t a_count, std::size_t a_size)
+		noexcept -> void*
 	{
 		try {
 			auto* mem = malloc(a_count * a_size);
@@ -20,7 +21,7 @@ namespace RE
 				return nullptr;
 			}
 
-			REL::MemWriteZero(mem, a_count * a_size);
+			REL::WriteZeros(mem, a_count * a_size);
 			return mem;
 		}
 		catch (...) {

@@ -2,21 +2,15 @@
 
 namespace RE
 {
-	BSSemaphore::BSSemaphore() noexcept
-		: BSSemaphore(0, 1)
+	BSSemaphore::BSSemaphore() noexcept :
+		BSSemaphore(0, 1)
 	{
 	}
 
-	BSSemaphore::BSSemaphore(std::int32_t a_initialCount, std::int32_t a_maxCount) noexcept
-		: _semaphoreHandle(REX::W32::CreateSemaphoreA(nullptr, a_initialCount, a_maxCount, nullptr))
+	BSSemaphore::BSSemaphore(std::int32_t a_initialCount, std::int32_t a_maxCount) noexcept :
+		_semaphoreHandle(REX::W32::CreateSemaphoreA(nullptr, a_initialCount, a_maxCount, nullptr))
 	{
-		if (_semaphoreHandle != 0) [[unlikely]] {
-			const auto currentError = REX::GetCurrentSystemError();
-			REX::Fail(
-				"Failed to create semaphore.\n"
-				"System Error (0x{:08X}): {}"sv,
-				currentError.value(), currentError.message());
-		}
+		REX::Ensure(_semaphoreHandle != 0);
 	}
 
 	BSSemaphore::~BSSemaphore() noexcept
@@ -28,17 +22,17 @@ namespace RE
 
 	// NOLINTBEGIN(readability-make-member-function-const)
 
-	bool BSSemaphore::try_acquire() noexcept
+	auto BSSemaphore::try_acquire() noexcept -> bool
 	{
 		return REX::W32::WaitForSingleObject(_semaphoreHandle, 0) == REX::W32::WAIT_OBJECT_0;
 	}
 
-	bool BSSemaphore::try_acquire_for(Milliseconds a_delay) noexcept
+	auto BSSemaphore::try_acquire_for(Milliseconds a_delay) noexcept -> bool
 	{
 		return REX::W32::WaitForSingleObject(_semaphoreHandle, a_delay.count()) == REX::W32::WAIT_OBJECT_0;
 	}
 
-	bool BSSemaphore::try_acquire_until(TimePoint a_timePoint) noexcept
+	auto BSSemaphore::try_acquire_until(TimePoint a_timePoint) noexcept -> bool
 	{
 		const auto currentTime = std::chrono::steady_clock::now();
 		if (a_timePoint <= currentTime) {
@@ -51,7 +45,8 @@ namespace RE
 
 	void BSSemaphore::acquire() noexcept
 	{
-		if (REX::W32::WaitForSingleObject(_semaphoreHandle, REX::W32::INFINITE) != REX::W32::WAIT_OBJECT_0) [[unlikely]] {
+		if (REX::W32::WaitForSingleObject(_semaphoreHandle, REX::W32::INFINITE) != REX::W32::WAIT_OBJECT_0)
+			[[unlikely]] {
 			REX::Assert(false);
 		}
 	}

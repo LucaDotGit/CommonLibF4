@@ -1,12 +1,48 @@
 {
 	"$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-	"dependencies": [
-		"spdlog",
-		"fmt",
-		"rapidcsv",
-		"xbyak",
-		"simpleini",
-		"toml11",
-		"nlohmann-json"
-	]
+	"builtin-baseline": "4702e381dbbd9b54d3f7e1eb565cd8981c1814cd",
+	"features": {
+		"format": {
+			"description": "Enable formatting support for `REX::Format`.",
+			"dependencies": [
+				"fmt"
+			]
+		},
+		"ini": {
+			"description": "Enable setting support for `REX::INI`.",
+			"dependencies": [
+				"simpleini"
+			]
+		},
+		"toml": {
+			"description": "Enable setting support for `REX::TOML`.",
+			"dependencies": [
+				"glaze"
+			]
+		},
+		"json": {
+			"description": "Enable setting support for `REX::JSON`.",
+			"dependencies": [
+				"glaze"
+			]
+		},
+		"yaml": {
+			"description": "Enable setting support for `REX::YAML`.",
+			"dependencies": [
+				"glaze"
+			]
+		},
+		"xbyak": {
+			"description": "Enable hooking support for `REL::Trampoline`.",
+			"dependencies": [
+				"xbyak"
+			]
+		},
+		"vr": {
+			"description": "Enable runtime support for Virtual Reality (VR).",
+			"dependencies": [
+				"glaze"
+			]
+		}
+	}
 }

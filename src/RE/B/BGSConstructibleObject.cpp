@@ -4,16 +4,16 @@
 
 namespace RE
 {
-	std::vector<BGSKeyword*> BGSConstructibleObject::GetRecipeKeywords() const
+	auto BGSConstructibleObject::GetRecipeKeywords() const -> BSTArray<BGSKeyword*>
 	{
 		if (!filterKeywords.array || filterKeywords.size == 0) {
 			return {};
 		}
 
-		auto keywords = std::vector<BGSKeyword*>();
+		auto keywords = BSTArray<BGSKeyword*>();
 		keywords.reserve(filterKeywords.size);
 
-		for (auto i = 0ui32; i < filterKeywords.size; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < filterKeywords.size; i++) {
 			auto* keyword = Impl::GetTypedKeywordByIndex(ObjectKeywordType, filterKeywords.array[i].keywordIndex);
 			keywords.push_back(keyword);
 		}
@@ -31,7 +31,7 @@ namespace RE
 		auto newSize = static_cast<std::uint32_t>(a_keywords.size());
 		auto newArray = SimpleArray<BGSTypedKeywordValue<ObjectKeywordType>>(newSize);
 
-		for (auto i = 0ui32; i < newSize; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < newSize; i++) {
 			const auto index = Impl::GetIndexForTypedKeyword(a_keywords[i], ObjectKeywordType);
 			newArray[i].keywordIndex = index.value_or(std::numeric_limits<std::uint16_t>::max());
 		}
@@ -51,7 +51,8 @@ namespace RE
 		return *requiredItems;
 	}
 
-	void BGSConstructibleObject::SetComponents(std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>> a_components)
+	void BGSConstructibleObject::SetComponents(
+		std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>> a_components)
 	{
 		if (requiredItems) {
 			delete requiredItems;
@@ -62,6 +63,7 @@ namespace RE
 			return;
 		}
 
-		requiredItems = new BSTArray<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>>{ a_components.begin(), a_components.end() };
+		requiredItems =
+			new BSTArray<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>>{a_components.begin(), a_components.end()};
 	}
 }

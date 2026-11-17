@@ -5,19 +5,19 @@
 
 namespace RE
 {
-	std::uint32_t TESContainer::GetObjectCount() const noexcept
+	auto TESContainer::GetObjectCount() const noexcept -> std::uint32_t
 	{
 		return numContainerObjects;
 	}
 
-	std::span<ContainerObject*> TESContainer::GetObjects() noexcept
+	auto TESContainer::GetObjects() noexcept -> std::span<ContainerObject*>
 	{
-		return { containerObjects.data(), numContainerObjects };
+		return {containerObjects.data(), numContainerObjects};
 	}
 
-	std::span<ContainerObject* const> TESContainer::GetObjects() const noexcept
+	auto TESContainer::GetObjects() const noexcept -> std::span<ContainerObject* const>
 	{
-		return { containerObjects.data(), numContainerObjects };
+		return {containerObjects.data(), numContainerObjects};
 	}
 
 	void TESContainer::SetObjects(std::span<std::unique_ptr<ContainerObject>> a_objects)
@@ -27,7 +27,7 @@ namespace RE
 		numContainerObjects = static_cast<std::uint32_t>(a_objects.size());
 		containerObjects.allocate_bytes(numContainerObjects);
 
-		for (auto i = 0ui32; i < numContainerObjects; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < numContainerObjects; i++) {
 			containerObjects[i] = a_objects[i].release();
 		}
 	}
@@ -39,7 +39,7 @@ namespace RE
 			return;
 		}
 
-		for (auto i = 0ui32; i < numContainerObjects; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < numContainerObjects; i++) {
 			auto*& object = containerObjects[i];
 			if (!object) {
 				continue;
@@ -52,20 +52,21 @@ namespace RE
 		containerObjects.deallocate_bytes();
 	}
 
-	BSContainer::ForEachResult TESContainer::ForEachObject(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(ContainerObject*)>>& a_predicate) const
+	auto TESContainer::ForEachObject(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(ContainerObject*) const>>& a_predicate)
+		const -> BSContainer::ForEachResult
 	{
 		if (!containerObjects.data()) {
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		}
 
-		for (auto i = 0ui32; i < numContainerObjects; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < numContainerObjects; i++) {
 			auto* object = containerObjects[i];
-			if (std::invoke(*a_predicate, object) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), object) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 }

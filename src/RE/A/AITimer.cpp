@@ -2,19 +2,9 @@
 
 namespace RE
 {
-	REX::Float32& AITimer::GetTimer()
+	auto AITimer::GetTimer() noexcept -> REX::Float32&
 	{
-		static const auto TIMER = REL::Relocation<REX::Float32*>{ ID::AITimer::Timer };
+		static const auto TIMER = REL::Relocation<REX::Float32*>(ID::AITimer::Timer);
 		return *TIMER;
-	}
-
-	AITimer::Seconds AITimer::GetStartTime() const noexcept
-	{
-		return Seconds(startTime);
-	}
-
-	AITimer::Seconds AITimer::GetTargetTime() const noexcept
-	{
-		return Seconds(targetTime);
 	}
 }

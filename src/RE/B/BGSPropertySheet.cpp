@@ -9,7 +9,7 @@ namespace RE
 			return std::nullopt;
 		}
 
-		return { *properties };
+		return {*properties};
 	}
 
 	void BGSPropertySheet::SetProperties(std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>> a_properties)

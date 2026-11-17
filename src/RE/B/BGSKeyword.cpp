@@ -2,22 +2,25 @@
 
 namespace RE
 {
-	auto BGSKeyword::GetTypedKeywords()
-		-> std::span<BSTArray<BGSKeyword*>, std::to_underlying(KeywordType::kTotal)>
+	auto BGSKeyword::GetTypedKeywords() noexcept
+		-> std::span<BSTArray<BGSKeyword*>, std::to_underlying(KeywordType::_Count)>
 	{
-		static const auto TYPED_KEYWORDS = REL::Relocation<std::array<BSTArray<BGSKeyword*>, std::to_underlying(KeywordType::kTotal)>*>{ ID::BGSKeyword::TypedKeywords };
-		return { *TYPED_KEYWORDS };
+		static const auto TYPED_KEYWORDS =
+			REL::Relocation<std::array<BSTArray<BGSKeyword*>, std::to_underlying(KeywordType::_Count)>*>{
+				ID::BGSKeyword::TypedKeywords
+		};
+		return {*TYPED_KEYWORDS};
 	}
 
-	auto BGSKeyword::GetIndexForTypedKeyword(const BGSKeyword* a_keyword, KeywordType a_type)
+	auto BGSKeyword::GetIndexForTypedKeyword(const BGSKeyword* a_keyword, KeywordType a_type) noexcept
 		-> std::optional<std::uint16_t>
 	{
-		REX::Assert(a_type >= KeywordType::kNone && a_type < KeywordType::kTotal);
+		REX::Assert(a_type >= KeywordType::None && a_type < KeywordType::_Count);
 
 		const auto keywords = GetTypedKeywords();
-		const auto& array = keywords[std::to_underlying(a_type)];
+		const auto& array = keywords[REX::ToUnsigned(std::to_underlying(a_type))];
 
-		for (auto i = 0ui16; i < static_cast<std::uint16_t>(array.size()); i++) {
+		for (auto i = static_cast<std::uint16_t>(0); i < static_cast<std::uint16_t>(array.size()); i++) {
 			if (array[i] == a_keyword) {
 				return i;
 			}
@@ -26,12 +29,12 @@ namespace RE
 		return std::nullopt;
 	}
 
-	BGSKeyword* BGSKeyword::GetTypedKeywordByIndex(KeywordType a_type, std::uint16_t a_index)
+	auto BGSKeyword::GetTypedKeywordByIndex(KeywordType a_type, std::uint16_t a_index) noexcept -> BGSKeyword*
 	{
-		REX::Assert(a_type >= KeywordType::kNone && a_type < KeywordType::kTotal);
+		REX::Assert(a_type >= KeywordType::None && a_type < KeywordType::_Count);
 
 		const auto keywords = GetTypedKeywords();
-		const auto& array = keywords[std::to_underlying(a_type)];
+		const auto& array = keywords[REX::ToUnsigned(std::to_underlying(a_type))];
 		return a_index < array.size() ? array[a_index] : nullptr;
 	}
 }

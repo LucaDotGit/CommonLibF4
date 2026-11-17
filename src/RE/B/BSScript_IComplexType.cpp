@@ -5,14 +5,14 @@
 
 namespace RE::BSScript
 {
-	BSFixedString IComplexType::GetTypeName() const
+	auto IComplexType::GetTypeName() const noexcept -> BSFixedString
 	{
-		const auto* objectType = AsObjectType();
+		const auto objectType = AsObjectType();
 		if (objectType) {
 			return objectType->GetName();
 		}
 
-		const auto* structType = AsStructType();
+		const auto structType = AsStructType();
 		if (structType) {
 			return structType->GetName();
 		}
@@ -20,44 +20,44 @@ namespace RE::BSScript
 		return {};
 	}
 
-	bool IComplexType::Equals(const IComplexType& a_rhs) const noexcept
+	auto IComplexType::Equals(const IComplexType& a_rhs) const noexcept -> bool
 	{
 		return this == std::addressof(a_rhs);
 	}
 
-	bool IComplexType::IsAssignable(const IComplexType& a_rhs) const noexcept
+	auto IComplexType::IsAssignable(const IComplexType& a_rhs) const noexcept -> bool
 	{
 		if (this == std::addressof(a_rhs)) {
 			return true;
 		}
 
-		const auto* leftObjectType = AsObjectType();
-		const auto* rightObjectType = a_rhs.AsObjectType();
+		const auto leftObjectType = AsObjectType();
+		const auto rightObjectType = a_rhs.AsObjectType();
 
 		if (!leftObjectType || !rightObjectType) {
 			return false;
 		}
 
-		return leftObjectType->IsChildOf(rightObjectType);
+		return leftObjectType->IsChildOf(rightObjectType.get());
 	}
 
-	ObjectTypeInfo* IComplexType::AsObjectType()
+	auto IComplexType::AsObjectType() noexcept -> BSTSmartPointer<ObjectTypeInfo>
 	{
-		return IsObject() ? DynamicCast<ObjectTypeInfo*>(this) : nullptr;
+		return BSTSmartPointer(IsObject() ? DynamicCast<ObjectTypeInfo*>(this) : nullptr);
 	}
 
-	const ObjectTypeInfo* IComplexType::AsObjectType() const
+	auto IComplexType::AsObjectType() const noexcept -> BSTSmartPointer<const ObjectTypeInfo>
 	{
-		return IsObject() ? DynamicCast<const ObjectTypeInfo*>(this) : nullptr;
+		return BSTSmartPointer(IsObject() ? DynamicCast<const ObjectTypeInfo*>(this) : nullptr);
 	}
 
-	StructTypeInfo* IComplexType::AsStructType()
+	auto IComplexType::AsStructType() noexcept -> BSTSmartPointer<StructTypeInfo>
 	{
-		return IsStruct() ? DynamicCast<StructTypeInfo*>(this) : nullptr;
+		return BSTSmartPointer(IsStruct() ? DynamicCast<StructTypeInfo*>(this) : nullptr);
 	}
 
-	const StructTypeInfo* IComplexType::AsStructType() const
+	auto IComplexType::AsStructType() const noexcept -> BSTSmartPointer<const StructTypeInfo>
 	{
-		return IsStruct() ? DynamicCast<const StructTypeInfo*>(this) : nullptr;
+		return BSTSmartPointer(IsStruct() ? DynamicCast<const StructTypeInfo*>(this) : nullptr);
 	}
 }

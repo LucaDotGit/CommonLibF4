@@ -2,14 +2,14 @@
 
 namespace RE
 {
-	bool TESObjectBOOK::GetHasBeenRead() const noexcept
+	auto TESObjectBOOK::GetHasBeenRead() const noexcept -> bool
 	{
-		return data.flags.any(OBJ_BOOK::Flags::kHasBeenRead);
+		return data.flags.any(OBJ_BOOK::Flags::HasBeenRead);
 	}
 
 	void TESObjectBOOK::SetHasBeenRead(bool a_value)
 	{
-		data.flags.set(a_value, OBJ_BOOK::Flags::kHasBeenRead);
-		AddChange(ChangeFlags::kRead);
+		data.flags.set(a_value, OBJ_BOOK::Flags::HasBeenRead);
+		AddChange(ChangeFlags::Read);
 	}
 }

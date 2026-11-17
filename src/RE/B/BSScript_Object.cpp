@@ -2,13 +2,14 @@
 
 #include "RE/B/BSScript_IObjectHandlePolicy.hpp"
 #include "RE/B/BSScript_ObjectTypeInfo.hpp"
+#include "RE/B/BSSpinLockPolicy.hpp"
 #include "RE/G/GameScript_HandlePolicy.hpp"
 #include "RE/G/GameVM.hpp"
 
 namespace RE::BSScript
 {
-	Object::Object() noexcept
-		: handle(GameScript::HandlePolicy::EMPTY_HANDLE)
+	Object::Object() noexcept :
+		handle(GameScript::HandlePolicy::EMPTY_HANDLE)
 	{
 	}
 
@@ -18,8 +19,8 @@ namespace RE::BSScript
 			return;
 		}
 
-		const auto variableSize = type ? type->GetNumVariables() : 0;
-		for (auto i = 0ui32; i < variableSize; i++) {
+		const auto variableSize = type ? type->GetVariableCount() : 0;
+		for (auto i = static_cast<std::uint32_t>(0); i < variableSize; i++) {
 			variables[i].reset();
 		}
 
@@ -27,43 +28,42 @@ namespace RE::BSScript
 		initialized = false;
 	}
 
-	bool Object::Equals(const Object& a_rhs) const noexcept
+	auto Object::Equals(const Object& a_rhs) const noexcept -> bool
 	{
 		return RefEquals(a_rhs);
 	}
 
-	bool Object::RefEquals(const Object& a_rhs) const noexcept
+	auto Object::RefEquals(const Object& a_rhs) const noexcept -> bool
 	{
 		return this == std::addressof(a_rhs);
 	}
 
-	bool Object::DeepEquals(const Object& a_rhs) const noexcept
+	auto Object::DeepEquals(const Object& a_rhs) const noexcept -> bool
 	{
 		return RefEquals(a_rhs);
 	}
 
-	std::strong_ordering Object::Compare(const Object& a_rhs) const noexcept
+	auto Object::Compare(const Object& a_rhs) const noexcept -> std::strong_ordering
 	{
 		return RefCompare(a_rhs);
 	}
 
-	std::strong_ordering Object::RefCompare(const Object& a_rhs) const noexcept
+	auto Object::RefCompare(const Object& a_rhs) const noexcept -> std::strong_ordering
 	{
 		return this <=> std::addressof(a_rhs);
 	}
 
-	std::strong_ordering Object::DeepCompare(const Object& a_rhs) const noexcept
+	auto Object::DeepCompare(const Object& a_rhs) const noexcept -> std::strong_ordering
 	{
 		return RefCompare(a_rhs);
 	}
 
-	BSTSmartPointer<ObjectTypeInfo> Object::GetTypeInfo() const noexcept
+	auto Object::GetTypeInfo() const noexcept -> BSTSmartPointer<ObjectTypeInfo>
 	{
 		return type;
 	}
 
-	auto Object::GetTypeInfoName() const noexcept
-		-> std::optional<BSFixedString>
+	auto Object::GetTypeInfoName() const noexcept -> std::optional<BSFixedString>
 	{
 		if (!type) {
 			return std::nullopt;
@@ -72,86 +72,76 @@ namespace RE::BSScript
 		return type->GetName();
 	}
 
-	BSFixedString Object::GetCurrentState() const noexcept
+	auto Object::GetCurrentState() const noexcept -> BSFixedString
 	{
 		return currentState;
 	}
 
-	ObjectHandle Object::GetHandle() const noexcept
+	auto Object::GetHandle() const noexcept -> ObjectHandle
 	{
 		const auto atomicHandle = REX::AtomicRef(handle);
 		return atomicHandle.load(std::memory_order_acquire);
 	}
 
-	bool Object::Is(const BSTSmartPointer<BSScript::IVirtualMachine>& a_vm, FormType a_typeID) const
+	auto Object::Is(const BSScript::IVirtualMachine& a_vm, FormType a_typeID) const -> bool
 	{
-		if (!a_vm) {
-			return false;
-		}
-
-		const auto& handlePolicy = a_vm->GetObjectHandlePolicy();
+		const auto& handlePolicy = a_vm.GetObjectHandlePolicy();
 		return handlePolicy.HandleIsType(a_typeID, handle);
 	}
 
-	void* Object::As(const BSTSmartPointer<BSScript::IVirtualMachine>& a_vm, FormType a_typeID) const
+	auto Object::As(const BSScript::IVirtualMachine& a_vm, FormType a_typeID) const -> void*
 	{
-		if (!a_vm) {
-			return nullptr;
-		}
-
-		const auto& handlePolicy = a_vm->GetObjectHandlePolicy();
+		const auto& handlePolicy = a_vm.GetObjectHandlePolicy();
 		return handlePolicy.GetObjectForHandle(a_typeID, handle);
 	}
 
-	auto Object::GetVariables() noexcept
-		-> std::span<Variable>
+	auto Object::GetVariables() noexcept -> std::span<Variable>
 	{
 		if (!type) {
 			return {};
 		}
 
-		return { static_cast<Variable*>(variables), type->GetNumVariables() };
+		return {static_cast<Variable*>(variables), type->GetVariableCount()};
 	}
 
-	auto Object::GetVariables() const noexcept
-		-> std::span<const Variable>
+	auto Object::GetVariables() const noexcept -> std::span<const Variable>
 	{
 		if (!type) {
 			return {};
 		}
 
-		return { static_cast<const Variable*>(variables), type->GetNumVariables() };
+		return {static_cast<const Variable*>(variables), type->GetVariableCount()};
 	}
 
-	Variable* Object::GetVariable(const BSFixedString& a_name)
+	auto Object::GetVariable(const BSFixedString& a_name) noexcept -> Variable*
 	{
 		if (!type) {
 			return nullptr;
 		}
 
-		const auto varIndex = type->GetVariableIndex(a_name);
-		if (!varIndex) {
+		const auto varIndex = type->GetVariableIndexByName(a_name);
+		if (!varIndex.has_value()) {
 			return nullptr;
 		}
 
-		return std::addressof(variables[*varIndex]);
+		return std::addressof(variables[varIndex.value()]);
 	}
 
-	const Variable* Object::GetVariable(const BSFixedString& a_name) const
+	auto Object::GetVariable(const BSFixedString& a_name) const noexcept -> const Variable*
 	{
 		if (!type) {
 			return nullptr;
 		}
 
-		const auto varIndex = type->GetVariableIndex(a_name);
-		if (!varIndex) {
+		const auto varIndex = type->GetVariableIndexByName(a_name);
+		if (!varIndex.has_value()) {
 			return nullptr;
 		}
 
-		return std::addressof(variables[*varIndex]);
+		return std::addressof(variables[varIndex.value()]);
 	}
 
-	bool Object::SetVariable(const BSFixedString& a_name, const Variable& a_value)
+	auto Object::SetVariable(const BSFixedString& a_name, const Variable& a_value) noexcept -> bool
 	{
 		auto* variable = GetVariable(a_name);
 		if (!variable) {
@@ -162,35 +152,35 @@ namespace RE::BSScript
 		return true;
 	}
 
-	Variable* Object::GetProperty(const BSFixedString& a_name)
+	auto Object::GetProperty(const BSFixedString& a_name) noexcept -> Variable*
 	{
 		if (!type) {
 			return nullptr;
 		}
 
-		const auto varIndex = type->GetPropertyIndex(a_name);
-		if (!varIndex) {
+		const auto varIndex = type->GetPropertyIndexByName(a_name);
+		if (!varIndex.has_value()) {
 			return nullptr;
 		}
 
-		return std::addressof(variables[*varIndex]);
+		return std::addressof(variables[varIndex.value()]);
 	}
 
-	const Variable* Object::GetProperty(const BSFixedString& a_name) const
+	auto Object::GetProperty(const BSFixedString& a_name) const noexcept -> const Variable*
 	{
 		if (!type) {
 			return nullptr;
 		}
 
-		const auto varIndex = type->GetPropertyIndex(a_name);
-		if (!varIndex) {
+		const auto varIndex = type->GetPropertyIndexByName(a_name);
+		if (!varIndex.has_value()) {
 			return nullptr;
 		}
 
-		return std::addressof(variables[*varIndex]);
+		return std::addressof(variables[varIndex.value()]);
 	}
 
-	bool Object::SetProperty(const BSFixedString& a_name, const Variable& a_value)
+	auto Object::SetProperty(const BSFixedString& a_name, const Variable& a_value) noexcept -> bool
 	{
 		auto* variable = GetProperty(a_name);
 		if (!variable) {
@@ -201,29 +191,28 @@ namespace RE::BSScript
 		return true;
 	}
 
-	BSTSmartPointer<Object> Object::Clone([[maybe_unused]] IVirtualMachine& a_vm) noexcept
+	auto Object::Clone([[maybe_unused]] IVirtualMachine& a_vm) noexcept -> BSTSmartPointer<Object>
 	{
 		return BSTSmartPointer(this);
 	}
 
-	BSTSmartPointer<Object> Object::DeepClone([[maybe_unused]] IVirtualMachine& a_vm) noexcept
+	auto Object::DeepClone([[maybe_unused]] IVirtualMachine& a_vm) noexcept -> BSTSmartPointer<Object>
 	{
 		return BSTSmartPointer(this);
 	}
 
-	std::string Object::ToString() const
+	auto Object::ToString() const -> std::string
 	{
 		if (!type) {
 			return std::string(BSScript::NONE_STRING);
 		}
 
-		return REX::Format("[{} ({:X})]"sv,
-			type->GetName(), GetHandle());
+		return REX::Format("[{} ({:X})]"sv, type->GetName(), GetHandle());
 	}
 
-	bool Object::try_lock() const noexcept
+	auto Object::try_lock() const noexcept -> bool
 	{
-		auto atomicLock = REX::AtomicRef(reinterpret_cast<volatile std::uintptr_t&>(lockStructure));
+		const auto atomicLock = REX::AtomicRef(lockStructure);
 
 		const auto previousValue = atomicLock.fetch_or(static_cast<std::uintptr_t>(1), std::memory_order_acq_rel);
 		return (previousValue & static_cast<std::uintptr_t>(1)) == 0;
@@ -231,15 +220,23 @@ namespace RE::BSScript
 
 	void Object::lock() const noexcept
 	{
-		auto atomicLock = REX::AtomicRef(reinterpret_cast<volatile std::uintptr_t&>(lockStructure));
-		auto spinCount = 0ui32;
+		const auto atomicLock = REX::AtomicRef(lockStructure);
+		auto spinCount = static_cast<std::uint32_t>(0);
 
 		while (true) {
 			auto expectedValue = atomicLock.load(std::memory_order_acquire);
 			if ((expectedValue & static_cast<std::uintptr_t>(1)) != 0 ||
-				!atomicLock.compare_exchange_weak(expectedValue, expectedValue | static_cast<std::uintptr_t>(1),
-					std::memory_order_acq_rel, std::memory_order_relaxed)) {
-				REX::W32::Sleep(++spinCount < RE::Impl::SPIN_LOCK_YIELD_COUNT ? RE::Impl::SPIN_LOCK_YIELD_DURATION_MS : RE::Impl::SPIN_LOCK_SLEEP_DURATION_MS);
+				!atomicLock.compare_exchange_weak(
+					expectedValue,
+					expectedValue | static_cast<std::uintptr_t>(1),
+					std::memory_order_acq_rel,
+					std::memory_order_relaxed)) {
+				if (++spinCount < RE::Impl::SPIN_LOCK_YIELD_COUNT) {
+					std::this_thread::yield();
+					continue;
+				}
+
+				std::this_thread::sleep_for(RE::Impl::SPIN_LOCK_SLEEP_DURATION);
 				continue;
 			}
 
@@ -249,40 +246,31 @@ namespace RE::BSScript
 
 	void Object::unlock() const noexcept
 	{
-		auto atomicLock = REX::AtomicRef(reinterpret_cast<volatile std::uintptr_t&>(lockStructure));
+		const auto atomicLock = REX::AtomicRef(lockStructure);
 		atomicLock.fetch_and(~static_cast<std::uintptr_t>(1), std::memory_order_acq_rel);
 	}
 
-	void Object::IncRef() noexcept
+	void Object::IncRef() const noexcept
 	{
 		try {
 			using FuncType = decltype(&Object::IncRef);
-			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSScript::Object::IncRef };
+			static const auto FUNC = REL::Relocation<FuncType>(ID::BSScript::Object::IncRef);
 			std::invoke(FUNC, this);
 		}
 		catch (...) {
-			REX::Fail("Failed to increment script object ref count."sv);
+			REX::Fail("Failed to increment ref count."sv);
 		}
 	}
 
-	std::uint32_t Object::DecRef() noexcept
+	auto Object::DecRef() const noexcept -> std::uint32_t
 	{
 		try {
 			using FuncType = decltype(&Object::DecRef);
-			static const auto FUNC = REL::Relocation<FuncType>{ ID::BSScript::Object::DecRef };
+			static const auto FUNC = REL::Relocation<FuncType>(ID::BSScript::Object::DecRef);
 			return std::invoke(FUNC, this);
 		}
 		catch (...) {
-			REX::Fail("Failed to decrement script object ref count."sv);
+			REX::Fail("Failed to decrement ref count."sv);
 		}
 	}
-}
-
-namespace RE
-{
-	template class BSAutoLockDefaultPolicy<BSScript::Object>;
-	static_assert(std::is_empty_v<BSAutoLockDefaultPolicy<BSScript::Object>>);
-
-	template class BSAutoLock<BSScript::Object, BSAutoLockDefaultPolicy>;
-	static_assert(sizeof(BSAutoLock<BSScript::Object, BSAutoLockDefaultPolicy>) == 0x08);
 }

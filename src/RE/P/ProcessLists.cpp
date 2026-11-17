@@ -1,29 +1,31 @@
 #include "RE/P/ProcessLists.hpp"
 
 #include "RE/A/Actor.hpp"
+#include "RE/B/BSSpinLock.hpp"
 
 namespace RE
 {
-	ProcessLists* ProcessLists::GetSingleton()
+	auto ProcessLists::GetSingleton() noexcept -> ProcessLists*
 	{
-		static const auto SINGLETON = REL::Relocation<ProcessLists**>{ ID::ProcessLists::Singleton };
+		static const auto SINGLETON = REL::Relocation<ProcessLists**>(ID::ProcessLists::Singleton);
 		return *SINGLETON;
 	}
 
-	BSTArray<ActorHandle>& ProcessLists::GetAllActorsByProcess(PROCESS_TYPE a_processLevel)
+	auto ProcessLists::GetAllActorsByProcess(PROCESS_TYPE a_processLevel) -> BSTArray<ActorHandle>&
 	{
-		REX::Assert(a_processLevel >= PROCESS_TYPE::kMin && a_processLevel <= PROCESS_TYPE::kMax);
-		return *allProcesses[std::to_underlying(a_processLevel)];
+		REX::Assert(a_processLevel >= PROCESS_TYPE::_Min && a_processLevel <= PROCESS_TYPE::_Max);
+		return *allProcesses[REX::ToUnsigned(std::to_underlying(a_processLevel))];
 	}
 
-	const BSTArray<ActorHandle>& ProcessLists::GetAllActorsByProcess(PROCESS_TYPE a_processLevel) const
+	auto ProcessLists::GetAllActorsByProcess(PROCESS_TYPE a_processLevel) const -> const BSTArray<ActorHandle>&
 	{
-		REX::Assert(a_processLevel >= PROCESS_TYPE::kMin && a_processLevel <= PROCESS_TYPE::kMax);
-		return *allProcesses[std::to_underlying(a_processLevel)];
+		REX::Assert(a_processLevel >= PROCESS_TYPE::_Min && a_processLevel <= PROCESS_TYPE::_Max);
+		return *allProcesses[REX::ToUnsigned(std::to_underlying(a_processLevel))];
 	}
 
-	BSContainer::ForEachResult ProcessLists::ForEachActor(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(const NiPointer<Actor>&)>>& a_predicate) const
+	auto ProcessLists::ForEachActor(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const NiPointer<Actor>&) const>>&
+			a_predicate) const -> BSContainer::ForEachResult
 	{
 		for (const auto* processes : allProcesses) {
 			if (!processes) {
@@ -31,68 +33,70 @@ namespace RE
 			}
 
 			for (const auto& actor : *processes) {
-				if (actor && std::invoke(*a_predicate, actor.get()) == BSContainer::ForEachResult::kStop) {
-					return BSContainer::ForEachResult::kStop;
+				if (std::invoke(a_predicate.get(), actor.get()) == BSContainer::ForEachResult::Stop) {
+					return BSContainer::ForEachResult::Stop;
 				}
 			}
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 
-	BSContainer::ForEachResult ProcessLists::ForEachActorInProcess(PROCESS_TYPE a_processLevel,
-		const REX::NotNull<std::function<BSContainer::ForEachResult(const NiPointer<Actor>&)>>& a_predicate) const
+	auto ProcessLists::ForEachActorInProcess(
+		PROCESS_TYPE a_processLevel,
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const NiPointer<Actor>&) const>>&
+			a_predicate) const -> BSContainer::ForEachResult
 	{
-		if (a_processLevel < PROCESS_TYPE::kMin || a_processLevel > PROCESS_TYPE::kMax) {
-			return BSContainer::ForEachResult::kContinue;
-		}
+		REX::Assert(a_processLevel >= PROCESS_TYPE::_Min && a_processLevel <= PROCESS_TYPE::_Max);
 
-		const auto* processes = allProcesses[std::to_underlying(a_processLevel)];
+		const auto* processes = allProcesses[REX::ToUnsigned(std::to_underlying(a_processLevel))];
 		if (!processes) {
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		}
 
 		for (const auto& actor : *processes) {
-			if (actor && std::invoke(*a_predicate, actor.get()) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), actor.get()) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 
-	BSContainer::ForEachResult ProcessLists::ForEachTempEffect(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(const NiPointer<BSTempEffect>&)>>& a_predicate) const
+	auto ProcessLists::ForEachTempEffect(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const NiPointer<BSTempEffect>&) const>>&
+			a_predicate) const -> BSContainer::ForEachResult
 	{
-		const auto effectLock = BSAutoLock(magicEffectsLock);
+		const auto effectLock = BSAutoSpinLock(magicEffectsLock);
 
 		for (const auto& effect : magicEffects) {
-			if (effect && std::invoke(*a_predicate, effect) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), effect) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 
-	bool ProcessLists::AreHostileActorsNear(BSScrapArray<ActorHandle>* a_hostileActorArray)
+	auto ProcessLists::AreHostileActorsNear(BSScrapArray<ActorHandle>* a_hostileActorArray) -> bool
 	{
 		using FuncType = decltype(&ProcessLists::AreHostileActorsNear);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::ProcessLists::AreHostileActorsNear };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::ProcessLists::AreHostileActorsNear);
 		return std::invoke(FUNC, this, a_hostileActorArray);
 	}
 
-	bool ProcessLists::IsActorTargetingREFinPackage(const TESObjectREFR* a_actor, PTYPE a_type, bool a_onlyHigh)
+	auto ProcessLists::IsActorTargetingREFinPackage(const TESObjectREFR* a_actor, PTYPE a_type, bool a_onlyHigh) -> bool
 	{
 		using FuncType = decltype(&ProcessLists::IsActorTargetingREFinPackage);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::ProcessLists::IsActorTargetingREFinPackage };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::ProcessLists::IsActorTargetingREFinPackage);
 		return std::invoke(FUNC, this, a_actor, a_type, a_onlyHigh);
 	}
 
-	std::int16_t ProcessLists::RequestHighestDetectionLevelAgainstActor(Actor* a_actor, std::uint32_t& a_LOSCount)
+	auto ProcessLists::RequestHighestDetectionLevelAgainstActor(Actor* a_actor, std::uint32_t& a_losCount)
+		-> std::int16_t
 	{
 		using FuncType = decltype(&ProcessLists::RequestHighestDetectionLevelAgainstActor);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::ProcessLists::RequestHighestDetectionLevelAgainstActor };
-		return std::invoke(FUNC, this, a_actor, a_LOSCount);
+		static const auto FUNC = REL::Relocation<FuncType>(ID::ProcessLists::RequestHighestDetectionLevelAgainstActor);
+		return std::invoke(FUNC, this, a_actor, a_losCount);
 	}
 }

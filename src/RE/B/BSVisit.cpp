@@ -8,110 +8,118 @@
 
 namespace RE::BSVisit
 {
-	BSVisitControl TraverseScenegraphCollision(NiAVObject* a_object,
-		const REX::NotNull<std::function<BSVisitControl(NiCollisionObject*)>>& a_predicate)
+	auto ForEachScenegraphCollision(
+		const NiPointer<NiAVObject>& a_object,
+		const REX::NotNull<std::move_only_function<BSVisitControl(const NiPointer<NiCollisionObject>&) const>>&
+			a_predicate) -> BSVisitControl
 	{
 		if (!a_object) {
-			return BSVisitControl::kContinue;
+			return BSVisitControl::Continue;
 		}
 
-		auto* collision = a_object->collisionObject.get();
+		auto collision = a_object->collisionObject;
 		if (!collision) {
-			return BSVisitControl::kContinue;
+			return BSVisitControl::Continue;
 		}
 
-		if (std::invoke(*a_predicate, collision) == BSVisitControl::kStop) {
-			return BSVisitControl::kStop;
+		if (std::invoke(a_predicate.get(), collision) == BSVisitControl::Stop) {
+			return BSVisitControl::Stop;
 		}
 
-		auto* node = a_object->AsNode();
+		const auto node = dynamic_ni_pointer_cast<NiNode>(a_object);
 		if (!node) {
-			return BSVisitControl::kContinue;
+			return BSVisitControl::Continue;
 		}
 
-		for (auto& child : node->children) {
-			if (TraverseScenegraphCollision(child.get(), a_predicate) == BSVisitControl::kStop) {
-				return BSVisitControl::kStop;
+		for (const auto& child : node->GetRuntimeData().children) {
+			if (ForEachScenegraphCollision(child, a_predicate) == BSVisitControl::Stop) {
+				return BSVisitControl::Stop;
 			}
 		}
 
-		return BSVisitControl::kContinue;
+		return BSVisitControl::Continue;
 	}
 
-	BSVisitControl TraverseScenegraphGeometries(NiAVObject* a_object,
-		const REX::NotNull<std::function<BSVisitControl(BSGeometry*)>>& a_predicate)
+	auto ForEachScenegraphGeometries(
+		const NiPointer<NiAVObject>& a_object,
+		const REX::NotNull<std::move_only_function<BSVisitControl(const NiPointer<BSGeometry>&) const>>& a_predicate)
+		-> BSVisitControl
 	{
 		if (!a_object) {
-			return BSVisitControl::kContinue;
+			return BSVisitControl::Continue;
 		}
 
-		auto* geom = a_object->AsGeometry();
-		if (geom) {
-			return std::invoke(*a_predicate, geom);
+		auto geometry = dynamic_ni_pointer_cast<BSGeometry>(a_object);
+		if (geometry) {
+			return std::invoke(a_predicate.get(), geometry);
 		}
 
-		auto* node = a_object->AsNode();
+		const auto node = dynamic_ni_pointer_cast<NiNode>(a_object);
 		if (!node) {
-			return BSVisitControl::kContinue;
+			return BSVisitControl::Continue;
 		}
 
-		for (auto& child : node->children) {
-			if (TraverseScenegraphGeometries(child.get(), *a_predicate) == BSVisitControl::kStop) {
-				return BSVisitControl::kStop;
+		for (const auto& child : node->GetRuntimeData().children) {
+			if (ForEachScenegraphGeometries(child, a_predicate) == BSVisitControl::Stop) {
+				return BSVisitControl::Stop;
 			}
 		}
 
-		return BSVisitControl::kContinue;
+		return BSVisitControl::Continue;
 	}
 
-	BSVisitControl TraverseScenegraphLights(NiAVObject* a_object,
-		const REX::NotNull<std::function<BSVisitControl(NiPointLight*)>>& a_predicate)
+	auto ForEachScenegraphLights(
+		const NiPointer<NiAVObject>& a_object,
+		const REX::NotNull<std::move_only_function<BSVisitControl(const NiPointer<NiPointLight>&) const>>& a_predicate)
+		-> BSVisitControl
 	{
 		if (!a_object) {
-			return BSVisitControl::kContinue;
+			return BSVisitControl::Continue;
 		}
 
-		auto* light = NiDynamicCast<NiPointLight*>(a_object);
+		auto light = dynamic_ni_pointer_cast<NiPointLight>(a_object);
 		if (light) {
-			return std::invoke(*a_predicate, light);
+			return std::invoke(a_predicate.get(), light);
 		}
 
-		auto* node = a_object->AsNode();
+		const auto node = dynamic_ni_pointer_cast<NiNode>(a_object);
 		if (!node) {
-			return BSVisitControl::kContinue;
+			return BSVisitControl::Continue;
 		}
 
-		for (auto& child : node->children) {
-			if (TraverseScenegraphLights(child.get(), a_predicate) == BSVisitControl::kStop) {
-				return BSVisitControl::kStop;
+		for (const auto& child : node->GetRuntimeData().children) {
+			if (ForEachScenegraphLights(child, a_predicate) == BSVisitControl::Stop) {
+				return BSVisitControl::Stop;
 			}
 		}
 
-		return BSVisitControl::kContinue;
+		return BSVisitControl::Continue;
 	}
 
-	BSVisitControl TraverseScenegraphObjects(NiAVObject* a_object,
-		const REX::NotNull<std::function<BSVisitControl(NiAVObject*)>>& a_predicate)
+	auto ForEachScenegraphObjects(
+		const NiPointer<NiAVObject>& a_object,
+		const REX::NotNull<std::move_only_function<BSVisitControl(const NiPointer<NiAVObject>&) const>>& a_predicate)
+		-> BSVisitControl
 	{
 		if (!a_object) {
-			return BSVisitControl::kContinue;
+			return BSVisitControl::Continue;
 		}
 
-		if (std::invoke(*a_predicate, a_object) == BSVisitControl::kStop) {
-			return BSVisitControl::kStop;
+		if (std::invoke(a_predicate.get(), a_object) == BSVisitControl::Stop) {
+			return BSVisitControl::Stop;
 		}
 
-		auto* node = a_object->AsNode();
+		const auto node = dynamic_ni_pointer_cast<NiNode>(a_object);
 		if (!node) {
-			return BSVisitControl::kContinue;
+			return BSVisitControl::Continue;
 		}
 
-		for (auto& child : node->children) {
-			if (TraverseScenegraphObjects(child.get(), a_predicate) == BSVisitControl::kStop) {
-				return BSVisitControl::kStop;
+		for (const auto& child : node->GetRuntimeData().children) {
+			if (ForEachScenegraphObjects(child, a_predicate) == BSVisitControl::Stop) {
+				return BSVisitControl::Stop;
 			}
 		}
 
-		return BSVisitControl::kContinue;
+		return BSVisitControl::Continue;
 	}
 }

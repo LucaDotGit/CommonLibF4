@@ -1,12 +1,21 @@
 #include "REL/Module.hpp"
 
 #include "REL/Iat.hpp"
-
-#include "REX/Locale.hpp"
+#include "REL/Memory.hpp"
+#include "REL/ModuleSection.hpp"
+#include "REX/Container.hpp"
+#include "REX/DateTime.hpp"
+#include "REX/Localization.hpp"
 #include "REX/Message.hpp"
+#include "REX/System.hpp"
 #include "REX/W32/CORE.hpp"
 #include "REX/W32/KERNEL32.hpp"
-#include "REX/Windows.hpp"
+
+namespace REL::Impl
+{
+	extern constexpr auto INTERNAL_LICENSE =
+		"This project is licensed under GPL-3.0-or-later with Modding Exception and Linking Exception."sv;
+}
 
 namespace REL
 {
@@ -14,89 +23,106 @@ namespace REL
 
 	Module::~Module() noexcept = default;
 
-	REL::ModuleSection Module::GetSection(std::string_view a_sectionName) const noexcept
+	auto Module::GetSectionByName(std::string_view a_sectionName) const noexcept -> std::optional<REL::ModuleSection>
 	{
 		const auto sectionIt = _sections.find(a_sectionName);
-		if (sectionIt == _sections.end()) [[unlikely]] {
-			REX::Assert(false);
-			return {};
+		if (sectionIt == _sections.end()) {
+			return std::nullopt;
 		}
 
 		return sectionIt->second;
 	}
 
-	std::uintptr_t Module::GetImportFunctionAddress(std::string_view a_library, std::string_view a_function) const
+	auto Module::GetImportFunctionAddress(std::string_view a_library, std::string_view a_function) const
+		-> std::uintptr_t
 	{
-		auto modulePtr = std::bit_cast<REX::W32::HMODULE>(_baseAddress);
-		return REL::GetImportFunctionAddress(modulePtr, a_library, a_function);
+		const auto moduleHandle = std::bit_cast<REX::W32::HMODULE>(_baseAddress);
+		return REL::GetImportFunctionAddress(moduleHandle, a_library, a_function);
 	}
 
-	void* Module::GetImportFunctionPointer(std::string_view a_library, std::string_view a_function) const
+	auto Module::GetImportFunctionPointer(std::string_view a_library, std::string_view a_function) const -> void*
 	{
-		auto modulePtr = std::bit_cast<REX::W32::HMODULE>(_baseAddress);
-		return REL::GetImportFunctionPointer(modulePtr, a_library, a_function);
+		const auto moduleHandle = std::bit_cast<REX::W32::HMODULE>(_baseAddress);
+		return REL::GetImportFunctionPointer(moduleHandle, a_library, a_function);
 	}
 
-	std::uintptr_t Module::SetImportFunctionPointer(std::string_view a_library, std::string_view a_function, std::uintptr_t a_newFunc) const
+	auto Module::SetImportFunctionPointer(
+		std::string_view a_library,
+		std::string_view a_function,
+		std::uintptr_t a_newFunc) const -> std::uintptr_t
 	{
-		auto modulePtr = std::bit_cast<REX::W32::HMODULE>(_baseAddress);
-		return REL::SetImportFunctionPointer(modulePtr, a_library, a_function, a_newFunc);
+		const auto moduleHandle = std::bit_cast<REX::W32::HMODULE>(_baseAddress);
+		return REL::SetImportFunctionPointer(moduleHandle, a_library, a_function, a_newFunc);
 	}
 
-	void Module::Init()
+	void Module::Setup()
 	{
-		InitLocale();
-		InitFile();
-		InitVersion();
-		InitSegments();
+		SetupDefaultLocale();
+		SetupTimeZoneDb();
+		SetupFile();
+		SetupVersion();
+		SetupSegments();
 	}
 
 	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-	void Module::InitLocale()
+	void Module::SetupDefaultLocale()
 	{
-		std::ignore = REX::GetDefaultCLocale();
-		std::ignore = REX::GetDefaultCppLocale();
+		std::ignore = REX::GetOrCreateDefaultLocale();
 	}
 
-	void Module::InitFile()
+	// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+	void Module::SetupTimeZoneDb()
 	{
-		auto moduleHandle = REX::W32::GetModuleHandleA(nullptr);
-
-		auto filePathBuffer = std::array<wchar_t, REX::W32::MAX_PATH>();
-		if (REX::W32::GetModuleFileNameW(moduleHandle, filePathBuffer.data(), static_cast<std::uint32_t>(filePathBuffer.size())) == 0) [[unlikely]] {
-			REX::Fail("Failed to obtain module file name."sv);
-		}
-
-		_baseAddress = std::bit_cast<std::uintptr_t>(moduleHandle);
-		_filePath = std::filesystem::path(filePathBuffer.data(), std::filesystem::path::generic_format);
+		std::ignore = REX::DateTime::GetCurrentTimeZone();
 	}
 
-	void Module::InitVersion()
+	void Module::SetupFile()
 	{
-		const auto version = REX::GetModuleFileVersion(_filePath.generic_string());
-		if (!version) [[unlikely]] {
+		const auto parentModuleHandle = REX::GetParentModuleHandle();
+
+		auto moduleFilePath = REX::GetModuleFilePath(parentModuleHandle);
+		if (!moduleFilePath.has_value()) [[unlikely]] {
 			REX::Fail(
-				"Failed to obtain file version.\n"
-				"File Path: \"{}\""sv,
-				_filePath.generic_string());
+				"Failed to get the module file path.\n"
+				"System Error (0x{:08X}): {}"sv,
+				moduleFilePath.error().value(),
+				moduleFilePath.error().message());
 		}
 
-		_version = *version;
+		_baseAddress = std::bit_cast<std::uintptr_t>(parentModuleHandle);
+		_filePath = std::move(moduleFilePath).value();
 	}
 
-	void Module::InitSegments()
+	void Module::SetupVersion()
+	{
+		const auto version = REX::GetModuleFileVersion(std::basic_string_view(_filePath.native()));
+		if (!version.has_value()) [[unlikely]] {
+			REX::Fail(
+				"Failed to get the module file version.\n"
+				"File Path: \"{}\"\n"
+				"System Error (0x{:08X}): {}"sv,
+				_filePath.generic_string(),
+				version.error().value(),
+				version.error().message());
+		}
+
+		_version = version.value();
+	}
+
+	void Module::SetupSegments()
 	{
 		const auto* dosHeader = std::bit_cast<const REX::W32::IMAGE_DOS_HEADER*>(_baseAddress);
 		const auto* ntHeader = REL::AdjustPointer<REX::W32::IMAGE_NT_HEADERS64>(dosHeader, dosHeader->lfanew);
 		const auto* sections = REX::W32::IMAGE_FIRST_SECTION(ntHeader);
 		const auto sectionCount = std::min<std::size_t>(ntHeader->fileHeader.sectionCount, MODULE_SECTION_NAMES.size());
 
-		_sections.reserve(sectionCount);
+		REX::Reserve(_sections, sectionCount);
 
-		for (auto i = static_cast<std::size_t>(0); i < sectionCount; i++) {
-			const auto& section = sections[i];
-			const auto sectionName = std::string_view{ reinterpret_cast<const char*>(section.name.data()) };
-			_sections.emplace(sectionName, ModuleSection(_baseAddress, _baseAddress + section.virtualAddress, section.virtualSize));
+		for (const auto& section : std::span{sections, sectionCount}) {
+			const auto sectionName = std::string_view{reinterpret_cast<const char*>(section.name.data())};
+			_sections.emplace(
+				sectionName,
+				ModuleSection(_baseAddress, _baseAddress + section.virtualAddress, section.virtualSize));
 		}
 	}
 }

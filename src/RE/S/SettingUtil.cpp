@@ -7,7 +7,7 @@
 
 namespace RE
 {
-	Setting* GetINISetting(std::string_view a_name)
+	auto GetINISetting(std::string_view a_name) -> Setting*
 	{
 		const auto* settings = INISettingCollection::GetSingleton();
 		if (!settings) {
@@ -27,7 +27,7 @@ namespace RE
 		return prefSettings->GetSetting(a_name);
 	}
 
-	Setting* GetGameSetting(std::string_view a_name)
+	auto GetGameSetting(std::string_view a_name) -> Setting*
 	{
 		const auto* settings = GameSettingCollection::GetSingleton();
 		if (!settings) {

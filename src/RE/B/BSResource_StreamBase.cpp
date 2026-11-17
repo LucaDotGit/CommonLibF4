@@ -4,69 +4,77 @@
 
 namespace RE::BSResource
 {
-	StreamBase::StreamBase(std::uint32_t a_totalSize, bool writable) noexcept
-		: totalSize(a_totalSize),
-		  flags(writable ? StreamFlags::kWritable : StreamFlags::kNone)
+	StreamBase::StreamBase(std::uint32_t a_totalSize, bool a_writable) noexcept :
+		totalSize(a_totalSize),
+		flags(a_writable ? StreamFlags::Writable : StreamFlags::None)
 	{
 	}
 
-	StreamBase::StreamBase(StreamBase&& a_rhs) noexcept
-		: totalSize(a_rhs.totalSize),
-		  flags(a_rhs.flags.underlying() & ~std::to_underlying(StreamFlags::kRefCountMask))
+	StreamBase::StreamBase(StreamBase&& a_rhs) noexcept :
+		totalSize(a_rhs.totalSize),
+		flags(static_cast<StreamFlags>(a_rhs.flags.underlying() & ~std::to_underlying(StreamFlags::RefCountMask)))
 	{
 	}
 
-	StreamBase& StreamBase::operator=(StreamBase&& a_rhs) noexcept
+	auto StreamBase::operator=(StreamBase&& a_rhs) noexcept -> StreamBase&
 	{
 		if (this == std::addressof(a_rhs)) {
 			return *this;
 		}
 
 		totalSize = a_rhs.totalSize;
-		flags = a_rhs.flags.underlying() & ~std::to_underlying(StreamFlags::kRefCountMask);
+		flags = static_cast<StreamFlags>(a_rhs.flags.underlying() & ~std::to_underlying(StreamFlags::RefCountMask));
 		return *this;
 	}
 
-	std::size_t StreamBase::DoGetKey() const
+	auto StreamBase::DoGetKey() const -> std::size_t
 	{
 		return 0;
 	}
 
-	ErrorCode StreamBase::DoGetInfo([[maybe_unused]] Info& a_info)
+	auto StreamBase::DoGetInfo([[maybe_unused]] Info& a_info) -> ErrorCode
 	{
-		return ErrorCode::kUnsupported;
+		return ErrorCode::Unsupported;
 	}
 
-	bool StreamBase::IsWritable() const noexcept
+	auto StreamBase::IsWritable() const noexcept -> bool
 	{
-		return flags.any_atomic(StreamFlags::kWritable);
+		return flags.any_atomic(StreamFlags::Writable);
 	}
 
-	std::uint32_t StreamBase::IncRef() noexcept
+	auto StreamBase::IncRef() const noexcept -> std::uint32_t
 	{
 		auto atomicFlags = flags.underlying_atomic_ref();
-		auto expectedFlags = 0ui32;
+		auto expectedFlags = static_cast<std::uint32_t>(0);
 
 		do {
 			expectedFlags = atomicFlags.load(std::memory_order_acquire);
 		}
-		while (!atomicFlags.compare_exchange_weak(expectedFlags, expectedFlags + std::to_underlying(StreamFlags::kRefCountIncrement),
-			std::memory_order_acq_rel, std::memory_order_relaxed));
+		while (!atomicFlags.compare_exchange_weak(
+			expectedFlags,
+			expectedFlags + std::to_underlying(StreamFlags::RefCountIncrement),
+			std::memory_order_acq_rel,
+			std::memory_order_relaxed));
 
-		return (expectedFlags - std::to_underlying(StreamFlags::kRefCountIncrement)) & std::to_underlying(StreamFlags::kRefCountMask);
+		return (expectedFlags - std::to_underlying(StreamFlags::RefCountIncrement)) &
+			   std::to_underlying(StreamFlags::RefCountMask);
 	}
 
-	std::uint32_t StreamBase::DecRef() noexcept
+	auto StreamBase::DecRef() const noexcept -> std::uint32_t
 	{
 		auto atomicFlags = flags.underlying_atomic_ref();
-		auto expectedFlags = 0ui32;
+		auto expectedFlags = static_cast<std::uint32_t>(0);
 
 		do {
 			expectedFlags = atomicFlags.load(std::memory_order_acquire);
 		}
-		while (!atomicFlags.compare_exchange_weak(expectedFlags, expectedFlags - std::to_underlying(StreamFlags::kRefCountIncrement),
-			std::memory_order_acq_rel, std::memory_order_relaxed));
+		while (!atomicFlags.compare_exchange_weak(
+			expectedFlags,
+			expectedFlags - std::to_underlying(StreamFlags::RefCountIncrement),
+			std::memory_order_acq_rel,
+			std::memory_order_relaxed));
 
-		return (expectedFlags - std::to_underlying(StreamFlags::kRefCountIncrement)) & std::to_underlying(StreamFlags::kRefCountMask);
+		return (expectedFlags - std::to_underlying(StreamFlags::RefCountIncrement)) &
+			   std::to_underlying(StreamFlags::RefCountMask);
 	}
 }

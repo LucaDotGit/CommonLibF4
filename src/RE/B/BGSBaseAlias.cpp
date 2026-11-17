@@ -6,21 +6,22 @@
 
 namespace RE
 {
-	[[nodiscard]] FormType BGSBaseAlias::GetFormType() const
+	[[nodiscard]]
+	auto BGSBaseAlias::GetFormType() const -> FormType
 	{
 		const auto& aliasType = QType();
 		if (aliasType == BGSRefAlias::ALIAS_TYPE) {
-			return FormType::kRefAlias;
+			return FormType::RefAlias;
 		}
 
 		if (aliasType == BGSLocAlias::ALIAS_TYPE) {
-			return FormType::kLocationAlias;
+			return FormType::LocationAlias;
 		}
 
 		if (aliasType == BGSRefCollectionAlias::ALIAS_TYPE) {
-			return FormType::kRefCollectionAlias;
+			return FormType::RefCollectionAlias;
 		}
 
-		return FormType::kNone;
+		return FormType::None;
 	}
 }

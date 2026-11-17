@@ -1,10 +1,10 @@
 #include "RE/B/BSScript_IVirtualMachine.hpp"
 
-#include "RE//G/GameScript_HandlePolicy.hpp"
-#include "RE/B/BSScriptUtil_CachedErrorMessage.hpp"
-#include "RE/B/BSScriptUtil_InternalLogEvent.hpp"
+#include "RE/B/BSScriptUtility_StackErrorMessage.hpp"
+#include "RE/B/BSScript_ErrorLogger.hpp"
 #include "RE/B/BSScript_IComplexType.hpp"
 #include "RE/B/BSScript_IFunction.hpp"
+#include "RE/B/BSScript_LogSeverity.hpp"
 #include "RE/B/BSScript_Object.hpp"
 #include "RE/B/BSScript_ObjectBindPolicy.hpp"
 #include "RE/B/BSScript_ObjectTypeInfo.hpp"
@@ -12,12 +12,12 @@
 #include "RE/B/BSScript_TypeInfo.hpp"
 #include "RE/B/BSScript_Variable.hpp"
 #include "RE/F/FormType.hpp"
+#include "RE/G/GameScript_HandlePolicy.hpp"
 
 namespace RE::BSScript
 {
-	bool IVirtualMachine::IsInstanceOf(
-		const BSFixedString& a_childScriptName,
-		const BSFixedString& a_parentScriptName)
+	auto IVirtualMachine::IsInstanceOf(const BSFixedString& a_childScriptName, const BSFixedString& a_parentScriptName)
+		-> bool
 	{
 		if (a_childScriptName.empty() || a_parentScriptName.empty()) {
 			return false;
@@ -31,9 +31,9 @@ namespace RE::BSScript
 		return IsInstanceOf(childTypeInfo, a_parentScriptName);
 	}
 
-	bool IVirtualMachine::IsInstanceOf(
+	auto IVirtualMachine::IsInstanceOf(
 		const BSTSmartPointer<ObjectTypeInfo>& a_childTypeInfo,
-		const BSFixedString& a_parentScriptName)
+		const BSFixedString& a_parentScriptName) -> bool
 	{
 		if (!a_childTypeInfo || a_parentScriptName.empty()) {
 			return false;
@@ -47,9 +47,9 @@ namespace RE::BSScript
 		return IsInstanceOf(a_childTypeInfo, parentTypeInfo);
 	}
 
-	bool IVirtualMachine::IsInstanceOf(
+	auto IVirtualMachine::IsInstanceOf(
 		const BSFixedString& a_childScriptName,
-		const BSTSmartPointer<ObjectTypeInfo>& a_parentTypeInfo)
+		const BSTSmartPointer<ObjectTypeInfo>& a_parentTypeInfo) -> bool
 	{
 		if (!a_parentTypeInfo || a_childScriptName.empty()) {
 			return false;
@@ -63,9 +63,9 @@ namespace RE::BSScript
 		return IsInstanceOf(childTypeInfo, a_parentTypeInfo);
 	}
 
-	bool IVirtualMachine::IsInstanceOf(
+	auto IVirtualMachine::IsInstanceOf(
 		const BSTSmartPointer<ObjectTypeInfo>& a_childTypeInfo,
-		const BSTSmartPointer<ObjectTypeInfo>& a_parentTypeInfo)
+		const BSTSmartPointer<ObjectTypeInfo>& a_parentTypeInfo) -> bool
 	{
 		if (!a_childTypeInfo || !a_parentTypeInfo) {
 			return false;
@@ -74,9 +74,7 @@ namespace RE::BSScript
 		return a_childTypeInfo->IsChildOf(a_parentTypeInfo);
 	}
 
-	bool IVirtualMachine::IsInstanceOf(
-		FormType a_formType,
-		const BSFixedString& a_parentScriptName)
+	auto IVirtualMachine::IsInstanceOf(FormType a_formType, const BSFixedString& a_parentScriptName) -> bool
 	{
 		if (a_parentScriptName.empty()) {
 			return false;
@@ -90,9 +88,8 @@ namespace RE::BSScript
 		return IsInstanceOf(childTypeInfo, a_parentScriptName);
 	}
 
-	bool IVirtualMachine::IsInstanceOf(
-		FormType a_formType,
-		const BSTSmartPointer<ObjectTypeInfo>& a_parentTypeInfo)
+	auto IVirtualMachine::IsInstanceOf(FormType a_formType, const BSTSmartPointer<ObjectTypeInfo>& a_parentTypeInfo)
+		-> bool
 	{
 		if (!a_parentTypeInfo) {
 			return false;
@@ -106,9 +103,8 @@ namespace RE::BSScript
 		return IsInstanceOf(childTypeInfo, a_parentTypeInfo);
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetFunction(
-		const BSFixedString& a_scriptName,
-		const BSFixedString& a_funcName)
+	auto IVirtualMachine::GetFunction(const BSFixedString& a_scriptName, const BSFixedString& a_funcName)
+		-> BSTSmartPointer<IFunction>
 	{
 		auto objectTypeInfo = BSTSmartPointer<ObjectTypeInfo>();
 		if (!GetScriptObjectType(a_scriptName, objectTypeInfo) || !objectTypeInfo) {
@@ -118,10 +114,10 @@ namespace RE::BSScript
 		return GetFunction(objectTypeInfo, a_funcName);
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetFunction(
+	auto IVirtualMachine::GetFunction(
 		const BSFixedString& a_scriptName,
 		const BSFixedString& a_funcName,
-		const BSFixedString& a_stateName)
+		const BSFixedString& a_stateName) -> BSTSmartPointer<IFunction>
 	{
 		auto objectTypeInfo = BSTSmartPointer<ObjectTypeInfo>();
 		if (!GetScriptObjectType(a_scriptName, objectTypeInfo) || !objectTypeInfo) {
@@ -131,9 +127,9 @@ namespace RE::BSScript
 		return GetFunction(objectTypeInfo, a_funcName, a_stateName);
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetFunction(
+	auto IVirtualMachine::GetFunction(
 		const BSTSmartPointer<ObjectTypeInfo>& a_objectTypeInfo,
-		const BSFixedString& a_funcName)
+		const BSFixedString& a_funcName) -> BSTSmartPointer<IFunction>
 	{
 		if (!a_objectTypeInfo) {
 			return nullptr;
@@ -147,10 +143,10 @@ namespace RE::BSScript
 		return funcInfo->func;
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetFunction(
+	auto IVirtualMachine::GetFunction(
 		const BSTSmartPointer<ObjectTypeInfo>& a_objectTypeInfo,
 		const BSFixedString& a_funcName,
-		const BSFixedString& a_stateName)
+		const BSFixedString& a_stateName) -> BSTSmartPointer<IFunction>
 	{
 		if (!a_objectTypeInfo) {
 			return nullptr;
@@ -164,9 +160,8 @@ namespace RE::BSScript
 		return funcInfo->func;
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetMemberFunction(
-		const BSTSmartPointer<Object>& a_object,
-		const BSFixedString& a_funcName)
+	auto IVirtualMachine::GetMemberFunction(const BSTSmartPointer<Object>& a_object, const BSFixedString& a_funcName)
+		-> BSTSmartPointer<IFunction>
 	{
 		if (!a_object) {
 			return nullptr;
@@ -175,10 +170,10 @@ namespace RE::BSScript
 		return GetMemberFunction(a_object, a_funcName, a_object->GetCurrentState());
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetMemberFunction(
+	auto IVirtualMachine::GetMemberFunction(
 		const BSTSmartPointer<Object>& a_object,
 		const BSFixedString& a_funcName,
-		const BSFixedString& a_stateName)
+		const BSFixedString& a_stateName) -> BSTSmartPointer<IFunction>
 	{
 		if (!a_object) {
 			return nullptr;
@@ -197,9 +192,8 @@ namespace RE::BSScript
 		return funcInfo->func;
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetMemberFunction(
-		const BSFixedString& a_scriptName,
-		const BSFixedString& a_funcName)
+	auto IVirtualMachine::GetMemberFunction(const BSFixedString& a_scriptName, const BSFixedString& a_funcName)
+		-> BSTSmartPointer<IFunction>
 	{
 		auto objectTypeInfo = BSTSmartPointer<ObjectTypeInfo>();
 		if (!GetScriptObjectType(a_scriptName, objectTypeInfo) || !objectTypeInfo) {
@@ -209,10 +203,10 @@ namespace RE::BSScript
 		return GetMemberFunction(objectTypeInfo, a_funcName);
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetMemberFunction(
+	auto IVirtualMachine::GetMemberFunction(
 		const BSFixedString& a_scriptName,
 		const BSFixedString& a_funcName,
-		const BSFixedString& a_stateName)
+		const BSFixedString& a_stateName) -> BSTSmartPointer<IFunction>
 	{
 		auto objectTypeInfo = BSTSmartPointer<ObjectTypeInfo>();
 		if (!GetScriptObjectType(a_scriptName, objectTypeInfo) || !objectTypeInfo) {
@@ -222,9 +216,9 @@ namespace RE::BSScript
 		return GetMemberFunction(objectTypeInfo, a_funcName, a_stateName);
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetMemberFunction(
+	auto IVirtualMachine::GetMemberFunction(
 		const BSTSmartPointer<ObjectTypeInfo>& a_objectTypeInfo,
-		const BSFixedString& a_funcName)
+		const BSFixedString& a_funcName) -> BSTSmartPointer<IFunction>
 	{
 		if (!a_objectTypeInfo) {
 			return nullptr;
@@ -238,10 +232,10 @@ namespace RE::BSScript
 		return funcInfo->func;
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetMemberFunction(
+	auto IVirtualMachine::GetMemberFunction(
 		const BSTSmartPointer<ObjectTypeInfo>& a_objectTypeInfo,
 		const BSFixedString& a_funcName,
-		const BSFixedString& a_stateName)
+		const BSFixedString& a_stateName) -> BSTSmartPointer<IFunction>
 	{
 		if (!a_objectTypeInfo) {
 			return nullptr;
@@ -255,9 +249,8 @@ namespace RE::BSScript
 		return funcInfo->func;
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetStaticFunction(
-		const BSFixedString& a_scriptName,
-		const BSFixedString& a_funcName)
+	auto IVirtualMachine::GetStaticFunction(const BSFixedString& a_scriptName, const BSFixedString& a_funcName)
+		-> BSTSmartPointer<IFunction>
 	{
 		auto objectTypeInfo = BSTSmartPointer<ObjectTypeInfo>();
 		if (!GetScriptObjectType(a_scriptName, objectTypeInfo) || !objectTypeInfo) {
@@ -267,9 +260,9 @@ namespace RE::BSScript
 		return GetStaticFunction(objectTypeInfo, a_funcName);
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetStaticFunction(
+	auto IVirtualMachine::GetStaticFunction(
 		const BSTSmartPointer<ObjectTypeInfo>& a_objectTypeInfo,
-		const BSFixedString& a_funcName)
+		const BSFixedString& a_funcName) -> BSTSmartPointer<IFunction>
 	{
 		if (!a_objectTypeInfo) {
 			return nullptr;
@@ -283,9 +276,8 @@ namespace RE::BSScript
 		return funcInfo->func;
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetGetterFunction(
-		const BSFixedString& a_scriptName,
-		const BSFixedString& a_propertyName)
+	auto IVirtualMachine::GetGetterFunction(const BSFixedString& a_scriptName, const BSFixedString& a_propertyName)
+		-> BSTSmartPointer<IFunction>
 	{
 		auto objectTypeInfo = BSTSmartPointer<ObjectTypeInfo>();
 		if (!GetScriptObjectType(a_scriptName, objectTypeInfo) || !objectTypeInfo) {
@@ -295,9 +287,9 @@ namespace RE::BSScript
 		return GetGetterFunction(objectTypeInfo, a_propertyName);
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetGetterFunction(
+	auto IVirtualMachine::GetGetterFunction(
 		const BSTSmartPointer<ObjectTypeInfo>& a_objectTypeInfo,
-		const BSFixedString& a_propertyName)
+		const BSFixedString& a_propertyName) -> BSTSmartPointer<IFunction>
 	{
 		if (!a_objectTypeInfo) {
 			return nullptr;
@@ -311,9 +303,8 @@ namespace RE::BSScript
 		return propInfo->info.getFunction;
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetSetterFunction(
-		const BSFixedString& a_scriptName,
-		const BSFixedString& a_propertyName)
+	auto IVirtualMachine::GetSetterFunction(const BSFixedString& a_scriptName, const BSFixedString& a_propertyName)
+		-> BSTSmartPointer<IFunction>
 	{
 		auto objectTypeInfo = BSTSmartPointer<ObjectTypeInfo>();
 		if (!GetScriptObjectType(a_scriptName, objectTypeInfo) || !objectTypeInfo) {
@@ -323,9 +314,9 @@ namespace RE::BSScript
 		return GetSetterFunction(objectTypeInfo, a_propertyName);
 	}
 
-	BSTSmartPointer<IFunction> IVirtualMachine::GetSetterFunction(
+	auto IVirtualMachine::GetSetterFunction(
 		const BSTSmartPointer<ObjectTypeInfo>& a_objectTypeInfo,
-		const BSFixedString& a_propertyName)
+		const BSFixedString& a_propertyName) -> BSTSmartPointer<IFunction>
 	{
 		if (!a_objectTypeInfo) {
 			return nullptr;
@@ -339,10 +330,10 @@ namespace RE::BSScript
 		return propInfo->info.setFunction;
 	}
 
-	bool IVirtualMachine::GetScriptObject(
+	auto IVirtualMachine::GetScriptObject(
 		const BSFixedString& a_scriptName,
 		ObjectHandle a_objectHandle,
-		BSTSmartPointer<Object>& a_outObject) const
+		BSTSmartPointer<Object>& a_outObject) const -> bool
 	{
 		constexpr auto ALLOW_CONST = false;
 		constexpr auto EXACT_TYPE = false;
@@ -355,10 +346,10 @@ namespace RE::BSScript
 		return FindBoundObject(a_objectHandle, a_scriptName.data(), ALLOW_CONST, a_outObject, EXACT_TYPE);
 	}
 
-	bool IVirtualMachine::GetScriptObjectExact(
+	auto IVirtualMachine::GetScriptObjectExact(
 		const BSFixedString& a_scriptName,
 		ObjectHandle a_objectHandle,
-		BSTSmartPointer<Object>& a_outObject) const
+		BSTSmartPointer<Object>& a_outObject) const -> bool
 	{
 		constexpr auto ALLOW_CONST = false;
 		constexpr auto EXACT_TYPE = true;
@@ -371,10 +362,10 @@ namespace RE::BSScript
 		return FindBoundObject(a_objectHandle, a_scriptName.data(), ALLOW_CONST, a_outObject, EXACT_TYPE);
 	}
 
-	bool IVirtualMachine::GetOrCreateScriptObject(
+	auto IVirtualMachine::GetOrCreateScriptObject(
 		const BSFixedString& a_scriptName,
 		ObjectHandle a_objectHandle,
-		BSTSmartPointer<Object>& a_outObject)
+		BSTSmartPointer<Object>& a_outObject) -> bool
 	{
 		constexpr auto ALLOW_CONST = false;
 		constexpr auto EXACT_TYPE = false;
@@ -395,18 +386,19 @@ namespace RE::BSScript
 			return false;
 		}
 
-		auto& bindPolicy = GetObjectBindPolicy();
+		const auto& bindPolicy = GetObjectBindPolicy();
 		bindPolicy.BindObject(object, a_objectHandle);
 
 		a_outObject = std::move(object);
 		return true;
 	}
 
-	bool IVirtualMachine::GetOrCreateScriptObject(
+	auto IVirtualMachine::GetOrCreateScriptObject(
 		const BSFixedString& a_scriptName,
 		ObjectHandle a_objectHandle,
-		const REX::NotNull<std::function<BSTScrapHashMap<BSFixedString, Variable>()>>& a_propertiesFactory,
-		BSTSmartPointer<Object>& a_outObject)
+		const REX::NotNull<std::move_only_function<BSTScrapHashMap<BSFixedString, Variable>() const>>&
+			a_propertiesFactory,
+		BSTSmartPointer<Object>& a_outObject) -> bool
 	{
 		constexpr auto ALLOW_CONST = false;
 		constexpr auto EXACT_TYPE = false;
@@ -422,23 +414,23 @@ namespace RE::BSScript
 			return true;
 		}
 
-		auto properties = std::invoke(*a_propertiesFactory);
+		const auto properties = std::invoke(a_propertiesFactory.get());
 		if (!CreateObject(a_scriptName, properties, object)) {
 			a_outObject = nullptr;
 			return false;
 		}
 
-		auto& bindPolicy = GetObjectBindPolicy();
+		const auto& bindPolicy = GetObjectBindPolicy();
 		bindPolicy.BindObject(object, a_objectHandle);
 
 		a_outObject = std::move(object);
 		return true;
 	}
 
-	bool IVirtualMachine::GetOrCreateScriptObjectExact(
+	auto IVirtualMachine::GetOrCreateScriptObjectExact(
 		const BSFixedString& a_scriptName,
 		ObjectHandle a_objectHandle,
-		BSTSmartPointer<Object>& a_outObject)
+		BSTSmartPointer<Object>& a_outObject) -> bool
 	{
 		constexpr auto ALLOW_CONST = false;
 		constexpr auto EXACT_TYPE = true;
@@ -459,18 +451,19 @@ namespace RE::BSScript
 			return false;
 		}
 
-		auto& bindPolicy = GetObjectBindPolicy();
+		const auto& bindPolicy = GetObjectBindPolicy();
 		bindPolicy.BindObject(object, a_objectHandle);
 
 		a_outObject = std::move(object);
 		return true;
 	}
 
-	bool IVirtualMachine::GetOrCreateScriptObjectExact(
+	auto IVirtualMachine::GetOrCreateScriptObjectExact(
 		const BSFixedString& a_scriptName,
 		ObjectHandle a_objectHandle,
-		const REX::NotNull<std::function<BSTScrapHashMap<BSFixedString, Variable>()>>& a_propertiesFactory,
-		BSTSmartPointer<Object>& a_outObject)
+		const REX::NotNull<std::move_only_function<BSTScrapHashMap<BSFixedString, Variable>() const>>&
+			a_propertiesFactory,
+		BSTSmartPointer<Object>& a_outObject) -> bool
 	{
 		constexpr auto ALLOW_CONST = false;
 		constexpr auto EXACT_TYPE = true;
@@ -486,22 +479,20 @@ namespace RE::BSScript
 			return true;
 		}
 
-		auto properties = std::invoke(*a_propertiesFactory);
+		const auto properties = std::invoke(a_propertiesFactory.get());
 		if (!CreateObject(a_scriptName, properties, object)) {
 			a_outObject = nullptr;
 			return false;
 		}
 
-		auto& bindPolicy = GetObjectBindPolicy();
+		const auto& bindPolicy = GetObjectBindPolicy();
 		bindPolicy.BindObject(object, a_objectHandle);
 
 		a_outObject = std::move(object);
 		return true;
 	}
 
-	bool IVirtualMachine::GetScriptName(
-		const BSTSmartPointer<Object>& a_object,
-		BSFixedString& a_outScriptName)
+	auto IVirtualMachine::GetScriptName(const BSTSmartPointer<Object>& a_object, BSFixedString& a_outScriptName) -> bool
 	{
 		if (!a_object) {
 			a_outScriptName.clear();
@@ -518,9 +509,7 @@ namespace RE::BSScript
 		return true;
 	}
 
-	bool IVirtualMachine::GetScriptName(
-		FormType a_formType,
-		BSFixedString& a_outScriptName)
+	auto IVirtualMachine::GetScriptName(FormType a_formType, BSFixedString& a_outScriptName) -> bool
 	{
 		auto objectTypeInfo = BSTSmartPointer<BSScript::ObjectTypeInfo>();
 		if (!GetScriptObjectType(a_formType, objectTypeInfo) || !objectTypeInfo) {
@@ -532,50 +521,15 @@ namespace RE::BSScript
 		return true;
 	}
 
-	void IVirtualMachine::PostMessage(
-		REX::zstring_view a_message,
-		StackID a_stackID,
-		ErrorLogger::Severity a_severity) const
+	void IVirtualMachine::PostMessage(REX::ZStringView a_message, StackID a_stackID, LogSeverity a_severity) const
 	{
-		{
-			const auto internalLogEvent = Impl::InternalLogEvent{
-				.message = a_message,
-				.severity = a_severity,
-				.stackID = a_stackID
-			};
+		// The implementation of `IVirtualMachine::PostCachedErrorToLogger` wraps the error message in another
+		// `ICachedErrorMessage`, so the error logger is used directly instead, to be able to access the original error
+		// message in `LogEvent`.
 
-			Impl::InternalLogEventSource::GetSingleton()->Notify(internalLogEvent);
-		}
+		const auto stackErrorMessage = StackErrorMessage(a_message, a_stackID);
 
-		const auto errorFunctor = Impl::CachedErrorMessage(a_message);
-		PostCachedErrorToLogger(errorFunctor, a_stackID, a_severity);
-	}
-
-	void IVirtualMachine::PostInfo(
-		REX::zstring_view a_message,
-		StackID a_stackID) const
-	{
-		PostMessage(a_message, a_stackID, ErrorLogger::Severity::kInfo);
-	}
-
-	void IVirtualMachine::PostWarning(
-		REX::zstring_view a_message,
-		StackID a_stackID) const
-	{
-		PostMessage(a_message, a_stackID, ErrorLogger::Severity::kWarning);
-	}
-
-	void IVirtualMachine::PostError(
-		REX::zstring_view a_message,
-		StackID a_stackID) const
-	{
-		PostMessage(a_message, a_stackID, ErrorLogger::Severity::kError);
-	}
-
-	void IVirtualMachine::PostFatal(
-		REX::zstring_view a_message,
-		StackID a_stackID) const
-	{
-		PostMessage(a_message, a_stackID, ErrorLogger::Severity::kFatal);
+		auto& errorLogger = GetErrorLogger();
+		errorLogger.PostCachedError(stackErrorMessage, a_severity);
 	}
 }

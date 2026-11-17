@@ -5,16 +5,16 @@
 
 namespace RE
 {
-	DifficultyLevel StartMenuBase::GetMenuDifficultyLevel()
+	auto StartMenuBase::GetMenuDifficultyLevel() -> DifficultyLevel
 	{
-		if (currentDisplayDifficultyLevel) {
-			return *currentDisplayDifficultyLevel;
+		if (currentDisplayDifficultyLevel.has_value()) {
+			return currentDisplayDifficultyLevel.value();
 		}
 
 		const auto* player = PlayerCharacter::GetSingleton();
 		if (!player) [[unlikely]] {
 			REX::Assert(false);
-			return DifficultyLevel::kNormal;
+			return DifficultyLevel::Normal;
 		}
 
 		return player->GetDifficultyLevel();

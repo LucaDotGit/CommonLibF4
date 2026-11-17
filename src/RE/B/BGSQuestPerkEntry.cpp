@@ -7,9 +7,5 @@ namespace RE
 		REL::EmplaceVtable(this);
 	}
 
-	template bool BGSPerkEntry::Is<BGSQuestPerkEntry>() const noexcept;
-	template bool BGSPerkEntry::IsNot<BGSQuestPerkEntry>() const noexcept;
-
-	template BGSQuestPerkEntry* BGSPerkEntry::As<BGSQuestPerkEntry>() noexcept;
-	template const BGSQuestPerkEntry* BGSPerkEntry::As<BGSQuestPerkEntry>() const noexcept;
+	BGSQuestPerkEntry::~BGSQuestPerkEntry() = default;
 }

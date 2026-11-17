@@ -4,114 +4,138 @@
 
 namespace RE::BSResource
 {
-	Stream::Stream() = default;
-
-	Stream::Stream(std::uint32_t a_totalSize, bool writable)
-		: StreamBase(a_totalSize, writable)
+	Stream::Stream()
 	{
+		REL::EmplaceVtable(this);
 	}
 
-	bool Stream::GetName(BSFixedString& a_dst) const
+	Stream::Stream(std::uint32_t a_totalSize, bool writable) :
+		StreamBase(a_totalSize, writable)
 	{
-		return DoGetName(a_dst);
+		REL::EmplaceVtable(this);
 	}
 
-	ErrorCode Stream::Open(bool a_buffered, bool a_fullReadHint)
+	auto Stream::GetName(BSFixedString& a_target) const -> bool
 	{
-		auto openFlags = REX::EnumSet(StreamFlags::kOpened);
+		return DoGetName(a_target);
+	}
+
+	auto Stream::Open(bool a_buffered, bool a_fullReadHint) -> ErrorCode
+	{
+		auto openFlags = REX::EnumSet(StreamFlags::Opened);
 
 		if (a_buffered) {
-			openFlags.set(StreamFlags::kBuffered);
+			openFlags.set(StreamFlags::Buffered);
 		}
 
 		if (a_fullReadHint) {
-			openFlags.set(StreamFlags::kBuffered, StreamFlags::kFullReadHint);
+			openFlags.set(StreamFlags::Buffered, StreamFlags::FullReadHint);
 		}
 
 		auto atomicFlags = flags.underlying_atomic_ref();
-		auto expectedFlags = 0ui32;
+		auto expectedFlags = static_cast<std::uint32_t>(0);
 
 		do {
 			expectedFlags = atomicFlags.load(std::memory_order_acquire);
 		}
-		while (!atomicFlags.compare_exchange_weak(expectedFlags, expectedFlags | openFlags.underlying(),
-			std::memory_order_acq_rel, std::memory_order_relaxed));
+		while (!atomicFlags.compare_exchange_weak(
+			expectedFlags,
+			expectedFlags | openFlags.underlying(),
+			std::memory_order_acq_rel,
+			std::memory_order_relaxed));
 
 		return DoOpen();
 	}
 
-	ErrorCode Stream::Seek(std::ptrdiff_t a_toSeek, SeekMode a_mode, std::size_t& a_sought) const
+	auto Stream::Seek(std::ptrdiff_t a_toSeek, SeekMode a_mode, std::size_t& a_sought) const -> ErrorCode
 	{
 		return DoSeek(a_toSeek, a_mode, a_sought);
 	}
 
-	ErrorCode Stream::Write(const void* a_buffer, std::size_t a_toWrite, std::size_t& a_written) const
+	auto Stream::Write(const void* a_buffer, std::size_t a_toWrite, std::size_t& a_written) const -> ErrorCode
 	{
-		if (flags.none_atomic(StreamFlags::kWritable)) {
-			return ErrorCode::kUnsupported;
+		if (flags.none_atomic(StreamFlags::Writable)) {
+			return ErrorCode::Unsupported;
 		}
 
 		return DoWrite(a_buffer, a_toWrite, a_written);
 	}
 
-	ErrorCode Stream::CreateOp(BSTSmartPointer<ICacheDriveOp>& a_opOut, const char* name) const
+	auto Stream::CreateOp(BSTSmartPointer<ICacheDriveOp>& a_opOut, const char* name) const -> ErrorCode
 	{
 		return DoCreateOp(a_opOut, name);
 	}
 
-	ErrorCode Stream::CreateAsync(BSTSmartPointer<AsyncStream>& a_streamOut) const
+	auto Stream::CreateAsync(BSTSmartPointer<AsyncStream>& a_streamOut) const -> ErrorCode
 	{
 		return DoCreateAsync(a_streamOut);
 	}
 
-	ErrorCode Stream::PrefetchAll(std::uint32_t a_priority) const
+	auto Stream::PrefetchAll(std::uint32_t a_priority) const -> ErrorCode
 	{
-		if (flags.any_atomic(StreamFlags::kWritable)) {
-			return ErrorCode::kUnsupported;
+		if (flags.any_atomic(StreamFlags::Writable)) {
+			return ErrorCode::Unsupported;
 		}
 
 		return DoPrefetchAll(a_priority);
 	}
 
-	ErrorCode Stream::PrefetchAt(std::size_t a_numBytes, std::size_t a_offset, std::uint32_t a_priority) const
+	auto Stream::PrefetchAt(std::size_t a_numBytes, std::size_t a_offset, std::uint32_t a_priority) const -> ErrorCode
 	{
-		if (flags.any_atomic(StreamFlags::kWritable)) {
-			return ErrorCode::kUnsupported;
+		if (flags.any_atomic(StreamFlags::Writable)) {
+			return ErrorCode::Unsupported;
 		}
 
 		return DoPrefetchAt(a_numBytes, a_offset, a_priority);
 	}
 
-	std::uint32_t Stream::QFullReadHint() const
+	auto Stream::QFullReadHint() const -> std::uint32_t
 	{
-		return flags.any_atomic(StreamFlags::kFullReadHint);
+		return flags.any_atomic(StreamFlags::FullReadHint);
 	}
 
-	bool Stream::QTaggedPrioritizedReadSupported() const
+	auto Stream::QTaggedPrioritizedReadSupported() const -> bool
 	{
 		return DoQTaggedPrioritizedReadSupported();
 	}
 
-	ErrorCode Stream::StartTaggedPrioritizedRead(void* a_buffer, std::size_t a_numBytes, std::size_t a_offset, std::uint32_t a_priority, volatile std::uint32_t* a_completionTag, std::uint32_t& a_completionTagWaitValue, BSEventFlag* a_eventFlag) const
+	auto Stream::StartTaggedPrioritizedRead(
+		void* a_buffer,
+		std::size_t a_numBytes,
+		std::size_t a_offset,
+		std::uint32_t a_priority,
+		volatile std::uint32_t* a_completionTag,
+		std::uint32_t& a_completionTagWaitValue,
+		BSEventFlag* a_eventFlag) const -> ErrorCode
 	{
-		if (flags.any_atomic(StreamFlags::kWritable)) {
-			return ErrorCode::kUnsupported;
+		if (flags.any_atomic(StreamFlags::Writable)) {
+			return ErrorCode::Unsupported;
 		}
 
-		return DoStartTaggedPrioritizedRead(a_buffer, a_numBytes, a_offset, a_priority, a_completionTag, a_completionTagWaitValue, a_eventFlag);
+		return DoStartTaggedPrioritizedRead(
+			a_buffer,
+			a_numBytes,
+			a_offset,
+			a_priority,
+			a_completionTag,
+			a_completionTagWaitValue,
+			a_eventFlag);
 	}
 
-	ErrorCode Stream::WaitTags(volatile std::uint32_t* a_completionTag, std::uint32_t a_completionTagWaitValue, BSEventFlag* a_eventFlag) const
+	auto Stream::WaitTags(
+		volatile std::uint32_t* a_completionTag,
+		std::uint32_t a_completionTagWaitValue,
+		BSEventFlag* a_eventFlag) const -> ErrorCode
 	{
 		return DoWaitTags(a_completionTag, a_completionTagWaitValue, a_eventFlag);
 	}
 
-	std::uint32_t Stream::QBuffered() const
+	auto Stream::QBuffered() const -> std::uint32_t
 	{
-		return flags.any_atomic(StreamFlags::kBuffered);
+		return flags.any_atomic(StreamFlags::Buffered);
 	}
 
-	ErrorCode Stream::SetEndOfStream()
+	auto Stream::SetEndOfStream() -> ErrorCode
 	{
 		return DoSetEndOfStream();
 	}

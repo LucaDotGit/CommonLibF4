@@ -10,29 +10,36 @@ namespace RE
 	void Console::ExecuteCommand(const char* a_command)
 	{
 		using FuncType = decltype(&Console::ExecuteCommand);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::Console::ExecuteCommand };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::Console::ExecuteCommand);
 		std::invoke(FUNC, a_command);
 	}
 
-	std::int32_t& Console::GetCurrentPickIndex()
+	void Console::ExecuteQueuedCommand()
 	{
-		static const auto CURRENT_PICK_INDEX = REL::Relocation<std::int32_t*>{ ID::Console::CurrentPickIndex };
+		using FuncType = decltype(&Console::ExecuteQueuedCommand);
+		static const auto FUNC = REL::Relocation<FuncType>(ID::Console::ExecuteQueuedCommand);
+		std::invoke(FUNC);
+	}
+
+	auto Console::GetCurrentPickIndex() noexcept -> std::int32_t&
+	{
+		static const auto CURRENT_PICK_INDEX = REL::Relocation<std::int32_t*>(ID::Console::CurrentPickIndex);
 		return *CURRENT_PICK_INDEX;
 	}
 
-	ObjectRefHandle& Console::GetPickRef()
+	auto Console::GetPickRef() noexcept -> ObjectRefHandle&
 	{
-		static const auto REF = REL::Relocation<ObjectRefHandle*>{ ID::Console::PickRef };
-		return *REF;
+		static const auto PICK_REF = REL::Relocation<ObjectRefHandle*>(ID::Console::PickRef);
+		return *PICK_REF;
 	}
 
-	BSTArray<ObjectRefHandle>& Console::GetPickRefs()
+	auto Console::GetPickRefs() noexcept -> BSTArray<ObjectRefHandle>&
 	{
-		static const auto PICK_REFS = REL::Relocation<BSTArray<ObjectRefHandle>*>{ ID::Console::PickRefs };
+		static const auto PICK_REFS = REL::Relocation<BSTArray<ObjectRefHandle>*>(ID::Console::PickRefs);
 		return *PICK_REFS;
 	}
 
-	ObjectRefHandle Console::GetCurrentPickREFR()
+	auto Console::GetCurrentPickRef() noexcept -> ObjectRefHandle
 	{
 		const auto index = GetCurrentPickIndex();
 		if (index < 0) {
@@ -44,29 +51,28 @@ namespace RE
 			return {};
 		}
 
-		return refs[index];
+		return refs[REX::ToUnsigned(index)];
 	}
 
-	void Console::SetCurrentPickREFR(ObjectRefHandle& a_ref)
+	void Console::SetCurrentPickRef(ObjectRefHandle& a_ref)
 	{
-		using FuncType = decltype(&Console::SetCurrentPickREFR);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::Console::SetCurrentPickREFR };
+		using FuncType = decltype(&Console::SetCurrentPickRef);
+		static const auto FUNC = REL::Relocation<FuncType>(ID::Console::SetCurrentPickRef);
 		std::invoke(FUNC, this, a_ref);
 	}
 
-	auto Console::GetHistory() const
-		-> std::optional<std::string>
+	auto Console::GetHistory() const -> std::optional<std::string>
 	{
 		if (!uiMovie) {
 			return std::nullopt;
 		}
 
-		auto movieRoot = uiMovie->asMovieRoot;
+		const auto movieRoot = uiMovie->asMovieRoot;
 		if (!movieRoot) {
 			return std::nullopt;
 		}
 
-		auto history = ::Scaleform::GFx::Value();
+		auto history = Scaleform::GFx::Value();
 		if (!movieRoot->GetVariable(std::addressof(history), HISTORY_PATH.data()) || !history.IsString()) {
 			return std::nullopt;
 		}
@@ -79,33 +85,33 @@ namespace RE
 		return std::string(string);
 	}
 
-	bool Console::SetHistory(REX::zstring_view a_history)
+	auto Console::SetHistory(REX::ZStringView a_history) -> bool
 	{
 		if (!uiMovie) {
 			return false;
 		}
 
-		auto movieRoot = uiMovie->asMovieRoot;
+		const auto movieRoot = uiMovie->asMovieRoot;
 		if (!movieRoot) {
 			return false;
 		}
 
-		auto history = ::Scaleform::GFx::Value(a_history);
+		const auto history = Scaleform::GFx::Value(a_history);
 		return movieRoot->SetVariable(HISTORY_PATH.data(), history);
 	}
 
-	bool Console::Clear()
+	auto Console::Clear() -> bool
 	{
 		if (!uiMovie) {
 			return false;
 		}
 
-		auto movieRoot = uiMovie->asMovieRoot;
+		const auto movieRoot = uiMovie->asMovieRoot;
 		if (!movieRoot) {
 			return false;
 		}
 
-		auto history = ::Scaleform::GFx::Value("");
+		const auto history = Scaleform::GFx::Value("");
 		return movieRoot->SetVariable(HISTORY_PATH.data(), history);
 	}
 }

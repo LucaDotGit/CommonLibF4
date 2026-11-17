@@ -1,242 +1,1257 @@
 #include "REX/W32.hpp"
 
+#include "REX/Casting.hpp"
+
+#define REX_BASIC_W32_IMPORT(a_returnType, a_name, a_noexcept, ...)                                        \
+	extern "C" __declspec(dllimport) auto WIN_API W32_IMPL_##a_name(__VA_ARGS__) a_noexcept->a_returnType; \
+	__pragma(comment(linker, "/alternatename:__imp_W32_IMPL_" #a_name "=__imp_" #a_name))
+
+#define REX_W32_IMPORT(a_returnType, a_name, ...)                           \
+	REX_BASIC_W32_IMPORT(a_returnType, a_name, noexcept(true), __VA_ARGS__)
+
+#define REX_W32_IMPORT_THROW(a_returnType, a_name, ...)                      \
+	REX_BASIC_W32_IMPORT(a_returnType, a_name, noexcept(false), __VA_ARGS__)
+
 // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg)
 
 // ADVAPI32
 
-REX_W32_IMPORT(std::int32_t, RegGetValueA, REX::W32::HKEY, const char*, const char*, std::uint32_t, std::uint32_t*, void*, std::uint32_t*);
-REX_W32_IMPORT(std::int32_t, RegGetValueW, REX::W32::HKEY, const wchar_t*, const wchar_t*, std::uint32_t, std::uint32_t*, void*, std::uint32_t*);
+REX_W32_IMPORT(
+	std::int32_t,
+	RegGetValueA,
+	REX::W32::HKEY,
+	const char*,
+	const char*,
+	std::uint32_t,
+	std::uint32_t*,
+	void*,
+	std::uint32_t*);
+REX_W32_IMPORT(
+	std::int32_t,
+	RegGetValueW,
+	REX::W32::HKEY,
+	const wchar_t*,
+	const wchar_t*,
+	std::uint32_t,
+	std::uint32_t*,
+	void*,
+	std::uint32_t*);
 
 namespace REX::W32
 {
-	std::int32_t RegGetValueA(HKEY a_key, const char* a_subKey, const char* a_value, std::uint32_t a_flags, std::uint32_t* a_type, void* a_data, std::uint32_t* a_dataLen) noexcept
+	auto RegGetValueA(
+		HKEY a_key,
+		const char* a_subKey,
+		const char* a_value,
+		std::uint32_t a_flags,
+		std::uint32_t* a_type,
+		void* a_data,
+		std::uint32_t* a_dataLength) noexcept -> std::int32_t
 	{
-		return ::W32_IMPL_RegGetValueA(a_key, a_subKey, a_value, a_flags, a_type, a_data, a_dataLen);
+		return ::W32_IMPL_RegGetValueA(a_key, a_subKey, a_value, a_flags, a_type, a_data, a_dataLength);
 	}
 
-	std::int32_t RegGetValueW(HKEY a_key, const wchar_t* a_subKey, const wchar_t* a_value, std::uint32_t a_flags, std::uint32_t* a_type, void* a_data, std::uint32_t* a_dataLen) noexcept
+	auto RegGetValueW(
+		HKEY a_key,
+		const wchar_t* a_subKey,
+		const wchar_t* a_value,
+		std::uint32_t a_flags,
+		std::uint32_t* a_type,
+		void* a_data,
+		std::uint32_t* a_dataLength) noexcept -> std::int32_t
 	{
-		return ::W32_IMPL_RegGetValueW(a_key, a_subKey, a_value, a_flags, a_type, a_data, a_dataLen);
+		return ::W32_IMPL_RegGetValueW(a_key, a_subKey, a_value, a_flags, a_type, a_data, a_dataLength);
 	}
 }
 
 // BCRYPT
 
-REX_W32_IMPORT(REX::W32::NTSTATUS, BCryptOpenAlgorithmProvider, REX::W32::BCRYPT_ALG_HANDLE*, const wchar_t*, const wchar_t*, std::uint32_t);
 REX_W32_IMPORT(REX::W32::NTSTATUS, BCryptCloseAlgorithmProvider, REX::W32::BCRYPT_ALG_HANDLE, std::uint32_t);
-REX_W32_IMPORT(REX::W32::NTSTATUS, BCryptCreateHash, REX::W32::BCRYPT_ALG_HANDLE, BCRYPT_HASH_HANDLE*, std::uint8_t*, std::uint32_t, std::uint8_t*, std::uint32_t, std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptCreateHash,
+	REX::W32::BCRYPT_ALG_HANDLE,
+	REX::W32::BCRYPT_HASH_HANDLE*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptCreateMultiHash,
+	REX::W32::BCRYPT_ALG_HANDLE,
+	REX::W32::BCRYPT_HASH_HANDLE*,
+	std::uint32_t,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptDecapsulate,
+	REX::W32::BCRYPT_KEY_HANDLE,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t*,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptDecrypt,
+	REX::W32::BCRYPT_KEY_HANDLE,
+	std::uint8_t*,
+	std::uint32_t,
+	void*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t*,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptDeriveKey,
+	REX::W32::BCRYPT_SECRET_HANDLE,
+	const wchar_t*,
+	REX::W32::BCryptBufferDesc*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t*,
+	std::uint32_t);
 REX_W32_IMPORT(REX::W32::NTSTATUS, BCryptDestroyHash, REX::W32::BCRYPT_HASH_HANDLE);
-REX_W32_IMPORT(REX::W32::NTSTATUS, BCryptFinishHash, REX::W32::BCRYPT_HASH_HANDLE, std::uint8_t*, std::uint32_t, std::uint32_t);
-REX_W32_IMPORT(REX::W32::NTSTATUS, BCryptGetProperty, REX::W32::BCRYPT_HANDLE, const wchar_t*, std::uint8_t*, std::uint32_t, std::uint32_t*, std::uint32_t);
-REX_W32_IMPORT(REX::W32::NTSTATUS, BCryptHashData, REX::W32::BCRYPT_HASH_HANDLE, std::uint8_t*, std::uint32_t, std::uint32_t);
+REX_W32_IMPORT(REX::W32::NTSTATUS, BCryptDestroyKey, REX::W32::BCRYPT_KEY_HANDLE);
+REX_W32_IMPORT(REX::W32::NTSTATUS, BCryptDestroySecret, REX::W32::BCRYPT_SECRET_HANDLE);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptDuplicateHash,
+	REX::W32::BCRYPT_HASH_HANDLE,
+	REX::W32::BCRYPT_HASH_HANDLE*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptDuplicateKey,
+	REX::W32::BCRYPT_KEY_HANDLE,
+	REX::W32::BCRYPT_KEY_HANDLE*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptEncapsulate,
+	REX::W32::BCRYPT_KEY_HANDLE,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t*,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptEncrypt,
+	REX::W32::BCRYPT_KEY_HANDLE,
+	std::uint8_t*,
+	std::uint32_t,
+	void*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t*,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptExportKey,
+	REX::W32::BCRYPT_KEY_HANDLE,
+	REX::W32::BCRYPT_KEY_HANDLE,
+	const wchar_t*,
+	REX::W32::BCryptBufferDesc*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t*,
+	std::uint32_t);
+REX_W32_IMPORT(REX::W32::NTSTATUS, BCryptFinalizeKeyPair, REX::W32::BCRYPT_KEY_HANDLE, std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptFinishHash,
+	REX::W32::BCRYPT_HASH_HANDLE,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t);
+REX_W32_IMPORT(REX::W32::NTSTATUS, BCryptFreeBuffer, void*);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptGenRandom,
+	REX::W32::BCRYPT_ALG_HANDLE,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptGenerateKeyPair,
+	REX::W32::BCRYPT_ALG_HANDLE,
+	REX::W32::BCRYPT_KEY_HANDLE*,
+	std::uint32_t,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptGenerateSymmetricKey,
+	REX::W32::BCRYPT_ALG_HANDLE,
+	REX::W32::BCRYPT_KEY_HANDLE*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptGetProperty,
+	REX::W32::BCRYPT_HANDLE,
+	const wchar_t*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t*,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptHash,
+	REX::W32::BCRYPT_ALG_HANDLE,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint8_t*,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptHashData,
+	REX::W32::BCRYPT_HASH_HANDLE,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptImportKey,
+	REX::W32::BCRYPT_ALG_HANDLE,
+	REX::W32::BCRYPT_KEY_HANDLE,
+	const wchar_t*,
+	REX::W32::BCRYPT_KEY_HANDLE*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptImportKeyPair,
+	REX::W32::BCRYPT_ALG_HANDLE,
+	REX::W32::BCRYPT_KEY_HANDLE,
+	const wchar_t*,
+	REX::W32::BCRYPT_KEY_HANDLE*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptKeyDerivation,
+	REX::W32::BCRYPT_KEY_HANDLE,
+	REX::W32::BCryptBufferDesc*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t*,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptOpenAlgorithmProvider,
+	REX::W32::BCRYPT_ALG_HANDLE*,
+	const wchar_t*,
+	const wchar_t*,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptProcessMultiOperations,
+	REX::W32::BCRYPT_HANDLE,
+	REX::W32::BCRYPT_MULTI_OPERATION_TYPE,
+	void*,
+	std::uint32_t,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptSecretAgreement,
+	REX::W32::BCRYPT_KEY_HANDLE,
+	REX::W32::BCRYPT_KEY_HANDLE,
+	REX::W32::BCRYPT_SECRET_HANDLE*,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptSetProperty,
+	REX::W32::BCRYPT_HANDLE,
+	const wchar_t*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptSignHash,
+	REX::W32::BCRYPT_KEY_HANDLE,
+	void*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t*,
+	std::uint32_t);
+REX_W32_IMPORT(
+	REX::W32::NTSTATUS,
+	BCryptVerifySignature,
+	REX::W32::BCRYPT_KEY_HANDLE,
+	void*,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint8_t*,
+	std::uint32_t,
+	std::uint32_t);
 
 namespace REX::W32
 {
-	NTSTATUS BCryptOpenAlgorithmProvider(BCRYPT_ALG_HANDLE* a_algorithm, const wchar_t* a_id, const wchar_t* a_impl, std::uint32_t a_flags) noexcept
-	{
-		return ::W32_IMPL_BCryptOpenAlgorithmProvider(a_algorithm, a_id, a_impl, a_flags);
-	}
-
-	NTSTATUS BCryptCloseAlgorithmProvider(BCRYPT_ALG_HANDLE a_algorithm, std::uint32_t a_flags) noexcept
+	auto BCryptCloseAlgorithmProvider(BCRYPT_ALG_HANDLE a_algorithm, std::uint32_t a_flags) noexcept -> NTSTATUS
 	{
 		return ::W32_IMPL_BCryptCloseAlgorithmProvider(a_algorithm, a_flags);
 	}
 
-	NTSTATUS BCryptCreateHash(BCRYPT_ALG_HANDLE a_algorithm, BCRYPT_HASH_HANDLE* a_hash, std::uint8_t* a_hashObject, std::uint32_t a_hashObjectSize, std::uint8_t* a_secret, std::uint32_t a_secretSize, std::uint32_t a_flags) noexcept
+	auto BCryptCreateHash(
+		BCRYPT_ALG_HANDLE a_algorithm,
+		BCRYPT_HASH_HANDLE* a_hash,
+		std::uint8_t* a_hashObject,
+		std::uint32_t a_hashObjectSize,
+		std::uint8_t* a_secret,
+		std::uint32_t a_secretSize,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
 	{
-		return ::W32_IMPL_BCryptCreateHash(a_algorithm, a_hash, a_hashObject, a_hashObjectSize, a_secret, a_secretSize, a_flags);
+		return ::W32_IMPL_BCryptCreateHash(
+			a_algorithm,
+			a_hash,
+			a_hashObject,
+			a_hashObjectSize,
+			a_secret,
+			a_secretSize,
+			a_flags);
 	}
 
-	NTSTATUS BCryptDestroyHash(BCRYPT_HASH_HANDLE a_hash) noexcept
+	auto BCryptCreateMultiHash(
+		BCRYPT_ALG_HANDLE a_algorithm,
+		BCRYPT_HASH_HANDLE* a_hash,
+		std::uint32_t a_hashes,
+		std::uint8_t* a_hashObject,
+		std::uint32_t a_hashObjectSize,
+		std::uint8_t* a_secret,
+		std::uint32_t a_secretSize,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptCreateMultiHash(
+			a_algorithm,
+			a_hash,
+			a_hashes,
+			a_hashObject,
+			a_hashObjectSize,
+			a_secret,
+			a_secretSize,
+			a_flags);
+	}
+
+	auto BCryptDecapsulate(
+		BCRYPT_KEY_HANDLE a_key,
+		std::uint8_t* a_cipherText,
+		std::uint32_t a_cipherTextSize,
+		std::uint8_t* a_secretKey,
+		std::uint32_t a_secretKeySize,
+		std::uint32_t* a_secretKeyResult,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptDecapsulate(
+			a_key,
+			a_cipherText,
+			a_cipherTextSize,
+			a_secretKey,
+			a_secretKeySize,
+			a_secretKeyResult,
+			a_flags);
+	}
+
+	auto BCryptDeriveKey(
+		BCRYPT_SECRET_HANDLE a_secret,
+		const wchar_t* a_kdf,
+		BCryptBufferDesc* a_parameterList,
+		std::uint8_t* a_derivedKey,
+		std::uint32_t a_derivedKeySize,
+		std::uint32_t* a_result,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptDeriveKey(
+			a_secret,
+			a_kdf,
+			a_parameterList,
+			a_derivedKey,
+			a_derivedKeySize,
+			a_result,
+			a_flags);
+	}
+
+	auto BCryptDestroyHash(BCRYPT_HASH_HANDLE a_hash) noexcept -> NTSTATUS
 	{
 		return ::W32_IMPL_BCryptDestroyHash(a_hash);
 	}
 
-	NTSTATUS BCryptFinishHash(BCRYPT_HASH_HANDLE a_hash, std::uint8_t* a_output, std::uint32_t a_outputSize, std::uint32_t a_flags) noexcept
+	auto BCryptDestroyKey(BCRYPT_KEY_HANDLE a_key) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptDestroyKey(a_key);
+	}
+
+	auto BCryptDestroySecret(BCRYPT_SECRET_HANDLE a_secret) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptDestroySecret(a_secret);
+	}
+
+	auto BCryptDuplicateHash(
+		BCRYPT_HASH_HANDLE a_hash,
+		BCRYPT_HASH_HANDLE* a_newHash,
+		std::uint8_t* a_hashObject,
+		std::uint32_t a_hashObjectSize,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptDuplicateHash(a_hash, a_newHash, a_hashObject, a_hashObjectSize, a_flags);
+	}
+
+	auto BCryptDuplicateKey(
+		BCRYPT_KEY_HANDLE a_key,
+		BCRYPT_KEY_HANDLE* a_newKey,
+		std::uint8_t* a_keyObject,
+		std::uint32_t a_keyObjectSize,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptDuplicateKey(a_key, a_newKey, a_keyObject, a_keyObjectSize, a_flags);
+	}
+
+	auto BCryptEncapsulate(
+		BCRYPT_KEY_HANDLE a_key,
+		std::uint8_t* a_secretKey,
+		std::uint32_t a_secretKeySize,
+		std::uint32_t* a_secretKeyResult,
+		std::uint8_t* a_cipherText,
+		std::uint32_t a_cipherTextSize,
+		std::uint32_t* a_cipherTextResult,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptEncapsulate(
+			a_key,
+			a_secretKey,
+			a_secretKeySize,
+			a_secretKeyResult,
+			a_cipherText,
+			a_cipherTextSize,
+			a_cipherTextResult,
+			a_flags);
+	}
+
+	auto BCryptEncrypt(
+		BCRYPT_KEY_HANDLE a_key,
+		std::uint8_t* a_input,
+		std::uint32_t a_inputSize,
+		void* a_paddingInfo,
+		std::uint8_t* a_iv,
+		std::uint32_t a_ivSize,
+		std::uint8_t* a_output,
+		std::uint32_t a_outputSize,
+		std::uint32_t* a_result,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptEncrypt(
+			a_key,
+			a_input,
+			a_inputSize,
+			a_paddingInfo,
+			a_iv,
+			a_ivSize,
+			a_output,
+			a_outputSize,
+			a_result,
+			a_flags);
+	}
+
+	auto BCryptExportKey(
+		BCRYPT_KEY_HANDLE a_key,
+		BCRYPT_KEY_HANDLE a_exportKey,
+		const wchar_t* a_blobType,
+		BCryptBufferDesc* a_parameterList,
+		std::uint8_t* a_output,
+		std::uint32_t a_outputSize,
+		std::uint32_t* a_result,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptExportKey(
+			a_key,
+			a_exportKey,
+			a_blobType,
+			a_parameterList,
+			a_output,
+			a_outputSize,
+			a_result,
+			a_flags);
+	}
+
+	auto BCryptFinalizeKeyPair(BCRYPT_KEY_HANDLE a_key, std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptFinalizeKeyPair(a_key, a_flags);
+	}
+
+	auto BCryptFinishHash(
+		BCRYPT_HASH_HANDLE a_hash,
+		std::uint8_t* a_output,
+		std::uint32_t a_outputSize,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
 	{
 		return ::W32_IMPL_BCryptFinishHash(a_hash, a_output, a_outputSize, a_flags);
 	}
 
-	NTSTATUS BCryptGetProperty(BCRYPT_HANDLE a_object, const wchar_t* a_property, std::uint8_t* a_output, std::uint32_t a_outputSize, std::uint32_t* a_result, std::uint32_t a_flags) noexcept
+	auto BCryptFreeBuffer(void* a_buffer) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptFreeBuffer(a_buffer);
+	}
+
+	auto BCryptGenRandom(
+		BCRYPT_ALG_HANDLE a_algorithm,
+		std::uint8_t* a_buffer,
+		std::uint32_t a_bufferSize,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptGenRandom(a_algorithm, a_buffer, a_bufferSize, a_flags);
+	}
+
+	auto BCryptGenerateKeyPair(
+		BCRYPT_ALG_HANDLE a_algorithm,
+		BCRYPT_KEY_HANDLE* a_key,
+		std::uint32_t a_length,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptGenerateKeyPair(a_algorithm, a_key, a_length, a_flags);
+	}
+
+	auto BCryptGenerateSymmetricKey(
+		BCRYPT_ALG_HANDLE a_algorithm,
+		BCRYPT_KEY_HANDLE* a_key,
+		std::uint8_t* a_keyObject,
+		std::uint32_t a_keyObjectSize,
+		std::uint8_t* a_secret,
+		std::uint32_t a_secretSize,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptGenerateSymmetricKey(
+			a_algorithm,
+			a_key,
+			a_keyObject,
+			a_keyObjectSize,
+			a_secret,
+			a_secretSize,
+			a_flags);
+	}
+
+	auto BCryptGetProperty(
+		BCRYPT_HANDLE a_object,
+		const wchar_t* a_property,
+		std::uint8_t* a_output,
+		std::uint32_t a_outputSize,
+		std::uint32_t* a_result,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
 	{
 		return ::W32_IMPL_BCryptGetProperty(a_object, a_property, a_output, a_outputSize, a_result, a_flags);
 	}
 
-	NTSTATUS BCryptHashData(BCRYPT_HASH_HANDLE a_hash, std::uint8_t* a_input, std::uint32_t a_inputSize, std::uint32_t a_flags) noexcept
+	auto BCryptHash(
+		BCRYPT_ALG_HANDLE a_algorithm,
+		std::uint8_t* a_secret,
+		std::uint32_t a_secretSize,
+		std::uint8_t* a_input,
+		std::uint32_t a_inputSize,
+		std::uint8_t* a_output,
+		std::uint32_t a_outputSize) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptHash(a_algorithm, a_secret, a_secretSize, a_input, a_inputSize, a_output, a_outputSize);
+	}
+
+	auto BCryptHashData(
+		BCRYPT_HASH_HANDLE a_hash,
+		std::uint8_t* a_input,
+		std::uint32_t a_inputSize,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
 	{
 		return ::W32_IMPL_BCryptHashData(a_hash, a_input, a_inputSize, a_flags);
+	}
+
+	auto BCryptImportKey(
+		BCRYPT_ALG_HANDLE a_algorithm,
+		BCRYPT_KEY_HANDLE a_importKey,
+		const wchar_t* a_blobType,
+		BCRYPT_KEY_HANDLE* a_key,
+		std::uint8_t* a_keyObject,
+		std::uint32_t a_keyObjectSize,
+		std::uint8_t* a_input,
+		std::uint32_t a_inputSize,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptImportKey(
+			a_algorithm,
+			a_importKey,
+			a_blobType,
+			a_key,
+			a_keyObject,
+			a_keyObjectSize,
+			a_input,
+			a_inputSize,
+			a_flags);
+	}
+
+	auto BCryptImportKeyPair(
+		BCRYPT_ALG_HANDLE a_algorithm,
+		BCRYPT_KEY_HANDLE a_importKey,
+		const wchar_t* a_blobType,
+		BCRYPT_KEY_HANDLE* a_key,
+		std::uint8_t* a_input,
+		std::uint32_t a_inputSize,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptImportKeyPair(
+			a_algorithm,
+			a_importKey,
+			a_blobType,
+			a_key,
+			a_input,
+			a_inputSize,
+			a_flags);
+	}
+
+	auto BCryptKeyDerivation(
+		BCRYPT_KEY_HANDLE a_key,
+		BCryptBufferDesc* a_parameterList,
+		std::uint8_t* a_derivedKey,
+		std::uint32_t a_derivedKeySize,
+		std::uint32_t* a_result,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptKeyDerivation(
+			a_key,
+			a_parameterList,
+			a_derivedKey,
+			a_derivedKeySize,
+			a_result,
+			a_flags);
+	}
+
+	auto BCryptOpenAlgorithmProvider(
+		BCRYPT_ALG_HANDLE* a_algorithm,
+		const wchar_t* a_id,
+		const wchar_t* a_impl,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptOpenAlgorithmProvider(a_algorithm, a_id, a_impl, a_flags);
+	}
+
+	auto BCryptProcessMultiOperations(
+		BCRYPT_HANDLE a_object,
+		BCRYPT_MULTI_OPERATION_TYPE a_operationType,
+		void* a_operations,
+		std::uint32_t a_operationsSize,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptProcessMultiOperations(
+			a_object,
+			a_operationType,
+			a_operations,
+			a_operationsSize,
+			a_flags);
+	}
+
+	auto BCryptSecretAgreement(
+		BCRYPT_KEY_HANDLE a_privateKey,
+		BCRYPT_KEY_HANDLE a_publicKey,
+		BCRYPT_SECRET_HANDLE* a_secret,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptSecretAgreement(a_privateKey, a_publicKey, a_secret, a_flags);
+	}
+
+	auto BCryptSetProperty(
+		BCRYPT_HANDLE a_object,
+		const wchar_t* a_property,
+		std::uint8_t* a_input,
+		std::uint32_t a_inputSize,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptSetProperty(a_object, a_property, a_input, a_inputSize, a_flags);
+	}
+
+	auto BCryptSignHash(
+		BCRYPT_KEY_HANDLE a_key,
+		void* a_paddingInfo,
+		std::uint8_t* a_input,
+		std::uint32_t a_inputSize,
+		std::uint8_t* a_output,
+		std::uint32_t a_outputSize,
+		std::uint32_t* a_result,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptSignHash(
+			a_key,
+			a_paddingInfo,
+			a_input,
+			a_inputSize,
+			a_output,
+			a_outputSize,
+			a_result,
+			a_flags);
+	}
+
+	auto BCryptVerifySignature(
+		BCRYPT_KEY_HANDLE a_key,
+		void* a_paddingInfo,
+		std::uint8_t* a_hash,
+		std::uint32_t a_hashSize,
+		std::uint8_t* a_signature,
+		std::uint32_t a_signatureSize,
+		std::uint32_t a_flags) noexcept -> NTSTATUS
+	{
+		return ::W32_IMPL_BCryptVerifySignature(
+			a_key,
+			a_paddingInfo,
+			a_hash,
+			a_hashSize,
+			a_signature,
+			a_signatureSize,
+			a_flags);
 	}
 }
 
 // D3D11
 
-REX_W32_IMPORT(std::int32_t, D3D11CreateDevice, REX::W32::IDXGIAdapter*, REX::W32::D3D_DRIVER_TYPE, REX::W32::HMODULE, std::uint32_t, const REX::W32::D3D_FEATURE_LEVEL*, std::uint32_t, std::uint32_t, REX::W32::ID3D11Device**, REX::W32::D3D_FEATURE_LEVEL*, REX::W32::ID3D11DeviceContext**);
-REX_W32_IMPORT(std::int32_t, D3D11CreateDeviceAndSwapChain, REX::W32::IDXGIAdapter*, REX::W32::D3D_DRIVER_TYPE, REX::W32::HMODULE, std::uint32_t, const REX::W32::D3D_FEATURE_LEVEL*, std::uint32_t, std::uint32_t, const REX::W32::DXGI_SWAP_CHAIN_DESC*, REX::W32::IDXGISwapChain**, REX::W32::ID3D11Device**, REX::W32::D3D_FEATURE_LEVEL*, REX::W32::ID3D11DeviceContext**);
+REX_W32_IMPORT(
+	std::int32_t,
+	D3D11CreateDevice,
+	REX::W32::IDXGIAdapter*,
+	REX::W32::D3D_DRIVER_TYPE,
+	REX::W32::HMODULE,
+	std::uint32_t,
+	const REX::W32::D3D_FEATURE_LEVEL*,
+	std::uint32_t,
+	std::uint32_t,
+	REX::W32::ID3D11Device**,
+	REX::W32::D3D_FEATURE_LEVEL*,
+	REX::W32::ID3D11DeviceContext**);
+REX_W32_IMPORT(
+	std::int32_t,
+	D3D11CreateDeviceAndSwapChain,
+	REX::W32::IDXGIAdapter*,
+	REX::W32::D3D_DRIVER_TYPE,
+	REX::W32::HMODULE,
+	std::uint32_t,
+	const REX::W32::D3D_FEATURE_LEVEL*,
+	std::uint32_t,
+	std::uint32_t,
+	const REX::W32::DXGI_SWAP_CHAIN_DESC*,
+	REX::W32::IDXGISwapChain**,
+	REX::W32::ID3D11Device**,
+	REX::W32::D3D_FEATURE_LEVEL*,
+	REX::W32::ID3D11DeviceContext**);
 
 namespace REX::W32
 {
-	HRESULT D3D11CreateDevice(IDXGIAdapter* a_adapter, D3D_DRIVER_TYPE a_driverType, HMODULE a_software, std::uint32_t a_flags, const D3D_FEATURE_LEVEL* a_pFeatureLevels, std::uint32_t a_featureLevels, std::uint32_t a_sdkVersion, ID3D11Device** a_device, D3D_FEATURE_LEVEL* a_pFeatureLevel, ID3D11DeviceContext** a_immediateContext) noexcept
+	auto D3D11CreateDevice(
+		IDXGIAdapter* a_adapter,
+		D3D_DRIVER_TYPE a_driverType,
+		HMODULE a_software,
+		std::uint32_t a_flags,
+		const D3D_FEATURE_LEVEL* a_pFeatureLevels,
+		std::uint32_t a_featureLevels,
+		std::uint32_t a_sdkVersion,
+		ID3D11Device** a_device,
+		D3D_FEATURE_LEVEL* a_pFeatureLevel,
+		ID3D11DeviceContext** a_immediateContext) noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3D11CreateDevice(a_adapter, a_driverType, a_software, a_flags, a_pFeatureLevels, a_featureLevels, a_sdkVersion, a_device, a_pFeatureLevel, a_immediateContext);
+		return ::W32_IMPL_D3D11CreateDevice(
+			a_adapter,
+			a_driverType,
+			a_software,
+			a_flags,
+			a_pFeatureLevels,
+			a_featureLevels,
+			a_sdkVersion,
+			a_device,
+			a_pFeatureLevel,
+			a_immediateContext);
 	}
 
-	HRESULT D3D11CreateDeviceAndSwapChain(IDXGIAdapter* a_adapter, D3D_DRIVER_TYPE a_driverType, HMODULE a_software, std::uint32_t a_flags, const D3D_FEATURE_LEVEL* a_pFeatureLevels, std::uint32_t a_featureLevels, std::uint32_t a_sdkVersion, const DXGI_SWAP_CHAIN_DESC* a_swapChainDesc, IDXGISwapChain** a_swapChain, ID3D11Device** a_device, D3D_FEATURE_LEVEL* a_pFeatureLevel, ID3D11DeviceContext** a_immediateContext) noexcept
+	auto D3D11CreateDeviceAndSwapChain(
+		IDXGIAdapter* a_adapter,
+		D3D_DRIVER_TYPE a_driverType,
+		HMODULE a_software,
+		std::uint32_t a_flags,
+		const D3D_FEATURE_LEVEL* a_pFeatureLevels,
+		std::uint32_t a_featureLevels,
+		std::uint32_t a_sdkVersion,
+		const DXGI_SWAP_CHAIN_DESC* a_swapChainDesc,
+		IDXGISwapChain** a_swapChain,
+		ID3D11Device** a_device,
+		D3D_FEATURE_LEVEL* a_pFeatureLevel,
+		ID3D11DeviceContext** a_immediateContext) noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3D11CreateDeviceAndSwapChain(a_adapter, a_driverType, a_software, a_flags, a_pFeatureLevels, a_featureLevels, a_sdkVersion, a_swapChainDesc, a_swapChain, a_device, a_pFeatureLevel, a_immediateContext);
+		return ::W32_IMPL_D3D11CreateDeviceAndSwapChain(
+			a_adapter,
+			a_driverType,
+			a_software,
+			a_flags,
+			a_pFeatureLevels,
+			a_featureLevels,
+			a_sdkVersion,
+			a_swapChainDesc,
+			a_swapChain,
+			a_device,
+			a_pFeatureLevel,
+			a_immediateContext);
 	}
 }
 
 // D3DCOMPILER
 
-REX_W32_IMPORT(std::int32_t, D3DCompile, const void*, std::size_t, const char*, const REX::W32::D3D_SHADER_MACRO*, REX::W32::ID3DInclude*, const char*, const char*, std::uint32_t, std::uint32_t, REX::W32::ID3DBlob**, REX::W32::ID3DBlob**);
-REX_W32_IMPORT(std::int32_t, D3DCompile2, const void*, std::size_t, const char*, const REX::W32::D3D_SHADER_MACRO*, REX::W32::ID3DInclude*, const char*, const char*, std::uint32_t, std::uint32_t, std::uint32_t, const void*, std::size_t, REX::W32::ID3DBlob**, REX::W32::ID3DBlob**);
-REX_W32_IMPORT(std::int32_t, D3DCompileFromFile, const wchar_t*, const REX::W32::D3D_SHADER_MACRO*, REX::W32::ID3DInclude*, const char*, const char*, std::uint32_t, std::uint32_t, REX::W32::ID3DBlob**, REX::W32::ID3DBlob**);
-REX_W32_IMPORT(std::int32_t, D3DCompressShaders, std::uint32_t, REX::W32::D3D_SHADER_DATA*, std::uint32_t, REX::W32::ID3DBlob**);
+REX_W32_IMPORT(
+	std::int32_t,
+	D3DCompile,
+	const void*,
+	std::size_t,
+	const char*,
+	const REX::W32::D3D_SHADER_MACRO*,
+	REX::W32::ID3DInclude*,
+	const char*,
+	const char*,
+	std::uint32_t,
+	std::uint32_t,
+	REX::W32::ID3DBlob**,
+	REX::W32::ID3DBlob**);
+REX_W32_IMPORT(
+	std::int32_t,
+	D3DCompile2,
+	const void*,
+	std::size_t,
+	const char*,
+	const REX::W32::D3D_SHADER_MACRO*,
+	REX::W32::ID3DInclude*,
+	const char*,
+	const char*,
+	std::uint32_t,
+	std::uint32_t,
+	std::uint32_t,
+	const void*,
+	std::size_t,
+	REX::W32::ID3DBlob**,
+	REX::W32::ID3DBlob**);
+REX_W32_IMPORT(
+	std::int32_t,
+	D3DCompileFromFile,
+	const wchar_t*,
+	const REX::W32::D3D_SHADER_MACRO*,
+	REX::W32::ID3DInclude*,
+	const char*,
+	const char*,
+	std::uint32_t,
+	std::uint32_t,
+	REX::W32::ID3DBlob**,
+	REX::W32::ID3DBlob**);
+REX_W32_IMPORT(
+	std::int32_t,
+	D3DCompressShaders,
+	std::uint32_t,
+	REX::W32::D3D_SHADER_DATA*,
+	std::uint32_t,
+	REX::W32::ID3DBlob**);
 REX_W32_IMPORT(std::int32_t, D3DCreateBlob, std::size_t, REX::W32::ID3DBlob**);
 REX_W32_IMPORT(std::int32_t, D3DCreateFunctionLinkingGraph, std::uint32_t, REX::W32::ID3D11FunctionLinkingGraph**);
 REX_W32_IMPORT(std::int32_t, D3DCreateLinker, REX::W32::ID3D11Linker**);
-REX_W32_IMPORT(std::int32_t, D3DDecompressShaders, const void*, std::size_t, std::uint32_t, std::uint32_t, std::uint32_t*, std::uint32_t, REX::W32::ID3DBlob**, std::uint32_t*);
-REX_W32_IMPORT(std::int32_t, D3DDisassemble, const void*, std::size_t, std::uint32_t, const char*, REX::W32::ID3DBlob**);
+REX_W32_IMPORT(
+	std::int32_t,
+	D3DDecompressShaders,
+	const void*,
+	std::size_t,
+	std::uint32_t,
+	std::uint32_t,
+	std::uint32_t*,
+	std::uint32_t,
+	REX::W32::ID3DBlob**,
+	std::uint32_t*);
+REX_W32_IMPORT(
+	std::int32_t,
+	D3DDisassemble,
+	const void*,
+	std::size_t,
+	std::uint32_t,
+	const char*,
+	REX::W32::ID3DBlob**);
 REX_W32_IMPORT(std::int32_t, D3DDisassemble10Effect, REX::W32::ID3D10Effect*, std::uint32_t, REX::W32::ID3DBlob**);
-REX_W32_IMPORT(std::int32_t, D3DDisassembleRegion, const void*, std::size_t, std::uint32_t, const char*, std::size_t, std::size_t, std::size_t*, REX::W32::ID3DBlob**);
-REX_W32_IMPORT(std::int32_t, D3DGetBlobPart, const void*, std::size_t, REX::W32::D3D_BLOB_PART, std::uint32_t a_flags, REX::W32::ID3DBlob**);
+REX_W32_IMPORT(
+	std::int32_t,
+	D3DDisassembleRegion,
+	const void*,
+	std::size_t,
+	std::uint32_t,
+	const char*,
+	std::size_t,
+	std::size_t,
+	std::size_t*,
+	REX::W32::ID3DBlob**);
+REX_W32_IMPORT(
+	std::int32_t,
+	D3DGetBlobPart,
+	const void*,
+	std::size_t,
+	REX::W32::D3D_BLOB_PART,
+	std::uint32_t a_flags,
+	REX::W32::ID3DBlob**);
 REX_W32_IMPORT(std::int32_t, D3DGetDebugInfo, const void*, std::size_t, REX::W32::ID3DBlob**);
 REX_W32_IMPORT(std::int32_t, D3DGetInputSignatureBlob, const void*, std::size_t, REX::W32::ID3DBlob**);
 REX_W32_IMPORT(std::int32_t, D3DGetInputAndOutputSignatureBlob, const void*, std::size_t, REX::W32::ID3DBlob**);
 REX_W32_IMPORT(std::int32_t, D3DGetOutputSignatureBlob, const void*, std::size_t, REX::W32::ID3DBlob**);
-REX_W32_IMPORT(std::int32_t, D3DGetTraceInstructionOffsets, const void*, std::size_t, std::uint32_t, std::size_t, std::size_t, std::size_t*, std::size_t*);
+REX_W32_IMPORT(
+	std::int32_t,
+	D3DGetTraceInstructionOffsets,
+	const void*,
+	std::size_t,
+	std::uint32_t,
+	std::size_t,
+	std::size_t,
+	std::size_t*,
+	std::size_t*);
 REX_W32_IMPORT(std::int32_t, D3DLoadModule, const void*, std::size_t, REX::W32::ID3D11Module**);
-REX_W32_IMPORT(std::int32_t, D3DPreprocess, const void*, std::size_t, const char*, const REX::W32::D3D_SHADER_MACRO*, REX::W32::ID3DInclude*, REX::W32::ID3DBlob**, REX::W32::ID3DBlob**);
+REX_W32_IMPORT(
+	std::int32_t,
+	D3DPreprocess,
+	const void*,
+	std::size_t,
+	const char*,
+	const REX::W32::D3D_SHADER_MACRO*,
+	REX::W32::ID3DInclude*,
+	REX::W32::ID3DBlob**,
+	REX::W32::ID3DBlob**);
 REX_W32_IMPORT(std::int32_t, D3DReadFileToBlob, const wchar_t*, REX::W32::ID3DBlob**);
 REX_W32_IMPORT(std::int32_t, D3DReflect, const void*, std::size_t, const REX::W32::IID&, void**);
 REX_W32_IMPORT(std::int32_t, D3DReflectLibrary, const void*, std::size_t, const REX::W32::IID&, void**);
-REX_W32_IMPORT(std::int32_t, D3DSetBlobPart, const void*, std::size_t, REX::W32::D3D_BLOB_PART, std::uint32_t, const void*, std::size_t, REX::W32::ID3DBlob**);
+REX_W32_IMPORT(
+	std::int32_t,
+	D3DSetBlobPart,
+	const void*,
+	std::size_t,
+	REX::W32::D3D_BLOB_PART,
+	std::uint32_t,
+	const void*,
+	std::size_t,
+	REX::W32::ID3DBlob**);
 REX_W32_IMPORT(std::int32_t, D3DStripShader, const void*, std::size_t, std::uint32_t, REX::W32::ID3DBlob**);
 REX_W32_IMPORT(std::int32_t, D3DWriteBlobToFile, REX::W32::ID3DBlob*, const wchar_t*, REX::W32::BOOL);
 
 namespace REX::W32
 {
-	HRESULT D3DCompile(const void* a_srcData, std::size_t a_srcDataSize, const char* a_sourceName, const D3D_SHADER_MACRO* a_defines, ID3DInclude* a_include, const char* a_entrypoint, const char* a_target, std::uint32_t a_flags1, std::uint32_t a_flags2, ID3DBlob** a_code, ID3DBlob** a_errorMsgs) noexcept
+	auto D3DCompile(
+		const void* a_sourceData,
+		std::size_t a_sourceDataSize,
+		const char* a_sourceName,
+		const D3D_SHADER_MACRO* a_defines,
+		ID3DInclude* a_include,
+		const char* a_entrypoint,
+		const char* a_target,
+		std::uint32_t a_flags1,
+		std::uint32_t a_flags2,
+		ID3DBlob** a_code,
+		ID3DBlob** a_errorMessages) noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DCompile(a_srcData, a_srcDataSize, a_sourceName, a_defines, a_include, a_entrypoint, a_target, a_flags1, a_flags2, a_code, a_errorMsgs);
+		return ::W32_IMPL_D3DCompile(
+			a_sourceData,
+			a_sourceDataSize,
+			a_sourceName,
+			a_defines,
+			a_include,
+			a_entrypoint,
+			a_target,
+			a_flags1,
+			a_flags2,
+			a_code,
+			a_errorMessages);
 	}
 
-	HRESULT D3DCompile2(const void* a_srcData, std::size_t a_srcDataSize, const char* a_sourceName, const D3D_SHADER_MACRO* a_defines, ID3DInclude* a_include, const char* a_entrypoint, const char* a_target, std::uint32_t a_flags1, std::uint32_t a_flags2, std::uint32_t a_secondaryDataFlags, const void* a_secondaryData, std::size_t a_secondaryDataSize, ID3DBlob** a_code, ID3DBlob** a_errorMsgs) noexcept
+	auto D3DCompile2(
+		const void* a_sourceData,
+		std::size_t a_sourceDataSize,
+		const char* a_sourceName,
+		const D3D_SHADER_MACRO* a_defines,
+		ID3DInclude* a_include,
+		const char* a_entrypoint,
+		const char* a_target,
+		std::uint32_t a_flags1,
+		std::uint32_t a_flags2,
+		std::uint32_t a_secondaryDataFlags,
+		const void* a_secondaryData,
+		std::size_t a_secondaryDataSize,
+		ID3DBlob** a_code,
+		ID3DBlob** a_errorMessages) noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DCompile2(a_srcData, a_srcDataSize, a_sourceName, a_defines, a_include, a_entrypoint, a_target, a_flags1, a_flags2, a_secondaryDataFlags, a_secondaryData, a_secondaryDataSize, a_code, a_errorMsgs);
+		return ::W32_IMPL_D3DCompile2(
+			a_sourceData,
+			a_sourceDataSize,
+			a_sourceName,
+			a_defines,
+			a_include,
+			a_entrypoint,
+			a_target,
+			a_flags1,
+			a_flags2,
+			a_secondaryDataFlags,
+			a_secondaryData,
+			a_secondaryDataSize,
+			a_code,
+			a_errorMessages);
 	}
 
-	HRESULT D3DCompileFromFile(const wchar_t* a_fileName, const D3D_SHADER_MACRO* a_defines, ID3DInclude* a_include, const char* a_entrypoint, const char* a_target, std::uint32_t a_flags1, std::uint32_t a_flags2, ID3DBlob** a_code, ID3DBlob** a_errorMsgs) noexcept
+	auto D3DCompileFromFile(
+		const wchar_t* a_fileName,
+		const D3D_SHADER_MACRO* a_defines,
+		ID3DInclude* a_include,
+		const char* a_entrypoint,
+		const char* a_target,
+		std::uint32_t a_flags1,
+		std::uint32_t a_flags2,
+		ID3DBlob** a_code,
+		ID3DBlob** a_errorMessages) noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DCompileFromFile(a_fileName, a_defines, a_include, a_entrypoint, a_target, a_flags1, a_flags2, a_code, a_errorMsgs);
+		return ::W32_IMPL_D3DCompileFromFile(
+			a_fileName,
+			a_defines,
+			a_include,
+			a_entrypoint,
+			a_target,
+			a_flags1,
+			a_flags2,
+			a_code,
+			a_errorMessages);
 	}
 
-	HRESULT D3DCompressShaders(std::uint32_t a_numShaders, D3D_SHADER_DATA* a_shaderData, std::uint32_t a_flags, ID3DBlob** a_compressedData) noexcept
+	auto D3DCompressShaders(
+		std::uint32_t a_numShaders,
+		D3D_SHADER_DATA* a_shaderData,
+		std::uint32_t a_flags,
+		ID3DBlob** a_compressedData) noexcept -> HRESULT
 	{
 		return ::W32_IMPL_D3DCompressShaders(a_numShaders, a_shaderData, a_flags, a_compressedData);
 	}
 
-	HRESULT D3DCreateBlob(std::size_t a_size, ID3DBlob** a_blob) noexcept
+	auto D3DCreateBlob(std::size_t a_size, ID3DBlob** a_blob) noexcept -> HRESULT
 	{
 		return ::W32_IMPL_D3DCreateBlob(a_size, a_blob);
 	}
 
-	HRESULT D3DCreateFunctionLinkingGraph(std::uint32_t a_flags, ID3D11FunctionLinkingGraph** a_functionLinkingGraph) noexcept
+	auto D3DCreateFunctionLinkingGraph(std::uint32_t a_flags, ID3D11FunctionLinkingGraph** a_functionLinkingGraph)
+		noexcept -> HRESULT
 	{
 		return ::W32_IMPL_D3DCreateFunctionLinkingGraph(a_flags, a_functionLinkingGraph);
 	}
 
-	HRESULT D3DCreateLinker(ID3D11Linker** a_linker) noexcept
+	auto D3DCreateLinker(ID3D11Linker** a_linker) noexcept -> HRESULT
 	{
 		return ::W32_IMPL_D3DCreateLinker(a_linker);
 	}
 
-	HRESULT D3DDecompressShaders(const void* a_srcData, std::size_t a_srcDataSize, std::uint32_t a_numShaders, std::uint32_t a_startIndex, std::uint32_t* a_indices, std::uint32_t a_flags, ID3DBlob** a_shaders, std::uint32_t* a_totalShaders) noexcept
+	auto D3DDecompressShaders(
+		const void* a_sourceData,
+		std::size_t a_sourceDataSize,
+		std::uint32_t a_numShaders,
+		std::uint32_t a_startIndex,
+		std::uint32_t* a_indices,
+		std::uint32_t a_flags,
+		ID3DBlob** a_shaders,
+		std::uint32_t* a_totalShaders) noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DDecompressShaders(a_srcData, a_srcDataSize, a_numShaders, a_startIndex, a_indices, a_flags, a_shaders, a_totalShaders);
+		return ::W32_IMPL_D3DDecompressShaders(
+			a_sourceData,
+			a_sourceDataSize,
+			a_numShaders,
+			a_startIndex,
+			a_indices,
+			a_flags,
+			a_shaders,
+			a_totalShaders);
 	}
 
-	HRESULT D3DDisassemble(const void* a_srcData, std::size_t a_srcDataSize, std::uint32_t a_flags, const char* a_comments, ID3DBlob** a_disassembly) noexcept
+	auto D3DDisassemble(
+		const void* a_sourceData,
+		std::size_t a_sourceDataSize,
+		std::uint32_t a_flags,
+		const char* a_comments,
+		ID3DBlob** a_disassembly) noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DDisassemble(a_srcData, a_srcDataSize, a_flags, a_comments, a_disassembly);
+		return ::W32_IMPL_D3DDisassemble(a_sourceData, a_sourceDataSize, a_flags, a_comments, a_disassembly);
 	}
 
-	HRESULT D3DDisassemble10Effect(ID3D10Effect* a_effect, std::uint32_t a_flags, ID3DBlob** a_disassembly) noexcept
+	auto D3DDisassemble10Effect(ID3D10Effect* a_effect, std::uint32_t a_flags, ID3DBlob** a_disassembly) noexcept
+		-> HRESULT
 	{
 		return ::W32_IMPL_D3DDisassemble10Effect(a_effect, a_flags, a_disassembly);
 	}
 
-	HRESULT D3DDisassembleRegion(const void* a_srcData, std::size_t a_srcDataSize, std::uint32_t a_flags, const char* a_comments, std::size_t a_startByteOffset, std::size_t a_numInsts, std::size_t* a_finishByteOffset, ID3DBlob** a_disassembly) noexcept
+	auto D3DDisassembleRegion(
+		const void* a_sourceData,
+		std::size_t a_sourceDataSize,
+		std::uint32_t a_flags,
+		const char* a_comments,
+		std::size_t a_startByteOffset,
+		std::size_t a_numInsts,
+		std::size_t* a_finishByteOffset,
+		ID3DBlob** a_disassembly) noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DDisassembleRegion(a_srcData, a_srcDataSize, a_flags, a_comments, a_startByteOffset, a_numInsts, a_finishByteOffset, a_disassembly);
+		return ::W32_IMPL_D3DDisassembleRegion(
+			a_sourceData,
+			a_sourceDataSize,
+			a_flags,
+			a_comments,
+			a_startByteOffset,
+			a_numInsts,
+			a_finishByteOffset,
+			a_disassembly);
 	}
 
-	HRESULT D3DGetBlobPart(const void* a_srcData, std::size_t a_srcDataSize, D3D_BLOB_PART a_partType, std::uint32_t a_flags, ID3DBlob** a_part) noexcept
+	auto D3DGetBlobPart(
+		const void* a_sourceData,
+		std::size_t a_sourceDataSize,
+		D3D_BLOB_PART a_partType,
+		std::uint32_t a_flags,
+		ID3DBlob** a_part) noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DGetBlobPart(a_srcData, a_srcDataSize, a_partType, a_flags, a_part);
+		return ::W32_IMPL_D3DGetBlobPart(a_sourceData, a_sourceDataSize, a_partType, a_flags, a_part);
 	}
 
-	HRESULT D3DGetDebugInfo(const void* a_srcData, std::size_t a_srcDataSize, ID3DBlob** a_debugInfo) noexcept
+	auto D3DGetDebugInfo(const void* a_sourceData, std::size_t a_sourceDataSize, ID3DBlob** a_debugInfo) noexcept
+		-> HRESULT
 	{
-		return ::W32_IMPL_D3DGetDebugInfo(a_srcData, a_srcDataSize, a_debugInfo);
+		return ::W32_IMPL_D3DGetDebugInfo(a_sourceData, a_sourceDataSize, a_debugInfo);
 	}
 
-	HRESULT D3DGetInputSignatureBlob(const void* a_srcData, std::size_t a_srcDataSize, ID3DBlob** a_signatureBlob) noexcept
+	auto D3DGetInputSignatureBlob(const void* a_sourceData, std::size_t a_sourceDataSize, ID3DBlob** a_signatureBlob)
+		noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DGetInputSignatureBlob(a_srcData, a_srcDataSize, a_signatureBlob);
+		return ::W32_IMPL_D3DGetInputSignatureBlob(a_sourceData, a_sourceDataSize, a_signatureBlob);
 	}
 
-	HRESULT D3DGetInputAndOutputSignatureBlob(const void* a_srcData, std::size_t a_srcDataSize, ID3DBlob** a_signatureBlob) noexcept
+	auto D3DGetInputAndOutputSignatureBlob(
+		const void* a_sourceData,
+		std::size_t a_sourceDataSize,
+		ID3DBlob** a_signatureBlob) noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DGetInputAndOutputSignatureBlob(a_srcData, a_srcDataSize, a_signatureBlob);
+		return ::W32_IMPL_D3DGetInputAndOutputSignatureBlob(a_sourceData, a_sourceDataSize, a_signatureBlob);
 	}
 
-	HRESULT D3DGetOutputSignatureBlob(const void* a_srcData, std::size_t a_srcDataSize, ID3DBlob** a_signatureBlob) noexcept
+	auto D3DGetOutputSignatureBlob(const void* a_sourceData, std::size_t a_sourceDataSize, ID3DBlob** a_signatureBlob)
+		noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DGetOutputSignatureBlob(a_srcData, a_srcDataSize, a_signatureBlob);
+		return ::W32_IMPL_D3DGetOutputSignatureBlob(a_sourceData, a_sourceDataSize, a_signatureBlob);
 	}
 
-	HRESULT D3DGetTraceInstructionOffsets(const void* a_srcData, std::size_t a_srcDataSize, std::uint32_t a_flags, std::size_t a_startInstIndex, std::size_t a_numInsts, std::size_t* a_offsets, std::size_t* a_totalInsts) noexcept
+	auto D3DGetTraceInstructionOffsets(
+		const void* a_sourceData,
+		std::size_t a_sourceDataSize,
+		std::uint32_t a_flags,
+		std::size_t a_startInstIndex,
+		std::size_t a_numInsts,
+		std::size_t* a_offsets,
+		std::size_t* a_totalInsts) noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DGetTraceInstructionOffsets(a_srcData, a_srcDataSize, a_flags, a_startInstIndex, a_numInsts, a_offsets, a_totalInsts);
+		return ::W32_IMPL_D3DGetTraceInstructionOffsets(
+			a_sourceData,
+			a_sourceDataSize,
+			a_flags,
+			a_startInstIndex,
+			a_numInsts,
+			a_offsets,
+			a_totalInsts);
 	}
 
-	HRESULT D3DLoadModule(const void* a_srcData, std::size_t a_srcDataSize, ID3D11Module** a_module) noexcept
+	auto D3DLoadModule(const void* a_sourceData, std::size_t a_sourceDataSize, ID3D11Module** a_module) noexcept
+		-> HRESULT
 	{
-		return ::W32_IMPL_D3DLoadModule(a_srcData, a_srcDataSize, a_module);
+		return ::W32_IMPL_D3DLoadModule(a_sourceData, a_sourceDataSize, a_module);
 	}
 
-	HRESULT D3DPreprocess(const void* a_srcData, std::size_t a_srcDataSize, const char* a_sourceName, const D3D_SHADER_MACRO* a_defines, ID3DInclude* a_include, ID3DBlob** a_codeText, ID3DBlob** a_errorMsgs) noexcept
+	auto D3DPreprocess(
+		const void* a_sourceData,
+		std::size_t a_sourceDataSize,
+		const char* a_sourceName,
+		const D3D_SHADER_MACRO* a_defines,
+		ID3DInclude* a_include,
+		ID3DBlob** a_codeText,
+		ID3DBlob** a_errorMessages) noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DPreprocess(a_srcData, a_srcDataSize, a_sourceName, a_defines, a_include, a_codeText, a_errorMsgs);
+		return ::W32_IMPL_D3DPreprocess(
+			a_sourceData,
+			a_sourceDataSize,
+			a_sourceName,
+			a_defines,
+			a_include,
+			a_codeText,
+			a_errorMessages);
 	}
 
-	HRESULT D3DReadFileToBlob(const wchar_t* a_fileName, ID3DBlob** a_contents) noexcept
+	auto D3DReadFileToBlob(const wchar_t* a_fileName, ID3DBlob** a_contents) noexcept -> HRESULT
 	{
 		return ::W32_IMPL_D3DReadFileToBlob(a_fileName, a_contents);
 	}
 
-	HRESULT D3DReflect(const void* a_srcData, std::size_t a_srcDataSize, const IID& a_iid, void** a_reflector) noexcept
+	auto D3DReflect(const void* a_sourceData, std::size_t a_sourceDataSize, const IID& a_iid, void** a_reflector)
+		noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DReflect(a_srcData, a_srcDataSize, a_iid, a_reflector);
+		return ::W32_IMPL_D3DReflect(a_sourceData, a_sourceDataSize, a_iid, a_reflector);
 	}
 
-	HRESULT D3DReflectLibrary(const void* a_srcData, std::size_t a_srcDataSize, const IID& a_iid, void** a_reflector) noexcept
+	auto D3DReflectLibrary(const void* a_sourceData, std::size_t a_sourceDataSize, const IID& a_iid, void** a_reflector)
+		noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DReflectLibrary(a_srcData, a_srcDataSize, a_iid, a_reflector);
+		return ::W32_IMPL_D3DReflectLibrary(a_sourceData, a_sourceDataSize, a_iid, a_reflector);
 	}
 
-	HRESULT D3DSetBlobPart(const void* a_srcData, std::size_t a_srcDataSize, D3D_BLOB_PART a_partType, std::uint32_t a_flags, const void* a_part, std::size_t a_partSize, ID3DBlob** a_newShader) noexcept
+	auto D3DSetBlobPart(
+		const void* a_sourceData,
+		std::size_t a_sourceDataSize,
+		D3D_BLOB_PART a_partType,
+		std::uint32_t a_flags,
+		const void* a_part,
+		std::size_t a_partSize,
+		ID3DBlob** a_newShader) noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DSetBlobPart(a_srcData, a_srcDataSize, a_partType, a_flags, a_part, a_partSize, a_newShader);
+		return ::W32_IMPL_D3DSetBlobPart(
+			a_sourceData,
+			a_sourceDataSize,
+			a_partType,
+			a_flags,
+			a_part,
+			a_partSize,
+			a_newShader);
 	}
 
-	HRESULT D3DStripShader(const void* a_srcData, std::size_t a_srcDataSize, std::uint32_t a_stripFlags, ID3DBlob** a_strippedBlob) noexcept
+	auto D3DStripShader(
+		const void* a_sourceData,
+		std::size_t a_sourceDataSize,
+		std::uint32_t a_stripFlags,
+		ID3DBlob** a_strippedBlob) noexcept -> HRESULT
 	{
-		return ::W32_IMPL_D3DStripShader(a_srcData, a_srcDataSize, a_stripFlags, a_strippedBlob);
+		return ::W32_IMPL_D3DStripShader(a_sourceData, a_sourceDataSize, a_stripFlags, a_strippedBlob);
 	}
 
-	HRESULT D3DWriteBlobToFile(ID3DBlob* a_blob, const wchar_t* a_fileName, bool a_overwrite) noexcept
+	auto D3DWriteBlobToFile(ID3DBlob* a_blob, const wchar_t* a_fileName, bool a_overwrite) noexcept -> HRESULT
 	{
 		return ::W32_IMPL_D3DWriteBlobToFile(a_blob, a_fileName, static_cast<REX::W32::BOOL>(a_overwrite));
 	}
@@ -249,30 +1264,35 @@ REX_W32_IMPORT(std::uint32_t, UnDecorateSymbolNameW, const wchar_t*, wchar_t*, s
 
 namespace REX::W32
 {
-	std::uint32_t UnDecorateSymbolName(const char* a_name, char* a_buffer, std::uint32_t a_bufLen, std::uint32_t a_flags) noexcept
+	auto UnDecorateSymbolName(const char* a_name, char* a_buffer, std::uint32_t a_bufferLength, std::uint32_t a_flags)
+		noexcept -> std::uint32_t
 	{
-		return ::W32_IMPL_UnDecorateSymbolName(a_name, a_buffer, a_bufLen, a_flags);
+		return ::W32_IMPL_UnDecorateSymbolName(a_name, a_buffer, a_bufferLength, a_flags);
 	}
 
-	std::uint32_t UnDecorateSymbolNameW(const wchar_t* a_name, wchar_t* a_buffer, std::uint32_t a_bufLen, std::uint32_t a_flags) noexcept
+	auto UnDecorateSymbolNameW(
+		const wchar_t* a_name,
+		wchar_t* a_buffer,
+		std::uint32_t a_bufferLength,
+		std::uint32_t a_flags) noexcept -> std::uint32_t
 	{
-		return ::W32_IMPL_UnDecorateSymbolNameW(a_name, a_buffer, a_bufLen, a_flags);
+		return ::W32_IMPL_UnDecorateSymbolNameW(a_name, a_buffer, a_bufferLength, a_flags);
 	}
 }
 
 // DXGI
 
-REX_W32_IMPORT(std::int32_t, CreateDXGIFactory, const IID&, void**);
-REX_W32_IMPORT(std::int32_t, CreateDXGIFactory1, const IID&, void**);
+REX_W32_IMPORT(std::int32_t, CreateDXGIFactory, const REX::W32::IID&, void**);
+REX_W32_IMPORT(std::int32_t, CreateDXGIFactory1, const REX::W32::IID&, void**);
 
 namespace REX::W32
 {
-	HRESULT CreateDXGIFactory(const IID& a_iid, void** a_factory) noexcept
+	auto CreateDXGIFactory(const IID& a_iid, void** a_factory) noexcept -> HRESULT
 	{
 		return ::W32_IMPL_CreateDXGIFactory(a_iid, a_factory);
 	}
 
-	HRESULT CreateDXGIFactory1(const IID& a_iid, void** a_factory) noexcept
+	auto CreateDXGIFactory1(const IID& a_iid, void** a_factory) noexcept -> HRESULT
 	{
 		return ::W32_IMPL_CreateDXGIFactory1(a_iid, a_factory);
 	}
@@ -283,15 +1303,96 @@ namespace REX::W32
 REX_W32_IMPORT(void, AcquireSRWLockShared, REX::W32::SRWLOCK*);
 REX_W32_IMPORT(void, AcquireSRWLockExclusive, REX::W32::SRWLOCK*);
 REX_W32_IMPORT(REX::W32::BOOL, CloseHandle, REX::W32::HANDLE);
-REX_W32_IMPORT(REX::W32::HANDLE, CreateFileA, const char*, std::uint32_t, std::uint32_t, REX::W32::SECURITY_ATTRIBUTES*, std::uint32_t, std::uint32_t, REX::W32::HANDLE);
-REX_W32_IMPORT(REX::W32::HANDLE, CreateFileW, const wchar_t*, std::uint32_t, std::uint32_t, REX::W32::SECURITY_ATTRIBUTES*, std::uint32_t, std::uint32_t, REX::W32::HANDLE);
-REX_W32_IMPORT(REX::W32::HANDLE, CreateFileMappingA, REX::W32::HANDLE, REX::W32::SECURITY_ATTRIBUTES*, std::uint32_t, std::uint32_t, std::uint32_t, const char*);
-REX_W32_IMPORT(REX::W32::HANDLE, CreateFileMappingW, REX::W32::HANDLE, REX::W32::SECURITY_ATTRIBUTES*, std::uint32_t, std::uint32_t, std::uint32_t, const wchar_t*);
-REX_W32_IMPORT(REX::W32::BOOL, CreateProcessA, const char*, char*, REX::W32::SECURITY_ATTRIBUTES*, REX::W32::SECURITY_ATTRIBUTES*, REX::W32::BOOL, std::uint32_t, void*, const char*, REX::W32::STARTUPINFOA*, REX::W32::PROCESS_INFORMATION*);
-REX_W32_IMPORT(REX::W32::BOOL, CreateProcessW, const wchar_t*, wchar_t*, REX::W32::SECURITY_ATTRIBUTES*, REX::W32::SECURITY_ATTRIBUTES*, REX::W32::BOOL, std::uint32_t, void*, const wchar_t*, REX::W32::STARTUPINFOW*, REX::W32::PROCESS_INFORMATION*);
-REX_W32_IMPORT_THROW(REX::W32::HANDLE, CreateRemoteThread, REX::W32::HANDLE, REX::W32::SECURITY_ATTRIBUTES*, std::size_t, REX::W32::THREAD_START_ROUTINE*, void*, std::uint32_t, std::uint32_t*);
-REX_W32_IMPORT(REX::W32::HANDLE, CreateSemaphoreA, REX::W32::SECURITY_ATTRIBUTES*, std::int32_t, std::int32_t, const char*);
-REX_W32_IMPORT_THROW(REX::W32::HANDLE, CreateThread, REX::W32::SECURITY_ATTRIBUTES*, std::size_t, REX::W32::THREAD_START_ROUTINE*, void*, std::uint32_t, std::uint32_t*);
+REX_W32_IMPORT(
+	REX::W32::HANDLE,
+	CreateFileA,
+	const char*,
+	std::uint32_t,
+	std::uint32_t,
+	REX::W32::SECURITY_ATTRIBUTES*,
+	std::uint32_t,
+	std::uint32_t,
+	REX::W32::HANDLE);
+REX_W32_IMPORT(
+	REX::W32::HANDLE,
+	CreateFileW,
+	const wchar_t*,
+	std::uint32_t,
+	std::uint32_t,
+	REX::W32::SECURITY_ATTRIBUTES*,
+	std::uint32_t,
+	std::uint32_t,
+	REX::W32::HANDLE);
+REX_W32_IMPORT(
+	REX::W32::HANDLE,
+	CreateFileMappingA,
+	REX::W32::HANDLE,
+	REX::W32::SECURITY_ATTRIBUTES*,
+	std::uint32_t,
+	std::uint32_t,
+	std::uint32_t,
+	const char*);
+REX_W32_IMPORT(
+	REX::W32::HANDLE,
+	CreateFileMappingW,
+	REX::W32::HANDLE,
+	REX::W32::SECURITY_ATTRIBUTES*,
+	std::uint32_t,
+	std::uint32_t,
+	std::uint32_t,
+	const wchar_t*);
+REX_W32_IMPORT(
+	REX::W32::BOOL,
+	CreateProcessA,
+	const char*,
+	char*,
+	REX::W32::SECURITY_ATTRIBUTES*,
+	REX::W32::SECURITY_ATTRIBUTES*,
+	REX::W32::BOOL,
+	std::uint32_t,
+	void*,
+	const char*,
+	REX::W32::STARTUPINFOA*,
+	REX::W32::PROCESS_INFORMATION*);
+REX_W32_IMPORT(
+	REX::W32::BOOL,
+	CreateProcessW,
+	const wchar_t*,
+	wchar_t*,
+	REX::W32::SECURITY_ATTRIBUTES*,
+	REX::W32::SECURITY_ATTRIBUTES*,
+	REX::W32::BOOL,
+	std::uint32_t,
+	void*,
+	const wchar_t*,
+	REX::W32::STARTUPINFOW*,
+	REX::W32::PROCESS_INFORMATION*);
+REX_W32_IMPORT_THROW(
+	REX::W32::HANDLE,
+	CreateRemoteThread,
+	REX::W32::HANDLE,
+	REX::W32::SECURITY_ATTRIBUTES*,
+	std::size_t,
+	REX::W32::THREAD_START_ROUTINE*,
+	void*,
+	std::uint32_t,
+	std::uint32_t*);
+REX_W32_IMPORT(
+	REX::W32::HANDLE,
+	CreateSemaphoreA,
+	REX::W32::SECURITY_ATTRIBUTES*,
+	std::int32_t,
+	std::int32_t,
+	const char*);
+REX_W32_IMPORT_THROW(
+	REX::W32::HANDLE,
+	CreateThread,
+	REX::W32::SECURITY_ATTRIBUTES*,
+	std::size_t,
+	REX::W32::THREAD_START_ROUTINE*,
+	void*,
+	std::uint32_t,
+	std::uint32_t*);
 REX_W32_IMPORT(void, DebugBreak);
 REX_W32_IMPORT(void, DebugBreakProcess, REX::W32::HANDLE);
 REX_W32_IMPORT(void, DeleteCriticalSection, REX::W32::CRITICAL_SECTION*);
@@ -314,6 +1415,7 @@ REX_W32_IMPORT(REX::W32::HANDLE, GetCurrentProcess);
 REX_W32_IMPORT(REX::W32::THREAD_ID, GetCurrentThreadId);
 REX_W32_IMPORT(std::uint32_t, GetEnvironmentVariableA, const char*, char*, std::uint32_t);
 REX_W32_IMPORT(std::uint32_t, GetEnvironmentVariableW, const wchar_t*, wchar_t*, std::uint32_t);
+REX_W32_IMPORT(std::uint32_t, GetFileSize, REX::W32::HANDLE, std::uint32_t*);
 REX_W32_IMPORT(REX::W32::BOOL, GetFileSizeEx, REX::W32::HANDLE, std::int64_t*);
 REX_W32_IMPORT(REX::W32::ERROR_CODE, GetLastError);
 REX_W32_IMPORT(std::uint32_t, GetModuleFileNameA, REX::W32::HMODULE, char*, std::uint32_t);
@@ -322,34 +1424,84 @@ REX_W32_IMPORT(REX::W32::HMODULE, GetModuleHandleA, const char*);
 REX_W32_IMPORT(REX::W32::HMODULE, GetModuleHandleW, const wchar_t*);
 REX_W32_IMPORT(std::uint32_t, GetPrivateProfileIntA, const char*, const char*, std::int32_t, const char*);
 REX_W32_IMPORT(std::uint32_t, GetPrivateProfileIntW, const wchar_t*, const wchar_t*, std::int32_t, const wchar_t*);
-REX_W32_IMPORT(std::uint32_t, GetPrivateProfileStringA, const char*, const char*, const char*, char*, std::uint32_t, const char*);
-REX_W32_IMPORT(std::uint32_t, GetPrivateProfileStringW, const wchar_t*, const wchar_t*, const wchar_t*, wchar_t*, std::uint32_t, const wchar_t*);
+REX_W32_IMPORT(
+	std::uint32_t,
+	GetPrivateProfileStringA,
+	const char*,
+	const char*,
+	const char*,
+	char*,
+	std::uint32_t,
+	const char*);
+REX_W32_IMPORT(
+	std::uint32_t,
+	GetPrivateProfileStringW,
+	const wchar_t*,
+	const wchar_t*,
+	const wchar_t*,
+	wchar_t*,
+	std::uint32_t,
+	const wchar_t*);
 REX_W32_IMPORT(void*, GetProcAddress, REX::W32::HMODULE, const char*);
 REX_W32_IMPORT(void, GetSystemInfo, REX::W32::SYSTEM_INFO*);
+REX_W32_IMPORT(REX::W32::BOOL, GetUserNameA, char*, std::uint32_t*);
+REX_W32_IMPORT(REX::W32::BOOL, GetUserNameW, wchar_t*, std::uint32_t*);
+REX_W32_IMPORT(std::uint32_t, GetVersion);
 REX_W32_IMPORT(void, InitializeCriticalSection, REX::W32::CRITICAL_SECTION*);
 REX_W32_IMPORT(REX::W32::BOOL, InitializeCriticalSectionAndSpinCount, REX::W32::CRITICAL_SECTION*, std::uint32_t);
 REX_W32_IMPORT(void, InitializeSRWLock, REX::W32::SRWLOCK*);
 REX_W32_IMPORT(REX::W32::BOOL, IsDebuggerPresent);
-REX_W32_IMPORT(std::int32_t, LCMapStringEx, const wchar_t*, std::uint32_t, const wchar_t*, std::int32_t, wchar_t*, std::int32_t, REX::W32::NLSVERSIONINFO*, void*, std::intptr_t);
+REX_W32_IMPORT(
+	std::int32_t,
+	LCMapStringEx,
+	const wchar_t*,
+	std::uint32_t,
+	const wchar_t*,
+	std::int32_t,
+	wchar_t*,
+	std::int32_t,
+	REX::W32::NLSVERSIONINFO*,
+	void*,
+	std::intptr_t);
 REX_W32_IMPORT(void, LeaveCriticalSection, REX::W32::CRITICAL_SECTION*);
 REX_W32_IMPORT(REX::W32::HMODULE, LoadLibraryA, const char*);
 REX_W32_IMPORT(REX::W32::HMODULE, LoadLibraryW, const wchar_t*);
 REX_W32_IMPORT(void*, MapViewOfFile, REX::W32::HANDLE, std::uint32_t, std::uint32_t, std::uint32_t, std::size_t);
-REX_W32_IMPORT(void*, MapViewOfFileEx, REX::W32::HANDLE, std::uint32_t, std::uint32_t, std::uint32_t, std::size_t, void*);
-REX_W32_IMPORT(std::int32_t, MultiByteToWideChar, std::uint32_t, std::uint32_t, const char*, std::int32_t, wchar_t*, std::int32_t);
+REX_W32_IMPORT(
+	void*,
+	MapViewOfFileEx,
+	REX::W32::HANDLE,
+	std::uint32_t,
+	std::uint32_t,
+	std::uint32_t,
+	std::size_t,
+	void*);
+REX_W32_IMPORT(
+	std::int32_t,
+	MultiByteToWideChar,
+	std::uint32_t,
+	std::uint32_t,
+	const char*,
+	std::int32_t,
+	wchar_t*,
+	std::int32_t);
 REX_W32_IMPORT(REX::W32::HANDLE, OpenFileMappingA, std::uint32_t, REX::W32::BOOL, const char*);
 REX_W32_IMPORT(REX::W32::HANDLE, OpenFileMappingW, std::uint32_t, REX::W32::BOOL, const wchar_t*);
 REX_W32_IMPORT(void, OutputDebugStringA, const char*);
 REX_W32_IMPORT(void, OutputDebugStringW, const wchar_t*);
 REX_W32_IMPORT(REX::W32::BOOL, QueryPerformanceCounter, std::int64_t*);
 REX_W32_IMPORT(REX::W32::BOOL, QueryPerformanceFrequency, std::int64_t*);
+REX_W32_IMPORT(REX::W32::BOOL, ReadFile, REX::W32::HANDLE, void*, std::uint32_t, std::uint32_t*, REX::W32::OVERLAPPED*);
 REX_W32_IMPORT(REX::W32::BOOL, ReleaseSemaphore, REX::W32::HANDLE, std::int32_t, std::int32_t*);
 REX_W32_IMPORT(void, ReleaseSRWLockShared, REX::W32::SRWLOCK*);
 REX_W32_IMPORT(void, ReleaseSRWLockExclusive, REX::W32::SRWLOCK*);
 REX_W32_IMPORT(std::uint32_t, ResumeThread, REX::W32::HANDLE);
 REX_W32_IMPORT(std::uint32_t, SetCriticalSectionSpinCount, REX::W32::CRITICAL_SECTION*, std::uint32_t);
+REX_W32_IMPORT(REX::W32::BOOL, SetEndOfFile, REX::W32::HANDLE);
 REX_W32_IMPORT(REX::W32::BOOL, SetEnvironmentVariableA, const char*, const char*);
 REX_W32_IMPORT(REX::W32::BOOL, SetEnvironmentVariableW, const wchar_t*, const wchar_t*);
+REX_W32_IMPORT(std::uint32_t, SetFilePointer, REX::W32::HANDLE, std::int32_t, std::int32_t*, std::uint32_t);
+REX_W32_IMPORT(REX::W32::BOOL, SetFilePointerEx, REX::W32::HANDLE, std::int64_t, std::int64_t*, std::uint32_t);
 REX_W32_IMPORT(void, SetLastError, REX::W32::ERROR_CODE);
 REX_W32_IMPORT(void, Sleep, std::uint32_t);
 REX_W32_IMPORT(REX::W32::BOOL, TerminateProcess, REX::W32::HANDLE, std::uint32_t);
@@ -365,11 +1517,35 @@ REX_W32_IMPORT(REX::W32::BOOL, VirtualFree, void*, std::size_t, std::uint32_t);
 REX_W32_IMPORT(REX::W32::BOOL, VirtualFreeEx, REX::W32::HANDLE, void*, std::size_t, std::uint32_t);
 REX_W32_IMPORT(REX::W32::BOOL, VirtualProtect, void*, std::size_t, std::uint32_t, std::uint32_t*);
 REX_W32_IMPORT(REX::W32::BOOL, VirtualProtectEx, REX::W32::HANDLE, void*, std::size_t, std::uint32_t, std::uint32_t*);
-REX_W32_IMPORT(std::size_t, VirtualQuery, const void*, MEMORY_BASIC_INFORMATION*, std::size_t);
-REX_W32_IMPORT(std::size_t, VirtualQueryEx, REX::W32::HANDLE, const void*, MEMORY_BASIC_INFORMATION*, std::size_t);
+REX_W32_IMPORT(std::size_t, VirtualQuery, const void*, REX::W32::MEMORY_BASIC_INFORMATION*, std::size_t);
+REX_W32_IMPORT(
+	std::size_t,
+	VirtualQueryEx,
+	REX::W32::HANDLE,
+	const void*,
+	REX::W32::MEMORY_BASIC_INFORMATION*,
+	std::size_t);
 REX_W32_IMPORT(std::uint32_t, WaitForSingleObject, REX::W32::HANDLE, std::uint32_t);
 REX_W32_IMPORT(std::uint32_t, WaitForSingleObjectEx, REX::W32::HANDLE, std::uint32_t, REX::W32::BOOL);
-REX_W32_IMPORT(std::int32_t, WideCharToMultiByte, std::uint32_t, std::uint32_t, const wchar_t*, std::int32_t, char*, std::int32_t, const char*, std::int32_t*);
+REX_W32_IMPORT(
+	std::int32_t,
+	WideCharToMultiByte,
+	std::uint32_t,
+	std::uint32_t,
+	const wchar_t*,
+	std::int32_t,
+	char*,
+	std::int32_t,
+	const char*,
+	std::int32_t*);
+REX_W32_IMPORT(
+	REX::W32::BOOL,
+	WriteFile,
+	REX::W32::HANDLE,
+	const void*,
+	std::uint32_t,
+	std::uint32_t*,
+	REX::W32::OVERLAPPED*);
 REX_W32_IMPORT(REX::W32::BOOL, WriteProcessMemory, REX::W32::HANDLE, void*, const void*, std::size_t, std::size_t*);
 
 extern "C" REX::W32::IMAGE_DOS_HEADER __ImageBase;
@@ -386,52 +1562,166 @@ namespace REX::W32
 		::W32_IMPL_AcquireSRWLockExclusive(a_lock);
 	}
 
-	bool CloseHandle(HANDLE a_handle) noexcept
+	auto CloseHandle(HANDLE a_handle) noexcept -> bool
 	{
-		return ::W32_IMPL_CloseHandle(a_handle) != 0;
+		return ::W32_IMPL_CloseHandle(a_handle) == REX::W32::TRUE;
 	}
 
-	HANDLE CreateFileA(const char* a_fileName, std::uint32_t a_desiredAccess, std::uint32_t a_shareMode, SECURITY_ATTRIBUTES* a_attributes, std::uint32_t a_creationDisposition, std::uint32_t a_flags, HANDLE a_templateFile) noexcept
+	auto CreateFileA(
+		const char* a_fileName,
+		std::uint32_t a_desiredAccess,
+		std::uint32_t a_shareMode,
+		SECURITY_ATTRIBUTES* a_attributes,
+		std::uint32_t a_creationDisposition,
+		std::uint32_t a_flags,
+		HANDLE a_templateFile) noexcept -> HANDLE
 	{
-		return ::W32_IMPL_CreateFileA(a_fileName, a_desiredAccess, a_shareMode, a_attributes, a_creationDisposition, a_flags, a_templateFile);
+		return ::W32_IMPL_CreateFileA(
+			a_fileName,
+			a_desiredAccess,
+			a_shareMode,
+			a_attributes,
+			a_creationDisposition,
+			a_flags,
+			a_templateFile);
 	}
 
-	HANDLE CreateFileW(const wchar_t* a_fileName, std::uint32_t a_desiredAccess, std::uint32_t a_shareMode, SECURITY_ATTRIBUTES* a_attributes, std::uint32_t a_creationDisposition, std::uint32_t a_flags, HANDLE a_templateFile) noexcept
+	auto CreateFileW(
+		const wchar_t* a_fileName,
+		std::uint32_t a_desiredAccess,
+		std::uint32_t a_shareMode,
+		SECURITY_ATTRIBUTES* a_attributes,
+		std::uint32_t a_creationDisposition,
+		std::uint32_t a_flags,
+		HANDLE a_templateFile) noexcept -> HANDLE
 	{
-		return ::W32_IMPL_CreateFileW(a_fileName, a_desiredAccess, a_shareMode, a_attributes, a_creationDisposition, a_flags, a_templateFile);
+		return ::W32_IMPL_CreateFileW(
+			a_fileName,
+			a_desiredAccess,
+			a_shareMode,
+			a_attributes,
+			a_creationDisposition,
+			a_flags,
+			a_templateFile);
 	}
 
-	HANDLE CreateFileMappingA(HANDLE a_file, SECURITY_ATTRIBUTES* a_attributes, std::uint32_t a_protect, std::uint32_t a_maxSizeHigh, std::uint32_t a_maxSizeLow, const char* a_name) noexcept
+	auto CreateFileMappingA(
+		HANDLE a_file,
+		SECURITY_ATTRIBUTES* a_attributes,
+		std::uint32_t a_protect,
+		std::uint64_t a_maxSize,
+		const char* a_name) noexcept -> HANDLE
 	{
-		return ::W32_IMPL_CreateFileMappingA(a_file, a_attributes, a_protect, a_maxSizeHigh, a_maxSizeLow, a_name);
+		return ::W32_IMPL_CreateFileMappingA(
+			a_file,
+			a_attributes,
+			a_protect,
+			REX::CheckedReinterpretCast<REX::W32::ULARGE_INTEGER&>(a_maxSize).highPart,
+			REX::CheckedReinterpretCast<REX::W32::ULARGE_INTEGER&>(a_maxSize).lowPart,
+			a_name);
 	}
 
-	HANDLE CreateFileMappingW(HANDLE a_file, SECURITY_ATTRIBUTES* a_attributes, std::uint32_t a_protect, std::uint32_t a_maxSizeHigh, std::uint32_t a_maxSizeLow, const wchar_t* a_name) noexcept
+	auto CreateFileMappingW(
+		HANDLE a_file,
+		SECURITY_ATTRIBUTES* a_attributes,
+		std::uint32_t a_protect,
+		std::uint64_t a_maxSize,
+		const wchar_t* a_name) noexcept -> HANDLE
 	{
-		return ::W32_IMPL_CreateFileMappingW(a_file, a_attributes, a_protect, a_maxSizeHigh, a_maxSizeLow, a_name);
+		return ::W32_IMPL_CreateFileMappingW(
+			a_file,
+			a_attributes,
+			a_protect,
+			REX::CheckedReinterpretCast<REX::W32::ULARGE_INTEGER&>(a_maxSize).highPart,
+			REX::CheckedReinterpretCast<REX::W32::ULARGE_INTEGER&>(a_maxSize).lowPart,
+			a_name);
 	}
 
-	bool CreateProcessA(const char* a_name, char* a_cmd, SECURITY_ATTRIBUTES* a_procAttr, SECURITY_ATTRIBUTES* a_threadAttr, bool a_inheritHandles, std::uint32_t a_flags, void* a_env, const char* a_curDir, STARTUPINFOA* a_startInfo, PROCESS_INFORMATION* a_procInfo) noexcept
+	auto CreateProcessA(
+		const char* a_name,
+		char* a_cmd,
+		SECURITY_ATTRIBUTES* a_procAttr,
+		SECURITY_ATTRIBUTES* a_threadAttr,
+		bool a_inheritHandles,
+		std::uint32_t a_flags,
+		void* a_env,
+		const char* a_curDir,
+		STARTUPINFOA* a_startInfo,
+		PROCESS_INFORMATION* a_procInfo) noexcept -> bool
 	{
-		return ::W32_IMPL_CreateProcessA(a_name, a_cmd, a_procAttr, a_threadAttr, a_inheritHandles, a_flags, a_env, a_curDir, a_startInfo, a_procInfo) != 0;
+		return ::W32_IMPL_CreateProcessA(
+				   a_name,
+				   a_cmd,
+				   a_procAttr,
+				   a_threadAttr,
+				   static_cast<BOOL>(a_inheritHandles),
+				   a_flags,
+				   a_env,
+				   a_curDir,
+				   a_startInfo,
+				   a_procInfo) == REX::W32::TRUE;
 	}
 
-	bool CreateProcessW(const wchar_t* a_name, wchar_t* a_cmd, SECURITY_ATTRIBUTES* a_procAttr, SECURITY_ATTRIBUTES* a_threadAttr, bool a_inheritHandles, std::uint32_t a_flags, void* a_env, const wchar_t* a_curDir, STARTUPINFOW* a_startInfo, PROCESS_INFORMATION* a_procInfo) noexcept
+	auto CreateProcessW(
+		const wchar_t* a_name,
+		wchar_t* a_cmd,
+		SECURITY_ATTRIBUTES* a_procAttr,
+		SECURITY_ATTRIBUTES* a_threadAttr,
+		bool a_inheritHandles,
+		std::uint32_t a_flags,
+		void* a_env,
+		const wchar_t* a_curDir,
+		STARTUPINFOW* a_startInfo,
+		PROCESS_INFORMATION* a_procInfo) noexcept -> bool
 	{
-		return ::W32_IMPL_CreateProcessW(a_name, a_cmd, a_procAttr, a_threadAttr, a_inheritHandles, a_flags, a_env, a_curDir, a_startInfo, a_procInfo) != 0;
+		return ::W32_IMPL_CreateProcessW(
+				   a_name,
+				   a_cmd,
+				   a_procAttr,
+				   a_threadAttr,
+				   static_cast<BOOL>(a_inheritHandles),
+				   a_flags,
+				   a_env,
+				   a_curDir,
+				   a_startInfo,
+				   a_procInfo) == REX::W32::TRUE;
 	}
 
-	HANDLE CreateRemoteThread(HANDLE a_process, SECURITY_ATTRIBUTES* a_threadAttr, std::size_t a_stackSize, THREAD_START_ROUTINE* a_startAddr, void* a_param, std::uint32_t a_flags, std::uint32_t* a_threadID)
+	auto CreateRemoteThread(
+		HANDLE a_process,
+		SECURITY_ATTRIBUTES* a_threadAttr,
+		std::size_t a_stackSize,
+		THREAD_START_ROUTINE* a_startAddr,
+		void* a_param,
+		std::uint32_t a_flags,
+		std::uint32_t* a_threadID) -> HANDLE
 	{
-		return ::W32_IMPL_CreateRemoteThread(a_process, a_threadAttr, a_stackSize, a_startAddr, a_param, a_flags, a_threadID);
+		return ::W32_IMPL_CreateRemoteThread(
+			a_process,
+			a_threadAttr,
+			a_stackSize,
+			a_startAddr,
+			a_param,
+			a_flags,
+			a_threadID);
 	}
 
-	HANDLE CreateSemaphoreA(SECURITY_ATTRIBUTES* a_semaphoreAttr, std::int32_t a_initCount, std::int32_t a_maxCount, const char* a_name) noexcept
+	auto CreateSemaphoreA(
+		SECURITY_ATTRIBUTES* a_semaphoreAttr,
+		std::int32_t a_initCount,
+		std::int32_t a_maxCount,
+		const char* a_name) noexcept -> HANDLE
 	{
 		return ::W32_IMPL_CreateSemaphoreA(a_semaphoreAttr, a_initCount, a_maxCount, a_name);
 	}
 
-	HANDLE CreateThread(SECURITY_ATTRIBUTES* a_threadAttr, std::size_t a_stackSize, THREAD_START_ROUTINE* a_startAddr, void* a_param, std::uint32_t a_flags, std::uint32_t* a_threadID)
+	auto CreateThread(
+		SECURITY_ATTRIBUTES* a_threadAttr,
+		std::size_t a_stackSize,
+		THREAD_START_ROUTINE* a_startAddr,
+		void* a_param,
+		std::uint32_t a_flags,
+		std::uint32_t* a_threadID) -> HANDLE
 	{
 		return ::W32_IMPL_CreateThread(a_threadAttr, a_stackSize, a_startAddr, a_param, a_flags, a_threadID);
 	}
@@ -462,147 +1752,178 @@ namespace REX::W32
 		std::unreachable();
 	}
 
-	std::uint32_t ExpandEnvironmentStringsA(const char* a_src, char* a_dst, std::uint32_t a_dstLen) noexcept
+	auto ExpandEnvironmentStringsA(const char* a_source, char* a_target, std::uint32_t a_targetLength) noexcept
+		-> std::uint32_t
 	{
-		return ::W32_IMPL_ExpandEnvironmentStringsA(a_src, a_dst, a_dstLen);
+		return ::W32_IMPL_ExpandEnvironmentStringsA(a_source, a_target, a_targetLength);
 	}
 
-	std::uint32_t ExpandEnvironmentStringsW(const wchar_t* a_src, wchar_t* a_dst, std::uint32_t a_dstLen) noexcept
+	auto ExpandEnvironmentStringsW(const wchar_t* a_source, wchar_t* a_target, std::uint32_t a_targetLength) noexcept
+		-> std::uint32_t
 	{
-		return ::W32_IMPL_ExpandEnvironmentStringsW(a_src, a_dst, a_dstLen);
+		return ::W32_IMPL_ExpandEnvironmentStringsW(a_source, a_target, a_targetLength);
 	}
 
-	bool FindClose(HANDLE a_file) noexcept
+	auto FindClose(HANDLE a_file) noexcept -> bool
 	{
-		return ::W32_IMPL_FindClose(a_file) != 0;
+		return ::W32_IMPL_FindClose(a_file) == REX::W32::TRUE;
 	}
 
-	HANDLE FindFirstFileA(const char* a_name, WIN32_FIND_DATAA* a_data) noexcept
+	auto FindFirstFileA(const char* a_name, WIN32_FIND_DATAA* a_data) noexcept -> HANDLE
 	{
 		return ::W32_IMPL_FindFirstFileA(a_name, a_data);
 	}
 
-	HANDLE FindFirstFileW(const wchar_t* a_name, WIN32_FIND_DATAW* a_data) noexcept
+	auto FindFirstFileW(const wchar_t* a_name, WIN32_FIND_DATAW* a_data) noexcept -> HANDLE
 	{
 		return ::W32_IMPL_FindFirstFileW(a_name, a_data);
 	}
 
-	bool FindNextFileA(HANDLE a_file, WIN32_FIND_DATAA* a_data) noexcept
+	auto FindNextFileA(HANDLE a_file, WIN32_FIND_DATAA* a_data) noexcept -> bool
 	{
-		return ::W32_IMPL_FindNextFileA(a_file, a_data) != 0;
+		return ::W32_IMPL_FindNextFileA(a_file, a_data) == REX::W32::TRUE;
 	}
 
-	bool FindNextFileW(HANDLE a_file, WIN32_FIND_DATAW* a_data) noexcept
+	auto FindNextFileW(HANDLE a_file, WIN32_FIND_DATAW* a_data) noexcept -> bool
 	{
-		return ::W32_IMPL_FindNextFileW(a_file, a_data) != 0;
+		return ::W32_IMPL_FindNextFileW(a_file, a_data) == REX::W32::TRUE;
 	}
 
-	bool FlushInstructionCache(HANDLE a_process, const void* a_baseAddr, std::size_t a_size) noexcept
+	auto FlushInstructionCache(HANDLE a_process, const void* a_baseAddr, std::size_t a_size) noexcept -> bool
 	{
-		return ::W32_IMPL_FlushInstructionCache(a_process, a_baseAddr, a_size) != 0;
+		return ::W32_IMPL_FlushInstructionCache(a_process, a_baseAddr, a_size) == REX::W32::TRUE;
 	}
 
-	bool FreeLibrary(HMODULE a_module) noexcept
+	auto FreeLibrary(HMODULE a_module) noexcept -> bool
 	{
-		return ::W32_IMPL_FreeLibrary(a_module) != 0;
+		return ::W32_IMPL_FreeLibrary(a_module) == REX::W32::TRUE;
 	}
 
-	bool GetComputerNameA(char* a_buffer, std::uint32_t* a_size) noexcept
+	auto GetComputerNameA(char* a_buffer, std::uint32_t* a_size) noexcept -> bool
 	{
-		return ::W32_IMPL_GetComputerNameA(a_buffer, a_size) != 0;
+		return ::W32_IMPL_GetComputerNameA(a_buffer, a_size) == REX::W32::TRUE;
 	}
 
-	bool GetComputerNameW(wchar_t* a_buffer, std::uint32_t* a_size) noexcept
+	auto GetComputerNameW(wchar_t* a_buffer, std::uint32_t* a_size) noexcept -> bool
 	{
-		return ::W32_IMPL_GetComputerNameW(a_buffer, a_size) != 0;
+		return ::W32_IMPL_GetComputerNameW(a_buffer, a_size) == REX::W32::TRUE;
 	}
 
-	std::uint32_t GetCurrentDirectoryA(std::uint32_t a_size, char* a_buffer) noexcept
+	auto GetCurrentDirectoryA(std::uint32_t a_size, char* a_buffer) noexcept -> std::uint32_t
 	{
 		return ::W32_IMPL_GetCurrentDirectoryA(a_size, a_buffer);
 	}
 
-	std::uint32_t GetCurrentDirectoryW(std::uint32_t a_size, wchar_t* a_buffer) noexcept
+	auto GetCurrentDirectoryW(std::uint32_t a_size, wchar_t* a_buffer) noexcept -> std::uint32_t
 	{
 		return ::W32_IMPL_GetCurrentDirectoryW(a_size, a_buffer);
 	}
 
-	HMODULE GetCurrentModule() noexcept
+	auto GetCurrentModule() noexcept -> HMODULE
 	{
-		return reinterpret_cast<HMODULE>(std::addressof(__ImageBase));
+		return std::bit_cast<HMODULE>(std::addressof(__ImageBase));
 	}
 
-	HANDLE GetCurrentProcess() noexcept
+	auto GetCurrentProcess() noexcept -> HANDLE
 	{
 		return ::W32_IMPL_GetCurrentProcess();
 	}
 
-	THREAD_ID GetCurrentThreadId() noexcept
+	auto GetCurrentThreadId() noexcept -> THREAD_ID
 	{
 		return ::W32_IMPL_GetCurrentThreadId();
 	}
 
-	std::uint32_t GetEnvironmentVariableA(const char* a_name, char* a_buffer, std::uint32_t a_bufLen) noexcept
+	auto GetEnvironmentVariableA(const char* a_name, char* a_buffer, std::uint32_t a_bufferLength) noexcept
+		-> std::uint32_t
 	{
-		return ::W32_IMPL_GetEnvironmentVariableA(a_name, a_buffer, a_bufLen);
+		return ::W32_IMPL_GetEnvironmentVariableA(a_name, a_buffer, a_bufferLength);
 	}
 
-	std::uint32_t GetEnvironmentVariableW(const wchar_t* a_name, wchar_t* a_buffer, std::uint32_t a_bufLen) noexcept
+	auto GetEnvironmentVariableW(const wchar_t* a_name, wchar_t* a_buffer, std::uint32_t a_bufferLength) noexcept
+		-> std::uint32_t
 	{
-		return ::W32_IMPL_GetEnvironmentVariableW(a_name, a_buffer, a_bufLen);
+		return ::W32_IMPL_GetEnvironmentVariableW(a_name, a_buffer, a_bufferLength);
 	}
 
-	bool GetFileSizeEx(HANDLE a_file, std::int64_t* a_fileSize) noexcept
+	auto GetFileSize(HANDLE a_file, std::uint32_t* a_fileSizeHigh) noexcept -> std::uint32_t
 	{
-		return ::W32_IMPL_GetFileSizeEx(a_file, a_fileSize) != 0;
+		return ::W32_IMPL_GetFileSize(a_file, a_fileSizeHigh);
 	}
 
-	ERROR_CODE GetLastError() noexcept
+	auto GetFileSizeEx(HANDLE a_file, std::int64_t* a_fileSize) noexcept -> bool
+	{
+		return ::W32_IMPL_GetFileSizeEx(a_file, a_fileSize) == REX::W32::TRUE;
+	}
+
+	auto GetLastError() noexcept -> ERROR_CODE
 	{
 		return ::W32_IMPL_GetLastError();
 	}
 
-	std::uint32_t GetModuleFileNameA(HMODULE a_module, char* a_name, std::uint32_t a_nameLen) noexcept
+	auto GetModuleFileNameA(HMODULE a_module, char* a_name, std::uint32_t a_nameLength) noexcept -> std::uint32_t
 	{
-		return ::W32_IMPL_GetModuleFileNameA(a_module, a_name, a_nameLen);
+		return ::W32_IMPL_GetModuleFileNameA(a_module, a_name, a_nameLength);
 	}
 
-	std::uint32_t GetModuleFileNameW(HMODULE a_module, wchar_t* a_name, std::uint32_t a_nameLen) noexcept
+	auto GetModuleFileNameW(HMODULE a_module, wchar_t* a_name, std::uint32_t a_nameLength) noexcept -> std::uint32_t
 	{
-		return ::W32_IMPL_GetModuleFileNameW(a_module, a_name, a_nameLen);
+		return ::W32_IMPL_GetModuleFileNameW(a_module, a_name, a_nameLength);
 	}
 
-	HMODULE GetModuleHandleA(const char* a_name) noexcept
+	auto GetModuleHandleA(const char* a_name) noexcept -> HMODULE
 	{
 		return ::W32_IMPL_GetModuleHandleA(a_name);
 	}
 
-	HMODULE GetModuleHandleW(const wchar_t* a_name) noexcept
+	auto GetModuleHandleW(const wchar_t* a_name) noexcept -> HMODULE
 	{
 		return ::W32_IMPL_GetModuleHandleW(a_name);
 	}
 
-	std::uint32_t GetPrivateProfileIntA(const char* a_app, const char* a_key, std::int32_t a_default, const char* a_name) noexcept
+	auto GetParentModule() noexcept -> HMODULE
+	{
+		return GetModuleHandleA(nullptr);
+	}
+
+	auto GetPrivateProfileIntA(const char* a_app, const char* a_key, std::int32_t a_default, const char* a_name)
+		noexcept -> std::uint32_t
 	{
 		return ::W32_IMPL_GetPrivateProfileIntA(a_app, a_key, a_default, a_name);
 	}
 
-	std::uint32_t GetPrivateProfileIntW(const wchar_t* a_app, const wchar_t* a_key, std::int32_t a_default, const wchar_t* a_name) noexcept
+	auto GetPrivateProfileIntW(
+		const wchar_t* a_app,
+		const wchar_t* a_key,
+		std::int32_t a_default,
+		const wchar_t* a_name) noexcept -> std::uint32_t
 	{
 		return ::W32_IMPL_GetPrivateProfileIntW(a_app, a_key, a_default, a_name);
 	}
 
-	std::uint32_t GetPrivateProfileStringA(const char* a_app, const char* a_key, const char* a_default, char* a_buffer, std::uint32_t a_bufLen, const char* a_name) noexcept
+	auto GetPrivateProfileStringA(
+		const char* a_app,
+		const char* a_key,
+		const char* a_default,
+		char* a_buffer,
+		std::uint32_t a_bufferLength,
+		const char* a_name) noexcept -> std::uint32_t
 	{
-		return ::W32_IMPL_GetPrivateProfileStringA(a_app, a_key, a_default, a_buffer, a_bufLen, a_name);
+		return ::W32_IMPL_GetPrivateProfileStringA(a_app, a_key, a_default, a_buffer, a_bufferLength, a_name);
 	}
 
-	std::uint32_t GetPrivateProfileStringW(const wchar_t* a_app, const wchar_t* a_key, const wchar_t* a_default, wchar_t* a_buffer, std::uint32_t a_bufLen, const wchar_t* a_name) noexcept
+	auto GetPrivateProfileStringW(
+		const wchar_t* a_app,
+		const wchar_t* a_key,
+		const wchar_t* a_default,
+		wchar_t* a_buffer,
+		std::uint32_t a_bufferLength,
+		const wchar_t* a_name) noexcept -> std::uint32_t
 	{
-		return ::W32_IMPL_GetPrivateProfileStringW(a_app, a_key, a_default, a_buffer, a_bufLen, a_name);
+		return ::W32_IMPL_GetPrivateProfileStringW(a_app, a_key, a_default, a_buffer, a_bufferLength, a_name);
 	}
 
-	void* GetProcAddress(HMODULE a_module, const char* a_name) noexcept
+	auto GetProcAddress(HMODULE a_module, const char* a_name) noexcept -> void*
 	{
 		return ::W32_IMPL_GetProcAddress(a_module, a_name);
 	}
@@ -612,18 +1933,33 @@ namespace REX::W32
 		::W32_IMPL_GetSystemInfo(a_info);
 	}
 
-	bool IMAGE_SNAP_BY_ORDINAL64(std::uint64_t a_ordinal) noexcept
+	auto GetUserNameA(char* a_buffer, std::uint32_t* a_size) noexcept -> bool
+	{
+		return ::W32_IMPL_GetUserNameA(a_buffer, a_size) == REX::W32::TRUE;
+	}
+
+	auto GetUserNameW(wchar_t* a_buffer, std::uint32_t* a_size) noexcept -> bool
+	{
+		return ::W32_IMPL_GetUserNameW(a_buffer, a_size) == REX::W32::TRUE;
+	}
+
+	auto GetVersion() noexcept -> std::uint32_t
+	{
+		return ::W32_IMPL_GetVersion();
+	}
+
+	auto IMAGE_SNAP_BY_ORDINAL64(std::uint64_t a_ordinal) noexcept -> bool
 	{
 		return (a_ordinal & IMAGE_ORDINAL_FLAG64) != 0;
 	}
 
-	IMAGE_SECTION_HEADER* IMAGE_FIRST_SECTION(const IMAGE_NT_HEADERS64* a_header) noexcept
+	auto IMAGE_FIRST_SECTION(const IMAGE_NT_HEADERS64* a_header) noexcept -> IMAGE_SECTION_HEADER*
 	{
-		constexpr auto OPT = offsetof(IMAGE_NT_HEADERS64, optionalHeader);
+		constexpr auto HEADER_OFFSET = offsetof(IMAGE_NT_HEADERS64, optionalHeader);
 
-		const auto optSize = a_header->fileHeader.optionalHeaderSize;
-		const auto section = std::bit_cast<std::uintptr_t>(a_header) + OPT + optSize;
-		return std::bit_cast<IMAGE_SECTION_HEADER*>(section);
+		const auto headerSize = a_header->fileHeader.optionalHeaderSize;
+		const auto headerSection = std::bit_cast<std::uintptr_t>(a_header) + HEADER_OFFSET + headerSize;
+		return std::bit_cast<IMAGE_SECTION_HEADER*>(headerSection);
 	}
 
 	void InitializeCriticalSection(CRITICAL_SECTION* a_criticalSection) noexcept
@@ -631,9 +1967,10 @@ namespace REX::W32
 		::W32_IMPL_InitializeCriticalSection(a_criticalSection);
 	}
 
-	bool InitializeCriticalSectionAndSpinCount(CRITICAL_SECTION* a_criticalSection, std::uint32_t a_spinCount) noexcept
+	auto InitializeCriticalSectionAndSpinCount(CRITICAL_SECTION* a_criticalSection, std::uint32_t a_spinCount) noexcept
+		-> bool
 	{
-		return ::W32_IMPL_InitializeCriticalSectionAndSpinCount(a_criticalSection, a_spinCount) != 0;
+		return ::W32_IMPL_InitializeCriticalSectionAndSpinCount(a_criticalSection, a_spinCount) == REX::W32::TRUE;
 	}
 
 	void InitializeSRWLock(SRWLOCK* a_lock) noexcept
@@ -643,176 +1980,201 @@ namespace REX::W32
 
 	// NOLINTBEGIN(google-runtime-int)
 
-	std::int32_t InterlockedAnd(volatile std::int32_t* a_target, std::int32_t a_value) noexcept
+	auto InterlockedAnd(volatile std::int32_t* a_target, std::int32_t a_value) noexcept -> std::int32_t
 	{
-		return ::_InterlockedAnd(reinterpret_cast<volatile long*>(a_target), a_value);
+		return ::_InterlockedAnd(REX::CheckedReinterpretCast<volatile long*>(a_target), a_value);
 	}
 
-	std::int8_t InterlockedAnd8(volatile std::int8_t* a_target, std::int8_t a_value) noexcept
+	auto InterlockedAnd8(volatile std::int8_t* a_target, std::int8_t a_value) noexcept -> std::int8_t
 	{
-		return ::_InterlockedAnd8(reinterpret_cast<volatile char*>(a_target), a_value);
+		return ::_InterlockedAnd8(REX::CheckedReinterpretCast<volatile char*>(a_target), a_value);
 	}
 
-	std::int16_t InterlockedAnd16(volatile std::int16_t* a_target, std::int16_t a_value) noexcept
+	auto InterlockedAnd16(volatile std::int16_t* a_target, std::int16_t a_value) noexcept -> std::int16_t
 	{
 		return ::_InterlockedAnd16(a_target, a_value);
 	}
 
-	std::int64_t InterlockedAnd64(volatile std::int64_t* a_target, std::int64_t a_value) noexcept
+	auto InterlockedAnd64(volatile std::int64_t* a_target, std::int64_t a_value) noexcept -> std::int64_t
 	{
 		return ::_InterlockedAnd64(a_target, a_value);
 	}
 
-	std::int32_t InterlockedDecrement(volatile std::int32_t* a_target) noexcept
+	auto InterlockedDecrement(volatile std::int32_t* a_target) noexcept -> std::int32_t
 	{
-		return ::_InterlockedDecrement(reinterpret_cast<volatile long*>(a_target));
+		return ::_InterlockedDecrement(REX::CheckedReinterpretCast<volatile long*>(a_target));
 	}
 
-	std::int16_t InterlockedDecrement16(volatile std::int16_t* a_target) noexcept
+	auto InterlockedDecrement16(volatile std::int16_t* a_target) noexcept -> std::int16_t
 	{
 		return ::_InterlockedDecrement16(a_target);
 	}
 
-	std::int64_t InterlockedDecrement64(volatile std::int64_t* a_target) noexcept
+	auto InterlockedDecrement64(volatile std::int64_t* a_target) noexcept -> std::int64_t
 	{
 		return ::_InterlockedDecrement64(a_target);
 	}
 
-	std::int32_t InterlockedCompareExchange(volatile std::int32_t* a_target, std::int32_t a_value, std::int32_t a_compare) noexcept
+	auto InterlockedCompareExchange(volatile std::int32_t* a_target, std::int32_t a_value, std::int32_t a_compare)
+		noexcept -> std::int32_t
 	{
-		return ::_InterlockedCompareExchange(reinterpret_cast<volatile long*>(a_target), a_value, a_compare);
+		return ::_InterlockedCompareExchange(REX::CheckedReinterpretCast<volatile long*>(a_target), a_value, a_compare);
 	}
 
-	std::int8_t InterlockedCompareExchange8(volatile std::int8_t* a_target, std::int8_t a_value, std::int8_t a_compare) noexcept
+	auto InterlockedCompareExchange8(volatile std::int8_t* a_target, std::int8_t a_value, std::int8_t a_compare)
+		noexcept -> std::int8_t
 	{
-		return ::_InterlockedCompareExchange8(reinterpret_cast<volatile char*>(a_target), a_value, a_compare);
+		return ::_InterlockedCompareExchange8(
+			REX::CheckedReinterpretCast<volatile char*>(a_target),
+			a_value,
+			a_compare);
 	}
 
-	std::int16_t InterlockedCompareExchange16(volatile std::int16_t* a_target, std::int16_t a_value, std::int16_t a_compare) noexcept
+	auto InterlockedCompareExchange16(volatile std::int16_t* a_target, std::int16_t a_value, std::int16_t a_compare)
+		noexcept -> std::int16_t
 	{
 		return ::_InterlockedCompareExchange16(a_target, a_value, a_compare);
 	}
 
-	std::int64_t InterlockedCompareExchange64(volatile std::int64_t* a_target, std::int64_t a_value, std::int64_t a_compare) noexcept
+	auto InterlockedCompareExchange64(volatile std::int64_t* a_target, std::int64_t a_value, std::int64_t a_compare)
+		noexcept -> std::int64_t
 	{
 		return ::_InterlockedCompareExchange64(a_target, a_value, a_compare);
 	}
 
-	void* InterlockedCompareExchangePointer(void* volatile* a_target, void* a_value, void* a_compare) noexcept
+	auto InterlockedCompareExchangePointer(void* volatile* a_target, void* a_value, void* a_compare) noexcept -> void*
 	{
 		return ::_InterlockedCompareExchangePointer(a_target, a_value, a_compare);
 	}
 
-	std::int32_t InterlockedExchange(volatile std::int32_t* a_target, std::int32_t a_value) noexcept
+	auto InterlockedExchange(volatile std::int32_t* a_target, std::int32_t a_value) noexcept -> std::int32_t
 	{
-		return ::_InterlockedExchange(reinterpret_cast<volatile long*>(a_target), a_value);
+		return ::_InterlockedExchange(REX::CheckedReinterpretCast<volatile long*>(a_target), a_value);
 	}
 
-	std::int8_t InterlockedExchange8(volatile std::int8_t* a_target, std::int8_t a_value) noexcept
+	auto InterlockedExchange8(volatile std::int8_t* a_target, std::int8_t a_value) noexcept -> std::int8_t
 	{
-		return ::_InterlockedExchange8(reinterpret_cast<volatile char*>(a_target), a_value);
+		return ::_InterlockedExchange8(REX::CheckedReinterpretCast<volatile char*>(a_target), a_value);
 	}
 
-	std::int16_t InterlockedExchange16(volatile std::int16_t* a_target, std::int16_t a_value) noexcept
+	auto InterlockedExchange16(volatile std::int16_t* a_target, std::int16_t a_value) noexcept -> std::int16_t
 	{
 		return ::_InterlockedExchange16(a_target, a_value);
 	}
 
-	std::int64_t InterlockedExchange64(volatile std::int64_t* a_target, std::int64_t a_value) noexcept
+	auto InterlockedExchange64(volatile std::int64_t* a_target, std::int64_t a_value) noexcept -> std::int64_t
 	{
 		return ::_InterlockedExchange64(a_target, a_value);
 	}
 
-	std::int32_t InterlockedExchangeAdd(volatile std::int32_t* a_target, std::int32_t a_value) noexcept
+	auto InterlockedExchangeAdd(volatile std::int32_t* a_target, std::int32_t a_value) noexcept -> std::int32_t
 	{
-		return ::_InterlockedExchangeAdd(reinterpret_cast<volatile long*>(a_target), a_value);
+		return ::_InterlockedExchangeAdd(REX::CheckedReinterpretCast<volatile long*>(a_target), a_value);
 	}
 
-	std::int8_t InterlockedExchangeAdd8(volatile std::int8_t* a_target, std::int8_t a_value) noexcept
+	auto InterlockedExchangeAdd8(volatile std::int8_t* a_target, std::int8_t a_value) noexcept -> std::int8_t
 	{
-		return ::_InterlockedExchangeAdd8(reinterpret_cast<volatile char*>(a_target), a_value);
+		return ::_InterlockedExchangeAdd8(REX::CheckedReinterpretCast<volatile char*>(a_target), a_value);
 	}
 
-	std::int16_t InterlockedExchangeAdd16(volatile std::int16_t* a_target, std::int16_t a_value) noexcept
+	auto InterlockedExchangeAdd16(volatile std::int16_t* a_target, std::int16_t a_value) noexcept -> std::int16_t
 	{
 		return ::_InterlockedExchangeAdd16(a_target, a_value);
 	}
 
-	std::int64_t InterlockedExchangeAdd64(volatile std::int64_t* a_target, std::int64_t a_value) noexcept
+	auto InterlockedExchangeAdd64(volatile std::int64_t* a_target, std::int64_t a_value) noexcept -> std::int64_t
 	{
 		return ::_InterlockedExchangeAdd64(a_target, a_value);
 	}
 
-	void* InterlockedExchangePointer(void* volatile* a_target, void* a_value) noexcept
+	auto InterlockedExchangePointer(void* volatile* a_target, void* a_value) noexcept -> void*
 	{
 		return ::_InterlockedExchangePointer(a_target, a_value);
 	}
 
-	std::int32_t InterlockedIncrement(volatile std::int32_t* a_target) noexcept
+	auto InterlockedIncrement(volatile std::int32_t* a_target) noexcept -> std::int32_t
 	{
-		return ::_InterlockedIncrement(reinterpret_cast<volatile long*>(a_target));
+		return ::_InterlockedIncrement(REX::CheckedReinterpretCast<volatile long*>(a_target));
 	}
 
-	std::int16_t InterlockedIncrement16(volatile std::int16_t* a_target) noexcept
+	auto InterlockedIncrement16(volatile std::int16_t* a_target) noexcept -> std::int16_t
 	{
 		return ::_InterlockedIncrement16(a_target);
 	}
 
-	std::int64_t InterlockedIncrement64(volatile std::int64_t* a_target) noexcept
+	auto InterlockedIncrement64(volatile std::int64_t* a_target) noexcept -> std::int64_t
 	{
 		return ::_InterlockedIncrement64(a_target);
 	}
 
-	std::int32_t InterlockedOr(volatile std::int32_t* a_target, std::int32_t a_value) noexcept
+	auto InterlockedOr(volatile std::int32_t* a_target, std::int32_t a_value) noexcept -> std::int32_t
 	{
-		return ::_InterlockedOr(reinterpret_cast<volatile long*>(a_target), a_value);
+		return ::_InterlockedOr(REX::CheckedReinterpretCast<volatile long*>(a_target), a_value);
 	}
 
-	std::int8_t InterlockedOr8(volatile std::int8_t* a_target, std::int8_t a_value) noexcept
+	auto InterlockedOr8(volatile std::int8_t* a_target, std::int8_t a_value) noexcept -> std::int8_t
 	{
-		return ::_InterlockedOr8(reinterpret_cast<volatile char*>(a_target), a_value);
+		return ::_InterlockedOr8(REX::CheckedReinterpretCast<volatile char*>(a_target), a_value);
 	}
 
-	std::int16_t InterlockedOr16(volatile std::int16_t* a_target, std::int16_t a_value) noexcept
+	auto InterlockedOr16(volatile std::int16_t* a_target, std::int16_t a_value) noexcept -> std::int16_t
 	{
 		return ::_InterlockedOr16(a_target, a_value);
 	}
 
-	std::int64_t InterlockedOr64(volatile std::int64_t* a_target, std::int64_t a_value) noexcept
+	auto InterlockedOr64(volatile std::int64_t* a_target, std::int64_t a_value) noexcept -> std::int64_t
 	{
 		return ::_InterlockedOr64(a_target, a_value);
 	}
 
-	std::int32_t InterlockedXor(volatile std::int32_t* a_target, std::int32_t a_value) noexcept
+	auto InterlockedXor(volatile std::int32_t* a_target, std::int32_t a_value) noexcept -> std::int32_t
 	{
-		return ::_InterlockedXor(reinterpret_cast<volatile long*>(a_target), a_value);
+		return ::_InterlockedXor(REX::CheckedReinterpretCast<volatile long*>(a_target), a_value);
 	}
 
-	std::int8_t InterlockedXor8(volatile std::int8_t* a_target, std::int8_t a_value) noexcept
+	auto InterlockedXor8(volatile std::int8_t* a_target, std::int8_t a_value) noexcept -> std::int8_t
 	{
-		return ::_InterlockedXor8(reinterpret_cast<volatile char*>(a_target), a_value);
+		return ::_InterlockedXor8(REX::CheckedReinterpretCast<volatile char*>(a_target), a_value);
 	}
 
-	std::int16_t InterlockedXor16(volatile std::int16_t* a_target, std::int16_t a_value) noexcept
+	auto InterlockedXor16(volatile std::int16_t* a_target, std::int16_t a_value) noexcept -> std::int16_t
 	{
 		return ::_InterlockedXor16(a_target, a_value);
 	}
 
-	std::int64_t InterlockedXor64(volatile std::int64_t* a_target, std::int64_t a_value) noexcept
+	auto InterlockedXor64(volatile std::int64_t* a_target, std::int64_t a_value) noexcept -> std::int64_t
 	{
 		return ::_InterlockedXor64(a_target, a_value);
 	}
 
 	// NOLINTEND(google-runtime-int)
 
-	bool IsDebuggerPresent() noexcept
+	auto IsDebuggerPresent() noexcept -> bool
 	{
-		return ::W32_IMPL_IsDebuggerPresent() != 0;
+		return ::W32_IMPL_IsDebuggerPresent() == REX::W32::TRUE;
 	}
 
-	std::int32_t LCMapStringEx(const wchar_t* a_locale, std::uint32_t a_flags, const wchar_t* a_src, std::int32_t a_srcLen, wchar_t* a_dst, std::int32_t a_dstLen, NLSVERSIONINFO* a_info, void* a_reserved, std::intptr_t a_sortHandle) noexcept
+	auto LCMapStringEx(
+		const wchar_t* a_locale,
+		std::uint32_t a_flags,
+		const wchar_t* a_source,
+		std::int32_t a_sourceLength,
+		wchar_t* a_target,
+		std::int32_t a_targetLength,
+		NLSVERSIONINFO* a_info,
+		void* a_reserved,
+		std::intptr_t a_sortHandle) noexcept -> std::int32_t
 	{
-		return ::W32_IMPL_LCMapStringEx(a_locale, a_flags, a_src, a_srcLen, a_dst, a_dstLen, a_info, a_reserved, a_sortHandle);
+		return ::W32_IMPL_LCMapStringEx(
+			a_locale,
+			a_flags,
+			a_source,
+			a_sourceLength,
+			a_target,
+			a_targetLength,
+			a_info,
+			a_reserved,
+			a_sortHandle);
 	}
 
 	void LeaveCriticalSection(CRITICAL_SECTION* a_criticalSection) noexcept
@@ -820,39 +2182,65 @@ namespace REX::W32
 		::W32_IMPL_LeaveCriticalSection(a_criticalSection);
 	}
 
-	HMODULE LoadLibraryA(const char* a_name) noexcept
+	auto LoadLibraryA(const char* a_name) noexcept -> HMODULE
 	{
 		return ::W32_IMPL_LoadLibraryA(a_name);
 	}
 
-	HMODULE LoadLibraryW(const wchar_t* a_name) noexcept
+	auto LoadLibraryW(const wchar_t* a_name) noexcept -> HMODULE
 	{
 		return ::W32_IMPL_LoadLibraryW(a_name);
 	}
 
-	void* MapViewOfFile(HANDLE a_object, std::uint32_t a_desiredAccess, std::uint32_t a_fileOffsetHigh, std::uint32_t a_fileOffsetLow, std::size_t a_numBytes) noexcept
+	auto MapViewOfFile(
+		HANDLE a_object,
+		std::uint32_t a_desiredAccess,
+		std::uint64_t a_fileOffset,
+		std::size_t a_numBytes) noexcept -> void*
 	{
-		return ::W32_IMPL_MapViewOfFile(a_object, a_desiredAccess, a_fileOffsetHigh, a_fileOffsetLow, a_numBytes);
+		return ::W32_IMPL_MapViewOfFile(
+			a_object,
+			a_desiredAccess,
+			REX::CheckedReinterpretCast<REX::W32::ULARGE_INTEGER&>(a_fileOffset).highPart,
+			REX::CheckedReinterpretCast<REX::W32::ULARGE_INTEGER&>(a_fileOffset).lowPart,
+			a_numBytes);
 	}
 
-	void* MapViewOfFileEx(HANDLE a_object, std::uint32_t a_desiredAccess, std::uint32_t a_fileOffsetHigh, std::uint32_t a_fileOffsetLow, std::size_t a_numBytes, void* a_baseAddr) noexcept
+	auto MapViewOfFileEx(
+		HANDLE a_object,
+		std::uint32_t a_desiredAccess,
+		std::uint64_t a_fileOffset,
+		std::size_t a_numBytes,
+		void* a_baseAddr) noexcept -> void*
 	{
-		return ::W32_IMPL_MapViewOfFileEx(a_object, a_desiredAccess, a_fileOffsetHigh, a_fileOffsetLow, a_numBytes, a_baseAddr);
+		return ::W32_IMPL_MapViewOfFileEx(
+			a_object,
+			a_desiredAccess,
+			REX::CheckedReinterpretCast<REX::W32::ULARGE_INTEGER&>(a_fileOffset).highPart,
+			REX::CheckedReinterpretCast<REX::W32::ULARGE_INTEGER&>(a_fileOffset).lowPart,
+			a_numBytes,
+			a_baseAddr);
 	}
 
-	std::int32_t MultiByteToWideChar(std::uint32_t a_codePage, std::uint32_t a_flags, const char* a_src, std::int32_t a_srcLen, wchar_t* a_dst, std::int32_t a_dstLen) noexcept
+	auto MultiByteToWideChar(
+		std::uint32_t a_codePage,
+		std::uint32_t a_flags,
+		const char* a_source,
+		std::int32_t a_sourceLength,
+		wchar_t* a_target,
+		std::int32_t a_targetLength) noexcept -> std::int32_t
 	{
-		return ::W32_IMPL_MultiByteToWideChar(a_codePage, a_flags, a_src, a_srcLen, a_dst, a_dstLen);
+		return ::W32_IMPL_MultiByteToWideChar(a_codePage, a_flags, a_source, a_sourceLength, a_target, a_targetLength);
 	}
 
-	HANDLE OpenFileMappingA(std::uint32_t a_desiredAccess, bool a_inheritHandle, const char* a_name) noexcept
+	auto OpenFileMappingA(std::uint32_t a_desiredAccess, bool a_inheritHandle, const char* a_name) noexcept -> HANDLE
 	{
-		return ::W32_IMPL_OpenFileMappingA(a_desiredAccess, a_inheritHandle, a_name);
+		return ::W32_IMPL_OpenFileMappingA(a_desiredAccess, static_cast<BOOL>(a_inheritHandle), a_name);
 	}
 
-	HANDLE OpenFileMappingW(std::uint32_t a_desiredAccess, bool a_inheritHandle, const wchar_t* a_name) noexcept
+	auto OpenFileMappingW(std::uint32_t a_desiredAccess, bool a_inheritHandle, const wchar_t* a_name) noexcept -> HANDLE
 	{
-		return ::W32_IMPL_OpenFileMappingW(a_desiredAccess, a_inheritHandle, a_name);
+		return ::W32_IMPL_OpenFileMappingW(a_desiredAccess, static_cast<BOOL>(a_inheritHandle), a_name);
 	}
 
 	void OutputDebugStringA(const char* a_str) noexcept
@@ -865,19 +2253,30 @@ namespace REX::W32
 		::W32_IMPL_OutputDebugStringW(a_str);
 	}
 
-	bool QueryPerformanceCounter(std::int64_t* a_counter) noexcept
+	auto QueryPerformanceCounter(std::int64_t* a_counter) noexcept -> bool
 	{
-		return ::W32_IMPL_QueryPerformanceCounter(a_counter) != 0;
+		return ::W32_IMPL_QueryPerformanceCounter(a_counter) == REX::W32::TRUE;
 	}
 
-	bool QueryPerformanceFrequency(std::int64_t* a_frequency) noexcept
+	auto QueryPerformanceFrequency(std::int64_t* a_frequency) noexcept -> bool
 	{
-		return ::W32_IMPL_QueryPerformanceFrequency(a_frequency) != 0;
+		return ::W32_IMPL_QueryPerformanceFrequency(a_frequency) == REX::W32::TRUE;
 	}
 
-	bool ReleaseSemaphore(HANDLE a_semaphore, std::int32_t a_releaseCount, std::int32_t* a_previousCount) noexcept
+	auto ReadFile(
+		HANDLE a_file,
+		void* a_buffer,
+		std::uint32_t a_bytesToRead,
+		std::uint32_t* a_bytesRead,
+		OVERLAPPED* a_overlapped) noexcept -> bool
 	{
-		return ::W32_IMPL_ReleaseSemaphore(a_semaphore, a_releaseCount, a_previousCount) != 0;
+		return ::W32_IMPL_ReadFile(a_file, a_buffer, a_bytesToRead, a_bytesRead, a_overlapped) == REX::W32::TRUE;
+	}
+
+	auto ReleaseSemaphore(HANDLE a_semaphore, std::int32_t a_releaseCount, std::int32_t* a_previousCount) noexcept
+		-> bool
+	{
+		return ::W32_IMPL_ReleaseSemaphore(a_semaphore, a_releaseCount, a_previousCount) == REX::W32::TRUE;
 	}
 
 	void ReleaseSRWLockShared(SRWLOCK* a_lock) noexcept
@@ -890,24 +2289,45 @@ namespace REX::W32
 		::W32_IMPL_ReleaseSRWLockExclusive(a_lock);
 	}
 
-	std::uint32_t ResumeThread(HANDLE a_handle) noexcept
+	auto ResumeThread(HANDLE a_handle) noexcept -> std::uint32_t
 	{
 		return ::W32_IMPL_ResumeThread(a_handle);
 	}
 
-	std::uint32_t SetCriticalSectionSpinCount(CRITICAL_SECTION* a_criticalSection, std::uint32_t a_spinCount) noexcept
+	auto SetCriticalSectionSpinCount(CRITICAL_SECTION* a_criticalSection, std::uint32_t a_spinCount) noexcept
+		-> std::uint32_t
 	{
 		return ::W32_IMPL_SetCriticalSectionSpinCount(a_criticalSection, a_spinCount);
 	}
 
-	bool SetEnvironmentVariableA(const char* a_name, const char* a_value) noexcept
+	auto SetEndOfFile(HANDLE a_file) noexcept -> bool
 	{
-		return ::W32_IMPL_SetEnvironmentVariableA(a_name, a_value) != 0;
+		return ::W32_IMPL_SetEndOfFile(a_file) == REX::W32::TRUE;
 	}
 
-	bool SetEnvironmentVariableW(const wchar_t* a_name, const wchar_t* a_value) noexcept
+	auto SetEnvironmentVariableA(const char* a_name, const char* a_value) noexcept -> bool
 	{
-		return ::W32_IMPL_SetEnvironmentVariableW(a_name, a_value) != 0;
+		return ::W32_IMPL_SetEnvironmentVariableA(a_name, a_value) == REX::W32::TRUE;
+	}
+
+	auto SetEnvironmentVariableW(const wchar_t* a_name, const wchar_t* a_value) noexcept -> bool
+	{
+		return ::W32_IMPL_SetEnvironmentVariableW(a_name, a_value) == REX::W32::TRUE;
+	}
+
+	auto SetFilePointer(HANDLE a_file, std::int32_t a_distance, std::int32_t* a_distanceHigh, std::uint32_t a_method)
+		noexcept -> std::uint32_t
+	{
+		return ::W32_IMPL_SetFilePointer(a_file, a_distance, a_distanceHigh, a_method);
+	}
+
+	auto SetFilePointerEx(
+		HANDLE a_file,
+		std::int64_t a_distance,
+		std::int64_t* a_newFilePointer,
+		std::uint32_t a_method) noexcept -> bool
+	{
+		return ::W32_IMPL_SetFilePointerEx(a_file, a_distance, a_newFilePointer, a_method) == REX::W32::TRUE;
 	}
 
 	void SetLastError(ERROR_CODE a_error) noexcept
@@ -922,106 +2342,156 @@ namespace REX::W32
 
 	void TerminateCurrentProcess(std::uint32_t a_exitCode) noexcept
 	{
-		if (!::W32_IMPL_TerminateProcess(GetCurrentProcess(), a_exitCode)) [[unlikely]] {
+		if (!TerminateProcess(GetCurrentProcess(), a_exitCode)) [[unlikely]] {
 			std::terminate();
 		}
 
 		std::unreachable();
 	}
 
-	bool TerminateProcess(HANDLE a_process, std::uint32_t a_exitCode) noexcept
+	auto TerminateProcess(HANDLE a_process, std::uint32_t a_exitCode) noexcept -> bool
 	{
-		return ::W32_IMPL_TerminateProcess(a_process, a_exitCode) != 0;
+		return ::W32_IMPL_TerminateProcess(a_process, a_exitCode) == REX::W32::TRUE;
 	}
 
-	void* TlsGetValue(std::uint32_t a_index) noexcept
+	auto TlsGetValue(std::uint32_t a_index) noexcept -> void*
 	{
 		return ::W32_IMPL_TlsGetValue(a_index);
 	}
 
-	bool TlsSetValue(std::uint32_t a_index, void* a_value) noexcept
+	auto TlsSetValue(std::uint32_t a_index, void* a_value) noexcept -> bool
 	{
-		return ::W32_IMPL_TlsSetValue(a_index, a_value) != 0;
+		return ::W32_IMPL_TlsSetValue(a_index, a_value) == REX::W32::TRUE;
 	}
 
-	bool TryAcquireSRWLockExclusive(SRWLOCK* a_lock) noexcept
+	auto TryAcquireSRWLockExclusive(SRWLOCK* a_lock) noexcept -> bool
 	{
-		return ::W32_IMPL_TryAcquireSRWLockExclusive(a_lock) != 0;
+		return ::W32_IMPL_TryAcquireSRWLockExclusive(a_lock) == REX::W32::TRUE;
 	}
 
-	bool TryAcquireSRWLockShared(SRWLOCK* a_lock) noexcept
+	auto TryAcquireSRWLockShared(SRWLOCK* a_lock) noexcept -> bool
 	{
-		return ::W32_IMPL_TryAcquireSRWLockShared(a_lock) != 0;
+		return ::W32_IMPL_TryAcquireSRWLockShared(a_lock) == REX::W32::TRUE;
 	}
 
-	bool TryEnterCriticalSection(CRITICAL_SECTION* a_criticalSection) noexcept
+	auto TryEnterCriticalSection(CRITICAL_SECTION* a_criticalSection) noexcept -> bool
 	{
-		return ::W32_IMPL_TryEnterCriticalSection(a_criticalSection) != 0;
+		return ::W32_IMPL_TryEnterCriticalSection(a_criticalSection) == REX::W32::TRUE;
 	}
 
-	bool UnmapViewOfFile(const void* a_baseAddress) noexcept
+	auto UnmapViewOfFile(const void* a_baseAddress) noexcept -> bool
 	{
-		return ::W32_IMPL_UnmapViewOfFile(a_baseAddress) != 0;
+		return ::W32_IMPL_UnmapViewOfFile(a_baseAddress) == REX::W32::TRUE;
 	}
 
-	void* VirtualAlloc(void* a_address, std::size_t a_size, std::uint32_t a_type, std::uint32_t a_protect) noexcept
+	auto VirtualAlloc(void* a_address, std::size_t a_size, std::uint32_t a_type, std::uint32_t a_protect) noexcept
+		-> void*
 	{
 		return ::W32_IMPL_VirtualAlloc(a_address, a_size, a_type, a_protect);
 	}
 
-	void* VirtualAllocEx(HANDLE a_process, void* a_address, std::size_t a_size, std::uint32_t a_type, std::uint32_t a_protect) noexcept
+	auto VirtualAllocEx(
+		HANDLE a_process,
+		void* a_address,
+		std::size_t a_size,
+		std::uint32_t a_type,
+		std::uint32_t a_protect) noexcept -> void*
 	{
 		return ::W32_IMPL_VirtualAllocEx(a_process, a_address, a_size, a_type, a_protect);
 	}
 
-	bool VirtualFree(void* a_address, std::size_t a_size, std::uint32_t a_type) noexcept
+	auto VirtualFree(void* a_address, std::size_t a_size, std::uint32_t a_type) noexcept -> bool
 	{
-		return ::W32_IMPL_VirtualFree(a_address, a_size, a_type) != 0;
+		return ::W32_IMPL_VirtualFree(a_address, a_size, a_type) == REX::W32::TRUE;
 	}
 
-	bool VirtualFreeEx(HANDLE a_process, void* a_address, std::size_t a_size, std::uint32_t a_type) noexcept
+	auto VirtualFreeEx(HANDLE a_process, void* a_address, std::size_t a_size, std::uint32_t a_type) noexcept -> bool
 	{
-		return ::W32_IMPL_VirtualFreeEx(a_process, a_address, a_size, a_type) != 0;
+		return ::W32_IMPL_VirtualFreeEx(a_process, a_address, a_size, a_type) == REX::W32::TRUE;
 	}
 
-	bool VirtualProtect(void* a_address, std::size_t a_size, std::uint32_t a_newProtect, std::uint32_t* a_oldProtect) noexcept
+	auto VirtualProtect(void* a_address, std::size_t a_size, std::uint32_t a_newProtect, std::uint32_t* a_oldProtect)
+		noexcept -> bool
 	{
-		return ::W32_IMPL_VirtualProtect(a_address, a_size, a_newProtect, a_oldProtect) != 0;
+		return ::W32_IMPL_VirtualProtect(a_address, a_size, a_newProtect, a_oldProtect) == REX::W32::TRUE;
 	}
 
-	bool VirtualProtectEx(HANDLE a_process, void* a_address, std::size_t a_size, std::uint32_t a_newProtect, std::uint32_t* a_oldProtect) noexcept
+	auto VirtualProtectEx(
+		HANDLE a_process,
+		void* a_address,
+		std::size_t a_size,
+		std::uint32_t a_newProtect,
+		std::uint32_t* a_oldProtect) noexcept -> bool
 	{
-		return ::W32_IMPL_VirtualProtectEx(a_process, a_address, a_size, a_newProtect, a_oldProtect) != 0;
+		return ::W32_IMPL_VirtualProtectEx(a_process, a_address, a_size, a_newProtect, a_oldProtect) == REX::W32::TRUE;
 	}
 
-	std::size_t VirtualQuery(const void* a_address, MEMORY_BASIC_INFORMATION* a_buffer, std::size_t a_bufLen) noexcept
+	auto VirtualQuery(const void* a_address, MEMORY_BASIC_INFORMATION* a_buffer, std::size_t a_bufferLength) noexcept
+		-> std::size_t
 	{
-		return ::W32_IMPL_VirtualQuery(a_address, a_buffer, a_bufLen);
+		return ::W32_IMPL_VirtualQuery(a_address, a_buffer, a_bufferLength);
 	}
 
-	std::size_t VirtualQueryEx(HANDLE a_process, const void* a_address, MEMORY_BASIC_INFORMATION* a_buffer, std::size_t a_bufLen) noexcept
+	auto VirtualQueryEx(
+		HANDLE a_process,
+		const void* a_address,
+		MEMORY_BASIC_INFORMATION* a_buffer,
+		std::size_t a_bufferLength) noexcept -> std::size_t
 	{
-		return ::W32_IMPL_VirtualQueryEx(a_process, a_address, a_buffer, a_bufLen);
+		return ::W32_IMPL_VirtualQueryEx(a_process, a_address, a_buffer, a_bufferLength);
 	}
 
-	std::uint32_t WaitForSingleObject(HANDLE a_handle, std::uint32_t a_milliseconds) noexcept
+	auto WaitForSingleObject(HANDLE a_handle, std::uint32_t a_milliseconds) noexcept -> std::uint32_t
 	{
 		return ::W32_IMPL_WaitForSingleObject(a_handle, a_milliseconds);
 	}
 
-	std::uint32_t WaitForSingleObjectEx(HANDLE a_handle, std::uint32_t a_milliseconds, bool a_alertable) noexcept
+	auto WaitForSingleObjectEx(HANDLE a_handle, std::uint32_t a_milliseconds, bool a_alertable) noexcept
+		-> std::uint32_t
 	{
-		return ::W32_IMPL_WaitForSingleObjectEx(a_handle, a_milliseconds, a_alertable);
+		return ::W32_IMPL_WaitForSingleObjectEx(a_handle, a_milliseconds, static_cast<BOOL>(a_alertable));
 	}
 
-	std::int32_t WideCharToMultiByte(std::uint32_t a_codePage, std::uint32_t a_flags, const wchar_t* a_src, std::int32_t a_srcLen, char* a_dst, std::int32_t a_dstLen, const char* a_default, std::int32_t* a_defaultLen) noexcept
+	auto WideCharToMultiByte(
+		std::uint32_t a_codePage,
+		std::uint32_t a_flags,
+		const wchar_t* a_source,
+		std::int32_t a_sourceLength,
+		char* a_target,
+		std::int32_t a_targetLength,
+		const char* a_default,
+		std::int32_t* a_defaultLength) noexcept -> std::int32_t
 	{
-		return ::W32_IMPL_WideCharToMultiByte(a_codePage, a_flags, a_src, a_srcLen, a_dst, a_dstLen, a_default, a_defaultLen);
+		return ::W32_IMPL_WideCharToMultiByte(
+			a_codePage,
+			a_flags,
+			a_source,
+			a_sourceLength,
+			a_target,
+			a_targetLength,
+			a_default,
+			a_defaultLength);
 	}
 
-	bool WriteProcessMemory(HANDLE a_process, void* a_address, const void* a_buffer, std::size_t a_bufLen, std::size_t* a_bufWritten) noexcept
+	auto WriteFile(
+		HANDLE a_file,
+		const void* a_buffer,
+		std::uint32_t a_bytesToWrite,
+		std::uint32_t* a_bytesWritten,
+		OVERLAPPED* a_overlapped) noexcept -> bool
 	{
-		return ::W32_IMPL_WriteProcessMemory(a_process, a_address, a_buffer, a_bufLen, a_bufWritten) != 0;
+		return ::W32_IMPL_WriteFile(a_file, a_buffer, a_bytesToWrite, a_bytesWritten, a_overlapped) == REX::W32::TRUE;
+	}
+
+	auto WriteProcessMemory(
+		HANDLE a_process,
+		void* a_address,
+		const void* a_buffer,
+		std::size_t a_bufferLength,
+		std::size_t* a_bufferWritten) noexcept -> bool
+	{
+		return ::W32_IMPL_WriteProcessMemory(a_process, a_address, a_buffer, a_bufferLength, a_bufferWritten) ==
+			   REX::W32::TRUE;
 	}
 }
 
@@ -1029,7 +2499,7 @@ namespace REX::W32
 
 namespace REX::W32
 {
-	TEB* NtCurrentTeb() noexcept
+	auto NtCurrentTeb() noexcept -> TEB*
 	{
 		return std::bit_cast<TEB*>(__readgsqword(offsetof(NT_TIB, self)));
 	}
@@ -1053,7 +2523,8 @@ REX_W32_IMPORT(std::int32_t, SHGetKnownFolderPath, const REX::W32::GUID&, std::u
 
 namespace REX::W32
 {
-	std::int32_t SHGetKnownFolderPath(const GUID& a_id, std::uint32_t a_flags, void* a_token, wchar_t** a_path) noexcept
+	auto SHGetKnownFolderPath(const GUID& a_id, std::uint32_t a_flags, void* a_token, wchar_t** a_path) noexcept
+		-> std::int32_t
 	{
 		return ::W32_IMPL_SHGetKnownFolderPath(a_id, a_flags, a_token, a_path);
 	}
@@ -1069,65 +2540,67 @@ REX_W32_IMPORT(std::int16_t, GetKeyState, std::int32_t);
 REX_W32_IMPORT(REX::W32::BOOL, GetWindowRect, REX::W32::HWND, REX::W32::RECT*);
 REX_W32_IMPORT(std::int32_t, MessageBoxA, REX::W32::HWND, const char*, const char*, std::uint32_t);
 REX_W32_IMPORT(std::int32_t, MessageBoxW, REX::W32::HWND, const wchar_t*, const wchar_t*, std::uint32_t);
-REX_W32_IMPORT(std::uint32_t, SendInput, std::uint32_t, INPUT*, std::int32_t);
+REX_W32_IMPORT(std::uint32_t, SendInput, std::uint32_t, REX::W32::INPUT*, std::int32_t);
 REX_W32_IMPORT(std::intptr_t, SetWindowLongPtrA, REX::W32::HWND, std::int32_t, std::intptr_t);
 REX_W32_IMPORT(std::int32_t, ShowCursor, REX::W32::BOOL);
 
 namespace REX::W32
 {
-	std::int16_t GetAsyncKeyState(std::int32_t a_key) noexcept
+	auto GetAsyncKeyState(std::int32_t a_key) noexcept -> std::int16_t
 	{
 		return ::W32_IMPL_GetAsyncKeyState(a_key);
 	}
 
-	bool GetClientRect(HWND a_wnd, RECT* a_rect) noexcept
+	auto GetClientRect(HWND a_wnd, RECT* a_rect) noexcept -> bool
 	{
-		return ::W32_IMPL_GetClientRect(a_wnd, a_rect) != 0;
+		return ::W32_IMPL_GetClientRect(a_wnd, a_rect) == REX::W32::TRUE;
 	}
 
-	std::int32_t GetKeyNameTextA(std::int32_t a_param, char* a_buffer, std::int32_t a_bufLen) noexcept
+	auto GetKeyNameTextA(std::int32_t a_param, char* a_buffer, std::int32_t a_bufferLength) noexcept -> std::int32_t
 	{
-		return ::W32_IMPL_GetKeyNameTextA(a_param, a_buffer, a_bufLen);
+		return ::W32_IMPL_GetKeyNameTextA(a_param, a_buffer, a_bufferLength);
 	}
 
-	std::int32_t GetKeyNameTextW(std::int32_t a_param, wchar_t* a_buffer, std::int32_t a_bufLen) noexcept
+	auto GetKeyNameTextW(std::int32_t a_param, wchar_t* a_buffer, std::int32_t a_bufferLength) noexcept -> std::int32_t
 	{
-		return ::W32_IMPL_GetKeyNameTextW(a_param, a_buffer, a_bufLen);
+		return ::W32_IMPL_GetKeyNameTextW(a_param, a_buffer, a_bufferLength);
 	}
 
-	std::int16_t GetKeyState(std::int32_t a_key) noexcept
+	auto GetKeyState(std::int32_t a_key) noexcept -> std::int16_t
 	{
 		return ::W32_IMPL_GetKeyState(a_key);
 	}
 
-	bool GetWindowRect(HWND a_wnd, RECT* a_rect) noexcept
+	auto GetWindowRect(HWND a_wnd, RECT* a_rect) noexcept -> bool
 	{
-		return ::W32_IMPL_GetWindowRect(a_wnd, a_rect) != 0;
+		return ::W32_IMPL_GetWindowRect(a_wnd, a_rect) == REX::W32::TRUE;
 	}
 
-	std::int32_t MessageBoxA(HWND a_wnd, const char* a_text, const char* a_caption, std::uint32_t a_type) noexcept
+	auto MessageBoxA(HWND a_wnd, const char* a_text, const char* a_caption, std::uint32_t a_type) noexcept
+		-> std::int32_t
 	{
 		return ::W32_IMPL_MessageBoxA(a_wnd, a_text, a_caption, a_type);
 	}
 
-	std::int32_t MessageBoxW(HWND a_wnd, const wchar_t* a_text, const wchar_t* a_caption, std::uint32_t a_type) noexcept
+	auto MessageBoxW(HWND a_wnd, const wchar_t* a_text, const wchar_t* a_caption, std::uint32_t a_type) noexcept
+		-> std::int32_t
 	{
 		return ::W32_IMPL_MessageBoxW(a_wnd, a_text, a_caption, a_type);
 	}
 
-	std::uint32_t SendInput(std::uint32_t a_inputCount, INPUT* a_inputs, std::int32_t a_inputSize) noexcept
+	auto SendInput(std::uint32_t a_inputCount, INPUT* a_inputs, std::int32_t a_inputSize) noexcept -> std::uint32_t
 	{
 		return ::W32_IMPL_SendInput(a_inputCount, a_inputs, a_inputSize);
 	}
 
-	std::intptr_t SetWindowLongPtrA(HWND a_wnd, std::int32_t a_index, std::intptr_t a_newPtr) noexcept
+	auto SetWindowLongPtrA(HWND a_wnd, std::int32_t a_index, std::intptr_t a_newPtr) noexcept -> std::intptr_t
 	{
 		return ::W32_IMPL_SetWindowLongPtrA(a_wnd, a_index, a_newPtr);
 	}
 
-	std::int32_t ShowCursor(bool a_show) noexcept
+	auto ShowCursor(bool a_show) noexcept -> std::int32_t
 	{
-		return ::W32_IMPL_ShowCursor(a_show);
+		return ::W32_IMPL_ShowCursor(static_cast<BOOL>(a_show));
 	}
 }
 
@@ -1144,12 +2617,13 @@ REX_W32_IMPORT(REX::W32::BOOL, VerQueryValueW, const void*, const wchar_t*, void
 
 namespace REX::W32
 {
-	bool GetFileVersionInfoA(const char* a_name, std::uint32_t a_handle, std::uint32_t a_dataLen, void* a_data) noexcept
+	auto GetFileVersionInfoA(const char* a_name, std::uint32_t a_handle, std::uint32_t a_dataLength, void* a_data)
+		noexcept -> bool
 	{
-		return ::W32_IMPL_GetFileVersionInfoA(a_name, a_handle, a_dataLen, a_data) != 0;
+		return ::W32_IMPL_GetFileVersionInfoA(a_name, a_handle, a_dataLength, a_data) == REX::W32::TRUE;
 	}
 
-	std::uint32_t GetFileVersionInfoSizeA(const char* a_name, std::uint32_t* a_handle) noexcept
+	auto GetFileVersionInfoSizeA(const char* a_name, std::uint32_t* a_handle) noexcept -> std::uint32_t
 	{
 		return ::W32_IMPL_GetFileVersionInfoSizeA(a_name, a_handle);
 	}
@@ -1161,29 +2635,33 @@ namespace REX::W32
 	}
 	*/
 
-	std::uint32_t GetFileVersionInfoSizeExW(std::uint32_t a_flags, const wchar_t* a_name, std::uint32_t* a_handle) noexcept
+	auto GetFileVersionInfoSizeExW(std::uint32_t a_flags, const wchar_t* a_name, std::uint32_t* a_handle) noexcept
+		-> std::uint32_t
 	{
 		return ::W32_IMPL_GetFileVersionInfoSizeExW(a_flags, a_name, a_handle);
 	}
 
-	std::uint32_t GetFileVersionInfoSizeW(const wchar_t* a_name, std::uint32_t* a_handle) noexcept
+	auto GetFileVersionInfoSizeW(const wchar_t* a_name, std::uint32_t* a_handle) noexcept -> std::uint32_t
 	{
 		return ::W32_IMPL_GetFileVersionInfoSizeW(a_name, a_handle);
 	}
 
-	bool GetFileVersionInfoW(const wchar_t* a_name, std::uint32_t a_handle, std::uint32_t a_dataLen, void* a_data) noexcept
+	auto GetFileVersionInfoW(const wchar_t* a_name, std::uint32_t a_handle, std::uint32_t a_dataLength, void* a_data)
+		noexcept -> bool
 	{
-		return ::W32_IMPL_GetFileVersionInfoW(a_name, a_handle, a_dataLen, a_data) != 0;
+		return ::W32_IMPL_GetFileVersionInfoW(a_name, a_handle, a_dataLength, a_data) == REX::W32::TRUE;
 	}
 
-	bool VerQueryValueA(const void* a_block, const char* a_subBlock, void** a_buffer, std::uint32_t* a_bufLen) noexcept
+	auto VerQueryValueA(const void* a_block, const char* a_subBlock, void** a_buffer, std::uint32_t* a_bufferLength)
+		noexcept -> bool
 	{
-		return ::W32_IMPL_VerQueryValueA(a_block, a_subBlock, a_buffer, a_bufLen) != 0;
+		return ::W32_IMPL_VerQueryValueA(a_block, a_subBlock, a_buffer, a_bufferLength) == REX::W32::TRUE;
 	}
 
-	bool VerQueryValueW(const void* a_block, const wchar_t* a_subBlock, void** a_buffer, std::uint32_t* a_bufLen) noexcept
+	auto VerQueryValueW(const void* a_block, const wchar_t* a_subBlock, void** a_buffer, std::uint32_t* a_bufferLength)
+		noexcept -> bool
 	{
-		return ::W32_IMPL_VerQueryValueW(a_block, a_subBlock, a_buffer, a_bufLen) != 0;
+		return ::W32_IMPL_VerQueryValueW(a_block, a_subBlock, a_buffer, a_bufferLength) == REX::W32::TRUE;
 	}
 }
 
@@ -1195,20 +2673,24 @@ REX_W32_IMPORT(std::int32_t, WSAGetLastError);
 
 namespace REX::W32
 {
-	std::uint16_t htons(std::uint16_t a_host) noexcept
+	auto htons(std::uint16_t a_host) noexcept -> std::uint16_t
 	{
 		return ::W32_IMPL_htons(a_host);
 	}
 
-	std::uint32_t ntohl(std::uint32_t a_net) noexcept
+	auto ntohl(std::uint32_t a_net) noexcept -> std::uint32_t
 	{
 		return ::W32_IMPL_ntohl(a_net);
 	}
 
-	std::int32_t WSAGetLastError() noexcept
+	auto WSAGetLastError() noexcept -> std::int32_t
 	{
 		return ::W32_IMPL_WSAGetLastError();
 	}
 }
 
 // NOLINTEND(cppcoreguidelines-pro-type-vararg)
+
+#undef REX_W32_IMPORT_NO_THROW
+#undef REX_W32_IMPORT
+#undef REX_BASIC_W32_IMPORT

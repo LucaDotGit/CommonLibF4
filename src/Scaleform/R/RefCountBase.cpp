@@ -2,20 +2,20 @@
 
 namespace Scaleform
 {
-	std::int32_t RefCountImpl::GetRefCount() const noexcept
+	auto RefCountImpl::GetRefCount() const noexcept -> std::int32_t
 	{
 		return refCount;
 	}
 
-	void RefCountImpl::AddRef() noexcept
+	void RefCountImpl::AddRef() const noexcept
 	{
-		auto atomicRefCount = REX::AtomicRef(refCount);
+		const auto atomicRefCount = REX::AtomicRef(refCount);
 		atomicRefCount.fetch_add(1, std::memory_order_acq_rel);
 	}
 
-	void RefCountImpl::Release() noexcept
+	void RefCountImpl::Release() const noexcept
 	{
-		auto atomicRefCount = REX::AtomicRef(refCount);
+		const auto atomicRefCount = REX::AtomicRef(refCount);
 
 		if ((atomicRefCount.fetch_sub(1, std::memory_order_acq_rel) - 1) != 0) {
 			return;

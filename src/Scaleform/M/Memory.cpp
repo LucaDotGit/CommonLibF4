@@ -2,13 +2,13 @@
 
 namespace Scaleform
 {
-	MemoryHeap*& Memory::GetGlobalHeap()
+	auto Memory::GetGlobalHeap() noexcept -> MemoryHeap*&
 	{
-		static const auto HEAP = REL::Relocation<MemoryHeap**>{ ID::Memory::Heap };
+		static const auto HEAP = REL::Relocation<MemoryHeap**>(ID::Memory::Heap);
 		return *HEAP;
 	}
 
-	bool Memory::ArenaIsEmpty(std::size_t a_arena)
+	auto Memory::ArenaIsEmpty(std::size_t a_arena) -> bool
 	{
 		return GetGlobalHeap()->ArenaIsEmpty(a_arena);
 	}
@@ -23,72 +23,97 @@ namespace Scaleform
 		GetGlobalHeap()->DestroyArena(a_arena);
 	}
 
-	MemoryHeap* Memory::GetHeapByAddress(const void* a_ptr)
+	auto Memory::GetHeapByAddress(const void* a_ptr) -> MemoryHeap*
 	{
 		return GetGlobalHeap()->GetAllocHeap(a_ptr);
 	}
 
-	__declspec(allocator) __declspec(restrict) void* Memory::Alloc(std::size_t a_size)
+	__declspec(allocator) __declspec(restrict) auto Memory::Alloc(std::size_t a_size) -> void*
 	{
 		return GetGlobalHeap()->Alloc(a_size);
 	}
 
-	__declspec(allocator) __declspec(restrict) void* Memory::Alloc(std::size_t a_size, std::align_val_t a_alignment)
+	__declspec(allocator) __declspec(restrict) auto Memory::Alloc(std::size_t a_size, std::align_val_t a_alignment)
+		-> void*
 	{
 		return GetGlobalHeap()->Alloc(a_size, a_alignment);
 	}
 
-	__declspec(allocator) __declspec(restrict) void* Memory::Alloc(std::size_t a_size, const AllocInfo& a_info)
+	__declspec(allocator) __declspec(restrict) auto Memory::Alloc(std::size_t a_size, const AllocInfo& a_info) -> void*
 	{
 		return GetGlobalHeap()->Alloc(a_size, std::addressof(a_info));
 	}
 
-	__declspec(allocator) __declspec(restrict) void* Memory::Alloc(std::size_t a_size, std::align_val_t a_alignment, const AllocInfo& a_info)
+	__declspec(allocator) __declspec(restrict) auto Memory::Alloc(
+		std::size_t a_size,
+		std::align_val_t a_alignment,
+		const AllocInfo& a_info) -> void*
 	{
 		return GetGlobalHeap()->Alloc(a_size, a_alignment, std::addressof(a_info));
 	}
 
-	__declspec(allocator) __declspec(restrict) void* Memory::AllocAutoHeap(const void* a_ptr, std::size_t a_size)
+	__declspec(allocator) __declspec(restrict) auto Memory::AllocAutoHeap(const void* a_ptr, std::size_t a_size)
+		-> void*
 	{
 		return GetGlobalHeap()->AllocAutoHeap(a_ptr, a_size);
 	}
 
-	__declspec(allocator) __declspec(restrict) void* Memory::AllocAutoHeap(const void* a_ptr, std::size_t a_size, std::align_val_t a_alignment)
+	__declspec(allocator) __declspec(restrict) auto Memory::AllocAutoHeap(
+		const void* a_ptr,
+		std::size_t a_size,
+		std::align_val_t a_alignment) -> void*
 	{
 		return GetGlobalHeap()->AllocAutoHeap(a_ptr, a_size, a_alignment);
 	}
 
-	__declspec(allocator) __declspec(restrict) void* Memory::AllocAutoHeap(const void* a_ptr, std::size_t a_size, const AllocInfo& a_info)
+	__declspec(allocator) __declspec(restrict) auto Memory::AllocAutoHeap(
+		const void* a_ptr,
+		std::size_t a_size,
+		const AllocInfo& a_info) -> void*
 	{
 		return GetGlobalHeap()->AllocAutoHeap(a_ptr, a_size, std::addressof(a_info));
 	}
 
-	__declspec(allocator) __declspec(restrict) void* Memory::AllocAutoHeap(const void* a_ptr, std::size_t a_size, std::align_val_t a_alignment, const AllocInfo& a_info)
+	__declspec(allocator) __declspec(restrict) auto Memory::AllocAutoHeap(
+		const void* a_ptr,
+		std::size_t a_size,
+		std::align_val_t a_alignment,
+		const AllocInfo& a_info) -> void*
 	{
 		return GetGlobalHeap()->AllocAutoHeap(a_ptr, a_size, a_alignment, std::addressof(a_info));
 	}
 
-	__declspec(allocator) __declspec(restrict) void* Memory::AllocInHeap(MemoryHeap* a_heap, std::size_t a_size)
+	__declspec(allocator) __declspec(restrict) auto Memory::AllocInHeap(MemoryHeap* a_heap, std::size_t a_size) -> void*
 	{
 		return a_heap->Alloc(a_size);
 	}
 
-	__declspec(allocator) __declspec(restrict) void* Memory::AllocInHeap(MemoryHeap* a_heap, std::size_t a_size, std::align_val_t a_alignment)
+	__declspec(allocator) __declspec(restrict) auto Memory::AllocInHeap(
+		MemoryHeap* a_heap,
+		std::size_t a_size,
+		std::align_val_t a_alignment) -> void*
 	{
 		return a_heap->Alloc(a_size, a_alignment);
 	}
 
-	__declspec(allocator) __declspec(restrict) void* Memory::AllocInHeap(MemoryHeap* a_heap, std::size_t a_size, const AllocInfo& a_info)
+	__declspec(allocator) __declspec(restrict) auto Memory::AllocInHeap(
+		MemoryHeap* a_heap,
+		std::size_t a_size,
+		const AllocInfo& a_info) -> void*
 	{
 		return a_heap->Alloc(a_size, std::addressof(a_info));
 	}
 
-	__declspec(allocator) __declspec(restrict) void* Memory::AllocInHeap(MemoryHeap* a_heap, std::size_t a_size, std::align_val_t a_alignment, const AllocInfo& a_info)
+	__declspec(allocator) __declspec(restrict) auto Memory::AllocInHeap(
+		MemoryHeap* a_heap,
+		std::size_t a_size,
+		std::align_val_t a_alignment,
+		const AllocInfo& a_info) -> void*
 	{
 		return a_heap->Alloc(a_size, a_alignment, std::addressof(a_info));
 	}
 
-	__declspec(allocator) __declspec(restrict) void* Memory::Realloc(void* a_ptr, std::size_t a_newSize)
+	__declspec(allocator) __declspec(restrict) auto Memory::Realloc(void* a_ptr, std::size_t a_newSize) -> void*
 	{
 		return GetGlobalHeap()->Realloc(a_ptr, a_newSize);
 	}
@@ -98,12 +123,12 @@ namespace Scaleform
 		GetGlobalHeap()->Free(a_ptr);
 	}
 
-	__declspec(noalias) std::size_t Memory::GetSize(const void* a_ptr) noexcept
+	__declspec(noalias) auto Memory::GetSize(const void* a_ptr) noexcept -> std::size_t
 	{
 		return GetGlobalHeap()->GetUsableSize(a_ptr);
 	}
 
-	__declspec(allocator) __declspec(restrict) void* malloc(std::size_t a_size) noexcept
+	__declspec(allocator) __declspec(restrict) auto malloc(std::size_t a_size) noexcept -> void*
 	{
 		try {
 			return Memory::Alloc(a_size);
@@ -113,7 +138,8 @@ namespace Scaleform
 		}
 	}
 
-	__declspec(allocator) __declspec(restrict) void* aligned_alloc(std::size_t a_size, std::align_val_t a_alignment) noexcept
+	__declspec(allocator) __declspec(restrict) auto aligned_alloc(std::size_t a_size, std::align_val_t a_alignment)
+		noexcept -> void*
 	{
 		try {
 			return Memory::Alloc(a_size, a_alignment);
@@ -123,7 +149,7 @@ namespace Scaleform
 		}
 	}
 
-	__declspec(allocator) __declspec(restrict) void* calloc(std::size_t a_count, std::size_t a_size) noexcept
+	__declspec(allocator) __declspec(restrict) auto calloc(std::size_t a_count, std::size_t a_size) noexcept -> void*
 	{
 		try {
 			auto* mem = malloc(a_count * a_size);
@@ -131,7 +157,7 @@ namespace Scaleform
 				return nullptr;
 			}
 
-			REL::MemWriteZero(mem, a_count * a_size);
+			REL::WriteZeros(mem, a_count * a_size);
 			return mem;
 		}
 		catch (...) {
@@ -139,7 +165,7 @@ namespace Scaleform
 		}
 	}
 
-	__declspec(allocator) __declspec(restrict) void* realloc(void* a_ptr, std::size_t a_newSize) noexcept
+	__declspec(allocator) __declspec(restrict) auto realloc(void* a_ptr, std::size_t a_newSize) noexcept -> void*
 	{
 		try {
 			return Memory::Realloc(a_ptr, a_newSize);
@@ -149,7 +175,10 @@ namespace Scaleform
 		}
 	}
 
-	__declspec(allocator) __declspec(restrict) void* aligned_realloc(void* a_ptr, std::size_t a_newSize, std::align_val_t a_alignment) noexcept
+	__declspec(allocator) __declspec(restrict) auto aligned_realloc(
+		void* a_ptr,
+		std::size_t a_newSize,
+		std::align_val_t a_alignment) noexcept -> void*
 	{
 		try {
 			auto* mem = Memory::Realloc(a_ptr, a_newSize);
@@ -183,7 +212,7 @@ namespace Scaleform
 		}
 	}
 
-	__declspec(noalias) std::size_t msize(const void* a_ptr) noexcept
+	__declspec(noalias) auto msize(const void* a_ptr) noexcept -> std::size_t
 	{
 		try {
 			return Memory::GetSize(a_ptr);

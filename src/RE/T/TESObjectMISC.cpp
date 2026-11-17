@@ -9,7 +9,7 @@ namespace RE
 			return std::nullopt;
 		}
 
-		return { *componentData };
+		return {*componentData};
 	}
 
 	void TESObjectMISC::SetComponents(std::span<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>> a_components)
@@ -23,27 +23,26 @@ namespace RE
 			return;
 		}
 
-		componentData = new BSTArray<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>>{ a_components.begin(), a_components.end() };
+		componentData =
+			new BSTArray<BSTPair<TESForm*, BGSTypedFormValuePair::SharedVal>>{a_components.begin(), a_components.end()};
 	}
 
-	auto TESObjectMISC::GetDisplayIndices() noexcept
-		-> std::optional<std::span<std::uint8_t>>
+	auto TESObjectMISC::GetDisplayIndices() noexcept -> std::optional<std::span<std::uint8_t>>
 	{
 		if (!componentData || !displayIndices) {
 			return std::nullopt;
 		}
 
-		return std::span{ displayIndices.data(), componentData->size() };
+		return std::span{displayIndices.data(), componentData->size()};
 	}
 
-	auto TESObjectMISC::GetDisplayIndices() const noexcept
-		-> std::optional<std::span<const std::uint8_t>>
+	auto TESObjectMISC::GetDisplayIndices() const noexcept -> std::optional<std::span<const std::uint8_t>>
 	{
 		if (!componentData || !displayIndices) {
 			return std::nullopt;
 		}
 
-		return std::span{ displayIndices.data(), componentData->size() };
+		return std::span{displayIndices.data(), componentData->size()};
 	}
 
 	void TESObjectMISC::SetDisplayIndices(std::span<const std::uint8_t> a_indices)

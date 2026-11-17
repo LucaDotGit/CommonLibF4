@@ -4,49 +4,49 @@
 
 namespace RE
 {
-	std::uint32_t TESSpellList::SpellData::GetSpellCount() const noexcept
+	auto TESSpellList::SpellData::GetSpellCount() const noexcept -> std::uint32_t
 	{
 		return numSpells;
 	}
 
-	std::uint32_t TESSpellList::SpellData::GetLevSpellCount() const noexcept
+	auto TESSpellList::SpellData::GetLevSpellCount() const noexcept -> std::uint32_t
 	{
 		return numLevSpells;
 	}
 
-	std::uint32_t TESSpellList::SpellData::GetShoutCount() const noexcept
+	auto TESSpellList::SpellData::GetShoutCount() const noexcept -> std::uint32_t
 	{
 		return numShouts;
 	}
 
-	std::span<SpellItem*> TESSpellList::SpellData::GetSpells() noexcept
+	auto TESSpellList::SpellData::GetSpells() noexcept -> std::span<SpellItem*>
 	{
-		return { spells.data(), numSpells };
+		return {spells.data(), numSpells};
 	}
 
-	std::span<TESLevSpell*> TESSpellList::SpellData::GetLevSpells() noexcept
+	auto TESSpellList::SpellData::GetLevSpells() noexcept -> std::span<TESLevSpell*>
 	{
-		return { levSpells.data(), numLevSpells };
+		return {levSpells.data(), numLevSpells};
 	}
 
-	std::span<TESShout*> TESSpellList::SpellData::GetShouts() noexcept
+	auto TESSpellList::SpellData::GetShouts() noexcept -> std::span<TESShout*>
 	{
-		return { shouts.data(), numShouts };
+		return {shouts.data(), numShouts};
 	}
 
-	std::span<SpellItem* const> TESSpellList::SpellData::GetSpells() const noexcept
+	auto TESSpellList::SpellData::GetSpells() const noexcept -> std::span<SpellItem* const>
 	{
-		return { spells.data(), numSpells };
+		return {spells.data(), numSpells};
 	}
 
-	std::span<TESLevSpell* const> TESSpellList::SpellData::GetLevSpells() const noexcept
+	auto TESSpellList::SpellData::GetLevSpells() const noexcept -> std::span<TESLevSpell* const>
 	{
-		return { levSpells.data(), numLevSpells };
+		return {levSpells.data(), numLevSpells};
 	}
 
-	std::span<TESShout* const> TESSpellList::SpellData::GetShouts() const noexcept
+	auto TESSpellList::SpellData::GetShouts() const noexcept -> std::span<TESShout* const>
 	{
-		return { shouts.data(), numShouts };
+		return {shouts.data(), numShouts};
 	}
 
 	void TESSpellList::SpellData::SetSpells(std::span<SpellItem*> a_spells)
@@ -94,54 +94,57 @@ namespace RE
 		numShouts = 0;
 	}
 
-	BSContainer::ForEachResult TESSpellList::SpellData::ForEachSpell(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(SpellItem*)>>& a_predicate) const
+	auto TESSpellList::SpellData::ForEachSpell(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(SpellItem*) const>>& a_predicate) const
+		-> BSContainer::ForEachResult
 	{
 		if (!spells.data()) {
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		}
 
-		for (auto i = 0ui32; i < numSpells; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < numSpells; i++) {
 			auto* spell = spells[i];
-			if (std::invoke(*a_predicate, spell) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), spell) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 
-	BSContainer::ForEachResult TESSpellList::SpellData::ForEachLevSpell(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(TESLevSpell*)>>& a_predicate) const
+	auto TESSpellList::SpellData::ForEachLevSpell(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(TESLevSpell*) const>>& a_predicate) const
+		-> BSContainer::ForEachResult
 	{
 		if (!levSpells.data()) {
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		}
 
-		for (auto i = 0ui32; i < numLevSpells; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < numLevSpells; i++) {
 			auto* levSpell = levSpells[i];
-			if (std::invoke(*a_predicate, levSpell) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), levSpell) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 
-	BSContainer::ForEachResult TESSpellList::SpellData::ForEachShout(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(TESShout*)>>& a_predicate) const
+	auto TESSpellList::SpellData::ForEachShout(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(TESShout*) const>>& a_predicate) const
+		-> BSContainer::ForEachResult
 	{
 		if (!shouts.data()) {
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		}
 
-		for (auto i = 0ui32; i < numShouts; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < numShouts; i++) {
 			auto* shout = shouts[i];
-			if (std::invoke(*a_predicate, shout) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), shout) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 }

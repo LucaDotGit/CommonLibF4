@@ -2,6 +2,7 @@
 
 #include "RE/B/BSScript_IVirtualMachine.hpp"
 #include "RE/B/BSScript_StructTypeInfo.hpp"
+#include "RE/B/BSSpinLock.hpp"
 
 namespace RE::BSScript
 {
@@ -14,24 +15,24 @@ namespace RE::BSScript
 		}
 
 		const auto memberSize = type ? type->variables.size() : 0;
-		for (auto i = 0ui32; i < memberSize; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < memberSize; i++) {
 			variables[i].reset();
 		}
 
 		constructed = false;
 	}
 
-	bool Struct::Equals(const Struct& a_rhs) const noexcept
+	auto Struct::Equals(const Struct& a_rhs) const noexcept -> bool
 	{
 		return RefEquals(a_rhs);
 	}
 
-	bool Struct::RefEquals(const Struct& a_rhs) const noexcept
+	auto Struct::RefEquals(const Struct& a_rhs) const noexcept -> bool
 	{
 		return this == std::addressof(a_rhs);
 	}
 
-	bool Struct::DeepEquals(const Struct& a_rhs) const noexcept
+	auto Struct::DeepEquals(const Struct& a_rhs) const noexcept -> bool
 	{
 		if (this == std::addressof(a_rhs)) {
 			return true;
@@ -48,18 +49,15 @@ namespace RE::BSScript
 			return false;
 		}
 
-		const auto leftMemberLock = BSAutoLock(structLock);
-		const auto rightMemberLock = BSAutoLock(a_rhs.structLock);
+		const auto leftMemberLock = BSAutoSpinLock(structLock);
+		const auto rightMemberLock = BSAutoSpinLock(a_rhs.structLock);
 
 		const auto leftMemberSize = type->variables.size();
 		const auto rightMemberSize = a_rhs.type->variables.size();
 
-		if (leftMemberSize != rightMemberSize) [[unlikely]] {
-			REX::Assert(false);
-			return false;
-		}
+		REX::Assert(leftMemberSize == rightMemberSize);
 
-		for (auto i = 0ui32; i < leftMemberSize; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < leftMemberSize; i++) {
 			const auto& leftVar = variables[i];
 			const auto& rightVar = a_rhs.variables[i];
 
@@ -71,17 +69,17 @@ namespace RE::BSScript
 		return true;
 	}
 
-	std::strong_ordering Struct::Compare(const Struct& a_rhs) const noexcept
+	auto Struct::Compare(const Struct& a_rhs) const noexcept -> std::strong_ordering
 	{
 		return RefCompare(a_rhs);
 	}
 
-	std::strong_ordering Struct::RefCompare(const Struct& a_rhs) const noexcept
+	auto Struct::RefCompare(const Struct& a_rhs) const noexcept -> std::strong_ordering
 	{
 		return this <=> std::addressof(a_rhs);
 	}
 
-	std::partial_ordering Struct::DeepCompare(const Struct& a_rhs) const noexcept
+	auto Struct::DeepCompare(const Struct& a_rhs) const noexcept -> std::partial_ordering
 	{
 		if (this == std::addressof(a_rhs)) {
 			return std::partial_ordering::equivalent;
@@ -99,18 +97,15 @@ namespace RE::BSScript
 			return typeComparison;
 		}
 
-		const auto leftMemberLock = BSAutoLock(structLock);
-		const auto rightMemberLock = BSAutoLock(a_rhs.structLock);
+		const auto leftMemberLock = BSAutoSpinLock(structLock);
+		const auto rightMemberLock = BSAutoSpinLock(a_rhs.structLock);
 
 		const auto leftMemberSize = type->variables.size();
 		const auto rightMemberSize = a_rhs.type->variables.size();
 
-		if (leftMemberSize != rightMemberSize) [[unlikely]] {
-			REX::Assert(false);
-			return leftMemberSize <=> rightMemberSize;
-		}
+		REX::Assert(leftMemberSize == rightMemberSize);
 
-		for (auto i = 0ui32; i < leftMemberSize; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < leftMemberSize; i++) {
 			const auto& leftVar = variables[i];
 			const auto& rightVar = a_rhs.variables[i];
 
@@ -123,13 +118,12 @@ namespace RE::BSScript
 		return std::partial_ordering::equivalent;
 	}
 
-	BSTSmartPointer<StructTypeInfo> Struct::GetTypeInfo() const noexcept
+	auto Struct::GetTypeInfo() const noexcept -> BSTSmartPointer<StructTypeInfo>
 	{
 		return type;
 	}
 
-	auto Struct::GetTypeInfoName() const noexcept
-		-> std::optional<BSFixedString>
+	auto Struct::GetTypeInfoName() const noexcept -> std::optional<BSFixedString>
 	{
 		if (!type) {
 			return std::nullopt;
@@ -138,27 +132,25 @@ namespace RE::BSScript
 		return type->GetName();
 	}
 
-	auto Struct::GetVariables() noexcept
-		-> std::span<Variable>
+	auto Struct::GetVariables() noexcept -> std::span<Variable>
 	{
 		if (!type) {
 			return {};
 		}
 
-		return { static_cast<Variable*>(variables), type->variables.size() };
+		return {static_cast<Variable*>(variables), type->variables.size()};
 	}
 
-	auto Struct::GetVariables() const noexcept
-		-> std::span<const Variable>
+	auto Struct::GetVariables() const noexcept -> std::span<const Variable>
 	{
 		if (!type) {
 			return {};
 		}
 
-		return { static_cast<const Variable*>(variables), type->variables.size() };
+		return {static_cast<const Variable*>(variables), type->variables.size()};
 	}
 
-	Variable* Struct::GetVariable(const BSFixedString& a_name)
+	auto Struct::GetVariable(const BSFixedString& a_name) noexcept -> Variable*
 	{
 		if (!type) {
 			return nullptr;
@@ -180,7 +172,7 @@ namespace RE::BSScript
 		return std::addressof(variables[varIndex]);
 	}
 
-	const Variable* Struct::GetVariable(const BSFixedString& a_name) const
+	auto Struct::GetVariable(const BSFixedString& a_name) const noexcept -> const Variable*
 	{
 		if (!type) {
 			return nullptr;
@@ -202,7 +194,7 @@ namespace RE::BSScript
 		return std::addressof(variables[varIndex]);
 	}
 
-	bool Struct::SetVariable(const BSFixedString& a_name, const Variable& a_value)
+	auto Struct::SetVariable(const BSFixedString& a_name, const Variable& a_value) noexcept -> bool
 	{
 		auto* variable = GetVariable(a_name);
 		if (!variable) {
@@ -213,9 +205,9 @@ namespace RE::BSScript
 		return true;
 	}
 
-	BSTSmartPointer<Struct> Struct::Clone(IVirtualMachine& a_vm) const
+	auto Struct::Clone(IVirtualMachine& a_vm) const -> BSTSmartPointer<Struct>
 	{
-		const auto memberLock = BSAutoLock(structLock);
+		const auto memberLock = BSAutoSpinLock(structLock);
 		const auto memberSize = type->variables.size();
 
 		auto result = BSTSmartPointer<Struct>();
@@ -224,18 +216,18 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		const auto otherMemberLock = BSAutoLock(result->structLock);
+		const auto otherMemberLock = BSAutoSpinLock(result->structLock);
 
-		for (auto i = 0ui32; i < memberSize; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < memberSize; i++) {
 			result->variables[i] = variables[i].Clone(a_vm);
 		}
 
 		return result;
 	}
 
-	BSTSmartPointer<Struct> Struct::DeepClone(IVirtualMachine& a_vm) const
+	auto Struct::DeepClone(IVirtualMachine& a_vm) const -> BSTSmartPointer<Struct>
 	{
-		const auto memberLock = BSAutoLock(structLock);
+		const auto memberLock = BSAutoSpinLock(structLock);
 		const auto memberSize = type->variables.size();
 
 		auto result = BSTSmartPointer<Struct>();
@@ -244,32 +236,34 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		const auto otherMemberLock = BSAutoLock(result->structLock);
+		const auto otherMemberLock = BSAutoSpinLock(result->structLock);
 
-		for (auto i = 0ui32; i < memberSize; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < memberSize; i++) {
 			result->variables[i] = variables[i].DeepClone(a_vm);
 		}
 
 		return result;
 	}
 
-	std::string Struct::ToString() const
+	auto Struct::ToString() const -> std::string
 	{
 		if (!type) {
 			return std::string(BSScript::NONE_STRING);
 		}
 
-		const auto memberLock = BSAutoLock(structLock);
+		const auto memberLock = BSAutoSpinLock(structLock);
 		const auto memberSize = type->variables.size();
 
 		const auto& memberPairMap = type->varNameIndexMap;
 
 		auto result = std::string("["sv);
 
-		for (auto i = 0ui32; i < memberSize; i++) {
-			const auto pairIt = std::ranges::find_if(memberPairMap, [i](const BSTPair<const BSFixedString, std::uint32_t>& a_pair) -> bool {
-				return a_pair.second == i;
-			});
+		for (auto i = static_cast<std::uint32_t>(0); i < memberSize; i++) {
+			const auto pairIt = std::ranges::find_if(
+				memberPairMap,
+				[i](const BSTPair<const BSFixedString, std::uint32_t>& a_pair) noexcept -> bool {
+					return a_pair.second == i;
+				});
 
 			if (pairIt == memberPairMap.end()) [[unlikely]] {
 				REX::Assert(false);
@@ -279,8 +273,7 @@ namespace RE::BSScript
 			const auto& varKey = pairIt->first;
 			const auto& varValue = variables[i];
 
-			result += REX::Format("{} = {}"sv,
-				varKey, varValue.ToString());
+			result += REX::Format("{} = {}"sv, varKey, varValue.ToString());
 
 			if (i < memberSize - 1) {
 				result += ", "sv;

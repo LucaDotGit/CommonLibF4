@@ -4,26 +4,27 @@
 
 namespace RE
 {
-	std::uint32_t TESFileCollection::GetFileCount() const noexcept
+	auto TESFileCollection::GetFileCount() const noexcept -> std::uint32_t
 	{
 		return files.size() + smallFiles.size();
 	}
 
-	BSContainer::ForEachResult TESFileCollection::ForEachFile(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(TESFile*)>>& a_predicate) const
+	auto TESFileCollection::ForEachFile(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(TESFile*) const>>& a_predicate) const
+		-> BSContainer::ForEachResult
 	{
 		for (auto* file : files) {
-			if (std::invoke(*a_predicate, file) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), file) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 		}
 
 		for (auto* file : smallFiles) {
-			if (std::invoke(*a_predicate, file) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), file) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 }

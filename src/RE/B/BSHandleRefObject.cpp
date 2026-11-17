@@ -2,27 +2,27 @@
 
 namespace RE
 {
-	std::uint32_t BSHandleRefObject::QRefCount() const noexcept
+	auto BSHandleRefObject::QRefCount() const noexcept -> std::uint32_t
 	{
 		return refCount & REF_COUNT_MASK;
 	}
 
-	bool BSHandleRefObject::IsValid() const noexcept
+	auto BSHandleRefObject::IsValid() const noexcept -> bool
 	{
 		return (refCount & IS_VALID_BIT) != 0;
 	}
 
-	std::uint32_t BSHandleRefObject::IncRefCount() noexcept
+	auto BSHandleRefObject::IncRefCount() const noexcept -> std::uint32_t
 	{
-		auto atomicRefCount = REX::AtomicRef(refCount);
+		const auto atomicRefCount = REX::AtomicRef(refCount);
 		return (atomicRefCount.fetch_add(1, std::memory_order_acq_rel) + 1) & REF_COUNT_MASK;
 	}
 
-	std::uint32_t BSHandleRefObject::DecRefCount() noexcept
+	auto BSHandleRefObject::DecRefCount() const noexcept -> std::uint32_t
 	{
-		auto atomicRefCount = REX::AtomicRef(refCount);
-		auto newRefCount = ((atomicRefCount.fetch_sub(1, std::memory_order_acq_rel) - 1) & REF_COUNT_MASK);
+		const auto atomicRefCount = REX::AtomicRef(refCount);
 
+		const auto newRefCount = ((atomicRefCount.fetch_sub(1, std::memory_order_acq_rel) - 1) & REF_COUNT_MASK);
 		if (newRefCount != 0) {
 			return newRefCount;
 		}
@@ -32,7 +32,7 @@ namespace RE
 			return 0;
 		}
 		catch (...) {
-			REX::Fail("Failed to delete ref object."sv);
+			REX::Fail("Failed to delete object."sv);
 		}
 	}
 }

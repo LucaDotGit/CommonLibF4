@@ -7,48 +7,60 @@
 
 namespace RE
 {
-	TESDataHandler* TESDataHandler::GetSingleton()
+	auto TESDataHandler::GetSingleton() noexcept -> TESDataHandler*
 	{
-		static const auto SINGLETON = REL::Relocation<TESDataHandler**>{ ID::TESDataHandler::Singleton };
+		static const auto SINGLETON = REL::Relocation<TESDataHandler**>(ID::TESDataHandler::Singleton);
 		return *SINGLETON;
 	}
 
-	bool TESDataHandler::AddFormToDataHandler(TESForm* a_form)
+	auto TESDataHandler::AddFormToDataHandler(TESForm* a_form) -> bool
 	{
 		using FuncType = decltype(&TESDataHandler::AddFormToDataHandler);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESDataHandler::AddFormToDataHandler };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::TESDataHandler::AddFormToDataHandler);
 		return std::invoke(FUNC, this, a_form);
 	}
 
-	ObjectRefHandle TESDataHandler::CreateReferenceAtLocation(NEW_REFR_DATA& a_data)
+	auto TESDataHandler::CreateReferenceAtLocation(NEW_REFR_DATA& a_data) -> ObjectRefHandle
 	{
 		using FuncType = decltype(&TESDataHandler::CreateReferenceAtLocation);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESDataHandler::CreateReferenceAtLocation };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::TESDataHandler::CreateReferenceAtLocation);
 		return std::invoke(FUNC, this, a_data);
 	}
 
-	TESWorldSpace* TESDataHandler::GetExtCellDataFromFileByEditorID(const char* a_cellEditorID, std::int32_t& a_outX, std::int32_t& a_outY)
+	auto TESDataHandler::GetExtCellDataFromFileByEditorID(
+		const char* a_cellEditorID,
+		std::int32_t& a_outX,
+		std::int32_t& a_outY) -> TESWorldSpace*
 	{
 		using FuncType = decltype(&TESDataHandler::GetExtCellDataFromFileByEditorID);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESDataHandler::GetExtCellDataFromFileByEditorID };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::TESDataHandler::GetExtCellDataFromFileByEditorID);
 		return std::invoke(FUNC, this, a_cellEditorID, a_outX, a_outY);
 	}
 
-	bool TESDataHandler::IsFormIDInUse(TESFormID a_formID) const
+	void TESDataHandler::CollectGoodLoadingScreensFunctor(
+		FormType a_formType,
+		class CollectGoodLoadingScreensFunctor& a_functor)
+	{
+		using FuncType = decltype(&TESDataHandler::CollectGoodLoadingScreensFunctor);
+		static const auto FUNC = REL::Relocation<FuncType>(ID::TESDataHandler::CollectGoodLoadingScreensFunctor);
+		std::invoke(FUNC, this, a_formType, a_functor);
+	}
+
+	auto TESDataHandler::IsFormIDInUse(TESFormID a_formID) const -> bool
 	{
 		using FuncType = decltype(&TESDataHandler::IsFormIDInUse);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESDataHandler::IsFormIDInUse };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::TESDataHandler::IsFormIDInUse);
 		return std::invoke(FUNC, this, a_formID);
 	}
 
-	bool TESDataHandler::CheckModsLoaded(bool a_everModded) const
+	auto TESDataHandler::CheckModsLoaded(bool a_everModded) const -> bool
 	{
 		using FuncType = decltype(&TESDataHandler::CheckModsLoaded);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::TESDataHandler::CheckModsLoaded };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::TESDataHandler::CheckModsLoaded);
 		return std::invoke(FUNC, this, a_everModded);
 	}
 
-	bool TESDataHandler::IsFileLoaded(std::string_view a_fileName) const
+	auto TESDataHandler::IsFileLoaded(std::string_view a_fileName) const -> bool
 	{
 		if (a_fileName.empty()) {
 			return false;
@@ -58,75 +70,75 @@ namespace RE
 		return file != nullptr;
 	}
 
-	std::uint32_t TESDataHandler::GetFileCount() const
+	auto TESDataHandler::GetFileCount() const noexcept -> std::uint32_t
 	{
-		auto fileCount = 0ui32;
-		ForEachFile([&fileCount](TESFile* a_plugin) -> BSContainer::ForEachResult {
+		auto fileCount = static_cast<std::uint32_t>(0);
+		ForEachFile([&fileCount](TESFile* a_plugin) noexcept -> BSContainer::ForEachResult {
 			if (a_plugin) {
 				fileCount++;
 			}
 
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		});
 
 		return fileCount;
 	}
 
-	std::uint32_t TESDataHandler::GetLoadedFileCount() const
+	auto TESDataHandler::GetLoadedFileCount() const noexcept -> std::uint32_t
 	{
-		auto loadedFileCount = 0ui32;
-		ForEachFile([&loadedFileCount](TESFile* a_plugin) -> BSContainer::ForEachResult {
+		auto loadedFileCount = static_cast<std::uint32_t>(0);
+		ForEachFile([&loadedFileCount](TESFile* a_plugin) noexcept -> BSContainer::ForEachResult {
 			if (a_plugin && a_plugin->IsActive()) {
 				loadedFileCount++;
 			}
 
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		});
 
 		return loadedFileCount;
 	}
 
-	std::uint32_t TESDataHandler::GetTotalFormCount() const
+	auto TESDataHandler::GetTotalFormCount() const noexcept -> std::uint32_t
 	{
-		auto totalFormCount = 0ui32;
-		ForEachFile([&totalFormCount](TESFile* a_plugin) -> BSContainer::ForEachResult {
+		auto totalFormCount = static_cast<std::uint32_t>(0);
+		ForEachFile([&totalFormCount](TESFile* a_plugin) noexcept -> BSContainer::ForEachResult {
 			if (a_plugin) {
 				totalFormCount += a_plugin->fileHeaderInfo.formCount;
 			}
 
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		});
 
 		return totalFormCount;
 	}
 
-	std::uint32_t TESDataHandler::GetTotalLoadedFormCount() const
+	auto TESDataHandler::GetTotalLoadedFormCount() const noexcept -> std::uint32_t
 	{
-		auto totalLoadedFormCount = 0ui32;
-		ForEachFile([&totalLoadedFormCount](TESFile* a_plugin) -> BSContainer::ForEachResult {
+		auto totalLoadedFormCount = static_cast<std::uint32_t>(0);
+		ForEachFile([&totalLoadedFormCount](TESFile* a_plugin) noexcept -> BSContainer::ForEachResult {
 			if (a_plugin && a_plugin->IsActive()) {
 				totalLoadedFormCount += a_plugin->fileHeaderInfo.formCount;
 			}
 
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		});
 
 		return totalLoadedFormCount;
 	}
 
-	BSTArray<TESForm*>& TESDataHandler::GetFormArray(FormType a_formType) noexcept
+	auto TESDataHandler::GetFormArray(FormType a_formType) noexcept -> BSTArray<TESForm*>&
 	{
-		REX::Assert(a_formType >= FormType::kNone && a_formType < FormType::kTotal);
-		return formArrays[std::to_underlying(a_formType)];
+		REX::Assert(a_formType >= FormType::None && a_formType < FormType::_Count);
+		return formArrays[REX::ToUnsigned(std::to_underlying(a_formType))];
 	}
 
-	const BSTArray<TESForm*>& TESDataHandler::GetFormArray(FormType a_formType) const noexcept
+	auto TESDataHandler::GetFormArray(FormType a_formType) const noexcept -> const BSTArray<TESForm*>&
 	{
-		REX::Assert(a_formType >= FormType::kNone && a_formType < FormType::kTotal);
-		return formArrays[std::to_underlying(a_formType)];
+		REX::Assert(a_formType >= FormType::None && a_formType < FormType::_Count);
+		return formArrays[REX::ToUnsigned(std::to_underlying(a_formType))];
 	}
 
-	TESFormID TESDataHandler::GetLocalFormID(TESFormID a_formID) noexcept
+	auto TESDataHandler::GetLocalFormID(TESFormID a_formID) noexcept -> TESFormID
 	{
 		if (a_formID == EMPTY_FORM_ID) {
 			return EMPTY_FORM_ID;
@@ -143,7 +155,7 @@ namespace RE
 		return a_formID & LOCAL_FORM_ID_MASK;
 	}
 
-	auto TESDataHandler::FindFormID(TESFormID a_localFormID, std::string_view a_fileName) const
+	auto TESDataHandler::FindFormID(TESFormID a_localFormID, std::string_view a_fileName) const noexcept
 		-> std::optional<TESFormID>
 	{
 		if (a_localFormID == EMPTY_FORM_ID) {
@@ -160,18 +172,17 @@ namespace RE
 		}
 
 		if (file->IsLight()) {
-			const auto lightPluginIndex = file->smallFileCompileIndex << LIGHT_FORM_INDEX_SHIFT;
+			const auto lightPluginIndex = static_cast<TESFormID>(file->smallFileCompileIndex) << LIGHT_FORM_INDEX_SHIFT;
 			const auto lightLocalFormID = a_localFormID & LIGHT_LOCAL_FORM_ID_MASK;
 			return EMPTY_LIGHT_FORM_ID | lightPluginIndex | lightLocalFormID;
 		}
 
-		const auto pluginIndex = file->compileIndex << FORM_INDEX_SHIFT;
+		const auto pluginIndex = static_cast<TESFormID>(file->compileIndex) << FORM_INDEX_SHIFT;
 		const auto localFormID = a_localFormID & LOCAL_FORM_ID_MASK;
 		return EMPTY_FORM_ID | pluginIndex | localFormID;
 	}
 
-	auto TESDataHandler::FindForm(TESFormID a_localFormID, std::string_view a_fileName) const
-		-> TESForm*
+	auto TESDataHandler::FindForm(TESFormID a_localFormID, std::string_view a_fileName) const noexcept -> TESForm*
 	{
 		const auto formID = FindFormID(a_localFormID, a_fileName);
 		if (!formID) {
@@ -181,7 +192,7 @@ namespace RE
 		return TESForm::FindFormByNumericID(*formID);
 	}
 
-	auto TESDataHandler::FindFormOrRef(TESFormID a_localFormID, std::string_view a_fileName) const
+	auto TESDataHandler::FindFormOrRef(TESFormID a_localFormID, std::string_view a_fileName) const noexcept
 		-> std::optional<std::variant<TESForm*, NiPointer<TESObjectREFR>>>
 	{
 		const auto formID = FindFormID(a_localFormID, a_fileName);
@@ -192,156 +203,157 @@ namespace RE
 		return TESObjectREFR::FindFormOrRefByNumericID(*formID);
 	}
 
-	TESFile* TESDataHandler::FindFileByName(std::string_view a_fileName) const
+	auto TESDataHandler::FindFileByName(std::string_view a_fileName) const noexcept -> TESFile*
 	{
 		if (a_fileName.empty()) {
 			return nullptr;
 		}
 
 		auto* result = static_cast<TESFile*>(nullptr);
-		ForEachFile([&result, a_fileName](TESFile* a_file) -> BSContainer::ForEachResult {
+		ForEachFile([&result, a_fileName](TESFile* a_file) noexcept -> BSContainer::ForEachResult {
 			if (!a_file) {
-				return BSContainer::ForEachResult::kContinue;
+				return BSContainer::ForEachResult::Continue;
 			}
 
 			const auto fileName = std::string_view(a_file->filename.data());
 			if (REX::EqualsIgnoreCase(a_fileName, fileName)) {
 				result = a_file;
-				return BSContainer::ForEachResult::kStop;
+				return BSContainer::ForEachResult::Stop;
 			}
 
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		});
 
 		return result;
 	}
 
-	TESFile* TESDataHandler::FindFileByFormID(TESFormID a_formID) const
+	auto TESDataHandler::FindFileByFormID(TESFormID a_formID) const noexcept -> TESFile*
 	{
 		if (a_formID == EMPTY_FORM_ID) {
 			return nullptr;
 		}
 
 		auto* result = static_cast<TESFile*>(nullptr);
-		ForEachFile([&result, a_formID](TESFile* a_file) -> BSContainer::ForEachResult {
+		ForEachFile([&result, a_formID](TESFile* a_file) noexcept -> BSContainer::ForEachResult {
 			if (!a_file) {
-				return BSContainer::ForEachResult::kContinue;
+				return BSContainer::ForEachResult::Continue;
 			}
 
 			if (a_file->IsFormInFile(a_formID)) {
 				result = a_file;
-				return BSContainer::ForEachResult::kStop;
+				return BSContainer::ForEachResult::Stop;
 			}
 
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		});
 
 		return result;
 	}
 
-	TESFile* TESDataHandler::FindFileByIndex(std::uint16_t a_index) const
+	auto TESDataHandler::FindFileByIndex(std::uint16_t a_index) const noexcept -> TESFile*
 	{
 		auto* result = static_cast<TESFile*>(nullptr);
-		ForEachFile([&result, a_index](TESFile* a_file) -> BSContainer::ForEachResult {
+		ForEachFile([&result, a_index](TESFile* a_file) noexcept -> BSContainer::ForEachResult {
 			if (!a_file) {
-				return BSContainer::ForEachResult::kContinue;
+				return BSContainer::ForEachResult::Continue;
 			}
 
 			if (a_file->IsLight()) {
 				if (a_file->smallFileCompileIndex == a_index) {
 					result = a_file;
-					return BSContainer::ForEachResult::kStop;
+					return BSContainer::ForEachResult::Stop;
 				}
-			}
-			else {
-				if (a_file->compileIndex == a_index) {
-					result = a_file;
-					return BSContainer::ForEachResult::kStop;
-				}
+
+				return BSContainer::ForEachResult::Continue;
 			}
 
-			return BSContainer::ForEachResult::kContinue;
+			if (a_file->compileIndex == a_index) {
+				result = a_file;
+				return BSContainer::ForEachResult::Stop;
+			}
+
+			return BSContainer::ForEachResult::Continue;
 		});
 
 		return result;
 	}
 
-	TESFile* TESDataHandler::FindLoadedFileByName(std::string_view a_fileName) const
+	auto TESDataHandler::FindLoadedFileByName(std::string_view a_fileName) const noexcept -> TESFile*
 	{
 		if (a_fileName.empty()) {
 			return nullptr;
 		}
 
 		auto* result = static_cast<TESFile*>(nullptr);
-		ForEachFile([&result, a_fileName](TESFile* a_file) -> BSContainer::ForEachResult {
+		ForEachFile([&result, a_fileName](TESFile* a_file) noexcept -> BSContainer::ForEachResult {
 			if (!a_file || !a_file->IsActive()) {
-				return BSContainer::ForEachResult::kContinue;
+				return BSContainer::ForEachResult::Continue;
 			}
 
 			const auto fileName = std::string_view(a_file->filename.data());
 			if (REX::EqualsIgnoreCase(a_fileName, fileName)) {
 				result = a_file;
-				return BSContainer::ForEachResult::kStop;
+				return BSContainer::ForEachResult::Stop;
 			}
 
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		});
 
 		return result;
 	}
 
-	TESFile* TESDataHandler::FindLoadedFileByFormID(TESFormID a_formID) const
+	auto TESDataHandler::FindLoadedFileByFormID(TESFormID a_formID) const noexcept -> TESFile*
 	{
 		if (a_formID == EMPTY_FORM_ID) {
 			return nullptr;
 		}
 
 		auto* result = static_cast<TESFile*>(nullptr);
-		ForEachFile([&result, a_formID](TESFile* a_file) -> BSContainer::ForEachResult {
+		ForEachFile([&result, a_formID](TESFile* a_file) noexcept -> BSContainer::ForEachResult {
 			if (!a_file || !a_file->IsActive()) {
-				return BSContainer::ForEachResult::kContinue;
+				return BSContainer::ForEachResult::Continue;
 			}
 
 			if (a_file->IsFormInFile(a_formID)) {
 				result = a_file;
-				return BSContainer::ForEachResult::kStop;
+				return BSContainer::ForEachResult::Stop;
 			}
 
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		});
 
 		return result;
 	}
 
-	TESFile* TESDataHandler::FindLoadedFileByIndex(std::uint16_t a_index) const
+	auto TESDataHandler::FindLoadedFileByIndex(std::uint16_t a_index) const noexcept -> TESFile*
 	{
 		auto* result = static_cast<TESFile*>(nullptr);
-		ForEachFile([&result, a_index](TESFile* a_file) -> BSContainer::ForEachResult {
+		ForEachFile([&result, a_index](TESFile* a_file) noexcept -> BSContainer::ForEachResult {
 			if (!a_file || !a_file->IsActive()) {
-				return BSContainer::ForEachResult::kContinue;
+				return BSContainer::ForEachResult::Continue;
 			}
 
 			if (a_file->IsLight()) {
 				if (a_file->smallFileCompileIndex == a_index) {
 					result = a_file;
-					return BSContainer::ForEachResult::kStop;
+					return BSContainer::ForEachResult::Stop;
 				}
-			}
-			else {
-				if (a_file->compileIndex == a_index) {
-					result = a_file;
-					return BSContainer::ForEachResult::kStop;
-				}
+
+				return BSContainer::ForEachResult::Continue;
 			}
 
-			return BSContainer::ForEachResult::kContinue;
+			if (a_file->compileIndex == a_index) {
+				result = a_file;
+				return BSContainer::ForEachResult::Stop;
+			}
+
+			return BSContainer::ForEachResult::Continue;
 		});
 
 		return result;
 	}
 
-	auto TESDataHandler::FindFileIndex(std::string_view a_fileName) const
-		-> std::optional<std::uint16_t>
+	auto TESDataHandler::FindFileIndex(std::string_view a_fileName) const noexcept -> std::optional<std::uint16_t>
 	{
 		const auto* file = FindFileByName(a_fileName);
 		if (!file) {
@@ -355,8 +367,7 @@ namespace RE
 		return file->compileIndex;
 	}
 
-	auto TESDataHandler::FindLoadedFileIndex(std::string_view a_fileName) const
-		-> std::optional<std::uint16_t>
+	auto TESDataHandler::FindLoadedFileIndex(std::string_view a_fileName) const noexcept -> std::optional<std::uint16_t>
 	{
 		const auto* file = FindLoadedFileByName(a_fileName);
 		if (!file) {
@@ -370,17 +381,17 @@ namespace RE
 		return file->compileIndex;
 	}
 
-	TESDataHandler::RuntimeData& TESDataHandler::GetRuntimeData() noexcept
+	auto TESDataHandler::GetRuntimeData() noexcept -> TESDataHandler::RuntimeData&
 	{
 		return REL::GetMemberAt<RuntimeData>(Offset::TESDataHandler::RuntimeData, this);
 	}
 
-	const TESDataHandler::RuntimeData& TESDataHandler::GetRuntimeData() const noexcept
+	auto TESDataHandler::GetRuntimeData() const noexcept -> const TESDataHandler::RuntimeData&
 	{
 		return REL::GetMemberAt<const RuntimeData>(Offset::TESDataHandler::RuntimeData, this);
 	}
 
-	TESDataHandler::VRModData* TESDataHandler::GetVRModData() noexcept
+	auto TESDataHandler::GetVRModData() noexcept -> TESDataHandler::VRModData*
 	{
 		if (!F4SE::IsRuntimeOnlyVR()) {
 			return nullptr;
@@ -389,7 +400,7 @@ namespace RE
 		return std::addressof(REL::GetMemberAt<VRModData>(Offset::TESDataHandler::VRModData, this));
 	}
 
-	const TESDataHandler::VRModData* TESDataHandler::GetVRModData() const noexcept
+	auto TESDataHandler::GetVRModData() const noexcept -> const TESDataHandler::VRModData*
 	{
 		if (!F4SE::IsRuntimeOnlyVR()) {
 			return nullptr;
@@ -398,31 +409,32 @@ namespace RE
 		return std::addressof(REL::GetMemberAt<const VRModData>(Offset::TESDataHandler::VRModData, this));
 	}
 
-	TESRegionDataManager* TESDataHandler::GetRegionDataManager() noexcept
+	auto TESDataHandler::GetRegionDataManager() noexcept -> TESRegionDataManager*
 	{
 		return REL::GetMemberAt<TESRegionDataManager*>(Offset::TESDataHandler::RegionDataManager, this);
 	}
 
-	const TESRegionDataManager* TESDataHandler::GetRegionDataManager() const noexcept
+	auto TESDataHandler::GetRegionDataManager() const noexcept -> const TESRegionDataManager*
 	{
 		return REL::GetMemberAt<const TESRegionDataManager*>(Offset::TESDataHandler::RegionDataManager, this);
 	}
 
-	BSContainer::ForEachResult TESDataHandler::ForEachFile(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(TESFile*)>>& a_predicate) const
+	auto TESDataHandler::ForEachFile(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(TESFile*) const>>& a_predicate) const
+		-> BSContainer::ForEachResult
 	{
-#if COMMONLIB_RUNTIME_VR == 0
+#if (COMMONLIB_RUNTIME_VR == 0)
 		if (!F4SE::IsRuntimeOnlyVR()) {
 			return compiledFileCollection.ForEachFile(a_predicate);
 		}
 #endif
 
 		for (auto* file : files) {
-			if (std::invoke(*a_predicate, file) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), file) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 }

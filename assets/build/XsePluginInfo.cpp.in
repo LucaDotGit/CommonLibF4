@@ -1,0 +1,69 @@
+#include "F4SE/F4SE.hpp"
+
+namespace
+{
+	constexpr auto PLUGIN_NAME = std::string_view("@COMMONLIB_PLUGIN_NAME@");
+	constexpr auto PLUGIN_AUTHOR = std::string_view("@COMMONLIB_PLUGIN_AUTHOR@");
+	constexpr auto PLUGIN_VERSION = REX::Version(@PROJECT_VERSION_MAJOR@, @PROJECT_VERSION_MINOR@, @PROJECT_VERSION_PATCH@, @PROJECT_VERSION_TWEAK@);
+}
+
+F4SE_PLUGIN_VERSION = []() consteval noexcept -> F4SE::PluginVersionData {
+	auto versionData = F4SE::PluginVersionData();
+
+	versionData.SetPluginName(PLUGIN_NAME);
+	versionData.SetPluginAuthor(PLUGIN_AUTHOR);
+	versionData.SetPluginVersion(PLUGIN_VERSION);
+
+	versionData.SetUseSignatureScanning(false);
+#if (COMMONLIB_RUNTIME_NG == 1)
+	versionData.SetUseAddressLibrary_RuntimeNG(true);
+#endif
+#if (COMMONLIB_RUNTIME_AE == 1)
+	versionData.SetUseAddressLibrary_RuntimeAE(true);
+#endif
+
+	versionData.SetUseNoStructs(false);
+#if (COMMONLIB_RUNTIME_NG == 1)
+	versionData.SetIsLayoutDependent_RuntimeNG(true);
+#endif
+#if (COMMONLIB_RUNTIME_AE == 1)
+	versionData.SetIsLayoutDependent_RuntimeAE(true);
+#endif
+
+	return versionData;
+}();
+
+#if (COMMONLIB_RUNTIME_VR == 1 || COMMONLIB_RUNTIME_OG == 1)
+F4SE_PLUGIN_QUERY(const F4SE::QueryInterface* a_interface, F4SE::PluginInfo* a_outInfo)
+{
+	if (!a_interface) [[unlikely]] {
+		REX::Assert(false);
+		return false;
+	}
+
+	if (!a_outInfo) [[unlikely]] {
+		REX::Assert(false);
+		return false;
+	}
+
+	a_outInfo->SetPluginName(PLUGIN_NAME);
+	a_outInfo->SetPluginVersion(PLUGIN_VERSION);
+
+	if (a_interface->IsEditor()) {
+		return false;
+	}
+
+	const auto version = a_interface->GetRuntimeVersion();
+#if (COMMONLIB_RUNTIME_VR == 1)
+	if (version == F4SE::RUNTIME_LATEST_VR.GetMinVersion()) {
+		return true;
+	}
+#endif
+
+#if (COMMONLIB_RUNTIME_OG == 1)
+	return version == F4SE::RUNTIME_LATEST_OG.GetMinVersion();
+#else
+	return false;
+#endif
+}
+#endif

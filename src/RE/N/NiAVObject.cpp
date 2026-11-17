@@ -21,24 +21,37 @@ namespace RE
 
 	void NiAVObject::CullGeometry(bool a_cull)
 	{
-		BSVisit::TraverseScenegraphGeometries(this, [a_cull](BSGeometry* a_geo) -> BSVisit::BSVisitControl {
-			a_geo->SetAppCulled(a_cull);
-			return BSVisit::BSVisitControl::kContinue;
-		});
+		BSVisit::ForEachScenegraphGeometries(
+			NiPointer(this),
+			[a_cull](const NiPointer<BSGeometry>& a_geometry) -> BSVisit::BSVisitControl {
+				if (!a_geometry) {
+					return BSVisit::BSVisitControl::Continue;
+				}
+
+				a_geometry->SetAppCulled(a_cull);
+				return BSVisit::BSVisitControl::Continue;
+			});
 	}
 
 	void NiAVObject::CullNode(bool a_cull)
 	{
-		BSVisit::TraverseScenegraphObjects(this, [a_cull](NiAVObject* a_object) -> BSVisit::BSVisitControl {
-			a_object->SetAppCulled(a_cull);
-			return BSVisit::BSVisitControl::kContinue;
-		});
+		BSVisit::ForEachScenegraphObjects(
+			NiPointer(this),
+			[a_cull](const NiPointer<NiAVObject>& a_object) -> BSVisit::BSVisitControl {
+				if (!a_object) {
+					return BSVisit::BSVisitControl::Continue;
+				}
+
+				a_object->SetAppCulled(a_cull);
+				return BSVisit::BSVisitControl::Continue;
+			});
 	}
 
 	void NiAVObject::Update(NiUpdateData& a_data)
 	{
 		UpdateDownwardPass(a_data, 0);
-		if (parent && ((a_data.flags & 0x200) == 0)) {
+
+		if (parent && a_data.flags.none(0x200)) {
 			parent->UpdateUpwardPass(a_data);
 		}
 	}

@@ -4,9 +4,9 @@
 
 namespace RE
 {
-	std::span<PerkRankData* const> BGSPerkRankArray::GetPerks() const noexcept
+	auto BGSPerkRankArray::GetPerks() const noexcept -> std::span<PerkRankData* const>
 	{
-		return { perks.data(), perkCount };
+		return {perks.data(), perkCount};
 	}
 
 	void BGSPerkRankArray::SetPerks(std::span<std::unique_ptr<PerkRankData>> a_perks)
@@ -16,7 +16,7 @@ namespace RE
 		perkCount = static_cast<std::uint32_t>(a_perks.size());
 		perks.allocate_bytes(perkCount);
 
-		for (auto i = 0ui32; i < perkCount; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < perkCount; i++) {
 			perks[i] = a_perks[i].release();
 		}
 	}
@@ -28,7 +28,7 @@ namespace RE
 			return;
 		}
 
-		for (auto i = 0ui32; i < perkCount; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < perkCount; i++) {
 			auto*& perk = perks[i];
 			if (!perk) {
 				continue;

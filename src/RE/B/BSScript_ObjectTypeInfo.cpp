@@ -1,47 +1,49 @@
 #include "RE/B/BSScript_ObjectTypeInfo.hpp"
 
-#include "RE/B/BSScript_IFunction.hpp" // IWYU pragma: keep
+#include "RE/B/BSContainer_ForEachResult.hpp"
+#include "RE/B/BSScript_IFunction.hpp"
 #include "RE/B/BSScript_LinkValidState.hpp"
 
 namespace RE::BSScript
 {
-	BSFixedString ObjectTypeInfo::UserFlagInfo::GetUserFlag() const noexcept
+	auto ObjectTypeInfo::UserFlagInfo::GetUserFlag() const noexcept -> BSFixedString
 	{
 		auto sanitizedType = data & ~SET_ON_OBJECT_FLAG;
 		return *reinterpret_cast<BSFixedString*>(std::addressof(sanitizedType));
 	}
 
-	ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::NamedStateInfo::GetMemberFunctionIt() noexcept
+	auto ObjectTypeInfo::NamedStateInfo::GetMemberFunctionIt() noexcept -> ObjectTypeInfo::FunctionInfo*
 	{
 		return std::bit_cast<FunctionInfo*>(std::bit_cast<std::uintptr_t>(this) + memberFunctionOffset);
 	}
 
-	const ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::NamedStateInfo::GetMemberFunctionIt() const noexcept
+	auto ObjectTypeInfo::NamedStateInfo::GetMemberFunctionIt() const noexcept -> const ObjectTypeInfo::FunctionInfo*
 	{
 		return std::bit_cast<const FunctionInfo*>(std::bit_cast<std::uintptr_t>(this) + memberFunctionOffset);
 	}
 
-	std::span<ObjectTypeInfo::FunctionInfo> ObjectTypeInfo::NamedStateInfo::GetMemberFunctions() noexcept
+	auto ObjectTypeInfo::NamedStateInfo::GetMemberFunctions() noexcept -> std::span<ObjectTypeInfo::FunctionInfo>
 	{
-		return { GetMemberFunctionIt(), GetNumMemberFunctions() };
+		return {GetMemberFunctionIt(), GetMemberFunctionCount()};
 	}
 
-	std::span<const ObjectTypeInfo::FunctionInfo> ObjectTypeInfo::NamedStateInfo::GetMemberFunctions() const noexcept
+	auto ObjectTypeInfo::NamedStateInfo::GetMemberFunctions() const noexcept
+		-> std::span<const ObjectTypeInfo::FunctionInfo>
 	{
-		return { GetMemberFunctionIt(), GetNumMemberFunctions() };
+		return {GetMemberFunctionIt(), GetMemberFunctionCount()};
 	}
 
-	const BSFixedString& ObjectTypeInfo::GetEmptyStateName()
+	auto ObjectTypeInfo::GetEmptyStateName() -> const BSFixedString&
 	{
 		static const auto EMPTY_STATE_NAME = BSFixedString(""sv);
 		return EMPTY_STATE_NAME;
 	}
 
-	bool ObjectTypeInfo::IsLinked() const noexcept
+	auto ObjectTypeInfo::IsLinked() const noexcept -> bool
 	{
 		switch (linkedValid) {
-			case LinkValidState::kLinkedValid:
-			case LinkValidState::kLinkedInvalid: {
+			case LinkValidState::LinkedValid:
+			case LinkValidState::LinkedInvalid: {
 				return true;
 			}
 			default: {
@@ -50,289 +52,299 @@ namespace RE::BSScript
 		}
 	}
 
-	bool ObjectTypeInfo::IsLinkedValid() const noexcept
+	auto ObjectTypeInfo::IsLinkedValid() const noexcept -> bool
 	{
-		return linkedValid == LinkValidState::kLinkedValid;
+		return linkedValid == LinkValidState::LinkedValid;
 	}
 
-	bool ObjectTypeInfo::IsLinkedInvalid() const noexcept
+	auto ObjectTypeInfo::IsLinkedInvalid() const noexcept -> bool
 	{
-		return linkedValid == LinkValidState::kLinkedInvalid;
+		return linkedValid == LinkValidState::LinkedInvalid;
 	}
 
-	bool ObjectTypeInfo::IsConst() const noexcept
+	auto ObjectTypeInfo::IsConst() const noexcept -> bool
 	{
 		return isConst != 0;
 	}
 
 	// NOLINTNEXTLINE(readability-make-member-function-const)
-	ObjectTypeInfo* ObjectTypeInfo::GetParentTypeIt() noexcept
+	auto ObjectTypeInfo::GetParentTypeInfoIt() noexcept -> ObjectTypeInfo*
 	{
 		return parentTypeInfo.get();
 	}
 
-	const ObjectTypeInfo* ObjectTypeInfo::GetParentTypeIt() const noexcept
+	auto ObjectTypeInfo::GetParentTypeInfoIt() const noexcept -> const ObjectTypeInfo*
 	{
 		return parentTypeInfo.get();
 	}
 
-	// NOLINTBEGIN(readability-make-member-function-const)
-
-	ObjectTypeInfo::UnlinkedNativeFunction* ObjectTypeInfo::GetThisUnlinkedNativeFunctionIt() noexcept
+	// NOLINTNEXTLINE(readability-make-member-function-const)
+	auto ObjectTypeInfo::GetThisUnlinkedNativeFunctionIt() noexcept -> ObjectTypeInfo::UnlinkedNativeFunction*
 	{
 		REX::Assert(!IsLinked());
 		return reinterpret_cast<UnlinkedNativeFunction*>(data);
 	}
 
-	const ObjectTypeInfo::UnlinkedNativeFunction* ObjectTypeInfo::GetThisUnlinkedNativeFunctionIt() const noexcept
+	auto ObjectTypeInfo::GetThisUnlinkedNativeFunctionIt() const noexcept
+		-> const ObjectTypeInfo::UnlinkedNativeFunction*
 	{
 		REX::Assert(!IsLinked());
 		return reinterpret_cast<const UnlinkedNativeFunction*>(data);
 	}
 
-	ObjectTypeInfo::UserFlagInfo* ObjectTypeInfo::GetThisUserFlagIt() noexcept
+	// NOLINTNEXTLINE(readability-make-member-function-const)
+	auto ObjectTypeInfo::GetThisUserFlagIt() noexcept -> ObjectTypeInfo::UserFlagInfo*
 	{
 		REX::Assert(IsLinked());
 		return reinterpret_cast<UserFlagInfo*>(data);
 	}
 
-	const ObjectTypeInfo::UserFlagInfo* ObjectTypeInfo::GetThisUserFlagIt() const noexcept
+	auto ObjectTypeInfo::GetThisUserFlagIt() const noexcept -> const ObjectTypeInfo::UserFlagInfo*
 	{
 		REX::Assert(IsLinked());
 		return reinterpret_cast<const UserFlagInfo*>(data);
 	}
 
-	std::span<ObjectTypeInfo::UserFlagInfo> ObjectTypeInfo::GetThisUserFlags() noexcept
+	auto ObjectTypeInfo::GetThisUserFlags() noexcept -> std::span<ObjectTypeInfo::UserFlagInfo>
 	{
-		return { GetThisUserFlagIt(), GetThisNumUserFlags() };
+		return {GetThisUserFlagIt(), GetThisUserFlagCount()};
 	}
 
-	std::span<const ObjectTypeInfo::UserFlagInfo> ObjectTypeInfo::GetThisUserFlags() const noexcept
+	auto ObjectTypeInfo::GetThisUserFlags() const noexcept -> std::span<const ObjectTypeInfo::UserFlagInfo>
 	{
-		return { GetThisUserFlagIt(), GetThisNumUserFlags() };
+		return {GetThisUserFlagIt(), GetThisUserFlagCount()};
 	}
 
-	std::uint32_t ObjectTypeInfo::GetNumVariables() const
+	auto ObjectTypeInfo::GetVariableCount() const noexcept -> std::uint32_t
 	{
-		auto numVars = 0ui32;
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
-			numVars += typeIt->GetThisNumVariables();
+		auto numVars = static_cast<std::uint32_t>(0);
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			numVars += typeIt->GetThisVariableCount();
 		}
 
 		return numVars;
 	}
 
-	ObjectTypeInfo::VariableInfo* ObjectTypeInfo::GetThisVariableIt() noexcept
+	auto ObjectTypeInfo::GetThisVariableIt() noexcept -> ObjectTypeInfo::VariableInfo*
 	{
-		return reinterpret_cast<VariableInfo*>(GetThisUserFlagIt() + GetThisNumUserFlags());
+		return reinterpret_cast<VariableInfo*>(GetThisUserFlagIt() + GetThisUserFlagCount());
 	}
 
-	const ObjectTypeInfo::VariableInfo* ObjectTypeInfo::GetThisVariableIt() const noexcept
+	auto ObjectTypeInfo::GetThisVariableIt() const noexcept -> const ObjectTypeInfo::VariableInfo*
 	{
-		return reinterpret_cast<const VariableInfo*>(GetThisUserFlagIt() + GetThisNumUserFlags());
+		return reinterpret_cast<const VariableInfo*>(GetThisUserFlagIt() + GetThisUserFlagCount());
 	}
 
-	std::span<ObjectTypeInfo::VariableInfo> ObjectTypeInfo::GetThisVariables() noexcept
+	auto ObjectTypeInfo::GetThisVariables() noexcept -> std::span<ObjectTypeInfo::VariableInfo>
 	{
-		return { GetThisVariableIt(), GetThisNumVariables() };
+		return {GetThisVariableIt(), GetThisVariableCount()};
 	}
 
-	std::span<const ObjectTypeInfo::VariableInfo> ObjectTypeInfo::GetThisVariables() const noexcept
+	auto ObjectTypeInfo::GetThisVariables() const noexcept -> std::span<const ObjectTypeInfo::VariableInfo>
 	{
-		return { GetThisVariableIt(), GetThisNumVariables() };
+		return {GetThisVariableIt(), GetThisVariableCount()};
 	}
 
-	std::uint32_t ObjectTypeInfo::GetNumInitialValues() const
+	auto ObjectTypeInfo::GetInitialValueCount() const noexcept -> std::uint32_t
 	{
-		auto numInitialValues = 0ui32;
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
-			numInitialValues += typeIt->GetThisNumInitialValues();
+		auto numInitialValues = static_cast<std::uint32_t>(0);
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			numInitialValues += typeIt->GetThisInitialValueCount();
 		}
 
 		return numInitialValues;
 	}
 
-	ObjectTypeInfo::InitialValueInfo* ObjectTypeInfo::GetThisInitialValueIt() noexcept
+	auto ObjectTypeInfo::GetThisInitialValueIt() noexcept -> ObjectTypeInfo::InitialValueInfo*
 	{
-		return reinterpret_cast<InitialValueInfo*>(GetThisVariableIt() + GetThisNumVariables());
+		return reinterpret_cast<InitialValueInfo*>(GetThisVariableIt() + GetThisVariableCount());
 	}
 
-	const ObjectTypeInfo::InitialValueInfo* ObjectTypeInfo::GetThisInitialValueIt() const noexcept
+	auto ObjectTypeInfo::GetThisInitialValueIt() const noexcept -> const ObjectTypeInfo::InitialValueInfo*
 	{
-		return reinterpret_cast<const InitialValueInfo*>(GetThisVariableIt() + GetThisNumVariables());
+		return reinterpret_cast<const InitialValueInfo*>(GetThisVariableIt() + GetThisVariableCount());
 	}
 
-	std::span<ObjectTypeInfo::InitialValueInfo> ObjectTypeInfo::GetThisInitialValues() noexcept
+	auto ObjectTypeInfo::GetThisInitialValues() noexcept -> std::span<ObjectTypeInfo::InitialValueInfo>
 	{
-		return { GetThisInitialValueIt(), GetThisNumInitialValues() };
+		return {GetThisInitialValueIt(), GetThisInitialValueCount()};
 	}
 
-	std::span<const ObjectTypeInfo::InitialValueInfo> ObjectTypeInfo::GetThisInitialValues() const noexcept
+	auto ObjectTypeInfo::GetThisInitialValues() const noexcept -> std::span<const ObjectTypeInfo::InitialValueInfo>
 	{
-		return { GetThisInitialValueIt(), GetThisNumInitialValues() };
+		return {GetThisInitialValueIt(), GetThisInitialValueCount()};
 	}
 
-	std::uint32_t ObjectTypeInfo::GetNumProperties() const
+	auto ObjectTypeInfo::GetPropertyCount() const noexcept -> std::uint32_t
 	{
-		auto numProps = 0ui32;
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
-			numProps += typeIt->GetThisNumProperties();
+		auto numProps = static_cast<std::uint32_t>(0);
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			numProps += typeIt->GetThisPropertyCount();
 		}
 
 		return numProps;
 	}
 
-	ObjectTypeInfo::PropertyInfo* ObjectTypeInfo::GetThisPropertyIt() noexcept
+	auto ObjectTypeInfo::GetThisPropertyIt() noexcept -> ObjectTypeInfo::PropertyInfo*
 	{
-		return reinterpret_cast<PropertyInfo*>(GetThisInitialValueIt() + GetThisNumInitialValues());
+		return reinterpret_cast<PropertyInfo*>(GetThisInitialValueIt() + GetThisInitialValueCount());
 	}
 
-	const ObjectTypeInfo::PropertyInfo* ObjectTypeInfo::GetThisPropertyIt() const noexcept
+	auto ObjectTypeInfo::GetThisPropertyIt() const noexcept -> const ObjectTypeInfo::PropertyInfo*
 	{
-		return reinterpret_cast<const PropertyInfo*>(GetThisInitialValueIt() + GetThisNumInitialValues());
+		return reinterpret_cast<const PropertyInfo*>(GetThisInitialValueIt() + GetThisInitialValueCount());
 	}
 
-	std::span<ObjectTypeInfo::PropertyInfo> ObjectTypeInfo::GetThisProperties() noexcept
+	auto ObjectTypeInfo::GetThisProperties() noexcept -> std::span<ObjectTypeInfo::PropertyInfo>
 	{
-		return { GetThisPropertyIt(), GetThisNumProperties() };
+		return {GetThisPropertyIt(), GetThisPropertyCount()};
 	}
 
-	std::span<const ObjectTypeInfo::PropertyInfo> ObjectTypeInfo::GetThisProperties() const noexcept
+	auto ObjectTypeInfo::GetThisProperties() const noexcept -> std::span<const ObjectTypeInfo::PropertyInfo>
 	{
-		return { GetThisPropertyIt(), GetThisNumProperties() };
+		return {GetThisPropertyIt(), GetThisPropertyCount()};
 	}
 
-	std::uint32_t ObjectTypeInfo::GetNumStaticFunctions() const
+	auto ObjectTypeInfo::GetStaticFunctionCount() const noexcept -> std::uint32_t
 	{
-		auto numStaticFunctions = 0ui32;
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
-			numStaticFunctions += typeIt->GetThisNumStaticFunctions();
+		auto numStaticFunctions = static_cast<std::uint32_t>(0);
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			numStaticFunctions += typeIt->GetThisStaticFunctionCount();
 		}
 
 		return numStaticFunctions;
 	}
 
-	ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetThisStaticFunctionIt() noexcept
+	auto ObjectTypeInfo::GetThisStaticFunctionIt() noexcept -> ObjectTypeInfo::FunctionInfo*
 	{
-		return reinterpret_cast<FunctionInfo*>(GetThisPropertyIt() + GetThisNumProperties());
+		return reinterpret_cast<FunctionInfo*>(GetThisPropertyIt() + GetThisPropertyCount());
 	}
 
-	const ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetThisStaticFunctionIt() const noexcept
+	auto ObjectTypeInfo::GetThisStaticFunctionIt() const noexcept -> const ObjectTypeInfo::FunctionInfo*
 	{
-		return reinterpret_cast<const FunctionInfo*>(GetThisPropertyIt() + GetThisNumProperties());
+		return reinterpret_cast<const FunctionInfo*>(GetThisPropertyIt() + GetThisPropertyCount());
 	}
 
-	std::span<ObjectTypeInfo::FunctionInfo> ObjectTypeInfo::GetThisStaticFunctions() noexcept { return { GetThisStaticFunctionIt(), GetThisNumStaticFunctions() }; }
-
-	std::span<const ObjectTypeInfo::FunctionInfo> ObjectTypeInfo::GetThisStaticFunctions() const noexcept { return { GetThisStaticFunctionIt(), GetThisNumStaticFunctions() }; }
-
-	std::uint32_t ObjectTypeInfo::GetNumMemberFunctions() const
+	auto ObjectTypeInfo::GetThisStaticFunctions() noexcept -> std::span<ObjectTypeInfo::FunctionInfo>
 	{
-		auto numMemberFunctions = 0ui32;
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
-			numMemberFunctions += typeIt->GetThisNumMemberFunctions();
+		return {GetThisStaticFunctionIt(), GetThisStaticFunctionCount()};
+	}
+
+	auto ObjectTypeInfo::GetThisStaticFunctions() const noexcept -> std::span<const ObjectTypeInfo::FunctionInfo>
+	{
+		return {GetThisStaticFunctionIt(), GetThisStaticFunctionCount()};
+	}
+
+	auto ObjectTypeInfo::GetMemberFunctionCount() const noexcept -> std::uint32_t
+	{
+		auto numMemberFunctions = static_cast<std::uint32_t>(0);
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			numMemberFunctions += typeIt->GetThisMemberFunctionCount();
 		}
 
 		return numMemberFunctions;
 	}
 
-	ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetThisMemberFunctionIt() noexcept
+	auto ObjectTypeInfo::GetThisMemberFunctionIt() noexcept -> ObjectTypeInfo::FunctionInfo*
 	{
-		return reinterpret_cast<FunctionInfo*>(GetThisStaticFunctionIt() + GetThisNumStaticFunctions());
+		return reinterpret_cast<FunctionInfo*>(GetThisStaticFunctionIt() + GetThisStaticFunctionCount());
 	}
 
-	const ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetThisMemberFunctionIt() const noexcept
+	auto ObjectTypeInfo::GetThisMemberFunctionIt() const noexcept -> const ObjectTypeInfo::FunctionInfo*
 	{
-		return reinterpret_cast<const FunctionInfo*>(GetThisStaticFunctionIt() + GetThisNumStaticFunctions());
+		return reinterpret_cast<const FunctionInfo*>(GetThisStaticFunctionIt() + GetThisStaticFunctionCount());
 	}
 
-	std::span<ObjectTypeInfo::FunctionInfo> ObjectTypeInfo::GetThisMemberFunctions() noexcept
+	auto ObjectTypeInfo::GetThisMemberFunctions() noexcept -> std::span<ObjectTypeInfo::FunctionInfo>
 	{
-		return { GetThisMemberFunctionIt(), GetThisNumMemberFunctions() };
+		return {GetThisMemberFunctionIt(), GetThisMemberFunctionCount()};
 	}
 
-	std::span<const ObjectTypeInfo::FunctionInfo> ObjectTypeInfo::GetThisMemberFunctions() const noexcept
+	auto ObjectTypeInfo::GetThisMemberFunctions() const noexcept -> std::span<const ObjectTypeInfo::FunctionInfo>
 	{
-		return { GetThisMemberFunctionIt(), GetThisNumMemberFunctions() };
+		return {GetThisMemberFunctionIt(), GetThisMemberFunctionCount()};
 	}
 
-	std::uint32_t ObjectTypeInfo::GetNumNamedStates() const
+	auto ObjectTypeInfo::GetNamedStateCount() const noexcept -> std::uint32_t
 	{
-		auto numNamedStates = 0ui32;
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
-			numNamedStates += typeIt->GetThisNumNamedStates();
+		auto numNamedStates = static_cast<std::uint32_t>(0);
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			numNamedStates += typeIt->GetThisNamedStateCount();
 		}
 
 		return numNamedStates;
 	}
 
-	ObjectTypeInfo::NamedStateInfo* ObjectTypeInfo::GetThisNamedStateIt() noexcept
+	auto ObjectTypeInfo::GetThisNamedStateIt() noexcept -> ObjectTypeInfo::NamedStateInfo*
 	{
-		return reinterpret_cast<ObjectTypeInfo::NamedStateInfo*>(GetThisMemberFunctionIt() + GetThisNumMemberFunctions());
+		return reinterpret_cast<ObjectTypeInfo::NamedStateInfo*>(
+			GetThisMemberFunctionIt() + GetThisMemberFunctionCount());
 	}
 
-	const ObjectTypeInfo::NamedStateInfo* ObjectTypeInfo::GetThisNamedStateIt() const noexcept
+	auto ObjectTypeInfo::GetThisNamedStateIt() const noexcept -> const ObjectTypeInfo::NamedStateInfo*
 	{
-		return reinterpret_cast<const NamedStateInfo*>(GetThisMemberFunctionIt() + GetThisNumMemberFunctions());
+		return reinterpret_cast<const NamedStateInfo*>(GetThisMemberFunctionIt() + GetThisMemberFunctionCount());
 	}
 
-	std::span<ObjectTypeInfo::NamedStateInfo> ObjectTypeInfo::GetThisNamedStates() noexcept
+	auto ObjectTypeInfo::GetThisNamedStates() noexcept -> std::span<ObjectTypeInfo::NamedStateInfo>
 	{
-		return { GetThisNamedStateIt(), GetThisNumNamedStates() };
+		return {GetThisNamedStateIt(), GetThisNamedStateCount()};
 	}
 
-	std::span<const ObjectTypeInfo::NamedStateInfo> ObjectTypeInfo::GetThisNamedStates() const noexcept
+	auto ObjectTypeInfo::GetThisNamedStates() const noexcept -> std::span<const ObjectTypeInfo::NamedStateInfo>
 	{
-		return { GetThisNamedStateIt(), GetThisNumNamedStates() };
+		return {GetThisNamedStateIt(), GetThisNamedStateCount()};
 	}
 
-	// NOLINTEND(readability-make-member-function-const)
-
-	ObjectTypeInfo::NamedStateInfo* ObjectTypeInfo::GetDefaultStateInfo() noexcept
+	auto ObjectTypeInfo::GetDefaultStateInfo() noexcept -> ObjectTypeInfo::NamedStateInfo*
 	{
-		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
-			auto* stateIt = typeIt->GetThisDefaultStateInfo();
-			if (stateIt) {
-				return stateIt;
+		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			auto* stateInfo = typeIt->GetThisDefaultStateInfo();
+			if (stateInfo) {
+				return stateInfo;
 			}
 		}
 
 		return nullptr;
 	}
 
-	const ObjectTypeInfo::NamedStateInfo* ObjectTypeInfo::GetDefaultStateInfo() const noexcept
+	auto ObjectTypeInfo::GetDefaultStateInfo() const noexcept -> const ObjectTypeInfo::NamedStateInfo*
 	{
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
-			const auto* stateIt = typeIt->GetThisDefaultStateInfo();
-			if (stateIt) {
-				return stateIt;
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			const auto* stateInfo = typeIt->GetThisDefaultStateInfo();
+			if (stateInfo) {
+				return stateInfo;
 			}
 		}
 
 		return nullptr;
 	}
 
-	ObjectTypeInfo::NamedStateInfo* ObjectTypeInfo::GetThisDefaultStateInfo()
+	auto ObjectTypeInfo::GetThisDefaultStateInfo() noexcept -> ObjectTypeInfo::NamedStateInfo*
 	{
-		if (GetThisNumNamedStates() == 0) {
+		const auto stateIndex = initialState;
+		if (stateIndex >= GetThisNamedStateCount()) [[unlikely]] {
+			REX::Assert(false);
 			return nullptr;
 		}
 
 		auto* stateIt = GetThisNamedStateIt();
-		return std::addressof(stateIt[initialState]);
+		return std::addressof(stateIt[stateIndex]);
 	}
 
-	const ObjectTypeInfo::NamedStateInfo* ObjectTypeInfo::GetThisDefaultStateInfo() const
+	auto ObjectTypeInfo::GetThisDefaultStateInfo() const noexcept -> const ObjectTypeInfo::NamedStateInfo*
 	{
-		if (GetThisNumNamedStates() == 0) {
+		const auto stateIndex = initialState;
+		if (stateIndex >= GetThisNamedStateCount()) [[unlikely]] {
+			REX::Assert(false);
 			return nullptr;
 		}
 
 		const auto* stateIt = GetThisNamedStateIt();
-		return std::addressof(stateIt[initialState]);
+		return std::addressof(stateIt[stateIndex]);
 	}
 
-	ObjectTypeInfo::VariableInfo* ObjectTypeInfo::GetVariableInfoByName(const BSFixedString& a_name)
+	auto ObjectTypeInfo::GetVariableInfoByName(const BSFixedString& a_name) noexcept -> ObjectTypeInfo::VariableInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -342,7 +354,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			auto* varIt = typeIt->GetThisVariableInfoByName(a_name);
 			if (varIt) {
 				return varIt;
@@ -352,7 +364,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	const ObjectTypeInfo::VariableInfo* ObjectTypeInfo::GetVariableInfoByName(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetVariableInfoByName(const BSFixedString& a_name) const noexcept
+		-> const ObjectTypeInfo::VariableInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -362,7 +375,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			const auto* varIt = typeIt->GetThisVariableInfoByName(a_name);
 			if (varIt) {
 				return varIt;
@@ -372,7 +385,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	ObjectTypeInfo::VariableInfo* ObjectTypeInfo::GetThisVariableInfoByName(const BSFixedString& a_name)
+	auto ObjectTypeInfo::GetThisVariableInfoByName(const BSFixedString& a_name) noexcept
+		-> ObjectTypeInfo::VariableInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -383,11 +397,15 @@ namespace RE::BSScript
 		}
 
 		auto* varBegin = GetThisVariableIt();
-		auto* varEnd = varBegin + GetThisNumVariables();
+		auto* varEnd = varBegin + GetThisVariableCount();
 
-		auto* varIt = std::lower_bound(varBegin, varEnd, a_name, [](const VariableInfo& a_varInfo, const BSFixedString& a_varName) -> bool {
-			return a_varInfo.name < a_varName;
-		});
+		auto* varIt = std::lower_bound(
+			varBegin,
+			varEnd,
+			a_name,
+			[](const VariableInfo& a_varInfo, const BSFixedString& a_varName) noexcept -> bool {
+				return a_varInfo.name < a_varName;
+			});
 
 		if (varIt == varEnd || varIt->name != a_name) {
 			return nullptr;
@@ -396,7 +414,8 @@ namespace RE::BSScript
 		return varIt;
 	}
 
-	const ObjectTypeInfo::VariableInfo* ObjectTypeInfo::GetThisVariableInfoByName(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetThisVariableInfoByName(const BSFixedString& a_name) const noexcept
+		-> const ObjectTypeInfo::VariableInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -407,11 +426,15 @@ namespace RE::BSScript
 		}
 
 		const auto* varBegin = GetThisVariableIt();
-		const auto* varEnd = varBegin + GetThisNumVariables();
+		const auto* varEnd = varBegin + GetThisVariableCount();
 
-		const auto* varIt = std::lower_bound(varBegin, varEnd, a_name, [](const VariableInfo& a_varInfo, const BSFixedString& a_varName) -> bool {
-			return a_varInfo.name < a_varName;
-		});
+		const auto* varIt = std::lower_bound(
+			varBegin,
+			varEnd,
+			a_name,
+			[](const VariableInfo& a_varInfo, const BSFixedString& a_varName) noexcept -> bool {
+				return a_varInfo.name < a_varName;
+			});
 
 		if (varIt == varEnd || varIt->name != a_name) {
 			return nullptr;
@@ -420,7 +443,7 @@ namespace RE::BSScript
 		return varIt;
 	}
 
-	ObjectTypeInfo::PropertyInfo* ObjectTypeInfo::GetPropertyInfoByName(const BSFixedString& a_name)
+	auto ObjectTypeInfo::GetPropertyInfoByName(const BSFixedString& a_name) noexcept -> ObjectTypeInfo::PropertyInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -430,7 +453,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			auto* propIt = typeIt->GetThisPropertyInfoByName(a_name);
 			if (propIt) {
 				return propIt;
@@ -440,7 +463,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	const ObjectTypeInfo::PropertyInfo* ObjectTypeInfo::GetPropertyInfoByName(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetPropertyInfoByName(const BSFixedString& a_name) const noexcept
+		-> const ObjectTypeInfo::PropertyInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -450,7 +474,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			const auto* propIt = typeIt->GetThisPropertyInfoByName(a_name);
 			if (propIt) {
 				return propIt;
@@ -460,7 +484,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	ObjectTypeInfo::PropertyInfo* ObjectTypeInfo::GetThisPropertyInfoByName(const BSFixedString& a_name)
+	auto ObjectTypeInfo::GetThisPropertyInfoByName(const BSFixedString& a_name) noexcept
+		-> ObjectTypeInfo::PropertyInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -471,11 +496,15 @@ namespace RE::BSScript
 		}
 
 		auto* propBegin = GetThisPropertyIt();
-		auto* propEnd = propBegin + GetThisNumProperties();
+		auto* propEnd = propBegin + GetThisPropertyCount();
 
-		auto* propIt = std::lower_bound(propBegin, propEnd, a_name, [](const PropertyInfo& a_propInfo, const BSFixedString& a_propName) -> bool {
-			return a_propInfo.name < a_propName;
-		});
+		auto* propIt = std::lower_bound(
+			propBegin,
+			propEnd,
+			a_name,
+			[](const PropertyInfo& a_propInfo, const BSFixedString& a_propName) noexcept -> bool {
+				return a_propInfo.name < a_propName;
+			});
 
 		if (propIt == propEnd || propIt->name != a_name) {
 			return nullptr;
@@ -484,7 +513,8 @@ namespace RE::BSScript
 		return propIt;
 	}
 
-	const ObjectTypeInfo::PropertyInfo* ObjectTypeInfo::GetThisPropertyInfoByName(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetThisPropertyInfoByName(const BSFixedString& a_name) const noexcept
+		-> const ObjectTypeInfo::PropertyInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -495,11 +525,15 @@ namespace RE::BSScript
 		}
 
 		const auto* propBegin = GetThisPropertyIt();
-		const auto* propEnd = propBegin + GetThisNumProperties();
+		const auto* propEnd = propBegin + GetThisPropertyCount();
 
-		const auto* propIt = std::lower_bound(propBegin, propEnd, a_name, [](const PropertyInfo& a_propInfo, const BSFixedString& a_propName) -> bool {
-			return a_propInfo.name < a_propName;
-		});
+		const auto* propIt = std::lower_bound(
+			propBegin,
+			propEnd,
+			a_name,
+			[](const PropertyInfo& a_propInfo, const BSFixedString& a_propName) noexcept -> bool {
+				return a_propInfo.name < a_propName;
+			});
 
 		if (propIt == propEnd || propIt->name != a_name) {
 			return nullptr;
@@ -508,7 +542,7 @@ namespace RE::BSScript
 		return propIt;
 	}
 
-	ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetFunctionInfoByName(const BSFixedString& a_name)
+	auto ObjectTypeInfo::GetFunctionInfoByName(const BSFixedString& a_name) noexcept -> ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -518,7 +552,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			auto* funcIt = typeIt->GetThisFunctionInfoByName(a_name);
 			if (funcIt) {
 				return funcIt;
@@ -528,7 +562,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	const ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetFunctionInfoByName(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetFunctionInfoByName(const BSFixedString& a_name) const noexcept
+		-> const ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -538,7 +573,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			const auto* funcIt = typeIt->GetThisFunctionInfoByName(a_name);
 			if (funcIt) {
 				return funcIt;
@@ -548,7 +583,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetThisFunctionInfoByName(const BSFixedString& a_name)
+	auto ObjectTypeInfo::GetThisFunctionInfoByName(const BSFixedString& a_name) noexcept
+		-> ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -571,7 +607,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	const ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetThisFunctionInfoByName(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetThisFunctionInfoByName(const BSFixedString& a_name) const noexcept
+		-> const ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -594,7 +631,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetFunctionInfoByName(const BSFixedString& a_name, const BSFixedString& a_stateName)
+	auto ObjectTypeInfo::GetFunctionInfoByName(const BSFixedString& a_name, const BSFixedString& a_stateName) noexcept
+		-> ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -604,7 +642,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			auto* funcIt = typeIt->GetThisFunctionInfoByName(a_name, a_stateName);
 			if (funcIt) {
 				return funcIt;
@@ -614,7 +652,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	const ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetFunctionInfoByName(const BSFixedString& a_name, const BSFixedString& a_stateName) const
+	auto ObjectTypeInfo::GetFunctionInfoByName(const BSFixedString& a_name, const BSFixedString& a_stateName)
+		const noexcept -> const ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -624,7 +663,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			const auto* funcIt = typeIt->GetThisFunctionInfoByName(a_name, a_stateName);
 			if (funcIt) {
 				return funcIt;
@@ -634,7 +673,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetThisFunctionInfoByName(const BSFixedString& a_name, const BSFixedString& a_stateName)
+	auto ObjectTypeInfo::GetThisFunctionInfoByName(const BSFixedString& a_name, const BSFixedString& a_stateName)
+		noexcept -> ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -661,7 +701,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	const ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetThisFunctionInfoByName(const BSFixedString& a_name, const BSFixedString& a_stateName) const
+	auto ObjectTypeInfo::GetThisFunctionInfoByName(const BSFixedString& a_name, const BSFixedString& a_stateName)
+		const noexcept -> const ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -688,7 +729,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetStaticFunctionInfoByName(const BSFixedString& a_name)
+	auto ObjectTypeInfo::GetStaticFunctionInfoByName(const BSFixedString& a_name) noexcept
+		-> ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -698,7 +740,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			auto* funcIt = typeIt->GetThisStaticFunctionInfoByName(a_name);
 			if (funcIt) {
 				return funcIt;
@@ -708,7 +750,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	const ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetStaticFunctionInfoByName(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetStaticFunctionInfoByName(const BSFixedString& a_name) const noexcept
+		-> const ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -718,7 +761,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			const auto* funcIt = typeIt->GetThisStaticFunctionInfoByName(a_name);
 			if (funcIt) {
 				return funcIt;
@@ -728,7 +771,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetThisStaticFunctionInfoByName(const BSFixedString& a_name)
+	auto ObjectTypeInfo::GetThisStaticFunctionInfoByName(const BSFixedString& a_name) noexcept
+		-> ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -739,12 +783,16 @@ namespace RE::BSScript
 		}
 
 		auto* funcBegin = GetThisStaticFunctionIt();
-		auto* funcEnd = funcBegin + GetThisNumStaticFunctions();
+		auto* funcEnd = funcBegin + GetThisStaticFunctionCount();
 
-		auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_name, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) -> bool {
-			const auto& func = a_funcInfo.func;
-			return func ? func->GetName() < a_funcName : false;
-		});
+		auto* funcIt = std::lower_bound(
+			funcBegin,
+			funcEnd,
+			a_name,
+			[](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) noexcept -> bool {
+				const auto func = a_funcInfo.func;
+				return func ? func->GetName() < a_funcName : false;
+			});
 
 		if (funcIt == funcEnd) {
 			return nullptr;
@@ -758,7 +806,8 @@ namespace RE::BSScript
 		return funcIt;
 	}
 
-	const ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetThisStaticFunctionInfoByName(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetThisStaticFunctionInfoByName(const BSFixedString& a_name) const noexcept
+		-> const ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -769,12 +818,16 @@ namespace RE::BSScript
 		}
 
 		const auto* funcBegin = GetThisStaticFunctionIt();
-		const auto* funcEnd = funcBegin + GetThisNumStaticFunctions();
+		const auto* funcEnd = funcBegin + GetThisStaticFunctionCount();
 
-		const auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_name, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) -> bool {
-			const auto& func = a_funcInfo.func;
-			return func ? func->GetName() < a_funcName : false;
-		});
+		const auto* funcIt = std::lower_bound(
+			funcBegin,
+			funcEnd,
+			a_name,
+			[](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) noexcept -> bool {
+				const auto func = a_funcInfo.func;
+				return func ? func->GetName() < a_funcName : false;
+			});
 
 		if (funcIt == funcEnd) {
 			return nullptr;
@@ -788,7 +841,8 @@ namespace RE::BSScript
 		return funcIt;
 	}
 
-	ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetMemberFunctionInfoByName(const BSFixedString& a_name)
+	auto ObjectTypeInfo::GetMemberFunctionInfoByName(const BSFixedString& a_name) noexcept
+		-> ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -798,7 +852,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			auto* funcIt = typeIt->GetThisMemberFunctionInfoByName(a_name);
 			if (funcIt) {
 				return funcIt;
@@ -808,7 +862,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	const ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetMemberFunctionInfoByName(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetMemberFunctionInfoByName(const BSFixedString& a_name) const noexcept
+		-> const ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -818,7 +873,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			const auto* funcIt = typeIt->GetThisMemberFunctionInfoByName(a_name);
 			if (funcIt) {
 				return funcIt;
@@ -828,7 +883,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetThisMemberFunctionInfoByName(const BSFixedString& a_name)
+	auto ObjectTypeInfo::GetThisMemberFunctionInfoByName(const BSFixedString& a_name) noexcept
+		-> ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -839,12 +895,16 @@ namespace RE::BSScript
 		}
 
 		auto* funcBegin = GetThisMemberFunctionIt();
-		auto* funcEnd = funcBegin + GetThisNumMemberFunctions();
+		auto* funcEnd = funcBegin + GetThisMemberFunctionCount();
 
-		auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_name, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) -> bool {
-			const auto& func = a_funcInfo.func;
-			return func ? func->GetName() < a_funcName : false;
-		});
+		auto* funcIt = std::lower_bound(
+			funcBegin,
+			funcEnd,
+			a_name,
+			[](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) noexcept -> bool {
+				const auto func = a_funcInfo.func;
+				return func ? func->GetName() < a_funcName : false;
+			});
 
 		if (funcIt == funcEnd) {
 			return nullptr;
@@ -858,7 +918,8 @@ namespace RE::BSScript
 		return funcIt;
 	}
 
-	const ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetThisMemberFunctionInfoByName(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetThisMemberFunctionInfoByName(const BSFixedString& a_name) const noexcept
+		-> const ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_name.empty()) {
 			return nullptr;
@@ -869,12 +930,16 @@ namespace RE::BSScript
 		}
 
 		const auto* funcBegin = GetThisMemberFunctionIt();
-		const auto* funcEnd = funcBegin + GetThisNumMemberFunctions();
+		const auto* funcEnd = funcBegin + GetThisMemberFunctionCount();
 
-		const auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_name, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) -> bool {
-			const auto& func = a_funcInfo.func;
-			return func ? func->GetName() < a_funcName : false;
-		});
+		const auto* funcIt = std::lower_bound(
+			funcBegin,
+			funcEnd,
+			a_name,
+			[](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) noexcept -> bool {
+				const auto func = a_funcInfo.func;
+				return func ? func->GetName() < a_funcName : false;
+			});
 
 		if (funcIt == funcEnd) {
 			return nullptr;
@@ -888,7 +953,8 @@ namespace RE::BSScript
 		return funcIt;
 	}
 
-	ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetMemberFunctionInfoByName(const BSFixedString& a_funcName, const BSFixedString& a_stateName)
+	auto ObjectTypeInfo::GetMemberFunctionInfoByName(const BSFixedString& a_funcName, const BSFixedString& a_stateName)
+		noexcept -> ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_funcName.empty()) {
 			return nullptr;
@@ -898,7 +964,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			auto* funcIt = typeIt->GetThisMemberFunctionInfoByName(a_funcName, a_stateName);
 			if (funcIt) {
 				return funcIt;
@@ -908,7 +974,8 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	const ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetMemberFunctionInfoByName(const BSFixedString& a_funcName, const BSFixedString& a_stateName) const
+	auto ObjectTypeInfo::GetMemberFunctionInfoByName(const BSFixedString& a_funcName, const BSFixedString& a_stateName)
+		const noexcept -> const ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_funcName.empty()) {
 			return nullptr;
@@ -918,7 +985,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			const auto* funcIt = typeIt->GetThisMemberFunctionInfoByName(a_funcName, a_stateName);
 			if (funcIt) {
 				return funcIt;
@@ -928,7 +995,9 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetThisMemberFunctionInfoByName(const BSFixedString& a_funcName, const BSFixedString& a_stateName)
+	auto ObjectTypeInfo::GetThisMemberFunctionInfoByName(
+		const BSFixedString& a_funcName,
+		const BSFixedString& a_stateName) noexcept -> ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_funcName.empty()) {
 			return nullptr;
@@ -943,23 +1012,31 @@ namespace RE::BSScript
 		}
 
 		auto* stateBegin = GetThisNamedStateIt();
-		auto* stateEnd = stateBegin + GetThisNumNamedStates();
+		auto* stateEnd = stateBegin + GetThisNamedStateCount();
 
-		auto* stateIt = std::lower_bound(stateBegin, stateEnd, a_stateName, [](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) -> bool {
-			return a_stateInfo.name < a_stateName;
-		});
+		auto* stateIt = std::lower_bound(
+			stateBegin,
+			stateEnd,
+			a_stateName,
+			[](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) noexcept -> bool {
+				return a_stateInfo.name < a_stateName;
+			});
 
 		if (stateIt == stateEnd || stateIt->name != a_stateName) {
 			return nullptr;
 		}
 
 		auto* funcBegin = stateIt->GetMemberFunctionIt();
-		auto* funcEnd = funcBegin + stateIt->GetNumMemberFunctions();
+		auto* funcEnd = funcBegin + stateIt->GetMemberFunctionCount();
 
-		auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_funcName, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) -> bool {
-			const auto& func = a_funcInfo.func;
-			return func ? func->GetName() < a_funcName : false;
-		});
+		auto* funcIt = std::lower_bound(
+			funcBegin,
+			funcEnd,
+			a_funcName,
+			[](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) noexcept -> bool {
+				const auto func = a_funcInfo.func;
+				return func ? func->GetName() < a_funcName : false;
+			});
 
 		if (funcIt == funcEnd) {
 			return nullptr;
@@ -973,7 +1050,9 @@ namespace RE::BSScript
 		return funcIt;
 	}
 
-	const ObjectTypeInfo::FunctionInfo* ObjectTypeInfo::GetThisMemberFunctionInfoByName(const BSFixedString& a_funcName, const BSFixedString& a_stateName) const
+	auto ObjectTypeInfo::GetThisMemberFunctionInfoByName(
+		const BSFixedString& a_funcName,
+		const BSFixedString& a_stateName) const noexcept -> const ObjectTypeInfo::FunctionInfo*
 	{
 		if (a_funcName.empty()) {
 			return nullptr;
@@ -988,23 +1067,31 @@ namespace RE::BSScript
 		}
 
 		const auto* stateBegin = GetThisNamedStateIt();
-		const auto* stateEnd = stateBegin + GetThisNumNamedStates();
+		const auto* stateEnd = stateBegin + GetThisNamedStateCount();
 
-		const auto* stateIt = std::lower_bound(stateBegin, stateEnd, a_stateName, [](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) -> bool {
-			return a_stateInfo.name < a_stateName;
-		});
+		const auto* stateIt = std::lower_bound(
+			stateBegin,
+			stateEnd,
+			a_stateName,
+			[](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) noexcept -> bool {
+				return a_stateInfo.name < a_stateName;
+			});
 
 		if (stateIt == stateEnd || stateIt->name != a_stateName) {
 			return nullptr;
 		}
 
 		const auto* funcBegin = stateIt->GetMemberFunctionIt();
-		const auto* funcEnd = funcBegin + stateIt->GetNumMemberFunctions();
+		const auto* funcEnd = funcBegin + stateIt->GetMemberFunctionCount();
 
-		const auto* funcIt = std::lower_bound(funcBegin, funcEnd, a_funcName, [](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) -> bool {
-			const auto& func = a_funcInfo.func;
-			return func ? func->GetName() < a_funcName : false;
-		});
+		const auto* funcIt = std::lower_bound(
+			funcBegin,
+			funcEnd,
+			a_funcName,
+			[](const FunctionInfo& a_funcInfo, const BSFixedString& a_funcName) noexcept -> bool {
+				const auto func = a_funcInfo.func;
+				return func ? func->GetName() < a_funcName : false;
+			});
 
 		if (funcIt == funcEnd) {
 			return nullptr;
@@ -1018,9 +1105,10 @@ namespace RE::BSScript
 		return funcIt;
 	}
 
-	ObjectTypeInfo::NamedStateInfo* ObjectTypeInfo::GetNamedStateInfoByName(const BSFixedString& a_name)
+	auto ObjectTypeInfo::GetNamedStateInfoByName(const BSFixedString& a_name) noexcept
+		-> ObjectTypeInfo::NamedStateInfo*
 	{
-		if (a_name.empty()) {
+		if (a_name == GetEmptyStateName()) {
 			return nullptr;
 		}
 
@@ -1028,7 +1116,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			auto* stateIt = typeIt->GetThisNamedStateInfoByName(a_name);
 			if (stateIt) {
 				return stateIt;
@@ -1038,9 +1126,10 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	const ObjectTypeInfo::NamedStateInfo* ObjectTypeInfo::GetNamedStateInfoByName(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetNamedStateInfoByName(const BSFixedString& a_name) const noexcept
+		-> const ObjectTypeInfo::NamedStateInfo*
 	{
-		if (a_name.empty()) {
+		if (a_name == GetEmptyStateName()) {
 			return nullptr;
 		}
 
@@ -1048,7 +1137,7 @@ namespace RE::BSScript
 			return nullptr;
 		}
 
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
 			const auto* stateIt = typeIt->GetThisNamedStateInfoByName(a_name);
 			if (stateIt) {
 				return stateIt;
@@ -1058,9 +1147,10 @@ namespace RE::BSScript
 		return nullptr;
 	}
 
-	ObjectTypeInfo::NamedStateInfo* ObjectTypeInfo::GetThisNamedStateInfoByName(const BSFixedString& a_name)
+	auto ObjectTypeInfo::GetThisNamedStateInfoByName(const BSFixedString& a_name) noexcept
+		-> ObjectTypeInfo::NamedStateInfo*
 	{
-		if (a_name.empty()) {
+		if (a_name == GetEmptyStateName()) {
 			return nullptr;
 		}
 
@@ -1069,11 +1159,15 @@ namespace RE::BSScript
 		}
 
 		auto* stateBegin = GetThisNamedStateIt();
-		auto* stateEnd = stateBegin + GetThisNumNamedStates();
+		auto* stateEnd = stateBegin + GetThisNamedStateCount();
 
-		auto* stateIt = std::lower_bound(stateBegin, stateEnd, a_name, [](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) -> bool {
-			return a_stateInfo.name < a_stateName;
-		});
+		auto* stateIt = std::lower_bound(
+			stateBegin,
+			stateEnd,
+			a_name,
+			[](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) noexcept -> bool {
+				return a_stateInfo.name < a_stateName;
+			});
 
 		if (stateIt == stateEnd || stateIt->name != a_name) {
 			return nullptr;
@@ -1082,9 +1176,10 @@ namespace RE::BSScript
 		return stateIt;
 	}
 
-	const ObjectTypeInfo::NamedStateInfo* ObjectTypeInfo::GetThisNamedStateInfoByName(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetThisNamedStateInfoByName(const BSFixedString& a_name) const noexcept
+		-> const ObjectTypeInfo::NamedStateInfo*
 	{
-		if (a_name.empty()) {
+		if (a_name == GetEmptyStateName()) {
 			return nullptr;
 		}
 
@@ -1093,11 +1188,15 @@ namespace RE::BSScript
 		}
 
 		const auto* stateBegin = GetThisNamedStateIt();
-		const auto* stateEnd = stateBegin + GetThisNumNamedStates();
+		const auto* stateEnd = stateBegin + GetThisNamedStateCount();
 
-		const auto* stateIt = std::lower_bound(stateBegin, stateEnd, a_name, [](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) -> bool {
-			return a_stateInfo.name < a_stateName;
-		});
+		const auto* stateIt = std::lower_bound(
+			stateBegin,
+			stateEnd,
+			a_name,
+			[](const NamedStateInfo& a_stateInfo, const BSFixedString& a_stateName) noexcept -> bool {
+				return a_stateInfo.name < a_stateName;
+			});
 
 		if (stateIt == stateEnd || stateIt->name != a_name) {
 			return nullptr;
@@ -1106,7 +1205,170 @@ namespace RE::BSScript
 		return stateIt;
 	}
 
-	auto ObjectTypeInfo::GetVariableIndex(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::ForEachUserFlagInfo(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const UserFlagInfo&) const>>& a_predicate)
+		const -> BSContainer::ForEachResult
+	{
+		if (!IsLinked()) {
+			return BSContainer::ForEachResult::Continue;
+		}
+
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			const auto* flagBegin = typeIt->GetThisUserFlagIt();
+			const auto* flagEnd = flagBegin + typeIt->GetThisUserFlagCount();
+
+			for (const auto* flagIt = flagBegin; flagIt != flagEnd; flagIt++) {
+				if (std::invoke(a_predicate.get(), *flagIt) == BSContainer::ForEachResult::Stop) {
+					return BSContainer::ForEachResult::Stop;
+				}
+			}
+		}
+
+		return BSContainer::ForEachResult::Continue;
+	}
+
+	auto ObjectTypeInfo::ForEachVariableInfo(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const VariableInfo&) const>>& a_predicate)
+		const -> BSContainer::ForEachResult
+	{
+		if (!IsLinked()) {
+			return BSContainer::ForEachResult::Continue;
+		}
+
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			const auto* varBegin = typeIt->GetThisVariableIt();
+			const auto* varEnd = varBegin + typeIt->GetThisVariableCount();
+
+			for (const auto* varIt = varBegin; varIt != varEnd; varIt++) {
+				if (std::invoke(a_predicate.get(), *varIt) == BSContainer::ForEachResult::Stop) {
+					return BSContainer::ForEachResult::Stop;
+				}
+			}
+		}
+
+		return BSContainer::ForEachResult::Continue;
+	}
+
+	auto ObjectTypeInfo::ForEachPropertyInfo(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const PropertyInfo&) const>>& a_predicate)
+		const -> BSContainer::ForEachResult
+	{
+		if (!IsLinked()) {
+			return BSContainer::ForEachResult::Continue;
+		}
+
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			const auto* propBegin = typeIt->GetThisPropertyIt();
+			const auto* propEnd = propBegin + typeIt->GetThisPropertyCount();
+
+			for (const auto* propIt = propBegin; propIt != propEnd; propIt++) {
+				if (std::invoke(a_predicate.get(), *propIt) == BSContainer::ForEachResult::Stop) {
+					return BSContainer::ForEachResult::Stop;
+				}
+			}
+		}
+
+		return BSContainer::ForEachResult::Continue;
+	}
+
+	auto ObjectTypeInfo::ForEachFunctionInfo(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const FunctionInfo&) const>>& a_predicate)
+		const -> BSContainer::ForEachResult
+	{
+		if (!IsLinked()) {
+			return BSContainer::ForEachResult::Continue;
+		}
+
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			const auto* staticFuncBegin = typeIt->GetThisStaticFunctionIt();
+			const auto* staticFuncEnd = staticFuncBegin + typeIt->GetThisStaticFunctionCount();
+
+			for (const auto* funcIt = staticFuncBegin; funcIt != staticFuncEnd; funcIt++) {
+				if (std::invoke(a_predicate.get(), *funcIt) == BSContainer::ForEachResult::Stop) {
+					return BSContainer::ForEachResult::Stop;
+				}
+			}
+
+			const auto* memberFuncBegin = typeIt->GetThisMemberFunctionIt();
+			const auto* memberFuncEnd = memberFuncBegin + typeIt->GetThisMemberFunctionCount();
+
+			for (const auto* funcIt = memberFuncBegin; funcIt != memberFuncEnd; funcIt++) {
+				if (std::invoke(a_predicate.get(), *funcIt) == BSContainer::ForEachResult::Stop) {
+					return BSContainer::ForEachResult::Stop;
+				}
+			}
+		}
+
+		return BSContainer::ForEachResult::Continue;
+	}
+
+	auto ObjectTypeInfo::ForEachMemberFunctionInfo(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const FunctionInfo&) const>>& a_predicate)
+		const -> BSContainer::ForEachResult
+	{
+		if (!IsLinked()) {
+			return BSContainer::ForEachResult::Continue;
+		}
+
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			const auto* memberFuncBegin = typeIt->GetThisMemberFunctionIt();
+			const auto* memberFuncEnd = memberFuncBegin + typeIt->GetThisMemberFunctionCount();
+
+			for (const auto* funcIt = memberFuncBegin; funcIt != memberFuncEnd; funcIt++) {
+				if (std::invoke(a_predicate.get(), *funcIt) == BSContainer::ForEachResult::Stop) {
+					return BSContainer::ForEachResult::Stop;
+				}
+			}
+		}
+
+		return BSContainer::ForEachResult::Continue;
+	}
+
+	auto ObjectTypeInfo::ForEachStaticFunctionInfo(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const FunctionInfo&) const>>& a_predicate)
+		const -> BSContainer::ForEachResult
+	{
+		if (!IsLinked()) {
+			return BSContainer::ForEachResult::Continue;
+		}
+
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			const auto* staticFuncBegin = typeIt->GetThisStaticFunctionIt();
+			const auto* staticFuncEnd = staticFuncBegin + typeIt->GetThisStaticFunctionCount();
+
+			for (const auto* funcIt = staticFuncBegin; funcIt != staticFuncEnd; funcIt++) {
+				if (std::invoke(a_predicate.get(), *funcIt) == BSContainer::ForEachResult::Stop) {
+					return BSContainer::ForEachResult::Stop;
+				}
+			}
+		}
+
+		return BSContainer::ForEachResult::Continue;
+	}
+
+	auto ObjectTypeInfo::ForEachNamedStateInfo(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const NamedStateInfo&) const>>&
+			a_predicate) const -> BSContainer::ForEachResult
+	{
+		if (!IsLinked()) {
+			return BSContainer::ForEachResult::Continue;
+		}
+
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			const auto* stateBegin = typeIt->GetThisNamedStateIt();
+			const auto* stateEnd = stateBegin + typeIt->GetThisNamedStateCount();
+
+			for (const auto* stateIt = stateBegin; stateIt != stateEnd; stateIt++) {
+				if (std::invoke(a_predicate.get(), *stateIt) == BSContainer::ForEachResult::Stop) {
+					return BSContainer::ForEachResult::Stop;
+				}
+			}
+		}
+
+		return BSContainer::ForEachResult::Continue;
+	}
+
+	auto ObjectTypeInfo::GetVariableIndexByName(const BSFixedString& a_name) const noexcept
 		-> std::optional<std::uint32_t>
 	{
 		if (a_name.empty()) {
@@ -1117,32 +1379,40 @@ namespace RE::BSScript
 			return std::nullopt;
 		}
 
-		auto indexOffset = 0ui32;
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
-			const auto varIndex = typeIt->GetThisVariableIndex(a_name);
-			if (varIndex) {
-				return indexOffset + *varIndex;
+		auto indexOffset = static_cast<std::uint32_t>(0);
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			const auto varIndex = typeIt->GetThisVariableIndexByName(a_name);
+			if (varIndex.has_value()) {
+				return indexOffset + varIndex.value();
 			}
 
-			indexOffset += typeIt->GetThisNumVariables();
+			indexOffset += typeIt->GetThisVariableCount();
 		}
 
 		return std::nullopt;
 	}
 
-	auto ObjectTypeInfo::GetThisVariableIndex(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetThisVariableIndexByName(const BSFixedString& a_name) const noexcept
 		-> std::optional<std::uint32_t>
 	{
 		if (a_name.empty()) {
 			return std::nullopt;
 		}
 
-		const auto* varBegin = GetThisVariableIt();
-		const auto* varEnd = varBegin + GetThisNumVariables();
+		if (!IsLinked()) {
+			return std::nullopt;
+		}
 
-		const auto* varIt = std::lower_bound(varBegin, varEnd, a_name, [](const VariableInfo& a_varInfo, const BSFixedString& a_varName) -> bool {
-			return a_varInfo.name < a_varName;
-		});
+		const auto* varBegin = GetThisVariableIt();
+		const auto* varEnd = varBegin + GetThisVariableCount();
+
+		const auto* varIt = std::lower_bound(
+			varBegin,
+			varEnd,
+			a_name,
+			[](const VariableInfo& a_varInfo, const BSFixedString& a_varName) noexcept -> bool {
+				return a_varInfo.name < a_varName;
+			});
 
 		if (varIt == varEnd || varIt->name != a_name) {
 			return std::nullopt;
@@ -1151,7 +1421,7 @@ namespace RE::BSScript
 		return static_cast<std::uint32_t>(std::distance(varBegin, varIt));
 	}
 
-	auto ObjectTypeInfo::GetPropertyIndex(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetPropertyIndexByName(const BSFixedString& a_name) const noexcept
 		-> std::optional<std::uint32_t>
 	{
 		if (a_name.empty()) {
@@ -1162,32 +1432,37 @@ namespace RE::BSScript
 			return std::nullopt;
 		}
 
-		auto indexOffset = 0ui32;
-		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeIt()) {
-			const auto propIndex = typeIt->GetThisPropertyIndex(a_name);
-			if (propIndex) {
-				return indexOffset + *propIndex;
+		for (const auto* typeIt = this; typeIt; typeIt = typeIt->GetParentTypeInfoIt()) {
+			const auto propIndex = typeIt->GetThisPropertyIndexByName(a_name);
+			if (propIndex.has_value()) {
+				return propIndex;
 			}
-
-			indexOffset += typeIt->GetThisNumProperties();
 		}
 
 		return std::nullopt;
 	}
 
-	auto ObjectTypeInfo::GetThisPropertyIndex(const BSFixedString& a_name) const
+	auto ObjectTypeInfo::GetThisPropertyIndexByName(const BSFixedString& a_name) const noexcept
 		-> std::optional<std::uint32_t>
 	{
 		if (a_name.empty()) {
 			return std::nullopt;
 		}
 
-		const auto* propBegin = GetThisPropertyIt();
-		const auto* propEnd = propBegin + GetThisNumProperties();
+		if (!IsLinked()) {
+			return std::nullopt;
+		}
 
-		const auto* propIt = std::lower_bound(propBegin, propEnd, a_name, [](const PropertyInfo& a_propInfo, const BSFixedString& a_propName) -> bool {
-			return a_propInfo.name < a_propName;
-		});
+		const auto* propBegin = GetThisPropertyIt();
+		const auto* propEnd = propBegin + GetThisPropertyCount();
+
+		const auto* propIt = std::lower_bound(
+			propBegin,
+			propEnd,
+			a_name,
+			[](const PropertyInfo& a_propInfo, const BSFixedString& a_propName) noexcept -> bool {
+				return a_propInfo.name < a_propName;
+			});
 
 		if (propIt == propEnd || propIt->name != a_name) {
 			return std::nullopt;
@@ -1201,7 +1476,7 @@ namespace RE::BSScript
 		return varIndex;
 	}
 
-	bool ObjectTypeInfo::IsChildOf(const ObjectTypeInfo* a_parentTypeInfo) const
+	auto ObjectTypeInfo::IsChildOf(const ObjectTypeInfo* a_parentTypeInfo) const noexcept -> bool
 	{
 		if (!a_parentTypeInfo) {
 			return false;
@@ -1220,12 +1495,12 @@ namespace RE::BSScript
 		return false;
 	}
 
-	bool ObjectTypeInfo::IsChildOf(const BSTSmartPointer<ObjectTypeInfo>& a_parentTypeInfo) const
+	auto ObjectTypeInfo::IsChildOf(const BSTSmartPointer<ObjectTypeInfo>& a_parentTypeInfo) const noexcept -> bool
 	{
 		return IsChildOf(a_parentTypeInfo.get());
 	}
 
-	bool ObjectTypeInfo::IsParentOf(const ObjectTypeInfo* a_childTypeInfo) const
+	auto ObjectTypeInfo::IsParentOf(const ObjectTypeInfo* a_childTypeInfo) const noexcept -> bool
 	{
 		if (!a_childTypeInfo) {
 			return false;
@@ -1235,7 +1510,8 @@ namespace RE::BSScript
 			return true;
 		}
 
-		for (auto typeInfoIt = a_childTypeInfo->GetParentTypeInfo(); typeInfoIt; typeInfoIt = typeInfoIt->GetParentTypeInfo()) {
+		for (auto typeInfoIt = a_childTypeInfo->GetParentTypeInfo(); typeInfoIt;
+			 typeInfoIt = typeInfoIt->GetParentTypeInfo()) {
 			if (typeInfoIt == this) {
 				return true;
 			}
@@ -1244,7 +1520,7 @@ namespace RE::BSScript
 		return false;
 	}
 
-	bool ObjectTypeInfo::IsParentOf(const BSTSmartPointer<ObjectTypeInfo>& a_childTypeInfo) const
+	auto ObjectTypeInfo::IsParentOf(const BSTSmartPointer<ObjectTypeInfo>& a_childTypeInfo) const noexcept -> bool
 	{
 		return IsParentOf(a_childTypeInfo.get());
 	}

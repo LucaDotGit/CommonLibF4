@@ -1,20 +1,28 @@
 #include "REX/Crypto.hpp"
 
+#include "REX/Casting.hpp"
+#include "REX/Container.hpp"
 #include "REX/Contract.hpp"
-#include "REX/Format.hpp"
+#include "REX/Error.hpp"
+#include "REX/Formatting.hpp"
 #include "REX/ScopeExit.hpp"
+#include "REX/W32/BCRYPT.hpp"
+#include "REX/W32/CORE.hpp"
+#include "REX/ZString.hpp"
 
 namespace REX
 {
-	auto HashCrypto(std::span<const std::byte> a_data, REX::zwstring_view a_algorithm) noexcept
+	auto HashCrypto(std::span<const std::byte> a_data, REX::ZWStringView a_algorithmName) noexcept
 		-> std::expected<std::vector<std::byte>, REX::SystemError>
 	{
 		auto algorithmHandle = REX::W32::BCRYPT_ALG_HANDLE();
-		if (!REX::W32::NT_SUCCESS(REX::W32::BCryptOpenAlgorithmProvider(std::addressof(algorithmHandle), a_algorithm.data()))) {
+		if (!REX::W32::NT_SUCCESS(
+				REX::W32::BCryptOpenAlgorithmProvider(std::addressof(algorithmHandle), a_algorithmName.data())))
+			[[unlikely]] {
 			return std::unexpected(REX::GetCurrentSystemError());
 		}
 
-		const auto cleanupAlgo = ScopeExit([algorithmHandle]() -> void {
+		const auto cleanupAlgo = ScopeExit([algorithmHandle]() noexcept -> void {
 			if (!REX::W32::NT_SUCCESS(REX::W32::BCryptCloseAlgorithmProvider(algorithmHandle))) [[unlikely]] {
 				REX::Assert(false);
 			}
@@ -27,28 +35,37 @@ namespace REX
 		-> std::expected<std::vector<std::byte>, REX::SystemError>
 	{
 		auto hashHandle = REX::W32::BCRYPT_HASH_HANDLE();
-		if (!REX::W32::NT_SUCCESS(REX::W32::BCryptCreateHash(a_algorithmHandle, std::addressof(hashHandle)))) {
+		if (!REX::W32::NT_SUCCESS(REX::W32::BCryptCreateHash(a_algorithmHandle, std::addressof(hashHandle))))
+			[[unlikely]] {
 			return std::unexpected(REX::GetCurrentSystemError());
 		}
 
-		const auto cleanupHash = ScopeExit([hashHandle]() -> void {
+		const auto cleanupHash = ScopeExit([hashHandle]() noexcept -> void {
 			if (!REX::W32::NT_SUCCESS(REX::W32::BCryptDestroyHash(hashHandle))) [[unlikely]] {
 				REX::Assert(false);
 			}
 		});
 
-		if (!REX::W32::NT_SUCCESS(REX::W32::BCryptHashData(
-				hashHandle, reinterpret_cast<std::uint8_t*>(const_cast<std::byte*>(a_data.data())), static_cast<std::uint32_t>(a_data.size())))) {
+		if (!REX::W32::NT_SUCCESS(
+				REX::W32::BCryptHashData(
+					hashHandle,
+					REX::CheckedReinterpretCast<std::uint8_t*>(const_cast<std::byte*>(a_data.data())),
+					static_cast<std::uint32_t>(a_data.size())))) [[unlikely]] {
 			return std::unexpected(REX::GetCurrentSystemError());
 		}
 
-		auto bufferSize = 0ui32;
+		auto bufferSize = static_cast<std::uint32_t>(0);
 
 		{
-			auto tempOutput = 0ui32;
+			auto tempOutput = static_cast<std::uint32_t>(0);
 
-			if (!REX::W32::NT_SUCCESS(REX::W32::BCryptGetProperty(
-					hashHandle, REX::W32::BCRYPT_HASH_LENGTH.data(), reinterpret_cast<std::uint8_t*>(std::addressof(bufferSize)), sizeof(bufferSize), std::addressof(tempOutput)))) {
+			if (!REX::W32::NT_SUCCESS(
+					REX::W32::BCryptGetProperty(
+						hashHandle,
+						REX::W32::BCRYPT_HASH_LENGTH.data(),
+						reinterpret_cast<std::uint8_t*>(std::addressof(bufferSize)),
+						sizeof(bufferSize),
+						std::addressof(tempOutput)))) [[unlikely]] {
 				return std::unexpected(REX::GetCurrentSystemError());
 			}
 		}
@@ -56,28 +73,35 @@ namespace REX
 		auto buffer = std::vector<std::byte>();
 
 		try {
-			buffer.resize(bufferSize);
+			REX::ResizeForOverwrite(buffer, bufferSize);
 		}
-		catch ([[maybe_unused]] const std::bad_alloc& error) {
+		catch (const std::bad_alloc& error) {
+			std::ignore = error;
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::not_enough_memory));
 		}
 
-		if (!REX::W32::NT_SUCCESS(REX::W32::BCryptFinishHash(hashHandle, reinterpret_cast<std::uint8_t*>(buffer.data()), static_cast<std::uint32_t>(buffer.size())))) {
+		if (!REX::W32::NT_SUCCESS(
+				REX::W32::BCryptFinishHash(
+					hashHandle,
+					REX::CheckedReinterpretCast<std::uint8_t*>(buffer.data()),
+					static_cast<std::uint32_t>(buffer.size())))) [[unlikely]] {
 			return std::unexpected(REX::GetCurrentSystemError());
 		}
 
 		return std::move(buffer);
 	}
 
-	auto HashCrypto(std::string_view a_data, REX::zwstring_view a_algorithm) noexcept
+	auto HashCrypto(std::string_view a_data, REX::ZWStringView a_algorithmName) noexcept
 		-> std::expected<std::string, REX::SystemError>
 	{
 		auto algorithmHandle = REX::W32::BCRYPT_ALG_HANDLE();
-		if (!REX::W32::NT_SUCCESS(REX::W32::BCryptOpenAlgorithmProvider(std::addressof(algorithmHandle), a_algorithm.data()))) {
+		if (!REX::W32::NT_SUCCESS(
+				REX::W32::BCryptOpenAlgorithmProvider(std::addressof(algorithmHandle), a_algorithmName.data())))
+			[[unlikely]] {
 			return std::unexpected(REX::GetCurrentSystemError());
 		}
 
-		const auto cleanupAlgo = ScopeExit([algorithmHandle]() -> void {
+		const auto cleanupAlgo = ScopeExit([algorithmHandle]() noexcept -> void {
 			if (!REX::W32::NT_SUCCESS(REX::W32::BCryptCloseAlgorithmProvider(algorithmHandle))) [[unlikely]] {
 				REX::Assert(false);
 			}
@@ -90,28 +114,37 @@ namespace REX
 		-> std::expected<std::string, REX::SystemError>
 	{
 		auto hashHandle = REX::W32::BCRYPT_HASH_HANDLE();
-		if (!REX::W32::NT_SUCCESS(REX::W32::BCryptCreateHash(a_algorithmHandle, std::addressof(hashHandle)))) {
+		if (!REX::W32::NT_SUCCESS(REX::W32::BCryptCreateHash(a_algorithmHandle, std::addressof(hashHandle))))
+			[[unlikely]] {
 			return std::unexpected(REX::GetCurrentSystemError());
 		}
 
-		const auto cleanupHash = ScopeExit([hashHandle]() -> void {
+		const auto cleanupHash = ScopeExit([hashHandle]() noexcept -> void {
 			if (!REX::W32::NT_SUCCESS(REX::W32::BCryptDestroyHash(hashHandle))) [[unlikely]] {
 				REX::Assert(false);
 			}
 		});
 
-		if (!REX::W32::NT_SUCCESS(REX::W32::BCryptHashData(
-				hashHandle, reinterpret_cast<std::uint8_t*>(const_cast<char*>(a_data.data())), static_cast<std::uint32_t>(a_data.size())))) {
+		if (!REX::W32::NT_SUCCESS(
+				REX::W32::BCryptHashData(
+					hashHandle,
+					REX::CheckedReinterpretCast<std::uint8_t*>(const_cast<char*>(a_data.data())),
+					static_cast<std::uint32_t>(a_data.size())))) [[unlikely]] {
 			return std::unexpected(REX::GetCurrentSystemError());
 		}
 
-		auto bufferSize = 0ui32;
+		auto bufferSize = static_cast<std::uint32_t>(0);
 
 		{
-			auto tempOutput = 0ui32;
+			auto tempOutput = static_cast<std::uint32_t>(0);
 
-			if (!REX::W32::NT_SUCCESS(REX::W32::BCryptGetProperty(
-					hashHandle, REX::W32::BCRYPT_HASH_LENGTH.data(), reinterpret_cast<std::uint8_t*>(std::addressof(bufferSize)), sizeof(bufferSize), std::addressof(tempOutput)))) {
+			if (!REX::W32::NT_SUCCESS(
+					REX::W32::BCryptGetProperty(
+						hashHandle,
+						REX::W32::BCRYPT_HASH_LENGTH.data(),
+						reinterpret_cast<std::uint8_t*>(std::addressof(bufferSize)),
+						sizeof(bufferSize),
+						std::addressof(tempOutput)))) [[unlikely]] {
 				return std::unexpected(REX::GetCurrentSystemError());
 			}
 		}
@@ -119,39 +152,42 @@ namespace REX
 		auto buffer = std::vector<std::uint8_t>();
 
 		try {
-			buffer.resize(bufferSize);
+			REX::ResizeForOverwrite(buffer, bufferSize);
 		}
-		catch ([[maybe_unused]] const std::bad_alloc& error) {
+		catch (const std::bad_alloc& error) {
+			std::ignore = error;
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::not_enough_memory));
 		}
 
-		if (!REX::W32::NT_SUCCESS(REX::W32::BCryptFinishHash(hashHandle, buffer.data(), static_cast<std::uint32_t>(buffer.size())))) {
+		if (!REX::W32::NT_SUCCESS(
+				REX::W32::BCryptFinishHash(hashHandle, buffer.data(), static_cast<std::uint32_t>(buffer.size()))))
+			[[unlikely]] {
 			return std::unexpected(REX::GetCurrentSystemError());
 		}
 
+		auto result = std::string();
+
 		try {
-			auto result = std::string();
-			result.reserve(buffer.size() * 2);
+			REX::ResizeForOverwrite(result, buffer.size() * 2);
 
-			for (const auto byte : buffer) {
-				result += REX::Format("{:02X}"sv, byte);
+			for (auto i = static_cast<std::uint32_t>(0); i < buffer.size(); i++) {
+				REX::FormatTo(result.data() + (i * 2), "{:02x}"sv, buffer[i]);
 			}
-
-			return std::move(result);
 		}
-		catch ([[maybe_unused]] const std::bad_alloc& error) {
+		catch (const std::bad_alloc& error) {
+			std::ignore = error;
 			return std::unexpected(REX::CreateSystemError(REX::PosixErrorCode::not_enough_memory));
 		}
+
+		return std::move(result);
 	}
 
-	auto HashMd5(std::span<const std::byte> a_data) noexcept
-		-> std::expected<std::vector<std::byte>, REX::SystemError>
+	auto HashMd5(std::span<const std::byte> a_data) noexcept -> std::expected<std::vector<std::byte>, REX::SystemError>
 	{
 		return HashCrypto(a_data, REX::W32::BCRYPT_MD5_ALG_HANDLE);
 	}
 
-	auto HashSha1(std::span<const std::byte> a_data) noexcept
-		-> std::expected<std::vector<std::byte>, REX::SystemError>
+	auto HashSha1(std::span<const std::byte> a_data) noexcept -> std::expected<std::vector<std::byte>, REX::SystemError>
 	{
 		return HashCrypto(a_data, REX::W32::BCRYPT_SHA1_ALG_HANDLE);
 	}
@@ -174,32 +210,27 @@ namespace REX
 		return HashCrypto(a_data, REX::W32::BCRYPT_SHA512_ALG_HANDLE);
 	}
 
-	auto HashMd5(std::string_view a_data) noexcept
-		-> std::expected<std::string, REX::SystemError>
+	auto HashMd5(std::string_view a_data) noexcept -> std::expected<std::string, REX::SystemError>
 	{
 		return HashCrypto(a_data, REX::W32::BCRYPT_MD5_ALG_HANDLE);
 	}
 
-	auto HashSha1(std::string_view a_data) noexcept
-		-> std::expected<std::string, REX::SystemError>
+	auto HashSha1(std::string_view a_data) noexcept -> std::expected<std::string, REX::SystemError>
 	{
 		return HashCrypto(a_data, REX::W32::BCRYPT_SHA1_ALG_HANDLE);
 	}
 
-	auto HashSha256(std::string_view a_data) noexcept
-		-> std::expected<std::string, REX::SystemError>
+	auto HashSha256(std::string_view a_data) noexcept -> std::expected<std::string, REX::SystemError>
 	{
 		return HashCrypto(a_data, REX::W32::BCRYPT_SHA256_ALG_HANDLE);
 	}
 
-	auto HashSha384(std::string_view a_data) noexcept
-		-> std::expected<std::string, REX::SystemError>
+	auto HashSha384(std::string_view a_data) noexcept -> std::expected<std::string, REX::SystemError>
 	{
 		return HashCrypto(a_data, REX::W32::BCRYPT_SHA384_ALG_HANDLE);
 	}
 
-	auto HashSha512(std::string_view a_data) noexcept
-		-> std::expected<std::string, REX::SystemError>
+	auto HashSha512(std::string_view a_data) noexcept -> std::expected<std::string, REX::SystemError>
 	{
 		return HashCrypto(a_data, REX::W32::BCRYPT_SHA512_ALG_HANDLE);
 	}

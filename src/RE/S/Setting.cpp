@@ -29,7 +29,7 @@ namespace RE
 		SetBinary(a_value);
 	}
 
-	Setting::Setting(const char* a_key, char a_value) noexcept
+	Setting::Setting(const char* a_key, std::int8_t a_value) noexcept
 	{
 		SetKey(a_key);
 		SetChar(a_value);
@@ -65,7 +65,13 @@ namespace RE
 		SetString(a_value);
 	}
 
-	Setting::Setting(const char* a_key, REX::zstring_view a_value)
+	Setting::Setting(const char* a_key, const char* a_value)
+	{
+		SetKey(a_key);
+		SetString(a_value);
+	}
+
+	Setting::Setting(const char* a_key, REX::ZStringView a_value)
 	{
 		SetKey(a_key);
 		SetStringView(a_value);
@@ -83,18 +89,18 @@ namespace RE
 		SetRGBA(a_value);
 	}
 
-	Setting::Setting(const Setting& a_rhs) noexcept
+	Setting::Setting(const Setting& a_rhs)
 	{
 		Assign(a_rhs);
 	}
 
-	Setting::Setting(Setting&& a_rhs) noexcept
-		: _value(a_rhs._value),
-		  _key(std::exchange(a_rhs._key, nullptr))
+	Setting::Setting(Setting&& a_rhs) noexcept :
+		_value(a_rhs._value),
+		_key(std::exchange(a_rhs._key, nullptr))
 	{
 	}
 
-	Setting& Setting::operator=(const Setting& a_rhs) noexcept
+	auto Setting::operator=(const Setting& a_rhs) -> Setting&
 	{
 		if (this == std::addressof(a_rhs)) {
 			return *this;
@@ -104,7 +110,7 @@ namespace RE
 		return *this;
 	}
 
-	Setting& Setting::operator=(Setting&& a_rhs) noexcept
+	auto Setting::operator=(Setting&& a_rhs) noexcept -> Setting&
 	{
 		if (this == std::addressof(a_rhs)) {
 			return *this;
@@ -115,87 +121,88 @@ namespace RE
 		return *this;
 	}
 
-	Setting& Setting::operator=(bool a_value) noexcept
+	auto Setting::operator=(bool a_value) noexcept -> Setting&
 	{
 		SetBinary(a_value);
 		return *this;
 	}
 
-	Setting& Setting::operator=(char a_value) noexcept
+	auto Setting::operator=(std::int8_t a_value) noexcept -> Setting&
 	{
 		SetChar(a_value);
 		return *this;
 	}
 
-	Setting& Setting::operator=(std::uint8_t a_value) noexcept
+	auto Setting::operator=(std::uint8_t a_value) noexcept -> Setting&
 	{
 		SetUChar(a_value);
 		return *this;
 	}
 
-	Setting& Setting::operator=(std::int32_t a_value) noexcept
+	auto Setting::operator=(std::int32_t a_value) noexcept -> Setting&
 	{
 		SetInt(a_value);
 		return *this;
 	}
 
-	Setting& Setting::operator=(std::uint32_t a_value) noexcept
+	auto Setting::operator=(std::uint32_t a_value) noexcept -> Setting&
 	{
 		SetUInt(a_value);
 		return *this;
 	}
 
-	Setting& Setting::operator=(REX::Float32 a_value) noexcept
+	auto Setting::operator=(REX::Float32 a_value) noexcept -> Setting&
 	{
 		SetFloat(a_value);
 		return *this;
 	}
 
-	Setting& Setting::operator=(char* a_value) noexcept
+	auto Setting::operator=(char* a_value) noexcept -> Setting&
 	{
 		SetString(a_value);
 		return *this;
 	}
 
-	Setting& Setting::operator=(REX::zstring_view a_value)
+	auto Setting::operator=(const char* a_value) -> Setting&
+	{
+		SetString(a_value);
+		return *this;
+	}
+
+	auto Setting::operator=(REX::ZStringView a_value) -> Setting&
 	{
 		SetStringView(a_value);
 		return *this;
 	}
 
-	Setting& Setting::operator=(std::span<const std::uint8_t, 3> a_value) noexcept
+	auto Setting::operator=(std::span<const std::uint8_t, 3> a_value) noexcept -> Setting&
 	{
 		SetRGB(a_value);
 		return *this;
 	}
 
-	Setting& Setting::operator=(std::span<const std::uint8_t, 4> a_value) noexcept
+	auto Setting::operator=(std::span<const std::uint8_t, 4> a_value) noexcept -> Setting&
 	{
 		SetRGBA(a_value);
 		return *this;
 	}
 
-	bool Setting::IsPrefSetting() const
+	auto Setting::IsPrefSetting() const -> bool
 	{
 		return false;
 	}
 
-	bool Setting::operator==(const Setting& a_rhs) const noexcept
+	auto Setting::operator==(const Setting& a_rhs) const noexcept -> bool
 	{
 		return Equals(a_rhs);
 	}
 
-	bool Setting::operator!=(const Setting& a_rhs) const noexcept
-	{
-		return !(*this == a_rhs);
-	}
-
-	std::partial_ordering Setting::operator<=>(const Setting& a_rhs) const noexcept
+	auto Setting::operator<=>(const Setting& a_rhs) const noexcept -> std::partial_ordering
 	{
 		return Compare(a_rhs);
 	}
 
-	bool Setting::Equals(const Setting& a_rhs) const noexcept
+	auto Setting::Equals(const Setting& a_rhs) const noexcept -> bool
 	{
 		if (GetType() != a_rhs.GetType()) {
 			return false;
@@ -206,44 +213,43 @@ namespace RE
 		}
 
 		switch (GetType()) {
-			case SETTING_TYPE::kBinary: {
+			case SETTING_TYPE::Binary: {
 				return GetBinary() == a_rhs.GetBinary();
 			}
-			case SETTING_TYPE::kChar: {
+			case SETTING_TYPE::Char: {
 				return GetChar() == a_rhs.GetChar();
 			}
-			case SETTING_TYPE::kUChar: {
+			case SETTING_TYPE::UChar: {
 				return GetUChar() == a_rhs.GetUChar();
 			}
-			case SETTING_TYPE::kInt: {
+			case SETTING_TYPE::Int: {
 				return GetInt() == a_rhs.GetInt();
 			}
-			case SETTING_TYPE::kUInt: {
+			case SETTING_TYPE::UInt: {
 				return GetUInt() == a_rhs.GetUInt();
 			}
-			case SETTING_TYPE::kFloat: {
+			case SETTING_TYPE::Float: {
 				return GetFloat() == a_rhs.GetFloat();
 			}
-			case SETTING_TYPE::kString: {
+			case SETTING_TYPE::String: {
 				return REX::EqualsIgnoreCase(GetStringView(), a_rhs.GetStringView());
 			}
-			case SETTING_TYPE::kRGB: {
+			case SETTING_TYPE::RGB: {
 				return std::ranges::equal(GetRGB(), a_rhs.GetRGB());
 			}
-			case SETTING_TYPE::kRGBA: {
+			case SETTING_TYPE::RGBA: {
 				return std::ranges::equal(GetRGBA(), a_rhs.GetRGBA());
 			}
-			case SETTING_TYPE::kNone: {
+			case SETTING_TYPE::None: {
 				return true;
 			}
-			[[unlikely]] default: {
-				REX::Assert(false);
-				return false;
+			default: {
+				std::unreachable();
 			}
 		}
 	}
 
-	std::partial_ordering Setting::Compare(const Setting& a_rhs) const noexcept
+	auto Setting::Compare(const Setting& a_rhs) const noexcept -> std::partial_ordering
 	{
 		const auto keyComparison = REX::CompareIgnoreCase(GetKeyView(), a_rhs.GetKeyView());
 		if (keyComparison != std::partial_ordering::equivalent) {
@@ -256,231 +262,242 @@ namespace RE
 		}
 
 		switch (GetType()) {
-			case SETTING_TYPE::kBinary: {
+			case SETTING_TYPE::Binary: {
 				return GetBinary() <=> a_rhs.GetBinary();
 			}
-			case SETTING_TYPE::kChar: {
+			case SETTING_TYPE::Char: {
 				return GetChar() <=> a_rhs.GetChar();
 			}
-			case SETTING_TYPE::kUChar: {
+			case SETTING_TYPE::UChar: {
 				return GetUChar() <=> a_rhs.GetUChar();
 			}
-			case SETTING_TYPE::kInt: {
+			case SETTING_TYPE::Int: {
 				return GetInt() <=> a_rhs.GetInt();
 			}
-			case SETTING_TYPE::kUInt: {
+			case SETTING_TYPE::UInt: {
 				return GetUInt() <=> a_rhs.GetUInt();
 			}
-			case SETTING_TYPE::kFloat: {
+			case SETTING_TYPE::Float: {
 				return GetFloat() <=> a_rhs.GetFloat();
 			}
-			case SETTING_TYPE::kString: {
+			case SETTING_TYPE::String: {
 				return REX::CompareIgnoreCase(GetStringView(), a_rhs.GetStringView());
 			}
-			case SETTING_TYPE::kRGB: {
+			case SETTING_TYPE::RGB: {
 				const auto leftRGB = GetRGB();
 				const auto rightRGB = a_rhs.GetRGB();
 				return std::lexicographical_compare_three_way(
-					leftRGB.begin(), leftRGB.end(), rightRGB.begin(), rightRGB.end());
+					leftRGB.begin(),
+					leftRGB.end(),
+					rightRGB.begin(),
+					rightRGB.end());
 			}
-			case SETTING_TYPE::kRGBA: {
+			case SETTING_TYPE::RGBA: {
 				const auto leftRGBA = GetRGBA();
 				const auto rightRGBA = a_rhs.GetRGBA();
 				return std::lexicographical_compare_three_way(
-					leftRGBA.begin(), leftRGBA.end(), rightRGBA.begin(), rightRGBA.end());
+					leftRGBA.begin(),
+					leftRGBA.end(),
+					rightRGBA.begin(),
+					rightRGBA.end());
 			}
-			case SETTING_TYPE::kNone: {
+			case SETTING_TYPE::None: {
 				return std::partial_ordering::equivalent;
 			}
-			[[unlikely]] default: {
-				REX::Assert(false);
-				return std::partial_ordering::unordered;
+			default: {
+				std::unreachable();
 			}
 		}
 	}
 
-	Setting::SETTING_TYPE Setting::GetType() const noexcept
+	auto Setting::GetType() const noexcept -> Setting::SETTING_TYPE
 	{
 		if (REX::IsNullOrEmpty(_key)) {
-			return SETTING_TYPE::kNone;
+			return SETTING_TYPE::None;
 		}
 
 		switch (_key[0]) {
 			case 'b':
 			case 'B': {
-				return SETTING_TYPE::kBinary;
+				return SETTING_TYPE::Binary;
 			}
 			case 'c':
 			case 'C': {
-				return SETTING_TYPE::kChar;
+				return SETTING_TYPE::Char;
 			}
 			case 'h':
 			case 'H': {
-				return SETTING_TYPE::kUChar;
+				return SETTING_TYPE::UChar;
 			}
 			case 'i':
 			case 'I': {
-				return SETTING_TYPE::kInt;
+				return SETTING_TYPE::Int;
 			}
 			case 'u':
 			case 'U': {
-				return SETTING_TYPE::kUInt;
+				return SETTING_TYPE::UInt;
 			}
 			case 'f':
 			case 'F': {
-				return SETTING_TYPE::kFloat;
+				return SETTING_TYPE::Float;
 			}
 			case 's':
 			case 'S': {
-				return SETTING_TYPE::kString;
+				return SETTING_TYPE::String;
 			}
 			case 'r':
 			case 'R': {
-				return SETTING_TYPE::kRGB;
+				return SETTING_TYPE::RGB;
 			}
 			case 'a':
 			case 'A': {
-				return SETTING_TYPE::kRGBA;
+				return SETTING_TYPE::RGBA;
 			}
+			[[unlikely]]
 			default: {
-				return SETTING_TYPE::kNone;
+				REX::Assert(false);
+				return SETTING_TYPE::None;
 			}
 		}
 	}
 
-	const char* Setting::GetKey() const noexcept
+	auto Setting::GetKey() const noexcept -> const char*
 	{
 		return _key;
 	}
 
-	REX::zstring_view Setting::GetKeyView() const noexcept
+	auto Setting::GetKeyView() const noexcept -> REX::ZStringView
 	{
 		return _key;
 	}
 
-	bool Setting::IsNone() const noexcept
+	auto Setting::IsNone() const noexcept -> bool
 	{
-		return GetType() == SETTING_TYPE::kNone;
+		return GetType() == SETTING_TYPE::None;
 	}
 
-	bool Setting::IsBinary() const noexcept
+	auto Setting::IsBinary() const noexcept -> bool
 	{
-		return GetType() == SETTING_TYPE::kBinary;
+		return GetType() == SETTING_TYPE::Binary;
 	}
 
-	bool Setting::IsChar() const noexcept
+	auto Setting::IsChar() const noexcept -> bool
 	{
-		return GetType() == SETTING_TYPE::kChar;
+		return GetType() == SETTING_TYPE::Char;
 	}
 
-	bool Setting::IsUChar() const noexcept
+	auto Setting::IsUChar() const noexcept -> bool
 	{
-		return GetType() == SETTING_TYPE::kUChar;
+		return GetType() == SETTING_TYPE::UChar;
 	}
 
-	bool Setting::IsInt() const noexcept
+	auto Setting::IsInt() const noexcept -> bool
 	{
-		return GetType() == SETTING_TYPE::kInt;
+		return GetType() == SETTING_TYPE::Int;
 	}
 
-	bool Setting::IsUInt() const noexcept
+	auto Setting::IsUInt() const noexcept -> bool
 	{
-		return GetType() == SETTING_TYPE::kUInt;
+		return GetType() == SETTING_TYPE::UInt;
 	}
 
-	bool Setting::IsFloat() const noexcept
+	auto Setting::IsFloat() const noexcept -> bool
 	{
-		return GetType() == SETTING_TYPE::kFloat;
+		return GetType() == SETTING_TYPE::Float;
 	}
 
-	bool Setting::IsString() const noexcept
+	auto Setting::IsString() const noexcept -> bool
 	{
-		return GetType() == SETTING_TYPE::kString;
+		return GetType() == SETTING_TYPE::String;
 	}
 
-	bool Setting::IsRGB() const noexcept
+	auto Setting::IsRGB() const noexcept -> bool
 	{
-		return GetType() == SETTING_TYPE::kRGB;
+		return GetType() == SETTING_TYPE::RGB;
 	}
 
-	bool Setting::IsRGBA() const noexcept
+	auto Setting::IsRGBA() const noexcept -> bool
 	{
-		return GetType() == SETTING_TYPE::kRGBA;
+		return GetType() == SETTING_TYPE::RGBA;
 	}
 
-	std::nullptr_t Setting::GetNone() const noexcept
+	auto Setting::GetNone() const noexcept -> std::nullptr_t
 	{
 		REX::Assert(this->IsNone());
-		REX::Assert(_value.none == nullptr);
 		return nullptr;
 	}
 
-	bool Setting::GetBinary() const noexcept
+	auto Setting::GetBinary() const noexcept -> bool
 	{
 		REX::Assert(this->IsBinary());
 		return _value.boolean;
 	}
 
-	char Setting::GetChar() const noexcept
+	auto Setting::GetChar() const noexcept -> std::int8_t
 	{
 		REX::Assert(this->IsChar());
 		return _value.int8;
 	}
 
-	std::uint8_t Setting::GetUChar() const noexcept
+	auto Setting::GetUChar() const noexcept -> std::uint8_t
 	{
 		REX::Assert(this->IsUChar());
 		return _value.uint8;
 	}
 
-	std::int32_t Setting::GetInt() const noexcept
+	auto Setting::GetInt() const noexcept -> std::int32_t
 	{
 		REX::Assert(this->IsInt());
 		return _value.int32;
 	}
 
-	std::uint32_t Setting::GetUInt() const noexcept
+	auto Setting::GetUInt() const noexcept -> std::uint32_t
 	{
 		REX::Assert(this->IsUInt());
 		return _value.uint32;
 	}
 
-	REX::Float32 Setting::GetFloat() const noexcept
+	auto Setting::GetFloat() const noexcept -> REX::Float32
 	{
 		REX::Assert(this->IsFloat());
 		return _value.float32;
 	}
 
-	const char* Setting::GetString() const noexcept
+	auto Setting::GetString() const noexcept -> const char*
 	{
 		REX::Assert(this->IsString());
 		return _value.string;
 	}
 
-	REX::zstring_view Setting::GetStringView() const noexcept
+	auto Setting::GetStringView() const noexcept -> REX::ZStringView
 	{
 		REX::Assert(this->IsString());
 		return _value.string;
 	}
 
-	std::span<const std::uint8_t, 3> Setting::GetRGB() const noexcept
+	auto Setting::GetRGB() const noexcept -> std::span<const std::uint8_t, 3>
 	{
 		REX::Assert(this->IsRGB());
 		return _value.rgb.array;
 	}
 
-	std::span<const std::uint8_t, 4> Setting::GetRGBA() const noexcept
+	auto Setting::GetRGBA() const noexcept -> std::span<const std::uint8_t, 4>
 	{
 		REX::Assert(this->IsRGBA());
 		return _value.rgba.array;
 	}
 
-	void Setting::SetKey(const char* a_key) noexcept
+	void Setting::SetKey(char* a_key) noexcept
+	{
+		_key = a_key;
+	}
+
+	void Setting::SetKey(const char* a_key)
 	{
 		SetKeyView(a_key);
 	}
 
-	void Setting::SetKeyView(REX::zstring_view a_key) noexcept
+	void Setting::SetKeyView(REX::ZStringView a_key)
 	{
 		if (_key) {
 			free(_key);
@@ -491,8 +508,14 @@ namespace RE
 			return;
 		}
 
-		auto* newKey = calloc<char>(a_key.size() + sizeof(char));
+		auto* newKey = malloc<char>(a_key.size() + 1);
+		if (!newKey) [[unlikely]] {
+			REX::Throw<std::bad_alloc>();
+		}
+
 		std::ranges::copy(a_key, newKey);
+		newKey[a_key.size()] = REX::EMPTY_CHAR<char>;
+
 		_key = newKey;
 	}
 
@@ -508,7 +531,7 @@ namespace RE
 		_value.boolean = a_value;
 	}
 
-	void Setting::SetChar(char a_value) noexcept
+	void Setting::SetChar(std::int8_t a_value) noexcept
 	{
 		REX::Assert(this->IsChar());
 		_value.int8 = a_value;
@@ -541,11 +564,15 @@ namespace RE
 	void Setting::SetString(char* a_value) noexcept
 	{
 		REX::Assert(this->IsString());
-
 		_value.string = a_value;
 	}
 
-	void Setting::SetStringView(REX::zstring_view a_value)
+	void Setting::SetString(const char* a_value)
+	{
+		SetStringView(a_value);
+	}
+
+	void Setting::SetStringView(REX::ZStringView a_value)
 	{
 		REX::Assert(this->IsString());
 
@@ -553,12 +580,14 @@ namespace RE
 			free(_value.string);
 		}
 
-		auto* newValue = calloc<char>(a_value.size() + sizeof(char));
+		auto* newValue = malloc<char>(a_value.size() + 1);
 		if (!newValue) [[unlikely]] {
-			throw std::bad_alloc();
+			REX::Throw<std::bad_alloc>();
 		}
 
 		std::ranges::copy(a_value, newValue);
+		newValue[a_value.size()] = REX::EMPTY_CHAR<char>;
+
 		_value.string = newValue;
 	}
 
@@ -574,46 +603,45 @@ namespace RE
 		std::ranges::copy(a_value, _value.rgba.array.begin());
 	}
 
-	std::string Setting::ToString() const
+	auto Setting::ToString() const -> std::string
 	{
 		constexpr auto FORMAT_STRING = "[{} = {}]"sv;
 
 		switch (GetType()) {
-			case SETTING_TYPE::kBinary: {
+			case SETTING_TYPE::Binary: {
 				return REX::Format(FORMAT_STRING, GetKeyView(), GetBinary());
 			}
-			case SETTING_TYPE::kChar: {
+			case SETTING_TYPE::Char: {
 				return REX::Format(FORMAT_STRING, GetKeyView(), GetChar());
 			}
-			case SETTING_TYPE::kUChar: {
+			case SETTING_TYPE::UChar: {
 				return REX::Format(FORMAT_STRING, GetKeyView(), GetUChar());
 			}
-			case SETTING_TYPE::kInt: {
+			case SETTING_TYPE::Int: {
 				return REX::Format(FORMAT_STRING, GetKeyView(), GetInt());
 			}
-			case SETTING_TYPE::kUInt: {
+			case SETTING_TYPE::UInt: {
 				return REX::Format(FORMAT_STRING, GetKeyView(), GetUInt());
 			}
-			case SETTING_TYPE::kFloat: {
+			case SETTING_TYPE::Float: {
 				return REX::Format(FORMAT_STRING, GetKeyView(), GetFloat());
 			}
-			case SETTING_TYPE::kString: {
+			case SETTING_TYPE::String: {
 				return REX::Format(FORMAT_STRING, GetKeyView(), GetStringView());
 			}
-			case SETTING_TYPE::kRGB: {
+			case SETTING_TYPE::RGB: {
 				const auto rgb = GetRGB();
 				return REX::Format(FORMAT_STRING, GetKeyView(), rgb);
 			}
-			case SETTING_TYPE::kRGBA: {
+			case SETTING_TYPE::RGBA: {
 				const auto rgba = GetRGBA();
 				return REX::Format(FORMAT_STRING, GetKeyView(), rgba);
 			}
-			case SETTING_TYPE::kNone: {
+			case SETTING_TYPE::None: {
 				return REX::Format(FORMAT_STRING, GetKeyView(), GetNone());
 			}
-			[[unlikely]] default: {
-				REX::Assert(false);
-				return "[Invalid Setting]"s;
+			default: {
+				std::unreachable();
 			}
 		}
 	}
@@ -628,106 +656,100 @@ namespace RE
 		std::swap(_value, a_other._value);
 	}
 
-	void Setting::Assign(const Setting& a_other) noexcept
+	void Setting::Assign(const Setting& a_other)
 	{
 		SetKey(a_other._key);
 
 		switch (a_other.GetType()) {
-			case SETTING_TYPE::kBinary: {
+			case SETTING_TYPE::Binary: {
 				SetBinary(a_other.GetBinary());
 				break;
 			}
-			case SETTING_TYPE::kChar: {
+			case SETTING_TYPE::Char: {
 				SetChar(a_other.GetChar());
 				break;
 			}
-			case SETTING_TYPE::kUChar: {
+			case SETTING_TYPE::UChar: {
 				SetUChar(a_other.GetUChar());
 				break;
 			}
-			case SETTING_TYPE::kInt: {
+			case SETTING_TYPE::Int: {
 				SetInt(a_other.GetInt());
 				break;
 			}
-			case SETTING_TYPE::kUInt: {
+			case SETTING_TYPE::UInt: {
 				SetUInt(a_other.GetUInt());
 				break;
 			}
-			case SETTING_TYPE::kFloat: {
+			case SETTING_TYPE::Float: {
 				SetFloat(a_other.GetFloat());
 				break;
 			}
-			case SETTING_TYPE::kString: {
+			case SETTING_TYPE::String: {
 				SetStringView(a_other.GetStringView());
 				break;
 			}
-			case SETTING_TYPE::kRGB: {
+			case SETTING_TYPE::RGB: {
 				SetRGB(a_other.GetRGB());
 				break;
 			}
-			case SETTING_TYPE::kRGBA: {
+			case SETTING_TYPE::RGBA: {
 				SetRGBA(a_other.GetRGBA());
 				break;
 			}
-			case SETTING_TYPE::kNone: {
+			case SETTING_TYPE::None: {
 				SetNone();
 				break;
 			}
-			[[unlikely]] default: {
-				REX::Assert(false);
+			default: {
+				std::unreachable();
 			}
 		}
-	}
-
-	void swap(Setting& a_lhs, Setting& a_rhs) noexcept
-	{
-		a_lhs.swap(a_rhs);
 	}
 }
 
 namespace std
 {
-	std::size_t hash<RE::Setting>::operator()(const RE::Setting& a_key) const noexcept
+	auto hash<RE::Setting>::operator()(const RE::Setting& a_key) const noexcept -> std::size_t
 	{
 		using SettingType = RE::Setting::SETTING_TYPE;
 
 		const auto type = a_key.GetType();
 		switch (type) {
-			case SettingType::kBinary: {
+			case SettingType::Binary: {
 				return REX::HashCombine(type, a_key.GetBinary());
 			}
-			case SettingType::kChar: {
+			case SettingType::Char: {
 				return REX::HashCombine(type, a_key.GetChar());
 			}
-			case SettingType::kUChar: {
+			case SettingType::UChar: {
 				return REX::HashCombine(type, a_key.GetUChar());
 			}
-			case SettingType::kInt: {
+			case SettingType::Int: {
 				return REX::HashCombine(type, a_key.GetInt());
 			}
-			case SettingType::kUInt: {
+			case SettingType::UInt: {
 				return REX::HashCombine(type, a_key.GetUInt());
 			}
-			case SettingType::kFloat: {
+			case SettingType::Float: {
 				return REX::HashCombine(type, a_key.GetFloat());
 			}
-			case SettingType::kString: {
-				return REX::HashCombine(type, static_cast<REX::zstring_view>(a_key.GetString()));
+			case SettingType::String: {
+				return REX::HashCombine(type, REX::ZStringView(a_key.GetString()));
 			}
-			case SettingType::kRGB: {
+			case SettingType::RGB: {
 				const auto rgb = a_key.GetRGB();
 				return REX::HashCombine(type, rgb[0], rgb[1], rgb[2]);
 			}
-			case SettingType::kRGBA: {
+			case SettingType::RGBA: {
 				const auto rgba = a_key.GetRGBA();
 				return REX::HashCombine(type, rgba[0], rgba[1], rgba[2], rgba[3]);
 			}
-			case SettingType::kNone: {
+			case SettingType::None: {
 				return REX::HashCombine(type, a_key.GetNone());
 			}
-			[[unlikely]] default: {
-				REX::Assert(false);
-				return 0;
+			default: {
+				std::unreachable();
 			}
 		}
 	}

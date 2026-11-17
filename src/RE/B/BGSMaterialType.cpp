@@ -2,14 +2,16 @@
 
 namespace RE
 {
-	auto BGSMaterialType::GetMaterialIDMap()
-		-> BSTHashMap<std::uint32_t, BGSMaterialType*>&
+	auto BGSMaterialType::GetMaterialIDMap() noexcept -> BSTHashMap<std::uint32_t, BGSMaterialType*>&
 	{
-		static const auto MATERIAL_ID_MAP = REL::Relocation<BSTHashMap<std::uint32_t, BGSMaterialType*>*>{ ID::BGSMaterialType::MaterialIDMap, Offset::BGSMaterialType::MaterialIDMap };
+		static const auto MATERIAL_ID_MAP = REL::Relocation<BSTHashMap<std::uint32_t, BGSMaterialType*>*>{
+			ID::BGSMaterialType::MaterialIDMap,
+			Offset::BGSMaterialType::MaterialIDMap
+		};
 		return *MATERIAL_ID_MAP;
 	}
 
-	BGSMaterialType* BGSMaterialType::GetMaterialTypeByID(std::uint32_t a_materialID)
+	auto BGSMaterialType::GetMaterialTypeByID(std::uint32_t a_materialID) -> BGSMaterialType*
 	{
 		const auto& materialMap = GetMaterialIDMap();
 

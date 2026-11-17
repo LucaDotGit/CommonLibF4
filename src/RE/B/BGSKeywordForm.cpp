@@ -2,55 +2,55 @@
 
 #include "RE/B/BGSKeyword.hpp"
 #include "RE/B/BSContainer_ForEachResult.hpp"
+#include "RE/M/MemoryManager.hpp"
 
 namespace RE
 {
-	bool BGSKeywordForm::ContainsKeyword(const BGSKeyword* a_keyword) const
+	auto BGSKeywordForm::ContainsKeyword(const BGSKeyword* a_keyword) const noexcept -> bool
 	{
 		if (!a_keyword) {
 			return false;
 		}
 
-		return ForEachKeyword([a_keyword](const BGSKeyword* a_current) -> BSContainer::ForEachResult {
-			if (a_current == a_keyword) {
-				return BSContainer::ForEachResult::kStop;
-			}
+		return ForEachKeyword([a_keyword](const BGSKeyword* a_current) noexcept -> BSContainer::ForEachResult {
+				   if (a_current == a_keyword) {
+					   return BSContainer::ForEachResult::Stop;
+				   }
 
-			return BSContainer::ForEachResult::kContinue;
-		}) == BSContainer::ForEachResult::kStop;
+				   return BSContainer::ForEachResult::Continue;
+			   }) == BSContainer::ForEachResult::Stop;
 	}
 
-	bool BGSKeywordForm::ContainsPartialKeywordString(std::string_view a_editorID) const
+	auto BGSKeywordForm::ContainsPartialKeywordString(std::string_view a_editorID) const noexcept -> bool
 	{
-		return ForEachKeyword([a_editorID](const BGSKeyword* a_keyword) -> BSContainer::ForEachResult {
-			if (a_keyword->formEditorID.contains(a_editorID)) {
-				return BSContainer::ForEachResult::kStop;
-			}
+		return ForEachKeyword([a_editorID](const BGSKeyword* a_keyword) noexcept -> BSContainer::ForEachResult {
+				   if (a_keyword->formEditorID.contains(a_editorID)) {
+					   return BSContainer::ForEachResult::Stop;
+				   }
 
-			return BSContainer::ForEachResult::kContinue;
-		}) == BSContainer::ForEachResult::kStop;
+				   return BSContainer::ForEachResult::Continue;
+			   }) == BSContainer::ForEachResult::Stop;
 	}
 
-	bool BGSKeywordForm::ContainsExactKeywordString(std::string_view a_editorID) const
+	auto BGSKeywordForm::ContainsExactKeywordString(std::string_view a_editorID) const noexcept -> bool
 	{
-		return ForEachKeyword([a_editorID](const BGSKeyword* a_keyword) -> BSContainer::ForEachResult {
-			if (a_keyword->formEditorID == a_editorID) {
-				return BSContainer::ForEachResult::kStop;
-			}
+		return ForEachKeyword([a_editorID](const BGSKeyword* a_keyword) noexcept -> BSContainer::ForEachResult {
+				   if (a_keyword->formEditorID == a_editorID) {
+					   return BSContainer::ForEachResult::Stop;
+				   }
 
-			return BSContainer::ForEachResult::kContinue;
-		}) == BSContainer::ForEachResult::kStop;
+				   return BSContainer::ForEachResult::Continue;
+			   }) == BSContainer::ForEachResult::Stop;
 	}
 
-	std::uint32_t BGSKeywordForm::GetKeywordCount() const noexcept
+	auto BGSKeywordForm::GetKeywordCount() const noexcept -> std::uint32_t
 	{
 		return numKeywords;
 	}
 
-	auto BGSKeywordForm::GetKeywordIndex(const BGSKeyword* a_keyword) const
-		-> std::optional<std::uint32_t>
+	auto BGSKeywordForm::GetKeywordIndex(const BGSKeyword* a_keyword) const noexcept -> std::optional<std::uint32_t>
 	{
-		for (auto i = 0ui32; i < numKeywords; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < numKeywords; i++) {
 			if (keywords[i] == a_keyword) {
 				return i;
 			}
@@ -59,14 +59,14 @@ namespace RE
 		return std::nullopt;
 	}
 
-	std::span<BGSKeyword*> BGSKeywordForm::GetKeywords() noexcept
+	auto BGSKeywordForm::GetKeywords() noexcept -> std::span<BGSKeyword*>
 	{
-		return { keywords.data(), numKeywords };
+		return {keywords.data(), numKeywords};
 	}
 
-	std::span<BGSKeyword* const> BGSKeywordForm::GetKeywords() const noexcept
+	auto BGSKeywordForm::GetKeywords() const noexcept -> std::span<BGSKeyword* const>
 	{
-		return { keywords.data(), numKeywords };
+		return {keywords.data(), numKeywords};
 	}
 
 	void BGSKeywordForm::SetKeywords(std::span<BGSKeyword*> a_keywords)
@@ -79,12 +79,12 @@ namespace RE
 		numKeywords = newCount;
 	}
 
-	BGSKeyword* BGSKeywordForm::GetNthKeyword(std::uint32_t a_index) const
+	auto BGSKeywordForm::GetNthKeyword(std::uint32_t a_index) const noexcept -> BGSKeyword*
 	{
 		return a_index < numKeywords ? keywords[a_index] : nullptr;
 	}
 
-	bool BGSKeywordForm::SetNthKeyword(std::uint32_t a_index, BGSKeyword* a_keyword)
+	auto BGSKeywordForm::SetNthKeyword(std::uint32_t a_index, BGSKeyword* a_keyword) -> bool
 	{
 		if (a_index >= numKeywords) {
 			return false;
@@ -94,7 +94,7 @@ namespace RE
 		return true;
 	}
 
-	bool BGSKeywordForm::RemoveNthKeyword(std::uint32_t a_index)
+	auto BGSKeywordForm::RemoveNthKeyword(std::uint32_t a_index) -> bool
 	{
 		if (a_index >= numKeywords) {
 			return false;
@@ -103,7 +103,7 @@ namespace RE
 		auto newCount = numKeywords - 1;
 		auto newData = SimpleArray<BGSKeyword*>(newCount);
 
-		for (auto i = 0ui32; i < a_index; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < a_index; i++) {
 			newData[i] = keywords[i];
 		}
 
@@ -116,7 +116,7 @@ namespace RE
 		return true;
 	}
 
-	bool BGSKeywordForm::AddKeyword(BGSKeyword* a_keyword)
+	auto BGSKeywordForm::AddKeyword(BGSKeyword* a_keyword) -> bool
 	{
 		if (!a_keyword || ContainsKeyword(a_keyword)) {
 			return false;
@@ -133,28 +133,28 @@ namespace RE
 		return true;
 	}
 
-	bool BGSKeywordForm::RemoveKeyword(BGSKeyword* a_keyword)
+	auto BGSKeywordForm::RemoveKeyword(BGSKeyword* a_keyword) -> bool
 	{
 		const auto index = GetKeywordIndex(a_keyword);
 		return index && RemoveNthKeyword(*index);
 	}
 
-	bool BGSKeywordForm::ReplaceKeyword(BGSKeyword* a_oldKeyword, BGSKeyword* a_newKeyword)
+	auto BGSKeywordForm::ReplaceKeyword(BGSKeyword* a_oldKeyword, BGSKeyword* a_newKeyword) -> bool
 	{
 		if (!a_oldKeyword || !a_newKeyword) {
 			return false;
 		}
 
 		const auto index = GetKeywordIndex(a_oldKeyword);
-		if (!index) {
+		if (!index.has_value()) {
 			return false;
 		}
 
-		keywords[*index] = a_newKeyword;
+		keywords[index.value()] = a_newKeyword;
 		return true;
 	}
 
-	bool BGSKeywordForm::AddKeywords(std::span<BGSKeyword*> a_keywords)
+	auto BGSKeywordForm::AddKeywords(std::span<BGSKeyword*> a_keywords) -> bool
 	{
 		if (a_keywords.empty()) {
 			return false;
@@ -171,13 +171,16 @@ namespace RE
 		return true;
 	}
 
-	bool BGSKeywordForm::RemoveKeywords(std::span<BGSKeyword*> a_keywords)
+	auto BGSKeywordForm::RemoveKeywords(std::span<BGSKeyword*> a_keywords) -> bool
 	{
 		if (a_keywords.empty()) {
 			return false;
 		}
 
-		auto removedIndexes = std::unordered_set<std::uint32_t>();
+		auto removedIndexes =
+			std::flat_set<std::uint32_t, std::less<>, std::vector<std::uint32_t, StlAllocator<std::uint32_t>>>();
+		REX::Reserve(removedIndexes, a_keywords.size());
+
 		for (auto* keyword : a_keywords) {
 			const auto index = GetKeywordIndex(keyword);
 			if (index) {
@@ -192,7 +195,7 @@ namespace RE
 		auto newCount = numKeywords - static_cast<std::uint32_t>(removedIndexes.size());
 		auto newData = SimpleArray<BGSKeyword*>(newCount);
 
-		for (auto i = 0ui32, j = 0ui32; i < numKeywords; i++) {
+		for (auto i = static_cast<std::uint32_t>(0), j = static_cast<std::uint32_t>(0); i < numKeywords; i++) {
 			if (removedIndexes.contains(i)) {
 				continue;
 			}
@@ -205,26 +208,27 @@ namespace RE
 		return true;
 	}
 
-	void BGSKeywordForm::ClearKeywords()
+	void BGSKeywordForm::ClearKeywords() noexcept
 	{
 		keywords.deallocate_bytes();
 		numKeywords = 0;
 	}
 
-	BSContainer::ForEachResult BGSKeywordForm::ForEachKeyword(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(BGSKeyword*)>>& a_predicate) const
+	auto BGSKeywordForm::ForEachKeyword(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(BGSKeyword*) const>>& a_predicate) const
+		-> BSContainer::ForEachResult
 	{
 		if (!keywords.data()) {
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		}
 
-		for (auto i = 0ui32; i < numKeywords; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < numKeywords; i++) {
 			auto* keyword = keywords[i];
-			if (keyword && std::invoke(*a_predicate, keyword) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), keyword) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 }

@@ -13,13 +13,13 @@ namespace RE
 		CompileAndRunImpl(a_compiler, a_compilerIndex, a_ownerObject);
 	}
 
-	bool& Script::GetProcessScripts()
+	auto Script::GetProcessScripts() noexcept -> bool&
 	{
-		static const auto PROCESS_SCRIPTS = REL::Relocation<bool*>{ ID::Script::ProcessScripts };
+		static const auto PROCESS_SCRIPTS = REL::Relocation<bool*>(ID::Script::ProcessScripts);
 		return *PROCESS_SCRIPTS;
 	}
 
-	const char* Script::GetText() const noexcept
+	auto Script::GetText() const noexcept -> const char*
 	{
 		return text;
 	}
@@ -28,19 +28,21 @@ namespace RE
 	{
 		if (text) {
 			free(text);
-			text = nullptr;
 		}
 
-		auto* newText = calloc<char>(a_text.size() + sizeof(char));
+		auto* newText = malloc<char>(a_text.size() + 1);
 		if (!newText) [[unlikely]] {
-			throw std::bad_alloc();
+			REX::Throw<std::bad_alloc>();
 		}
 
-		std::copy_n(a_text.data(), a_text.size(), newText);
+		std::ranges::copy(a_text, newText);
+		newText[a_text.size()] = REX::EMPTY_CHAR<char>;
+
 		text = newText;
 	}
 
-	bool Script::ExecuteSingleLineConsoleCommand(std::string_view a_command, TESObjectREFR* a_targetRef, bool a_silent)
+	auto Script::ExecuteSingleLineConsoleCommand(std::string_view a_command, TESObjectREFR* a_targetRef, bool a_silent)
+		-> bool
 	{
 		auto* consoleLog = ConsoleLog::GetSingleton();
 		if (!consoleLog) {
@@ -53,23 +55,23 @@ namespace RE
 		}
 
 		auto scriptCompiler = ScriptCompiler();
-		auto script = std::unique_ptr<Script>(scriptFactory->Create());
+		const auto script = std::unique_ptr<Script>(scriptFactory->Create());
 
-		const auto consoleLogLock = BSAutoLock(ConsoleLog::GetAddStringLock());
+		const auto consoleLogLock = BSAutoSpinLock(ConsoleLog::GetAddStringLock());
 
 		auto& logBuffer = consoleLog->buffer;
 		auto tempLogBuffer = a_silent ? logBuffer : BSString();
 
 		if (!a_silent) {
-			consoleLog->PrintLine(a_command);
+			consoleLog->PrintLine("{}"sv, a_command);
 		}
 
 		auto result = true;
 
-		for (const auto linePart : std::ranges::views::split(a_command, COMMAND_SEPARATOR)) {
-			const auto line = std::string_view{ linePart.begin(), linePart.end() };
+		for (const auto element : std::ranges::views::split(a_command, COMMAND_SEPARATOR)) {
+			const auto elementView = std::string_view{element.begin(), element.end()};
 
-			script->SetText(line);
+			script->SetText(elementView);
 			script->CompileAndRun(std::addressof(scriptCompiler), a_targetRef);
 
 			if (!script->header.isCompiled) {
@@ -85,7 +87,8 @@ namespace RE
 		return result;
 	}
 
-	bool Script::ExecuteMultiLineConsoleCommand(std::string_view a_command, TESObjectREFR* a_targetRef, bool a_silent)
+	auto Script::ExecuteMultiLineConsoleCommand(std::string_view a_command, TESObjectREFR* a_targetRef, bool a_silent)
+		-> bool
 	{
 		auto* consoleLog = ConsoleLog::GetSingleton();
 		if (!consoleLog) {
@@ -98,15 +101,15 @@ namespace RE
 		}
 
 		auto scriptCompiler = ScriptCompiler();
-		auto script = std::unique_ptr<Script>(scriptFactory->Create());
+		const auto script = std::unique_ptr<Script>(scriptFactory->Create());
 
-		const auto consoleLogLock = BSAutoLock(ConsoleLog::GetAddStringLock());
+		const auto consoleLogLock = BSAutoSpinLock(ConsoleLog::GetAddStringLock());
 
 		auto& logBuffer = consoleLog->buffer;
 		auto tempLogBuffer = a_silent ? logBuffer : BSString();
 
 		if (!a_silent) {
-			consoleLog->PrintLine(a_command);
+			consoleLog->PrintLine("{}"sv, a_command);
 		}
 
 		script->SetText(a_command);
@@ -119,10 +122,13 @@ namespace RE
 		return script->header.isCompiled;
 	}
 
-	void Script::CompileAndRunImpl(ScriptCompiler* a_compiler, COMPILER_NAME a_compilerIndex, TESObjectREFR* a_ownerObject)
+	void Script::CompileAndRunImpl(
+		ScriptCompiler* a_compiler,
+		COMPILER_NAME a_compilerIndex,
+		TESObjectREFR* a_ownerObject)
 	{
 		using FuncType = decltype(&Script::CompileAndRunImpl);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::Script::CompileAndRunImpl };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::Script::CompileAndRunImpl);
 		std::invoke(FUNC, this, a_compiler, a_compilerIndex, a_ownerObject);
 	}
 }

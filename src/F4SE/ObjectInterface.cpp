@@ -1,42 +1,57 @@
 #include "F4SE/ObjectInterface.hpp"
 
 #include "F4SE/Core.hpp"
+#include "REX/Macros.hpp"
 
 namespace F4SE::Impl
 {
-	struct F4SEObjectInterface final
+	namespace
 	{
-		std::uint32_t interfaceVersion;
-		DelayFunctorManager&(F4SE_API* GetDelayFunctorManager)();
-		ObjectRegistry&(F4SE_API* GetObjectRegistry)();
-		PersistentObjectStorage&(F4SE_API* GetPersistentObjectStorage)();
-	};
+		class F4SEObjectInterface final
+		{
+		public:
+			F4SEObjectInterface() = delete;
+			~F4SEObjectInterface() = delete;
 
-	[[nodiscard]] __forceinline static const F4SEObjectInterface& GetProxy(const ObjectInterface* a_interface) noexcept
-	{
-		return reinterpret_cast<const F4SEObjectInterface&>(*a_interface);
+			F4SEObjectInterface(const F4SEObjectInterface&) = delete;
+			F4SEObjectInterface(F4SEObjectInterface&&) = delete;
+
+			auto operator=(const F4SEObjectInterface&) -> F4SEObjectInterface& = delete;
+			auto operator=(F4SEObjectInterface&&) -> F4SEObjectInterface& = delete;
+
+			F4SE::InterfaceVersion interfaceVersion;
+			DelayFunctorManager&(F4SE_API* getDelayFunctorManager)();
+			ObjectRegistry&(F4SE_API* getObjectRegistry)();
+			PersistentObjectStorage&(F4SE_API* getPersistentObjectStorage)();
+		};
+
+		[[nodiscard]] [[REX_ALWAYS_INLINE]]
+		auto GetProxy(const ObjectInterface& a_interface) noexcept -> const F4SEObjectInterface&
+		{
+			return reinterpret_cast<const F4SEObjectInterface&>(a_interface);
+		}
 	}
 }
 
 namespace F4SE
 {
-	std::uint32_t ObjectInterface::GetVersion() const noexcept
+	auto ObjectInterface::GetVersion() const noexcept -> F4SE::InterfaceVersion
 	{
-		return Impl::GetProxy(this).interfaceVersion;
+		return Impl::GetProxy(*this).interfaceVersion;
 	}
 
-	const DelayFunctorManager& ObjectInterface::GetDelayFunctorManager() const
+	auto ObjectInterface::GetDelayFunctorManager() const -> const DelayFunctorManager&
 	{
-		return Impl::GetProxy(this).GetDelayFunctorManager();
+		return Impl::GetProxy(*this).getDelayFunctorManager();
 	}
 
-	const ObjectRegistry& ObjectInterface::GetObjectRegistry() const
+	auto ObjectInterface::GetObjectRegistry() const -> const ObjectRegistry&
 	{
-		return Impl::GetProxy(this).GetObjectRegistry();
+		return Impl::GetProxy(*this).getObjectRegistry();
 	}
 
-	const PersistentObjectStorage& ObjectInterface::GetPersistentObjectStorage() const
+	auto ObjectInterface::GetPersistentObjectStorage() const -> const PersistentObjectStorage&
 	{
-		return Impl::GetProxy(this).GetPersistentObjectStorage();
+		return Impl::GetProxy(*this).getPersistentObjectStorage();
 	}
 }

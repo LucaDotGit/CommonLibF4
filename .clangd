@@ -1,13 +1,24 @@
 ---
+CompileFlags:
+    Add:
+        - -ferror-limit=0
+
 Index:
-  Background: Skip
+    Background: Skip
 
 Diagnostics:
-  ClangTidy:
-    FastCheckFilter: Loose
+    ClangTidy:
+        FastCheckFilter: None
+    Includes:
+        AnalyzeAngledIncludes: true
+
+Completion:
+    AllScopes: false
+    ArgumentLists: Delimiters
+    HeaderInsertion: Never
 
 InlayHints:
-  Enabled: false
+    Enabled: false
 
-CompileFlags:
-  Add: -ferror-limit=0
+Documentation:
+    CommentFormat: Doxygen

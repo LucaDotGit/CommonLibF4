@@ -8,21 +8,21 @@ namespace RE
 		a_info.fileSize = 0;
 		a_info.bufferAllocSize = 0;
 		a_info.bufferReadSize = 0;
-		a_info.pos = 0;
-		a_info.absCurrentPos = absoluteCurrentPos;
+		a_info.position = 0;
+		a_info.absoluteCurrentPosition = absoluteCurrentPosition;
 	}
 
-	std::size_t NiBinaryStream::BinaryRead(std::byte* a_buffer, std::size_t a_size)
+	auto NiBinaryStream::BinaryRead(std::byte* a_buffer, std::size_t a_size) -> std::size_t
 	{
 		const auto readBytes = DoRead(a_buffer, a_size);
-		absoluteCurrentPos += readBytes;
+		absoluteCurrentPosition += readBytes;
 		return readBytes;
 	}
 
-	std::size_t NiBinaryStream::BinaryWrite(const std::byte* a_buffer, std::size_t a_size)
+	auto NiBinaryStream::BinaryWrite(const std::byte* a_buffer, std::size_t a_size) -> std::size_t
 	{
 		const auto writtenBytes = DoWrite(a_buffer, a_size);
-		absoluteCurrentPos += writtenBytes;
+		absoluteCurrentPosition += writtenBytes;
 		return writtenBytes;
 	}
 }

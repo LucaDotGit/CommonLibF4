@@ -12,75 +12,78 @@
 
 namespace RE
 {
-	BSInputDeviceManager* BSInputDeviceManager::GetSingleton()
+	auto BSInputDeviceManager::GetSingleton() noexcept -> BSInputDeviceManager*
 	{
-		static const auto SINGLETON = REL::Relocation<BSInputDeviceManager**>{ ID::BSInputDeviceManager::Singleton };
+		static const auto SINGLETON = REL::Relocation<BSInputDeviceManager**>(ID::BSInputDeviceManager::Singleton);
 		return *SINGLETON;
 	}
 
-	bool BSInputDeviceManager::IsGamepadConnected() const noexcept
+	auto BSInputDeviceManager::IsGamepadConnected() const noexcept -> bool
 	{
 		const auto* gamepadDevice = GetGamepad();
 		return gamepadDevice && gamepadDevice->IsConnected();
 	}
 
-	BSKeyboardDevice* BSInputDeviceManager::GetKeyboard() const noexcept
+	auto BSInputDeviceManager::GetKeyboard() const noexcept -> BSKeyboardDevice*
 	{
-		return DynamicCast<BSKeyboardDevice*>(devices[std::to_underlying(BS_DEVICES::kKeyboard)]);
+		return DynamicCast<BSKeyboardDevice*>(devices[REX::ToUnsigned(std::to_underlying(BS_DEVICES::Keyboard))]);
 	}
 
-	BSMouseDevice* BSInputDeviceManager::GetMouse() const noexcept
+	auto BSInputDeviceManager::GetMouse() const noexcept -> BSMouseDevice*
 	{
-		return DynamicCast<BSMouseDevice*>(devices[std::to_underlying(BS_DEVICES::kMouse)]);
+		return DynamicCast<BSMouseDevice*>(devices[REX::ToUnsigned(std::to_underlying(BS_DEVICES::Mouse))]);
 	}
 
-	BSGamepadDevice* BSInputDeviceManager::GetGamepad() const noexcept
+	auto BSInputDeviceManager::GetGamepad() const noexcept -> BSGamepadDevice*
 	{
-		return DynamicCast<BSGamepadDevice*>(devices[std::to_underlying(BS_DEVICES::kGamepad)]);
+		return DynamicCast<BSGamepadDevice*>(devices[REX::ToUnsigned(std::to_underlying(BS_DEVICES::Gamepad))]);
 	}
 
-	BSGamepadDevice* BSInputDeviceManager::GetDebugGamepad() const noexcept
+	auto BSInputDeviceManager::GetDebugGamepad() const noexcept -> BSGamepadDevice*
 	{
-		return DynamicCast<BSGamepadDevice*>(devices[std::to_underlying(BS_DEVICES::kDebugGamepad)]);
+		return DynamicCast<BSGamepadDevice*>(devices[REX::ToUnsigned(std::to_underlying(BS_DEVICES::DebugGamepad))]);
 	}
 
-	BSVirtualKeyboardDevice* BSInputDeviceManager::GetVirtualKeyboard() const noexcept
+	auto BSInputDeviceManager::GetVirtualKeyboard() const noexcept -> BSVirtualKeyboardDevice*
 	{
-		return DynamicCast<BSVirtualKeyboardDevice*>(devices[std::to_underlying(BS_DEVICES::kVirtualKeyboard)]);
+		return DynamicCast<BSVirtualKeyboardDevice*>(
+			devices[REX::ToUnsigned(std::to_underlying(BS_DEVICES::VirtualKeyboard))]);
 	}
 
-	BSPCKeyboardDevice* BSInputDeviceManager::GetPCKeyboard() const noexcept
+	auto BSInputDeviceManager::GetPCKeyboard() const noexcept -> BSPCKeyboardDevice*
 	{
-		return DynamicCast<BSPCKeyboardDevice*>(devices[std::to_underlying(BS_DEVICES::kKeyboard)]);
+		return DynamicCast<BSPCKeyboardDevice*>(devices[REX::ToUnsigned(std::to_underlying(BS_DEVICES::Keyboard))]);
 	}
 
-	BSPCMouseDevice* BSInputDeviceManager::GetPCMouse() const noexcept
+	auto BSInputDeviceManager::GetPCMouse() const noexcept -> BSPCMouseDevice*
 	{
-		return DynamicCast<BSPCMouseDevice*>(devices[std::to_underlying(BS_DEVICES::kMouse)]);
+		return DynamicCast<BSPCMouseDevice*>(devices[REX::ToUnsigned(std::to_underlying(BS_DEVICES::Mouse))]);
 	}
 
-	BSPCGamepadDevice* BSInputDeviceManager::GetPCXInputGamepad() const noexcept
+	auto BSInputDeviceManager::GetPCXInputGamepad() const noexcept -> BSPCGamepadDevice*
 	{
-		return DynamicCast<BSPCGamepadDevice*>(devices[std::to_underlying(BS_DEVICES::kGamepad)]);
+		return DynamicCast<BSPCGamepadDevice*>(devices[REX::ToUnsigned(std::to_underlying(BS_DEVICES::Gamepad))]);
 	}
 
-	BSPCGamepadDevice* BSInputDeviceManager::GetPCXInputDebugGamepad() const noexcept
+	auto BSInputDeviceManager::GetPCXInputDebugGamepad() const noexcept -> BSPCGamepadDevice*
 	{
-		return DynamicCast<BSPCGamepadDevice*>(devices[std::to_underlying(BS_DEVICES::kDebugGamepad)]);
+		return DynamicCast<BSPCGamepadDevice*>(devices[REX::ToUnsigned(std::to_underlying(BS_DEVICES::DebugGamepad))]);
 	}
 
-	BSPCOrbisGamepadDevice* BSInputDeviceManager::GetPCOrbisGamepad() const noexcept
+	auto BSInputDeviceManager::GetPCOrbisGamepad() const noexcept -> BSPCOrbisGamepadDevice*
 	{
-		return DynamicCast<BSPCOrbisGamepadDevice*>(devices[std::to_underlying(BS_DEVICES::kGamepad)]);
+		return DynamicCast<BSPCOrbisGamepadDevice*>(devices[REX::ToUnsigned(std::to_underlying(BS_DEVICES::Gamepad))]);
 	}
 
-	BSPCOrbisGamepadDevice* BSInputDeviceManager::GetPCOrbisDebugGamepad() const noexcept
+	auto BSInputDeviceManager::GetPCOrbisDebugGamepad() const noexcept -> BSPCOrbisGamepadDevice*
 	{
-		return DynamicCast<BSPCOrbisGamepadDevice*>(devices[std::to_underlying(BS_DEVICES::kDebugGamepad)]);
+		return DynamicCast<BSPCOrbisGamepadDevice*>(
+			devices[REX::ToUnsigned(std::to_underlying(BS_DEVICES::DebugGamepad))]);
 	}
 
-	BSPCVirtualKeyboardDevice* BSInputDeviceManager::GetPCVirtualKeyboard() const noexcept
+	auto BSInputDeviceManager::GetPCVirtualKeyboard() const noexcept -> BSPCVirtualKeyboardDevice*
 	{
-		return DynamicCast<BSPCVirtualKeyboardDevice*>(devices[std::to_underlying(BS_DEVICES::kVirtualKeyboard)]);
+		return DynamicCast<BSPCVirtualKeyboardDevice*>(
+			devices[REX::ToUnsigned(std::to_underlying(BS_DEVICES::VirtualKeyboard))]);
 	}
 }

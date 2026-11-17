@@ -1,86 +1,100 @@
 #include "REL/IHook.hpp"
 
 #include "REL/Memory.hpp"
+#include "REX/Formatting.hpp"
 
-#include "REX/Format.hpp"
+namespace REL::Impl
+{
+	namespace
+	{
+		constexpr auto DEFAULT_HOOK_NAME = "Hook"sv;
+		constexpr auto INVALID_HOOK_NAME = "<Invalid Hook>"sv;
+
+		[[nodiscard]]
+		auto CreateHookHandle() noexcept -> HookHandle
+		{
+			static constinit auto HookHandleCount = std::atomic<HookHandle>(0);
+			return HookHandleCount.fetch_add(1, std::memory_order_acq_rel) + 1;
+		}
+	}
+}
 
 namespace REL
 {
-	IHook::IHook()
-		: _handle(INVALID_HOOK_HANDLE),
-		  _address(REL::INVALID_ADDRESS),
-		  _name(INVALID_HOOK_NAME)
+	IHook::IHook() noexcept :
+		_handle(INVALID_HOOK_HANDLE),
+		_address(REL::INVALID_ADDRESS),
+		_name(Impl::INVALID_HOOK_NAME)
 	{
 	}
 
-	IHook::IHook(std::uintptr_t a_address)
-		: _handle(CreateHookHandle()),
-		  _address(a_address),
-		  _name(DEFAULT_HOOK_NAME)
+	IHook::IHook(std::uintptr_t a_address, std::shared_ptr<REX::Logging::ILogger> a_logger) noexcept :
+		_handle(Impl::CreateHookHandle()),
+		_address(a_address),
+		_name(Impl::DEFAULT_HOOK_NAME),
+		_logger(std::move(a_logger))
 	{
 	}
 
-	IHook::IHook(std::uintptr_t a_address, std::string a_name)
-		: _handle(CreateHookHandle()),
-		  _address(a_address),
-		  _name(std::move(a_name))
+	IHook::IHook(std::uintptr_t a_address, HookStep a_step, std::shared_ptr<REX::Logging::ILogger> a_logger) noexcept :
+		_handle(Impl::CreateHookHandle()),
+		_address(a_address),
+		_name(Impl::DEFAULT_HOOK_NAME),
+		_step(a_step),
+		_logger(std::move(a_logger))
 	{
 	}
 
-	IHook::IHook(std::uintptr_t a_address, HookStep a_step)
-		: _handle(CreateHookHandle()),
-		  _address(a_address),
-		  _name(DEFAULT_HOOK_NAME),
-		  _step(a_step)
+	IHook::IHook(std::uintptr_t a_address, std::string a_name, std::shared_ptr<REX::Logging::ILogger> a_logger) noexcept
+		:
+		_handle(Impl::CreateHookHandle()),
+		_address(a_address),
+		_name(std::move(a_name)),
+		_logger(std::move(a_logger))
 	{
 	}
 
-	IHook::IHook(std::uintptr_t a_address, std::string a_name, HookStep a_step)
-		: _handle(CreateHookHandle()),
-		  _address(a_address),
-		  _name(std::move(a_name)),
-		  _step(a_step)
+	IHook::IHook(
+		std::uintptr_t a_address,
+		std::string a_name,
+		HookStep a_step,
+		std::shared_ptr<REX::Logging::ILogger> a_logger) noexcept :
+		_handle(Impl::CreateHookHandle()),
+		_address(a_address),
+		_name(std::move(a_name)),
+		_step(a_step),
+		_logger(std::move(a_logger))
 	{
 	}
 
 	IHook::~IHook() noexcept = default;
 
-	bool IHook::operator==(const IHook& a_rhs) const noexcept
+	auto IHook::operator==(const IHook& a_rhs) const noexcept -> bool
 	{
-		return _handle == a_rhs._handle;
-	}
-
-	bool IHook::operator!=(const IHook& a_rhs) const noexcept
-	{
-		return !(*this == a_rhs);
+		return GetHandle() == a_rhs.GetHandle();
 	}
 
 	auto IHook::operator<=>(const IHook& a_rhs) const noexcept
 	{
-		return _handle <=> a_rhs._handle;
+		return GetHandle() <=> a_rhs.GetHandle();
 	}
 
 	IHook::operator bool() const noexcept
 	{
-		return _address != REL::INVALID_ADDRESS;
+		return GetAddress() != REL::INVALID_ADDRESS;
 	}
 
-	bool IHook::Init()
+	auto IHook::Setup([[maybe_unused]] REL::Trampoline& a_trampoline) -> bool
 	{
-		if (_initialized) {
+		if (GetIsSetup()) {
 			return false;
 		}
 
-		_initialized = true;
+		SetIsSetup(true);
 		return true;
 	}
 
-	HookHandle IHook::CreateHookHandle() noexcept
-	{
-		return HookHandleCount.fetch_add(1, std::memory_order_acq_rel) + 1;
-	}
-
-	std::string IHook::ToString() const
+	auto IHook::ToString() const -> std::string
 	{
 		return REX::Format("[{}::{} ({})]"sv, GetTypeName(), GetName(), GetHandle());
 	}

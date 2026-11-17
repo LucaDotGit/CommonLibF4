@@ -20,12 +20,12 @@ namespace Scaleform::GFx
 		a_value->SetArraySize(a_size);
 	}
 
-	bool ASMovieRootBase::Invoke(const char* a_methodName, std::span<const Value> a_args)
+	auto ASMovieRootBase::Invoke(const char* a_methodName, std::span<const Value> a_args) -> bool
 	{
 		return Invoke(a_methodName, nullptr, a_args.data(), static_cast<std::uint32_t>(a_args.size()));
 	}
 
-	bool ASMovieRootBase::Invoke(const char* a_methodName, Value* a_result, std::span<const Value> a_args)
+	auto ASMovieRootBase::Invoke(const char* a_methodName, Value* a_result, std::span<const Value> a_args) -> bool
 	{
 		return Invoke(a_methodName, a_result, a_args.data(), static_cast<std::uint32_t>(a_args.size()));
 	}

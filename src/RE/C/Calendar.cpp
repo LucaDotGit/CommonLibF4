@@ -4,27 +4,55 @@
 #include "RE/S/SettingUtil.hpp"
 #include "RE/T/TESGlobal.hpp"
 
+namespace RE::Impl
+{
+	namespace
+	{
+		constexpr auto DAY_SETTING_KEYS = REX::CreateStaticOrderedSet(
+			"sDayMonday"sv,
+			"sDayTuesday"sv,
+			"sDayWednesday"sv,
+			"sDayThursday"sv,
+			"sDayFriday"sv,
+			"sDaySaturday"sv,
+			"sDaySunday"sv);
+
+		constexpr auto MONTH_SETTING_KEYS = REX::CreateStaticOrderedSet(
+			"sMonthJanuary"sv,
+			"sMonthFebruary"sv,
+			"sMonthMarch"sv,
+			"sMonthApril"sv,
+			"sMonthMay"sv,
+			"sMonthJune"sv,
+			"sMonthJuly"sv,
+			"sMonthAugust"sv,
+			"sMonthSeptember"sv,
+			"sMonthOctober"sv,
+			"sMonthNovember"sv,
+			"sMonthDecember"sv);
+	}
+}
+
 namespace RE
 {
-	Calendar* Calendar::GetSingleton()
+	auto Calendar::GetSingleton() noexcept -> Calendar*
 	{
-		static const auto SINGLETON = REL::Relocation<Calendar**>{ ID::Calendar::Singleton };
+		static const auto SINGLETON = REL::Relocation<Calendar**>(ID::Calendar::Singleton);
 		return *SINGLETON;
 	}
 
-	auto Calendar::GetAllDayNames()
-		-> std::span<const std::string_view, DAY_SETTING_KEYS.size()>
+	auto Calendar::GetAllDayNames() -> std::span<const BSFixedStringCS, REX::DateTime::WEEKDAYS.size()>
 	{
-		static const auto ALL_DAY_NAMES = []() {
-			auto result = std::array<std::string_view, DAY_SETTING_KEYS.size()>();
-			for (auto i = static_cast<std::size_t>(0); i < DAY_SETTING_KEYS.size(); i++) {
-				const auto* daySetting = GetGameSetting(DAY_SETTING_KEYS[i]);
+		static const auto ALL_DAY_NAMES = []() -> auto {
+			auto result = std::array<BSFixedStringCS, Impl::DAY_SETTING_KEYS.size()>();
+			for (auto i = static_cast<std::size_t>(0); i < Impl::DAY_SETTING_KEYS.size(); i++) {
+				const auto* daySetting = GetGameSetting(Impl::DAY_SETTING_KEYS[i]);
 				if (!daySetting || !daySetting->IsString()) [[unlikely]] {
 					REX::Assert(false);
 					continue;
 				}
 
-				result[i] = daySetting->GetString();
+				result[i] = BSFixedStringCS(daySetting->GetString());
 			}
 
 			return result;
@@ -33,19 +61,18 @@ namespace RE
 		return ALL_DAY_NAMES;
 	}
 
-	auto Calendar::GetAllMonthNames()
-		-> std::span<const std::string_view, MONTH_SETTING_KEYS.size()>
+	auto Calendar::GetAllMonthNames() -> std::span<const BSFixedStringCS, REX::DateTime::MONTHS.size()>
 	{
-		static const auto ALL_MONTH_NAMES = []() {
-			auto result = std::array<std::string_view, MONTH_SETTING_KEYS.size()>();
-			for (auto i = static_cast<std::size_t>(0); i < MONTH_SETTING_KEYS.size(); i++) {
-				const auto* monthSetting = GetGameSetting(MONTH_SETTING_KEYS[i]);
+		static const auto ALL_MONTH_NAMES = []() -> auto {
+			auto result = std::array<BSFixedStringCS, Impl::MONTH_SETTING_KEYS.size()>();
+			for (auto i = static_cast<std::size_t>(0); i < Impl::MONTH_SETTING_KEYS.size(); i++) {
+				const auto* monthSetting = GetGameSetting(Impl::MONTH_SETTING_KEYS[i]);
 				if (!monthSetting || !monthSetting->IsString()) [[unlikely]] {
 					REX::Assert(false);
 					continue;
 				}
 
-				result[i] = monthSetting->GetString();
+				result[i] = BSFixedStringCS(monthSetting->GetString());
 			}
 
 			return result;
@@ -54,93 +81,102 @@ namespace RE
 		return ALL_MONTH_NAMES;
 	}
 
-	std::string_view Calendar::GetNameOfDay(DayOfWeek a_dayOfWeek)
+	auto Calendar::GetNameOfDay(std::chrono::weekday a_dayOfWeek) -> BSFixedStringCS
 	{
-		const auto dayIndex = static_cast<std::uint32_t>(a_dayOfWeek.c_encoding());
-		if (dayIndex >= DAY_SETTING_KEYS.size()) {
+		const auto dayIndex = a_dayOfWeek.iso_encoding();
+		if (dayIndex >= Impl::DAY_SETTING_KEYS.size()) {
 			return {};
 		}
 
 		return GetAllDayNames()[dayIndex];
 	}
 
-	std::string_view Calendar::GetNameOfMonth(Month a_month)
+	auto Calendar::GetNameOfMonth(std::chrono::month a_month) -> BSFixedStringCS
 	{
 		const auto monthIndex = static_cast<std::uint32_t>(a_month) - 1;
-		if (monthIndex >= MONTH_SETTING_KEYS.size()) {
+		if (monthIndex >= Impl::MONTH_SETTING_KEYS.size()) {
 			return {};
 		}
 
 		return GetAllMonthNames()[monthIndex];
 	}
 
-	Calendar::DayOfWeek Calendar::GetDayOfWeek(Year a_year, Month a_month, Day a_day) noexcept
+	auto Calendar::GetDayOfWeek(
+		[[maybe_unused]] std::chrono::year a_year,
+		std::chrono::month a_month,
+		std::chrono::day a_day) noexcept -> std::chrono::weekday
 	{
-		const auto date = a_year / a_month / a_day;
-		return { date };
+		// The game does not account for leap years, so the default year is used instead.
+
+		const auto yearMonthDay = std::chrono::year_month_day(DEFAULT_GAME_YEAR, a_month, a_day);
+		return {yearMonthDay};
 	}
 
-	Calendar::DayOfWeek Calendar::GetDayOfWeek_NoLeapYear(Month a_month, Day a_day) noexcept
+	auto Calendar::GetTimeOfDay(Hours a_hours, Minutes a_minutes, Seconds a_seconds, Milliseconds a_milliseconds)
+		noexcept -> std::chrono::hh_mm_ss<Calendar::Milliseconds>
 	{
-		const auto date = DEFAULT_GAME_YEAR / a_month / a_day;
-		return { date };
+		const auto timeOfDay = a_hours + a_minutes + a_seconds + a_milliseconds;
+		return std::chrono::hh_mm_ss(timeOfDay);
 	}
 
-	Calendar::DayOfMonth Calendar::GetDayOfMonth(Month a_month, Day a_day) noexcept
+	auto Calendar::GetYear() const noexcept -> std::chrono::year
 	{
-		const auto dayOfMonth = a_month / a_day;
-		return { dayOfMonth };
-	}
-
-	Calendar::MonthOfYear Calendar::GetMonthOfYear(Year a_year, Month a_month) noexcept
-	{
-		const auto monthOfYear = a_year / a_month;
-		return { monthOfYear };
-	}
-
-	Calendar::Milliseconds Calendar::GetMillisecond() const noexcept
-	{
-		if (!gameHour) {
-			return DEFAULT_GAME_MILLISECOND;
+		if (!gameYear) {
+			return DEFAULT_GAME_YEAR;
 		}
 
-		const auto hour = Hours(gameHour->GetValue());
-		const auto hours = Hours(std::fmod(hour.count(), 1.0_f32));
-		const auto minute = std::chrono::duration_cast<Minutes>(hours);
-		const auto minutes = Minutes(std::fmod(minute.count(), 1.0_f32));
-		const auto second = std::chrono::duration_cast<Seconds>(minutes);
-		const auto seconds = Seconds(std::fmod(second.count(), 1.0_f32));
-
-		return std::chrono::duration_cast<Milliseconds>(seconds);
+		return std::chrono::year(static_cast<std::int32_t>(gameYear->GetValue()));
 	}
 
-	Calendar::Seconds Calendar::GetSecond() const noexcept
+	auto Calendar::SetYear(std::chrono::year a_year) const noexcept -> bool
 	{
-		if (!gameHour) {
-			return DEFAULT_GAME_SECOND;
+		if (!gameYear) {
+			return false;
 		}
 
-		const auto hour = Hours(gameHour->GetValue());
-		const auto hours = Hours(std::fmod(hour.count(), 1.0_f32));
-		const auto minute = std::chrono::duration_cast<Minutes>(hours);
-		const auto minutes = Minutes(std::fmod(minute.count(), 1.0_f32));
-
-		return std::chrono::duration_cast<Seconds>(minutes);
+		gameYear->SetValue(static_cast<REX::Float32>(static_cast<std::int32_t>(a_year)));
+		return true;
 	}
 
-	Calendar::Minutes Calendar::GetMinute() const noexcept
+	auto Calendar::GetMonth() const noexcept -> std::chrono::month
 	{
-		if (!gameHour) {
-			return DEFAULT_GAME_MINUTE;
+		if (!gameMonth) {
+			return DEFAULT_GAME_MONTH;
 		}
 
-		const auto hour = Hours(gameHour->GetValue());
-		const auto hours = Hours(std::fmod(hour.count(), 1.0_f32));
-
-		return std::chrono::duration_cast<Minutes>(hours);
+		return std::chrono::month(static_cast<std::uint32_t>(gameMonth->GetValue()));
 	}
 
-	Calendar::Hours Calendar::GetHour() const noexcept
+	auto Calendar::SetMonth(std::chrono::month a_month) const noexcept -> bool
+	{
+		if (!gameMonth) {
+			return false;
+		}
+
+		gameMonth->SetValue(static_cast<REX::Float32>(static_cast<std::uint32_t>(a_month)));
+		return true;
+	}
+
+	auto Calendar::GetDay() const noexcept -> std::chrono::day
+	{
+		if (!gameDay) {
+			return DEFAULT_GAME_DAY;
+		}
+
+		return std::chrono::day(static_cast<std::uint32_t>(gameDay->GetValue()));
+	}
+
+	auto Calendar::SetDay(std::chrono::day a_day) const noexcept -> bool
+	{
+		if (!gameDay) {
+			return false;
+		}
+
+		gameDay->SetValue(static_cast<REX::Float32>(static_cast<std::uint32_t>(a_day)));
+		return true;
+	}
+
+	auto Calendar::GetHour() const noexcept -> Calendar::Hours
 	{
 		if (!gameHour) {
 			return DEFAULT_GAME_HOUR;
@@ -149,75 +185,94 @@ namespace RE
 		return Hours(gameHour->GetValue());
 	}
 
-	Calendar::Day Calendar::GetDay() const noexcept
+	auto Calendar::SetHour(Hours a_hour) const noexcept -> bool
 	{
-		if (!gameDay) {
-			return DEFAULT_GAME_DAY;
+		if (!gameHour) {
+			return false;
 		}
 
-		return Day(static_cast<std::uint32_t>(gameDay->GetValue()));
+		gameHour->SetValue(a_hour.count());
+		return true;
 	}
 
-	Calendar::Month Calendar::GetMonth() const noexcept
+	auto Calendar::GetSubHour() const noexcept -> Calendar::SubHourData
 	{
-		if (!gameMonth) {
-			return DEFAULT_GAME_MONTH;
+		if (!gameHour) {
+			return DEFAULT_GAME_SUB_HOUR;
 		}
 
-		return Month(static_cast<std::uint32_t>(gameMonth->GetValue()));
+		constexpr auto HOURS_MODIFIER = static_cast<REX::Float32>(1.0);
+
+		const auto hours = Hours(gameHour->GetValue());
+		const auto hoursPart = Hours(std::fmod(hours.count(), HOURS_MODIFIER));
+
+		const auto minutes = std::chrono::duration_cast<Minutes>(hoursPart);
+		const auto minutesPart = Minutes(std::fmod(minutes.count(), HOURS_MODIFIER));
+
+		const auto seconds = std::chrono::duration_cast<Seconds>(minutesPart);
+		const auto secondsPart = Seconds(std::fmod(seconds.count(), HOURS_MODIFIER));
+
+		const auto milliseconds = std::chrono::duration_cast<Milliseconds>(secondsPart);
+
+		return {.hour = hours, .minute = minutes, .second = seconds, .millisecond = milliseconds};
 	}
 
-	Calendar::Year Calendar::GetYear() const noexcept
+	auto Calendar::SetSubHour(const SubHourData& a_subHour) const noexcept -> bool
 	{
-		if (!gameYear) {
-			return DEFAULT_GAME_YEAR;
+		if (!gameHour) {
+			return false;
 		}
 
-		return Year(static_cast<std::int32_t>(gameYear->GetValue()));
+		const auto totalHours = a_subHour.hour +
+								std::chrono::duration_cast<Hours>(a_subHour.minute) +
+								std::chrono::duration_cast<Hours>(a_subHour.second) +
+								std::chrono::duration_cast<Hours>(a_subHour.millisecond);
+
+		gameHour->SetValue(totalHours.count());
+		return true;
 	}
 
-	Calendar::TimePoint Calendar::GetTimePoint() const noexcept
+	auto Calendar::GetElapsedDays() const noexcept -> Calendar::Days
 	{
-		const auto year = GetYear();
-		const auto month = GetMonth();
-		const auto day = GetDay();
-		const auto hour = GetHour();
-		const auto minute = GetMinute();
-		const auto second = GetSecond();
-		const auto millisecond = GetMillisecond();
+		if (!gameDaysPassed) {
+			return DEFAULT_ELAPSED_GAME_DAYS;
+		}
 
-		const auto yearMonthDay = YearMonthDay(year, month, day);
-		const auto localDays = LocalDays(yearMonthDay);
-		const auto timeOfDay = hour + minute + second + millisecond;
-
-		return { localDays + timeOfDay };
+		return Days(gameDaysPassed->GetValue());
 	}
 
-	Calendar::DayOfWeek Calendar::GetWeekDay() const noexcept
+	auto Calendar::SetElapsedDays(Days a_elapsedDays) const noexcept -> bool
 	{
-		const auto month = GetMonth();
-		const auto day = GetDay();
+		if (!gameDaysPassed) {
+			return false;
+		}
 
-		return GetDayOfWeek_NoLeapYear(month, day);
+		gameDaysPassed->SetValue(a_elapsedDays.count());
+		return true;
 	}
 
-	Calendar::DayOfMonth Calendar::GetMonthDay() const noexcept
+	auto Calendar::GetElapsedHours() const noexcept -> Calendar::Hours
 	{
-		const auto month = GetMonth();
-		const auto day = GetDay();
+		if (!gameDaysPassed) {
+			return DEFAULT_ELAPSED_GAME_HOURS;
+		}
 
-		return GetDayOfMonth(month, day);
+		const auto daysPassed = Days(gameDaysPassed->GetValue());
+		return std::chrono::duration_cast<Hours>(daysPassed);
 	}
 
-	Calendar::MonthOfYear Calendar::GetYearMonth() const noexcept
+	auto Calendar::SetElapsedHours(Hours a_elapsedHours) const noexcept -> bool
 	{
-		const auto year = DEFAULT_GAME_YEAR;
-		const auto month = GetMonth();
+		if (!gameDaysPassed) {
+			return false;
+		}
 
-		return GetMonthOfYear(year, month);
+		const auto daysPassed = std::chrono::duration_cast<Days>(a_elapsedHours);
+		gameDaysPassed->SetValue(daysPassed.count());
+		return true;
 	}
 
-	Calendar::Seconds Calendar::GetTimeScale() const noexcept
+	auto Calendar::GetTimeScale() const noexcept -> Calendar::Seconds
 	{
 		if (!timeScale) {
 			return DEFAULT_TIME_SCALE;
@@ -226,37 +281,116 @@ namespace RE
 		return Seconds(timeScale->GetValue());
 	}
 
-	Calendar::Days Calendar::GetMidnightsPassed() const noexcept
+	auto Calendar::SetTimeScale(Seconds a_timeScale) const noexcept -> bool
 	{
-		return Days(midnightsPassed);
-	}
-
-	Calendar::Hours Calendar::GetHoursPassed() const noexcept
-	{
-		if (!gameDaysPassed) {
-			return DEFAULT_GAME_HOURS_PASSED;
+		if (!timeScale) {
+			return false;
 		}
 
-		const auto daysPassed = Days(gameDaysPassed->GetValue());
-		return std::chrono::duration_cast<Hours>(daysPassed);
+		timeScale->SetValue(a_timeScale.count());
+		return true;
 	}
 
-	Calendar::Days Calendar::GetDaysPassed() const noexcept
+	auto Calendar::GetElapsedMidnights() const noexcept -> std::uint32_t
 	{
-		if (!gameDaysPassed) {
-			return DEFAULT_GAME_DAYS_PASSED;
-		}
-
-		return Days(gameDaysPassed->GetValue());
+		return midnightsPassed;
 	}
 
-	std::string_view Calendar::GetDayName() const
+	void Calendar::SetElapsedMidnights(std::uint32_t a_elapsedMidnights) noexcept
 	{
-		const auto day = GetWeekDay();
-		return GetNameOfDay(day);
+		midnightsPassed = a_elapsedMidnights;
 	}
 
-	std::string_view Calendar::GetMonthName() const
+	auto Calendar::GetElapsedRawDays() const noexcept -> Calendar::Days
+	{
+		return rawDaysPassed;
+	}
+
+	void Calendar::SetElapsedRawDays(Days a_elapsedRawDays) noexcept
+	{
+		rawDaysPassed = a_elapsedRawDays;
+	}
+
+	auto Calendar::GetDateTime() const noexcept -> REX::DateTime
+	{
+		const auto year = GetYear();
+		const auto month = GetMonth();
+		const auto day = GetDay();
+		const auto subHour = GetSubHour();
+
+		const auto hour = std::chrono::duration_cast<std::chrono::hours>(subHour.hour);
+		const auto minute = std::chrono::duration_cast<std::chrono::minutes>(subHour.minute);
+		const auto second = std::chrono::duration_cast<std::chrono::seconds>(subHour.second);
+		const auto millisecond = std::chrono::duration_cast<std::chrono::milliseconds>(subHour.millisecond);
+		const auto microsecond = std::chrono::microseconds::zero();
+		const auto nanosecond = std::chrono::nanoseconds::zero();
+
+		return {year, month, day, hour, minute, second, millisecond, microsecond, nanosecond};
+	}
+
+	auto Calendar::SetDateTime(const REX::DateTime& a_dateTime) const noexcept -> bool
+	{
+		const auto year = a_dateTime.GetYear();
+		const auto month = a_dateTime.GetMonth();
+		const auto day = a_dateTime.GetDay();
+
+		const auto hour = std::chrono::duration_cast<Hours>(a_dateTime.GetHour());
+		const auto minute = std::chrono::duration_cast<Minutes>(a_dateTime.GetMinute());
+		const auto second = std::chrono::duration_cast<Seconds>(a_dateTime.GetSecond());
+		const auto millisecond = std::chrono::duration_cast<Milliseconds>(a_dateTime.GetMillisecond());
+
+		const auto subHour = SubHourData{.hour = hour, .minute = minute, .second = second, .millisecond = millisecond};
+
+		return SetYear(year) && SetMonth(month) && SetDay(day) && SetSubHour(subHour);
+	}
+
+	auto Calendar::GetYearMonthDay() const noexcept -> std::chrono::year_month_day
+	{
+		const auto year = GetYear();
+		const auto month = GetMonth();
+		const auto day = GetDay();
+
+		return {year, month, day};
+	}
+
+	auto Calendar::GetYearMonth() const noexcept -> std::chrono::year_month
+	{
+		const auto year = GetYear();
+		const auto month = GetMonth();
+
+		return {year, month};
+	}
+
+	auto Calendar::GetMonthDay() const noexcept -> std::chrono::month_day
+	{
+		const auto month = GetMonth();
+		const auto day = GetDay();
+
+		return {month, day};
+	}
+
+	auto Calendar::GetWeekDay() const noexcept -> std::chrono::weekday
+	{
+		const auto year = GetYear();
+		const auto month = GetMonth();
+		const auto day = GetDay();
+
+		return GetDayOfWeek(year, month, day);
+	}
+
+	auto Calendar::GetDayTime() const noexcept -> std::chrono::hh_mm_ss<Calendar::Milliseconds>
+	{
+		const auto subHour = GetSubHour();
+		return GetTimeOfDay(subHour.hour, subHour.minute, subHour.second, subHour.millisecond);
+	}
+
+	auto Calendar::GetDayName() const -> BSFixedStringCS
+	{
+		const auto weekDay = GetWeekDay();
+		return GetNameOfDay(weekDay);
+	}
+
+	auto Calendar::GetMonthName() const -> BSFixedStringCS
 	{
 		const auto month = GetMonth();
 		return GetNameOfMonth(month);

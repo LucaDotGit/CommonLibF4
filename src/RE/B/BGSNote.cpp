@@ -5,7 +5,7 @@
 
 namespace RE
 {
-	bool BGSNote::GetHasNoteBeenRead() const noexcept
+	auto BGSNote::GetHasNoteBeenRead() const noexcept -> bool
 	{
 		return hasBeenRead;
 	}
@@ -13,12 +13,12 @@ namespace RE
 	void BGSNote::SetHasNoteBeenRead(bool a_value) noexcept
 	{
 		hasBeenRead = a_value;
-		AddChange(ChangeFlags::kRead);
+		AddChange(ChangeFlags::Read);
 	}
 
-	BGSSoundDescriptorForm* BGSNote::GetNoteVoice() const
+	auto BGSNote::GetNoteVoice() const -> BGSSoundDescriptorForm*
 	{
-		if (type != NOTE_TYPE::kVoice) {
+		if (type != NOTE_TYPE::Voice) {
 			return nullptr;
 		}
 
@@ -29,12 +29,12 @@ namespace RE
 	{
 		ClearNote();
 		noteSound = a_voice;
-		type = NOTE_TYPE::kVoice;
+		type = NOTE_TYPE::Voice;
 	}
 
-	BGSScene* BGSNote::GetNoteScene() const
+	auto BGSNote::GetNoteScene() const -> BGSScene*
 	{
-		if (type != NOTE_TYPE::kScene) {
+		if (type != NOTE_TYPE::Scene) {
 			return nullptr;
 		}
 
@@ -45,12 +45,12 @@ namespace RE
 	{
 		ClearNote();
 		noteFormID = a_scene ? a_scene->GetFormID() : 0;
-		type = NOTE_TYPE::kScene;
+		type = NOTE_TYPE::Scene;
 	}
 
-	BSFixedString BGSNote::GetNoteProgram() const
+	auto BGSNote::GetNoteProgram() const -> BSFixedString
 	{
-		if (type != NOTE_TYPE::kProgram) {
+		if (type != NOTE_TYPE::Program) {
 			return {};
 		}
 
@@ -61,12 +61,12 @@ namespace RE
 	{
 		ClearNote();
 		programFile = a_program;
-		type = NOTE_TYPE::kProgram;
+		type = NOTE_TYPE::Program;
 	}
 
-	BGSTerminal* BGSNote::GetNoteTerminal() const
+	auto BGSNote::GetNoteTerminal() const -> BGSTerminal*
 	{
-		if (type != NOTE_TYPE::kTerminal) {
+		if (type != NOTE_TYPE::Terminal) {
 			return nullptr;
 		}
 
@@ -77,26 +77,28 @@ namespace RE
 	{
 		ClearNote();
 		noteFormID = a_terminal ? a_terminal->GetFormID() : 0;
-		type = NOTE_TYPE::kTerminal;
+		type = NOTE_TYPE::Terminal;
 	}
 
 	void BGSNote::ClearNote()
 	{
 		switch (type.get()) {
-			case NOTE_TYPE::kVoice: {
+			case NOTE_TYPE::Voice: {
 				noteSound = nullptr;
 				break;
 			}
-			case NOTE_TYPE::kScene:
-			case NOTE_TYPE::kTerminal: {
+			case NOTE_TYPE::Scene:
+			case NOTE_TYPE::Terminal: {
 				noteFormID = 0;
 				break;
 			}
-			case NOTE_TYPE::kProgram: {
+			case NOTE_TYPE::Program: {
 				programFile.clear();
 				break;
 			}
-			[[unlikely]] default: {
+			[[unlikely]]
+			default: {
+				REX::Assert(false);
 				break;
 			}
 		}

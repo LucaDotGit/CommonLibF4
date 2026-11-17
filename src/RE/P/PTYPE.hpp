@@ -1,0 +1,55 @@
+#pragma once
+
+namespace RE
+{
+	enum class PTYPE : std::int32_t
+	{
+		Explore = 0,
+		Follow = 1,
+		Escore = 2,
+		Eat = 3,
+		Sleep = 4,
+		Wander = 5,
+		Travel = 6,
+		Accompany = 7,
+		UseItemAt = 8,
+		Ambush = 9,
+		FleeNonCombat = 10,
+		CastMagic = 11,
+		Sandbox = 12,
+		Patrol = 13,
+		Guard = 14,
+		Dialogue = 15,
+		UseWeapon = 16,
+		Find = 17,
+		Custom = 18,
+		Template = 19,
+		Activate = 20,
+		Alarm = 21,
+		Flee = 22,
+		Trespass = 23,
+		Spectator = 24,
+		Greet = 25,
+		GetUp = 26,
+		DoNothing = 27,
+		InGameDialogue = 28,
+		Surface = 29,
+		SearchForAttacker = 30,
+		AvoidReference = 31,
+		BumpReaction = 32,
+		GrenadeMineReaction = 33,
+		StealWarning = 34,
+		PickpocketWarning = 35,
+		MovementBlocked = 36,
+		VampireFeed = 37,
+		Cannibal = 38,
+		Land = 39,
+		Unused = 40,
+		MountActor = 41,
+		DismountActor = 42,
+		ClearMountPosition = 43,
+		ClearPowerArmorExit = 44,
+
+		_Count = 45
+	};
+}

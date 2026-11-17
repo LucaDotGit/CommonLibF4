@@ -6,194 +6,222 @@
 
 namespace RE::BSScript
 {
-	bool IFunction::HasNoParams() const
+	auto IFunction::HasNoParams() const -> bool
 	{
 		return GetParamCount() == 0;
 	}
 
-	bool IFunction::HasParamsOfTypes(std::span<const TypeInfo> a_args) const
+	auto IFunction::HasParamsOfTypes(std::span<const TypeInfo> a_args) const -> bool
 	{
 		if (GetParamCount() != a_args.size()) {
 			return false;
 		}
 
-		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
-			const auto& arg = a_args[a_index];
-			if (arg != paramTypeInfo) {
-				return BSContainer::ForEachResult::kStop;
-			}
+		return ForEachParam(
+				   [a_args](
+					   std::uint32_t a_index,
+					   [[maybe_unused]]
+					   const BSFixedString& a_paramName,
+					   const TypeInfo& paramTypeInfo) noexcept -> BSContainer::ForEachResult {
+					   const auto& arg = a_args[a_index];
+					   if (arg != paramTypeInfo) {
+						   return BSContainer::ForEachResult::Stop;
+					   }
 
-			return BSContainer::ForEachResult::kContinue;
-		}) == BSContainer::ForEachResult::kContinue;
+					   return BSContainer::ForEachResult::Continue;
+				   }) == BSContainer::ForEachResult::Continue;
 	}
 
-	bool IFunction::HasParamsOfTypes(std::span<const Variable> a_args) const
+	auto IFunction::HasParamsOfTypes(std::span<const Variable> a_args) const -> bool
 	{
 		if (GetParamCount() != a_args.size()) {
 			return false;
 		}
 
-		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
-			const auto& arg = a_args[a_index];
-			if (arg.GetTypeInfo() != paramTypeInfo) {
-				return BSContainer::ForEachResult::kStop;
-			}
+		return ForEachParam(
+				   [a_args](
+					   std::uint32_t a_index,
+					   [[maybe_unused]]
+					   const BSFixedString& a_paramName,
+					   const TypeInfo& paramTypeInfo) noexcept -> BSContainer::ForEachResult {
+					   const auto& arg = a_args[a_index];
+					   if (arg.GetTypeInfo() != paramTypeInfo) {
+						   return BSContainer::ForEachResult::Stop;
+					   }
 
-			return BSContainer::ForEachResult::kContinue;
-		}) == BSContainer::ForEachResult::kContinue;
+					   return BSContainer::ForEachResult::Continue;
+				   }) == BSContainer::ForEachResult::Continue;
 	}
 
-	bool IFunction::HasParamsOfVariadicTypes(std::span<const Variable> a_args) const
+	auto IFunction::HasParamsOfVariadicTypes(std::span<const Variable> a_args) const -> bool
 	{
 		if (GetParamCount() != a_args.size()) {
 			return false;
 		}
 
-		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
-			const auto& arg = a_args[a_index];
-			if (!arg.IsVar()) {
-				return arg.GetTypeInfo() == paramTypeInfo ?
-						   BSContainer::ForEachResult::kContinue :
-						   BSContainer::ForEachResult::kStop;
-			}
+		return ForEachParam(
+				   [a_args](
+					   std::uint32_t a_index,
+					   [[maybe_unused]]
+					   const BSFixedString& a_paramName,
+					   const TypeInfo& paramTypeInfo) noexcept -> BSContainer::ForEachResult {
+					   const auto& arg = a_args[a_index];
+					   if (!arg.IsVariant()) {
+						   return arg.GetTypeInfo() == paramTypeInfo ? BSContainer::ForEachResult::Continue :
+																	   BSContainer::ForEachResult::Stop;
+					   }
 
-			const auto* var = arg.GetVar();
-			if (!var) {
-				return paramTypeInfo.IsVar() ?
-						   BSContainer::ForEachResult::kContinue :
-						   BSContainer::ForEachResult::kStop;
-			}
+					   const auto* variant = arg.GetVariant();
+					   if (!variant) {
+						   return paramTypeInfo.IsVariant() ? BSContainer::ForEachResult::Continue :
+															  BSContainer::ForEachResult::Stop;
+					   }
 
-			return var->GetTypeInfo() == paramTypeInfo ?
-					   BSContainer::ForEachResult::kContinue :
-					   BSContainer::ForEachResult::kStop;
-		}) == BSContainer::ForEachResult::kContinue;
+					   return variant->GetTypeInfo() == paramTypeInfo ? BSContainer::ForEachResult::Continue :
+																		BSContainer::ForEachResult::Stop;
+				   }) == BSContainer::ForEachResult::Continue;
 	}
 
-	bool IFunction::HasParamsOfVariadicTypes(std::span<const SharedVariant> a_args) const
+	auto IFunction::HasParamsOfVariadicTypes(std::span<const SharedVariant> a_args) const -> bool
 	{
 		if (GetParamCount() != a_args.size()) {
 			return false;
 		}
 
-		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
-			const auto* arg = a_args[a_index];
-			if (!arg) {
-				return paramTypeInfo.IsNone() ?
-						   BSContainer::ForEachResult::kContinue :
-						   BSContainer::ForEachResult::kStop;
-			}
+		return ForEachParam(
+				   [a_args](
+					   std::uint32_t a_index,
+					   [[maybe_unused]]
+					   const BSFixedString& a_paramName,
+					   const TypeInfo& paramTypeInfo) noexcept -> BSContainer::ForEachResult {
+					   const auto* arg = a_args[a_index];
+					   if (!arg) {
+						   return paramTypeInfo.IsNone() ? BSContainer::ForEachResult::Continue :
+														   BSContainer::ForEachResult::Stop;
+					   }
 
-			if (!arg->IsVar()) {
-				return arg->GetTypeInfo() == paramTypeInfo ?
-						   BSContainer::ForEachResult::kContinue :
-						   BSContainer::ForEachResult::kStop;
-			}
+					   if (!arg->IsVariant()) {
+						   return arg->GetTypeInfo() == paramTypeInfo ? BSContainer::ForEachResult::Continue :
+																		BSContainer::ForEachResult::Stop;
+					   }
 
-			const auto* var = arg->GetVar();
-			if (!var) {
-				return paramTypeInfo.IsVar() ?
-						   BSContainer::ForEachResult::kContinue :
-						   BSContainer::ForEachResult::kStop;
-			}
+					   const auto* variant = arg->GetVariant();
+					   if (!variant) {
+						   return paramTypeInfo.IsVariant() ? BSContainer::ForEachResult::Continue :
+															  BSContainer::ForEachResult::Stop;
+					   }
 
-			return var->GetTypeInfo() == paramTypeInfo ?
-					   BSContainer::ForEachResult::kContinue :
-					   BSContainer::ForEachResult::kStop;
-		}) == BSContainer::ForEachResult::kContinue;
+					   return variant->GetTypeInfo() == paramTypeInfo ? BSContainer::ForEachResult::Continue :
+																		BSContainer::ForEachResult::Stop;
+				   }) == BSContainer::ForEachResult::Continue;
 	}
 
-	bool IFunction::HasParamsOfVariadicTypes(std::span<const UniqueVariant> a_args) const
+	auto IFunction::HasParamsOfVariadicTypes(std::span<const UniqueVariant> a_args) const -> bool
 	{
 		if (GetParamCount() != a_args.size()) {
 			return false;
 		}
 
-		return ForEachParam([a_args](std::uint32_t a_index, [[maybe_unused]] const BSFixedString& a_paramName, const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
-			const auto& arg = a_args[a_index];
-			if (!arg) {
-				return paramTypeInfo.IsNone() ?
-						   BSContainer::ForEachResult::kContinue :
-						   BSContainer::ForEachResult::kStop;
-			}
+		return ForEachParam(
+				   [a_args](
+					   std::uint32_t a_index,
+					   [[maybe_unused]]
+					   const BSFixedString& a_paramName,
+					   const TypeInfo& paramTypeInfo) noexcept -> BSContainer::ForEachResult {
+					   const auto& arg = a_args[a_index];
+					   if (!arg) {
+						   return paramTypeInfo.IsNone() ? BSContainer::ForEachResult::Continue :
+														   BSContainer::ForEachResult::Stop;
+					   }
 
-			if (!arg->IsVar()) {
-				return arg->GetTypeInfo() == paramTypeInfo ?
-						   BSContainer::ForEachResult::kContinue :
-						   BSContainer::ForEachResult::kStop;
-			}
+					   if (!arg->IsVariant()) {
+						   return arg->GetTypeInfo() == paramTypeInfo ? BSContainer::ForEachResult::Continue :
+																		BSContainer::ForEachResult::Stop;
+					   }
 
-			const auto* var = arg->GetVar();
-			if (!var) {
-				return paramTypeInfo.IsVar() ?
-						   BSContainer::ForEachResult::kContinue :
-						   BSContainer::ForEachResult::kStop;
-			}
+					   const auto* variant = arg->GetVariant();
+					   if (!variant) {
+						   return paramTypeInfo.IsVariant() ? BSContainer::ForEachResult::Continue :
+															  BSContainer::ForEachResult::Stop;
+					   }
 
-			return var->GetTypeInfo() == paramTypeInfo ?
-					   BSContainer::ForEachResult::kContinue :
-					   BSContainer::ForEachResult::kStop;
-		}) == BSContainer::ForEachResult::kContinue;
+					   return variant->GetTypeInfo() == paramTypeInfo ? BSContainer::ForEachResult::Continue :
+																		BSContainer::ForEachResult::Stop;
+				   }) == BSContainer::ForEachResult::Continue;
 	}
 
-	auto IFunction::GetParamNames() const
-		-> std::vector<BSFixedString>
+	auto IFunction::GetParamNames() const -> BSTArray<BSFixedString>
 	{
-		auto paramNames = std::vector<BSFixedString>();
-		paramNames.reserve(GetParamCount());
+		auto result = BSTArray<BSFixedString>();
+		result.reserve(GetParamCount());
 
-		ForEachParam([&paramNames](std::uint32_t, const BSFixedString& paramName, [[maybe_unused]] const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
-			paramNames.push_back(paramName);
-			return BSContainer::ForEachResult::kContinue;
-		});
+		ForEachParam(
+			[&result](
+				[[maybe_unused]] std::uint32_t a_index,
+				const BSFixedString& paramName,
+				[[maybe_unused]]
+				const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
+				result.push_back(paramName);
+				return BSContainer::ForEachResult::Continue;
+			});
 
-		return paramNames;
+		return result;
 	}
 
-	auto IFunction::GetParamTypes() const
-		-> std::vector<TypeInfo>
+	auto IFunction::GetParamTypes() const -> BSTArray<TypeInfo>
 	{
-		auto paramTypes = std::vector<TypeInfo>();
-		paramTypes.reserve(GetParamCount());
+		auto result = BSTArray<TypeInfo>();
+		result.reserve(GetParamCount());
 
-		ForEachParam([&paramTypes](std::uint32_t, [[maybe_unused]] const BSFixedString&, const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
-			paramTypes.push_back(paramTypeInfo);
-			return BSContainer::ForEachResult::kContinue;
-		});
+		ForEachParam(
+			[&result](
+				[[maybe_unused]] std::uint32_t a_index,
+				[[maybe_unused]]
+				const BSFixedString& paramName,
+				const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
+				result.push_back(paramTypeInfo);
+				return BSContainer::ForEachResult::Continue;
+			});
 
-		return paramTypes;
+		return result;
 	}
 
-	auto IFunction::GetParams() const
-		-> std::vector<std::pair<BSFixedString, TypeInfo>>
+	auto IFunction::GetParams() const -> BSTArray<BSTPair<BSFixedString, TypeInfo>>
 	{
-		auto params = std::vector<std::pair<BSFixedString, TypeInfo>>();
-		params.reserve(GetParamCount());
+		auto result = BSTArray<BSTPair<BSFixedString, TypeInfo>>();
+		result.reserve(GetParamCount());
 
-		ForEachParam([&params](std::uint32_t, const BSFixedString& paramName, const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
-			params.emplace_back(paramName, paramTypeInfo);
-			return BSContainer::ForEachResult::kContinue;
-		});
+		ForEachParam(
+			[&result](
+				[[maybe_unused]]
+				std::uint32_t a_index,
+				const BSFixedString& paramName,
+				const TypeInfo& paramTypeInfo) -> BSContainer::ForEachResult {
+				result.emplace_back(paramName, paramTypeInfo);
+				return BSContainer::ForEachResult::Continue;
+			});
 
-		return params;
+		return result;
 	}
 
-	BSContainer::ForEachResult IFunction::ForEachParam(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(std::uint32_t, const BSFixedString&, const TypeInfo&)>>& a_predicate) const
+	auto IFunction::ForEachParam(
+		const REX::NotNull<std::move_only_function<
+			BSContainer::ForEachResult(std::uint32_t, const BSFixedString&, const TypeInfo&) const>>& a_predicate) const
+		-> BSContainer::ForEachResult
 	{
 		const auto paramCount = GetParamCount();
 
-		for (auto i = 0ui32; i < paramCount; i++) {
+		for (auto i = static_cast<std::uint32_t>(0); i < paramCount; i++) {
 			auto paramName = BSFixedString();
 			auto paramTypeInfo = TypeInfo();
 
 			GetParam(i, paramName, paramTypeInfo);
 
-			if (std::invoke(*a_predicate, i, paramName, paramTypeInfo) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), i, paramName, paramTypeInfo) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 }

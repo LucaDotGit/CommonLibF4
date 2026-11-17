@@ -1,44 +1,45 @@
 #include "RE/B/BGSListForm.hpp"
 
+#include "RE/B/BSReadWriteLock.hpp"
+
 namespace RE
 {
-	std::uint32_t BGSListForm::GetFormCount() const noexcept
+	auto BGSListForm::GetFormCount() const noexcept -> std::uint32_t
 	{
 		return GetEditorFormCount() + GetScriptFormCount();
 	}
 
-	std::uint32_t BGSListForm::GetEditorFormCount() const noexcept
+	auto BGSListForm::GetEditorFormCount() const noexcept -> std::uint32_t
 	{
 		return arrayOfForms.size();
 	}
 
-	std::uint32_t BGSListForm::GetScriptFormCount() const noexcept
+	auto BGSListForm::GetScriptFormCount() const noexcept -> std::uint32_t
 	{
 		return scriptAddedFormCount;
 	}
 
-	std::vector<TESForm*> BGSListForm::GetAllForms() const
+	auto BGSListForm::GetAllForms() const -> BSTArray<TESForm*>
 	{
-		auto result = std::vector<TESForm*>();
+		auto result = BSTArray<TESForm*>();
 		result.reserve(GetFormCount());
 
 		ForEachForm([&result](TESForm* a_form) -> BSContainer::ForEachResult {
 			result.push_back(a_form);
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		});
 
 		return result;
 	}
 
-	auto BGSListForm::GetScriptForms() const
-		-> std::optional<std::vector<TESForm*>>
+	auto BGSListForm::GetScriptForms() const -> std::optional<BSTArray<TESForm*>>
 	{
-		auto result = std::vector<TESForm*>();
+		auto result = BSTArray<TESForm*>();
 		result.reserve(GetScriptFormCount());
 
 		ForEachScriptForm([&result](TESForm* a_form) -> BSContainer::ForEachResult {
 			result.push_back(a_form);
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		});
 
 		return result;
@@ -66,22 +67,22 @@ namespace RE
 			}
 		}
 
-		scriptAddedFormCount = count;
+		scriptAddedFormCount = scriptForms->size();
 
-		AddChange(ChangeFlags::kAddedForm);
+		AddChange(ChangeFlags::AddedForm);
 	}
 
-	bool BGSListForm::ContainsForm(const TESForm* a_form) const
+	auto BGSListForm::ContainsForm(const TESForm* a_form) const -> bool
 	{
 		return ContainsEditorForm(a_form) || ContainsScriptForm(a_form);
 	}
 
-	bool BGSListForm::ContainsEditorForm(const TESForm* a_form) const
+	auto BGSListForm::ContainsEditorForm(const TESForm* a_form) const -> bool
 	{
 		return std::ranges::contains(arrayOfForms, a_form);
 	}
 
-	bool BGSListForm::ContainsScriptForm(const TESForm* a_form) const
+	auto BGSListForm::ContainsScriptForm(const TESForm* a_form) const -> bool
 	{
 		const auto* scriptForms = scriptAddedTempForms;
 		if (!scriptForms) {
@@ -91,24 +92,22 @@ namespace RE
 		return std::ranges::contains(*scriptForms, a_form ? a_form->GetFormID() : 0);
 	}
 
-	auto BGSListForm::GetFormIndex(const TESForm* a_form) const
-		-> std::optional<std::uint32_t>
+	auto BGSListForm::GetFormIndex(const TESForm* a_form) const -> std::optional<std::uint32_t>
 	{
 		const auto editorIndex = GetEditorFormIndex(a_form);
-		if (editorIndex) {
-			return *editorIndex;
+		if (editorIndex.has_value()) {
+			return editorIndex;
 		}
 
 		const auto scriptIndex = GetScriptFormIndex(a_form);
-		if (scriptIndex) {
-			return *scriptIndex + GetEditorFormCount();
+		if (scriptIndex.has_value()) {
+			return scriptIndex.value() + GetEditorFormCount();
 		}
 
 		return std::nullopt;
 	}
 
-	auto BGSListForm::GetEditorFormIndex(const TESForm* a_form) const
-		-> std::optional<std::uint32_t>
+	auto BGSListForm::GetEditorFormIndex(const TESForm* a_form) const -> std::optional<std::uint32_t>
 	{
 		const auto* formIt = std::ranges::find(arrayOfForms, a_form);
 		if (formIt == arrayOfForms.end()) {
@@ -118,8 +117,7 @@ namespace RE
 		return static_cast<std::uint32_t>(std::distance(arrayOfForms.begin(), formIt));
 	}
 
-	auto BGSListForm::GetScriptFormIndex(const TESForm* a_form) const
-		-> std::optional<std::uint32_t>
+	auto BGSListForm::GetScriptFormIndex(const TESForm* a_form) const -> std::optional<std::uint32_t>
 	{
 		const auto* scriptForms = scriptAddedTempForms;
 		if (!scriptForms) {
@@ -134,7 +132,7 @@ namespace RE
 		return static_cast<std::uint32_t>(std::distance(scriptForms->begin(), formIt));
 	}
 
-	TESForm* BGSListForm::GetNthForm(std::uint32_t a_index) const
+	auto BGSListForm::GetNthForm(std::uint32_t a_index) const -> TESForm*
 	{
 		const auto editorCount = GetEditorFormCount();
 		if (a_index < editorCount) {
@@ -144,7 +142,7 @@ namespace RE
 		return GetNthScriptForm(a_index - editorCount);
 	}
 
-	bool BGSListForm::SetNthForm(std::uint32_t a_index, TESForm* a_form)
+	auto BGSListForm::SetNthForm(std::uint32_t a_index, TESForm* a_form) -> bool
 	{
 		if (!a_form) {
 			return false;
@@ -158,7 +156,7 @@ namespace RE
 		return SetNthScriptForm(a_index - editorCount, a_form);
 	}
 
-	bool BGSListForm::RemoveNthForm(std::uint32_t a_index)
+	auto BGSListForm::RemoveNthForm(std::uint32_t a_index) -> bool
 	{
 		const auto editorCount = GetEditorFormCount();
 		if (a_index < editorCount) {
@@ -168,12 +166,12 @@ namespace RE
 		return RemoveNthScriptForm(a_index - editorCount);
 	}
 
-	TESForm* BGSListForm::GetNthEditorForm(std::uint32_t a_index) const
+	auto BGSListForm::GetNthEditorForm(std::uint32_t a_index) const -> TESForm*
 	{
 		return a_index < arrayOfForms.size() ? arrayOfForms[a_index] : nullptr;
 	}
 
-	bool BGSListForm::SetNthEditorForm(std::uint32_t a_index, TESForm* a_form)
+	auto BGSListForm::SetNthEditorForm(std::uint32_t a_index, TESForm* a_form) -> bool
 	{
 		if (!a_form) {
 			return false;
@@ -187,7 +185,7 @@ namespace RE
 		return true;
 	}
 
-	bool BGSListForm::RemoveNthEditorForm(std::uint32_t a_index)
+	auto BGSListForm::RemoveNthEditorForm(std::uint32_t a_index) -> bool
 	{
 		if (a_index >= arrayOfForms.size()) {
 			return false;
@@ -197,7 +195,7 @@ namespace RE
 		return true;
 	}
 
-	TESForm* BGSListForm::GetNthScriptForm(std::uint32_t a_index) const
+	auto BGSListForm::GetNthScriptForm(std::uint32_t a_index) const -> TESForm*
 	{
 		const auto* scriptForms = scriptAddedTempForms;
 		if (!scriptForms) {
@@ -207,7 +205,7 @@ namespace RE
 		return a_index < scriptForms->size() ? TESForm::FindFormByNumericID((*scriptForms)[a_index]) : nullptr;
 	}
 
-	bool BGSListForm::SetNthScriptForm(std::uint32_t a_index, TESForm* a_form)
+	auto BGSListForm::SetNthScriptForm(std::uint32_t a_index, TESForm* a_form) -> bool
 	{
 		if (!a_form) {
 			return false;
@@ -224,11 +222,11 @@ namespace RE
 
 		(*scriptForms)[a_index] = a_form->GetFormID();
 
-		AddChange(ChangeFlags::kAddedForm);
+		AddChange(ChangeFlags::AddedForm);
 		return true;
 	}
 
-	bool BGSListForm::RemoveNthScriptForm(std::uint32_t a_index)
+	auto BGSListForm::RemoveNthScriptForm(std::uint32_t a_index) -> bool
 	{
 		auto*& scriptForms = scriptAddedTempForms;
 		if (!scriptForms) {
@@ -242,11 +240,11 @@ namespace RE
 		scriptForms->erase(scriptForms->begin() + a_index);
 		scriptAddedFormCount = scriptForms->size();
 
-		AddChange(ChangeFlags::kAddedForm);
+		AddChange(ChangeFlags::AddedForm);
 		return true;
 	}
 
-	bool BGSListForm::AddEditorForm(TESForm* a_form)
+	auto BGSListForm::AddEditorForm(TESForm* a_form) -> bool
 	{
 		if (!a_form) {
 			return false;
@@ -260,7 +258,7 @@ namespace RE
 		return true;
 	}
 
-	bool BGSListForm::RemoveEditorForm(const TESForm* a_form)
+	auto BGSListForm::RemoveEditorForm(const TESForm* a_form) -> bool
 	{
 		const auto* formIt = std::ranges::find(arrayOfForms, a_form);
 		if (formIt == arrayOfForms.end()) {
@@ -271,7 +269,7 @@ namespace RE
 		return true;
 	}
 
-	bool BGSListForm::AddScriptForm(TESForm* a_form)
+	auto BGSListForm::AddScriptForm(TESForm* a_form) -> bool
 	{
 		if (!a_form) {
 			return false;
@@ -288,11 +286,11 @@ namespace RE
 		scriptForms->push_back(a_form->GetFormID());
 		scriptAddedFormCount = scriptForms->size();
 
-		AddChange(ChangeFlags::kAddedForm);
+		AddChange(ChangeFlags::AddedForm);
 		return true;
 	}
 
-	bool BGSListForm::RemoveScriptForm(const TESForm* a_form)
+	auto BGSListForm::RemoveScriptForm(const TESForm* a_form) -> bool
 	{
 		auto*& scriptForms = scriptAddedTempForms;
 		if (!scriptForms) {
@@ -307,7 +305,7 @@ namespace RE
 		scriptForms->erase(formIt);
 		scriptAddedFormCount = scriptForms->size();
 
-		AddChange(ChangeFlags::kAddedForm);
+		AddChange(ChangeFlags::AddedForm);
 		return true;
 	}
 
@@ -341,7 +339,7 @@ namespace RE
 
 		scriptForms->reserve(scriptForms->size() + static_cast<std::uint32_t>(a_forms.size()));
 
-		for (auto* form : a_forms) {
+		for (const auto* form : a_forms) {
 			if (form && !ContainsForm(form)) {
 				scriptForms->push_back(form->GetFormID());
 			}
@@ -349,7 +347,7 @@ namespace RE
 
 		scriptAddedFormCount = scriptForms->size();
 
-		AddChange(ChangeFlags::kAddedForm);
+		AddChange(ChangeFlags::AddedForm);
 	}
 
 	void BGSListForm::RemoveScriptForms(std::span<TESForm*> a_forms)
@@ -359,7 +357,7 @@ namespace RE
 			return;
 		}
 
-		for (auto* form : a_forms) {
+		for (const auto* form : a_forms) {
 			if (!form) {
 				continue;
 			}
@@ -372,7 +370,7 @@ namespace RE
 
 		scriptAddedFormCount = static_cast<std::uint32_t>(scriptForms->size());
 
-		AddChange(ChangeFlags::kAddedForm);
+		AddChange(ChangeFlags::AddedForm);
 	}
 
 	void BGSListForm::ClearForms()
@@ -395,62 +393,65 @@ namespace RE
 
 		scriptAddedFormCount = 0;
 
-		AddChange(ChangeFlags::kAddedForm);
+		AddChange(ChangeFlags::AddedForm);
 	}
 
-	BSContainer::ForEachResult BGSListForm::ForEachForm(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(TESForm*)>>& a_predicate) const
+	auto BGSListForm::ForEachForm(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(TESForm*) const>>& a_predicate) const
+		-> BSContainer::ForEachResult
 	{
-		if (ForEachEditorForm(a_predicate) == BSContainer::ForEachResult::kStop) {
-			return BSContainer::ForEachResult::kStop;
+		if (ForEachEditorForm(a_predicate) == BSContainer::ForEachResult::Stop) {
+			return BSContainer::ForEachResult::Stop;
 		}
 
-		if (ForEachScriptForm(a_predicate) == BSContainer::ForEachResult::kStop) {
-			return BSContainer::ForEachResult::kStop;
+		if (ForEachScriptForm(a_predicate) == BSContainer::ForEachResult::Stop) {
+			return BSContainer::ForEachResult::Stop;
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 
-	BSContainer::ForEachResult BGSListForm::ForEachEditorForm(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(TESForm*)>>& a_predicate) const
+	auto BGSListForm::ForEachEditorForm(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(TESForm*) const>>& a_predicate) const
+		-> BSContainer::ForEachResult
 	{
 		for (auto* form : arrayOfForms) {
-			if (std::invoke(*a_predicate, form) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), form) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 
-	BSContainer::ForEachResult BGSListForm::ForEachScriptForm(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(TESForm*)>>& a_predicate) const
+	auto BGSListForm::ForEachScriptForm(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(TESForm*) const>>& a_predicate) const
+		-> BSContainer::ForEachResult
 	{
 		const auto* scriptForms = scriptAddedTempForms;
 		if (!scriptForms) {
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		}
 
-		const auto [formIDMap, formIDMutex] = TESForm::GetAllFormsByNumericID();
+		const auto&& [formIDMap, formIDMutex] = TESForm::GetAllFormsByNumericID();
 		if (!formIDMap) {
-			return BSContainer::ForEachResult::kContinue;
+			return BSContainer::ForEachResult::Continue;
 		}
 
-		const auto formIDLock = BSAutoReadLock(formIDMutex);
+		const auto formIDLock = BSAutoReadLock(formIDMutex.get());
 
 		for (const auto formIDElem : *scriptForms) {
 			const auto formIt = formIDMap->find(formIDElem);
-			if (formIt != formIDMap->end()) {
+			if (formIt == formIDMap->end()) {
 				continue;
 			}
 
 			auto* form = formIt->second;
-			if (std::invoke(*a_predicate, form) == BSContainer::ForEachResult::kStop) {
-				return BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), form) == BSContainer::ForEachResult::Stop) {
+				return BSContainer::ForEachResult::Stop;
 			}
 		}
 
-		return BSContainer::ForEachResult::kContinue;
+		return BSContainer::ForEachResult::Continue;
 	}
 }

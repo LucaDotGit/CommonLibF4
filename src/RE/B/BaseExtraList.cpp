@@ -4,28 +4,29 @@
 
 namespace RE
 {
-	bool BaseExtraList::HasExtra(EXTRA_DATA_TYPE a_type) const noexcept
+	auto BaseExtraList::HasExtra(EXTRA_DATA_TYPE a_extraType) const noexcept -> bool
 	{
-		REX::Assert(a_type < EXTRA_DATA_TYPE::kTotal);
-		const auto index = std::to_underlying(a_type) / 8;
+		REX::Assert(a_extraType >= EXTRA_DATA_TYPE::_Min && a_extraType <= EXTRA_DATA_TYPE::_Max);
+
+		const auto index = static_cast<std::uint8_t>(std::to_underlying(a_extraType) / 8);
 		const auto flags = GetFlags();
 
 		if (flags.empty() || std::cmp_greater_equal(index, flags.size())) {
 			return false;
 		}
 
-		const auto pos = static_cast<std::uint8_t>(1 << (std::to_underlying(a_type) % 8));
-		return (flags[index] & pos) != 0;
+		const auto position = static_cast<std::uint8_t>(1 << (std::to_underlying(a_extraType) % 8));
+		return (flags[index] & position) != 0;
 	}
 
-	BSExtraData* BaseExtraList::GetExtra(EXTRA_DATA_TYPE a_type) const noexcept
+	auto BaseExtraList::GetExtra(EXTRA_DATA_TYPE a_extraType) const noexcept -> BSExtraData*
 	{
-		if (!HasExtra(a_type)) {
+		if (!HasExtra(a_extraType)) {
 			return nullptr;
 		}
 
 		for (auto* it = _head; it; it = it->next) {
-			if (it->GetExtraType() == a_type) {
+			if (it->GetExtraType() == a_extraType) {
 				return it;
 			}
 		}
@@ -33,37 +34,41 @@ namespace RE
 		return nullptr;
 	}
 
-	void BaseExtraList::AddExtra(BSExtraData* a_extra) noexcept
+	auto BaseExtraList::AddExtra(std::unique_ptr<BSExtraData> a_extraData) noexcept -> BSExtraData*
 	{
-		REX::Assert(a_extra != nullptr);
-		REX::Assert(a_extra->next == nullptr);
+		REX::Assert(a_extraData != nullptr);
+		REX::Assert(a_extraData->next == nullptr);
 
-		const auto type = a_extra->GetExtraType();
-		REX::Assert(!HasExtra(type));
+		const auto extraType = a_extraData->GetExtraType();
+		REX::Assert(!HasExtra(extraType));
 
-		if (!_head || !IsHighUseExtra(type)) {
+		auto* newExtraData = a_extraData.release();
+
+		if (!_head || !IsHighUseExtra(extraType)) {
 			REX::Assert(_tail != nullptr);
-			*_tail = a_extra;
-			_tail = std::addressof(a_extra->next);
+
+			*_tail = newExtraData;
+			_tail = std::addressof(newExtraData->next);
 		}
 		else {
-			a_extra->next = _head;
-			_head = a_extra;
+			newExtraData->next = _head;
+			_head = newExtraData;
 		}
 
-		MarkType(type, true);
+		MarkType(extraType, true);
+		return newExtraData;
 	}
 
-	std::unique_ptr<BSExtraData> BaseExtraList::RemoveExtra(EXTRA_DATA_TYPE a_type) noexcept
+	auto BaseExtraList::RemoveExtra(EXTRA_DATA_TYPE a_extraType) noexcept -> std::unique_ptr<BSExtraData>
 	{
-		if (!HasExtra(a_type)) {
+		if (!HasExtra(a_extraType)) {
 			return nullptr;
 		}
 
 		auto* prev = static_cast<BSExtraData*>(nullptr);
 
 		for (auto* it = _head; it; prev = it, it = it->next) {
-			if (it->GetExtraType() == a_type) {
+			if (it->GetExtraType() == a_extraType) {
 				if (prev) {
 					prev->next = it->next;
 				}
@@ -75,35 +80,39 @@ namespace RE
 					_tail = std::addressof(prev ? prev->next : _head);
 				}
 
-				MarkType(a_type, false);
-				return std::unique_ptr<BSExtraData>{ it };
+				MarkType(a_extraType, false);
+				return std::unique_ptr<BSExtraData>(it);
 			}
 		}
 
 		return nullptr;
 	}
 
-	bool BaseExtraList::IsHighUseExtra(EXTRA_DATA_TYPE a_type) noexcept
+	auto BaseExtraList::IsHighUseExtra(EXTRA_DATA_TYPE a_extraType) noexcept -> bool
 	{
-		return !((std::to_underlying(a_type) - 11) & ~0x22u) && a_type != EXTRA_DATA_TYPE::kLeveledCreature;
+		if (a_extraType == EXTRA_DATA_TYPE::LeveledCreature) {
+			return false;
+		}
+
+		return ((REX::ToUnsigned(std::to_underlying(a_extraType)) - 11) & ~0x22u) == 0;
 	}
 
-	std::span<std::uint8_t> BaseExtraList::GetFlags() const noexcept
+	auto BaseExtraList::GetFlags() const noexcept -> std::span<std::uint8_t>
 	{
 		if (!_flags) {
 			return {};
 		}
 
-		return { _flags, N };
+		return {_flags, N};
 	}
 
-	std::span<std::uint8_t, BaseExtraList::N> BaseExtraList::GetOrCreateFlags() noexcept
+	auto BaseExtraList::GetOrCreateFlags() noexcept -> std::span<std::uint8_t, BaseExtraList::N>
 	{
 		if (!_flags) {
 			CreateFlags();
 		}
 
-		return std::span{ reinterpret_cast<std::array<std::uint8_t, N>&>(*_flags) };
+		return std::span{reinterpret_cast<std::span<std::uint8_t, N>&>(*_flags)};
 	}
 
 	void BaseExtraList::CreateFlags() noexcept
@@ -111,19 +120,19 @@ namespace RE
 		_flags = calloc<std::uint8_t>(N);
 	}
 
-	void BaseExtraList::MarkType(EXTRA_DATA_TYPE a_type, bool a_set) noexcept
+	void BaseExtraList::MarkType(EXTRA_DATA_TYPE a_extraType, bool a_set) noexcept
 	{
-		REX::Assert(a_type < EXTRA_DATA_TYPE::kTotal);
+		REX::Assert(a_extraType >= EXTRA_DATA_TYPE::_Min && a_extraType <= EXTRA_DATA_TYPE::_Max);
 
-		const auto index = std::to_underlying(a_type) / 8;
-		const auto pos = static_cast<std::uint8_t>(1 << (std::to_underlying(a_type) % 8));
+		const auto index = static_cast<std::uint8_t>(std::to_underlying(a_extraType) / 8);
+		const auto position = static_cast<std::uint8_t>(1 << (std::to_underlying(a_extraType) % 8));
 		const auto flags = GetOrCreateFlags();
 
 		if (a_set) {
-			flags[index] |= pos;
+			flags[index] |= position;
 		}
 		else {
-			flags[index] &= ~pos;
+			flags[index] &= ~position;
 		}
 	}
 }

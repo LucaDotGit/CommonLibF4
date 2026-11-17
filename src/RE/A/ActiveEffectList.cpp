@@ -5,30 +5,33 @@
 
 namespace RE
 {
-	[[nodiscard]] BSTSmartPointer<ActiveEffect> ActiveEffectList::GetActiveEffectByID(std::uint16_t a_id) const
+	auto ActiveEffectList::GetActiveEffectByID(std::uint16_t a_id) const -> BSTSmartPointer<ActiveEffect>
 	{
 		auto result = BSTSmartPointer<ActiveEffect>();
-		ForEachActiveEffect([&result, a_id](const BSTSmartPointer<ActiveEffect>& a_activeEffect) -> BSContainer::ForEachResult {
-			if (a_activeEffect && a_activeEffect->GetUniqueID() == a_id) {
-				result = a_activeEffect;
-				return BSContainer::ForEachResult::kStop;
-			}
+		ForEachActiveEffect(
+			[&result,
+			 a_id](const BSTSmartPointer<ActiveEffect>& a_activeEffect) noexcept -> BSContainer::ForEachResult {
+				if (a_activeEffect && a_activeEffect->GetUniqueID() == a_id) {
+					result = a_activeEffect;
+					return BSContainer::ForEachResult::Stop;
+				}
 
-			return BSContainer::ForEachResult::kContinue;
-		});
+				return BSContainer::ForEachResult::Continue;
+			});
 
 		return result;
 	}
 
-	BSContainer::ForEachResult ActiveEffectList::ForEachActiveEffect(
-		const REX::NotNull<std::function<BSContainer::ForEachResult(const BSTSmartPointer<ActiveEffect>&)>>& a_predicate) const
+	auto ActiveEffectList::ForEachActiveEffect(
+		const REX::NotNull<std::move_only_function<BSContainer::ForEachResult(const BSTSmartPointer<ActiveEffect>&)
+													   const>>& a_predicate) const -> BSContainer::ForEachResult
 	{
 		const auto currentIterating = ++iterating;
 
-		auto result = BSContainer::ForEachResult::kContinue;
+		auto result = BSContainer::ForEachResult::Continue;
 		for (const auto& activeEffect : activeEffects) {
-			if (std::invoke(*a_predicate, activeEffect) == BSContainer::ForEachResult::kStop) {
-				result = BSContainer::ForEachResult::kStop;
+			if (std::invoke(a_predicate.get(), activeEffect) == BSContainer::ForEachResult::Stop) {
+				result = BSContainer::ForEachResult::Stop;
 				break;
 			}
 		}

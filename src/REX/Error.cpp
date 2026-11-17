@@ -4,73 +4,73 @@
 
 namespace REX
 {
-	const ErrorCategory& GetPosixErrorCategory() noexcept
+	auto GetPosixErrorCategory() noexcept -> const ErrorCategory&
 	{
 		return std::generic_category();
 	}
 
-	const ErrorCategory& GetSystemErrorCategory() noexcept
+	auto GetSystemErrorCategory() noexcept -> const ErrorCategory&
 	{
 		return std::system_category();
 	}
 
-	const ErrorCategory& GetFutureErrorCategory() noexcept
+	auto GetFutureErrorCategory() noexcept -> const ErrorCategory&
 	{
 		return std::future_category();
 	}
 
-	const ErrorCategory& GetIOStreamErrorCategory() noexcept
+	auto GetIOStreamErrorCategory() noexcept -> const ErrorCategory&
 	{
 		return std::iostream_category();
 	}
 
-	PosixError GetCurrentPosixError() noexcept
+	auto GetCurrentStlError() noexcept -> PosixError
 	{
 		return CreatePosixError(static_cast<PosixErrorCode>(errno));
 	}
 
-	SystemError GetCurrentSystemError() noexcept
+	auto GetCurrentSystemError() noexcept -> SystemError
 	{
 		return CreateSystemError(static_cast<ErrorNumber>(REX::W32::GetLastError()));
 	}
 
-	PosixError CreatePosixError(ErrorNumber a_errorNumber) noexcept
+	auto CreatePosixError(ErrorNumber a_errorNumber) noexcept -> PosixError
 	{
-		return { a_errorNumber, GetPosixErrorCategory() };
+		return {a_errorNumber, GetPosixErrorCategory()};
 	}
 
-	PosixError CreatePosixError(PosixErrorCode a_errorCode) noexcept
+	auto CreatePosixError(PosixErrorCode a_errorCode) noexcept -> PosixError
 	{
-		return { static_cast<ErrorNumber>(a_errorCode), GetPosixErrorCategory() };
+		return {static_cast<ErrorNumber>(a_errorCode), GetPosixErrorCategory()};
 	}
 
-	PosixError CreatePosixError(SystemError a_error) noexcept
+	auto CreatePosixError(SystemError a_error) noexcept -> PosixError
 	{
-		return { a_error.value(), GetSystemErrorCategory() };
+		return {a_error.value(), GetSystemErrorCategory()};
 	}
 
-	SystemError CreateSystemError(ErrorNumber a_errorNumber) noexcept
+	auto CreateSystemError(ErrorNumber a_errorNumber) noexcept -> SystemError
 	{
-		return { a_errorNumber, GetSystemErrorCategory() };
+		return {a_errorNumber, GetSystemErrorCategory()};
 	}
 
-	SystemError CreateSystemError(PosixErrorCode a_errorCode) noexcept
+	auto CreateSystemError(PosixErrorCode a_errorCode) noexcept -> SystemError
 	{
-		return { static_cast<ErrorNumber>(a_errorCode), GetPosixErrorCategory() };
+		return {static_cast<ErrorNumber>(a_errorCode), GetPosixErrorCategory()};
 	}
 
-	SystemError CreateSystemError(PosixError a_error) noexcept
+	auto CreateSystemError(PosixError a_error) noexcept -> SystemError
 	{
-		return { a_error.value(), GetPosixErrorCategory() };
+		return {a_error.value(), GetPosixErrorCategory()};
 	}
 
-	SystemError CreateSystemError(FutureErrorCode a_errorCode) noexcept
+	auto CreateSystemError(FutureErrorCode a_errorCode) noexcept -> SystemError
 	{
-		return { static_cast<ErrorNumber>(a_errorCode), GetFutureErrorCategory() };
+		return {static_cast<ErrorNumber>(a_errorCode), GetFutureErrorCategory()};
 	}
 
-	SystemError CreateSystemError(IOStreamErrorCode a_errorCode) noexcept
+	auto CreateSystemError(IOStreamErrorCode a_errorCode) noexcept -> SystemError
 	{
-		return { static_cast<ErrorNumber>(a_errorCode), GetIOStreamErrorCategory() };
+		return {static_cast<ErrorNumber>(a_errorCode), GetIOStreamErrorCategory()};
 	}
 }

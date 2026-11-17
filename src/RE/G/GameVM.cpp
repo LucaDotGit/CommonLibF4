@@ -4,15 +4,15 @@
 
 namespace RE
 {
-	GameVM* GameVM::GetSingleton()
+	auto GameVM::GetSingleton() noexcept -> GameVM*
 	{
-		static const auto SINGLETON = REL::Relocation<GameVM**>{ ID::GameScript::GameVM::Singleton };
+		static const auto SINGLETON = REL::Relocation<GameVM**>(ID::GameScript::GameVM::Singleton);
 		return *SINGLETON;
 	}
 
-	BSTSmartPointer<BSScript::IVirtualMachine> GameVM::GetVMInterface()
+	auto GameVM::GetVMInterface() noexcept -> BSTSmartPointer<BSScript::IVirtualMachine>
 	{
-		auto* singleton = GetSingleton();
+		const auto* singleton = GetSingleton();
 		if (!singleton) {
 			return nullptr;
 		}
@@ -20,9 +20,9 @@ namespace RE
 		return singleton->impl;
 	}
 
-	BSTSmartPointer<BSScript::Internal::VirtualMachine> GameVM::GetInternalVM()
+	auto GameVM::GetInternalVM() noexcept -> BSTSmartPointer<BSScript::Internal::VirtualMachine>
 	{
-		auto* singleton = GetSingleton();
+		const auto* singleton = GetSingleton();
 		if (!singleton) {
 			return nullptr;
 		}
@@ -30,45 +30,27 @@ namespace RE
 		return dynamic_pointer_cast<BSScript::Internal::VirtualMachine>(singleton->impl);
 	}
 
-	GameVM::RuntimeData& GameVM::GetRuntimeData() noexcept
+	auto GameVM::GetRuntimeData() noexcept -> GameVM::RuntimeData&
 	{
 		return REL::GetMemberAt<RuntimeData>(Offset::GameVM::RuntimeData, this);
 	}
 
-	const GameVM::RuntimeData& GameVM::GetRuntimeData() const noexcept
+	auto GameVM::GetRuntimeData() const noexcept -> const GameVM::RuntimeData&
 	{
 		return REL::GetMemberAt<const RuntimeData>(Offset::GameVM::RuntimeData, this);
 	}
 
-	GameVM::Milliseconds GameVM::GetCurrentTime() const noexcept
-	{
-		const auto timeLock = BSAutoLock(GetRuntimeData().vmTimeLock);
-		return Milliseconds(GetRuntimeData().currentTime);
-	}
-
-	GameVM::Milliseconds GameVM::GetCurrentMenuModeTime() const noexcept
-	{
-		const auto timeLock = BSAutoLock(GetRuntimeData().vmTimeLock);
-		return Milliseconds(GetRuntimeData().currentMenuModeTime);
-	}
-
-	GameVM::Milliseconds GameVM::GetCurrentGameTime() const noexcept
-	{
-		const auto timeLock = BSAutoLock(GetRuntimeData().vmTimeLock);
-		return Milliseconds(GetRuntimeData().currentGameTime);
-	}
-
-	bool GameVM::QueuePostRenderCall(const BSTSmartPointer<GameScript::DelayFunctor>& a_functor)
+	auto GameVM::QueuePostRenderCall(const BSTSmartPointer<GameScript::DelayFunctor>& a_functor) -> bool
 	{
 		using FuncType = decltype(&GameVM::QueuePostRenderCall);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::GameVM::QueuePostRenderCall };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GameScript::GameVM::QueuePostRenderCall);
 		return std::invoke(FUNC, this, a_functor);
 	}
 
 	void GameVM::RegisterForAllGameEvents()
 	{
 		using FuncType = decltype(&GameVM::RegisterForAllGameEvents);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::GameVM::RegisterForAllGameEvents };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GameScript::GameVM::RegisterForAllGameEvents);
 		std::invoke(FUNC, this);
 	}
 
@@ -80,7 +62,7 @@ namespace RE
 		const BSTSmartPointer<BSScript::IStackCallbackFunctor>& a_callbackFunctor)
 	{
 		using FuncType = decltype(&GameVM::SendEventToObjectAndRelated);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::GameVM::SendEventToObjectAndRelated };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GameScript::GameVM::SendEventToObjectAndRelated);
 		std::invoke(FUNC, this, a_object, a_eventName, a_args, a_filter, a_callbackFunctor);
 	}
 }

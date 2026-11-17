@@ -1,55 +1,63 @@
 #include "RE/E/ExtraDataList.hpp"
 
 #include "RE/B/BSExtraData.hpp"
+#include "RE/B/BSReadWriteLock.hpp"
 #include "RE/C/ComparisonQualifiers.hpp"
 
 namespace RE
 {
-	bool ExtraDataList::HasExtra(EXTRA_DATA_TYPE a_type) const noexcept
+	auto ExtraDataList::HasExtra(EXTRA_DATA_TYPE a_type) const noexcept -> bool
 	{
 		const auto extraLock = BSAutoReadLock(extraRWLock);
-		return extraData.HasExtra(a_type);
+		return extraList.HasExtra(a_type);
 	}
 
-	BSExtraData* ExtraDataList::GetExtra(EXTRA_DATA_TYPE a_type) const noexcept
+	auto ExtraDataList::GetExtra(EXTRA_DATA_TYPE a_type) const noexcept -> BSExtraData*
 	{
 		const auto extraLock = BSAutoReadLock(extraRWLock);
-		return extraData.GetExtra(a_type);
+		return extraList.GetExtra(a_type);
 	}
 
-	void ExtraDataList::AddExtra(BSExtraData* a_extra) noexcept
+	auto ExtraDataList::AddExtra(std::unique_ptr<BSExtraData> a_extra) noexcept -> BSExtraData*
 	{
 		const auto extraLock = BSAutoWriteLock(extraRWLock);
-		extraData.AddExtra(a_extra);
+		return extraList.AddExtra(std::move(a_extra));
 	}
 
-	std::unique_ptr<BSExtraData> ExtraDataList::RemoveExtra(EXTRA_DATA_TYPE a_type) noexcept
+	auto ExtraDataList::RemoveExtra(EXTRA_DATA_TYPE a_type) noexcept -> std::unique_ptr<BSExtraData>
 	{
 		const auto extraLock = BSAutoWriteLock(extraRWLock);
-		return extraData.RemoveExtra(a_type);
+		return extraList.RemoveExtra(a_type);
 	}
 
-	bool ExtraDataList::CompareList(const ExtraDataList* a_compare, ComparisonQualifier a_qualifier)
+	auto ExtraDataList::CompareList(const ExtraDataList* a_compare, ComparisonQualifier a_qualifier) -> bool
 	{
 		using FuncType = decltype(&ExtraDataList::CompareList);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::ExtraDataList::CompareList };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::ExtraDataList::CompareList);
 		return std::invoke(FUNC, this, a_compare, a_qualifier);
 	}
 
-	bool ExtraDataList::CompareListForContainer(const ExtraDataList* a_compare)
+	auto ExtraDataList::CompareListForContainer(const ExtraDataList* a_compare) -> bool
 	{
 		return CompareList(a_compare, ComparisonQualifiers::ContainerQualifier);
 	}
 
-	bool ExtraDataList::CompareListForUI(const ExtraDataList* a_compare)
+	auto ExtraDataList::CompareListForUI(const ExtraDataList* a_compare) -> bool
 	{
 		return CompareList(a_compare, ComparisonQualifiers::UIQualifier);
 	}
 
-	TBO_InstanceData* ExtraDataList::CreateInstanceData(TESBoundObject* a_object, bool a_generateName)
+	void ExtraDataList::CopyList(const ExtraDataList* a_source)
+	{
+		using FuncType = decltype(&ExtraDataList::CopyList);
+		static const auto FUNC = REL::Relocation<FuncType>(ID::ExtraDataList::CopyList);
+		std::invoke(FUNC, this, a_source);
+	}
+
+	auto ExtraDataList::CreateInstanceData(TESBoundObject* a_object, bool a_generateName) -> TBO_InstanceData*
 	{
 		using FuncType = decltype(&ExtraDataList::CreateInstanceData);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::ExtraDataList::CreateInstanceData };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::ExtraDataList::CreateInstanceData);
 		return std::invoke(FUNC, this, a_object, a_generateName);
 	}
 }

@@ -2,13 +2,13 @@
 
 namespace RE
 {
-	hkContainerHeapAllocator::Allocator& hkContainerHeapAllocator::GetAllocator()
+	auto hkContainerHeapAllocator::GetAllocator() noexcept -> hkContainerHeapAllocator::Allocator&
 	{
-		static const auto ALLOCATOR = REL::Relocation<Allocator*>{ ID::hkContainerHeapAllocator::Allocator };
+		static const auto ALLOCATOR = REL::Relocation<Allocator*>(ID::hkContainerHeapAllocator::Allocator);
 		return *ALLOCATOR;
 	}
 
-	__declspec(allocator) __declspec(restrict) void* hk_container_malloc(std::size_t a_size) noexcept
+	__declspec(allocator) __declspec(restrict) auto hk_container_malloc(std::size_t a_size) noexcept -> void*
 	{
 		try {
 			auto& allocator = hkContainerHeapAllocator::GetAllocator();
@@ -19,7 +19,8 @@ namespace RE
 		}
 	}
 
-	__declspec(allocator) __declspec(restrict) void* hk_container_calloc(std::size_t a_count, std::size_t a_size) noexcept
+	__declspec(allocator) __declspec(restrict) auto hk_container_calloc(std::size_t a_count, std::size_t a_size)
+		noexcept -> void*
 	{
 		try {
 			auto& allocator = hkContainerHeapAllocator::GetAllocator();

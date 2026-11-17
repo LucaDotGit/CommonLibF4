@@ -8,14 +8,12 @@
 
 namespace RE::BSScript
 {
-	Variable::Variable() noexcept = default;
-
 	Variable::~Variable() noexcept
 	{
 		reset();
 	}
 
-	Variable::Variable(const Variable& a_rhs) noexcept
+	Variable::Variable(const Variable& a_rhs)
 	{
 		Assign(a_rhs);
 	}
@@ -62,12 +60,12 @@ namespace RE::BSScript
 
 	Variable::Variable(UniqueVariant a_value) noexcept
 	{
-		SetVar(std::move(a_value));
+		SetVariant(std::move(a_value));
 	}
 
-	Variable::Variable(SharedVariant a_value) noexcept
+	Variable::Variable(SharedVariant a_value)
 	{
-		SetVar(a_value);
+		SetVariant(a_value);
 	}
 
 	Variable::Variable(BSTSmartPointer<Struct> a_value) noexcept
@@ -80,7 +78,7 @@ namespace RE::BSScript
 		SetArray(std::move(a_value));
 	}
 
-	Variable& Variable::operator=(const Variable& a_rhs) noexcept
+	auto Variable::operator=(const Variable& a_rhs) -> Variable&
 	{
 		if (this == std::addressof(a_rhs)) {
 			return *this;
@@ -90,7 +88,7 @@ namespace RE::BSScript
 		return *this;
 	}
 
-	Variable& Variable::operator=(Variable&& a_rhs) noexcept
+	auto Variable::operator=(Variable&& a_rhs) noexcept -> Variable&
 	{
 		if (this == std::addressof(a_rhs)) {
 			return *this;
@@ -100,192 +98,188 @@ namespace RE::BSScript
 		return *this;
 	}
 
-	Variable& Variable::operator=(std::nullptr_t) noexcept
+	auto Variable::operator=(std::nullptr_t) noexcept -> Variable&
 	{
 		SetNone();
 		return *this;
 	}
 
-	Variable& Variable::operator=(BSTSmartPointer<Object> a_value) noexcept
+	auto Variable::operator=(BSTSmartPointer<Object> a_value) noexcept -> Variable&
 	{
 		SetObject(std::move(a_value));
 		return *this;
 	}
 
-	Variable& Variable::operator=(BSFixedString a_value) noexcept
+	auto Variable::operator=(BSFixedString a_value) noexcept -> Variable&
 	{
 		SetString(std::move(a_value));
 		return *this;
 	}
 
-	Variable& Variable::operator=(std::int32_t a_value) noexcept
+	auto Variable::operator=(std::int32_t a_value) noexcept -> Variable&
 	{
 		SetInt(a_value);
 		return *this;
 	}
 
-	Variable& Variable::operator=(std::uint32_t a_value) noexcept
+	auto Variable::operator=(std::uint32_t a_value) noexcept -> Variable&
 	{
 		SetUInt(a_value);
 		return *this;
 	}
 
-	Variable& Variable::operator=(REX::Float32 a_value) noexcept
+	auto Variable::operator=(REX::Float32 a_value) noexcept -> Variable&
 	{
 		SetFloat(a_value);
 		return *this;
 	}
 
-	Variable& Variable::operator=(bool a_value) noexcept
+	auto Variable::operator=(bool a_value) noexcept -> Variable&
 	{
 		SetBool(a_value);
 		return *this;
 	}
 
-	Variable& Variable::operator=(UniqueVariant a_value) noexcept
+	auto Variable::operator=(UniqueVariant a_value) noexcept -> Variable&
 	{
-		SetVar(std::move(a_value));
+		SetVariant(std::move(a_value));
 		return *this;
 	}
 
-	Variable& Variable::operator=(SharedVariant a_value) noexcept
+	auto Variable::operator=(SharedVariant a_value) -> Variable&
 	{
-		SetVar(a_value);
+		SetVariant(a_value);
 		return *this;
 	}
 
-	Variable& Variable::operator=(BSTSmartPointer<Struct> a_value) noexcept
+	auto Variable::operator=(BSTSmartPointer<Struct> a_value) noexcept -> Variable&
 	{
 		SetStruct(std::move(a_value));
 		return *this;
 	}
 
-	Variable& Variable::operator=(BSTSmartPointer<Array> a_value) noexcept
+	auto Variable::operator=(BSTSmartPointer<Array> a_value) noexcept -> Variable&
 	{
 		SetArray(std::move(a_value));
 		return *this;
 	}
 
-	bool Variable::operator==(const Variable& a_rhs) const noexcept
+	auto Variable::operator==(const Variable& a_rhs) const noexcept -> bool
 	{
 		return Equals(a_rhs);
 	}
 
-	bool Variable::operator!=(const Variable& a_rhs) const noexcept
-	{
-		return !(*this == a_rhs);
-	}
-
-	std::partial_ordering Variable::operator<=>(const Variable& a_rhs) const noexcept
+	auto Variable::operator<=>(const Variable& a_rhs) const noexcept -> std::partial_ordering
 	{
 		return Compare(a_rhs);
 	}
 
-	bool Variable::IsNone() const noexcept
+	auto Variable::IsNone() const noexcept -> bool
 	{
 		return _varType.IsNone();
 	}
 
-	bool Variable::IsObject() const noexcept
+	auto Variable::IsObject() const noexcept -> bool
 	{
 		return _varType.IsObject();
 	}
 
-	bool Variable::IsString() const noexcept
+	auto Variable::IsString() const noexcept -> bool
 	{
 		return _varType.IsString();
 	}
 
-	bool Variable::IsInt() const noexcept
+	auto Variable::IsInt() const noexcept -> bool
 	{
 		return _varType.IsInt();
 	}
-	bool Variable::IsUInt() const noexcept
+
+	auto Variable::IsUInt() const noexcept -> bool
 	{
 		return _varType.IsUInt();
 	}
 
-	bool Variable::IsFloat() const noexcept
+	auto Variable::IsFloat() const noexcept -> bool
 	{
 		return _varType.IsFloat();
 	}
 
-	bool Variable::IsBool() const noexcept
+	auto Variable::IsBool() const noexcept -> bool
 	{
 		return _varType.IsBool();
 	}
 
-	bool Variable::IsVar() const noexcept
+	auto Variable::IsVariant() const noexcept -> bool
 	{
-		return _varType.IsVar();
+		return _varType.IsVariant();
 	}
 
-	bool Variable::IsStruct() const noexcept
+	auto Variable::IsStruct() const noexcept -> bool
 	{
 		return _varType.IsStruct();
 	}
 
-	bool Variable::IsObjectArray() const noexcept
+	auto Variable::IsObjectArray() const noexcept -> bool
 	{
 		return _varType.IsObjectArray();
 	}
 
-	bool Variable::IsStringArray() const noexcept
+	auto Variable::IsStringArray() const noexcept -> bool
 	{
 		return _varType.IsStringArray();
 	}
 
-	bool Variable::IsIntArray() const noexcept
+	auto Variable::IsIntArray() const noexcept -> bool
 	{
 		return _varType.IsIntArray();
 	}
 
-	bool Variable::IsUIntArray() const noexcept
+	auto Variable::IsUIntArray() const noexcept -> bool
 	{
 		return _varType.IsUIntArray();
 	}
 
-	bool Variable::IsFloatArray() const noexcept
+	auto Variable::IsFloatArray() const noexcept -> bool
 	{
 		return _varType.IsFloatArray();
 	}
 
-	bool Variable::IsBoolArray() const noexcept
+	auto Variable::IsBoolArray() const noexcept -> bool
 	{
 		return _varType.IsBoolArray();
 	}
 
-	bool Variable::IsVarArray() const noexcept
+	auto Variable::IsVariantArray() const noexcept -> bool
 	{
-		return _varType.IsVarArray();
+		return _varType.IsVariantArray();
 	}
 
-	bool Variable::IsStructArray() const noexcept
+	auto Variable::IsStructArray() const noexcept -> bool
 	{
 		return _varType.IsStructArray();
 	}
 
-	bool Variable::IsArray() const noexcept
+	auto Variable::IsArray() const noexcept -> bool
 	{
 		return _varType.IsArray();
 	}
 
-	bool Variable::IsComplex() const noexcept
+	auto Variable::IsComplex() const noexcept -> bool
 	{
 		return _varType.IsComplex();
 	}
 
-	bool Variable::IsComplexArray() const noexcept
+	auto Variable::IsComplexArray() const noexcept -> bool
 	{
 		return _varType.IsComplexArray();
 	}
 
-	bool Variable::IsNoneAssignable() const noexcept
+	auto Variable::IsNoneAssignable() const noexcept -> bool
 	{
 		return _varType.IsNoneAssignable();
 	}
 
-	bool Variable::Equals(const Variable& a_rhs) const noexcept
+	auto Variable::Equals(const Variable& a_rhs) const noexcept -> bool
 	{
 		if (this == std::addressof(a_rhs)) {
 			return true;
@@ -294,12 +288,12 @@ namespace RE::BSScript
 		const auto leftRawType = GetRawType();
 		const auto rightRawType = a_rhs.GetRawType();
 
-		const auto isLeftVar = leftRawType == RawType::kVar;
-		const auto isRightVar = rightRawType == RawType::kVar;
+		const auto isLeftVar = leftRawType == RawType::Var;
+		const auto isRightVar = rightRawType == RawType::Var;
 
 		if (isLeftVar && isRightVar) {
-			const auto* leftValue = GetVar();
-			const auto* rightValue = a_rhs.GetVar();
+			const auto* leftValue = GetVariant();
+			const auto* rightValue = a_rhs.GetVariant();
 
 			if (leftValue && rightValue) {
 				return *leftValue == *rightValue;
@@ -309,7 +303,7 @@ namespace RE::BSScript
 		}
 
 		if (isLeftVar) {
-			const auto* leftValue = GetVar();
+			const auto* leftValue = GetVariant();
 			if (!leftValue) {
 				return false;
 			}
@@ -318,7 +312,7 @@ namespace RE::BSScript
 		}
 
 		if (isRightVar) {
-			const auto* rightValue = a_rhs.GetVar();
+			const auto* rightValue = a_rhs.GetVariant();
 			if (!rightValue) {
 				return false;
 			}
@@ -331,27 +325,27 @@ namespace RE::BSScript
 		}
 
 		switch (leftRawType) {
-			case RawType::kNone: {
+			case RawType::None: {
 				return true;
 			}
-			case RawType::kObject: {
+			case RawType::Object: {
 				return GetObject() == a_rhs.GetObject();
 			}
-			case RawType::kString: {
+			case RawType::String: {
 				return GetString() == a_rhs.GetString();
 			}
-			case RawType::kInt: {
+			case RawType::Int: {
 				return GetInt() == a_rhs.GetInt();
 			}
-			case RawType::kFloat: {
+			case RawType::Float: {
 				return GetFloat() == a_rhs.GetFloat();
 			}
-			case RawType::kBool: {
+			case RawType::Bool: {
 				return GetBool() == a_rhs.GetBool();
 			}
-			case RawType::kVar: {
-				const auto* leftValue = GetVar();
-				const auto* rightValue = a_rhs.GetVar();
+			case RawType::Var: {
+				const auto* leftValue = GetVariant();
+				const auto* rightValue = a_rhs.GetVariant();
 
 				if (leftValue && rightValue) {
 					return leftValue->Equals(*rightValue);
@@ -359,16 +353,16 @@ namespace RE::BSScript
 
 				return leftValue == rightValue;
 			}
-			case RawType::kStruct: {
+			case RawType::Struct: {
 				return GetStruct() == a_rhs.GetStruct();
 			}
-			case RawType::kArrayObject:
-			case RawType::kArrayString:
-			case RawType::kArrayInt:
-			case RawType::kArrayFloat:
-			case RawType::kArrayBool:
-			case RawType::kArrayVar:
-			case RawType::kArrayStruct: {
+			case RawType::ArrayObject:
+			case RawType::ArrayString:
+			case RawType::ArrayInt:
+			case RawType::ArrayFloat:
+			case RawType::ArrayBool:
+			case RawType::ArrayVar:
+			case RawType::ArrayStruct: {
 				return GetArray() == a_rhs.GetArray();
 			}
 			default: {
@@ -377,7 +371,7 @@ namespace RE::BSScript
 		}
 	}
 
-	bool Variable::RefEquals(const Variable& a_rhs) const noexcept
+	auto Variable::RefEquals(const Variable& a_rhs) const noexcept -> bool
 	{
 		if (this == std::addressof(a_rhs)) {
 			return true;
@@ -391,26 +385,26 @@ namespace RE::BSScript
 		}
 
 		switch (leftRawType) {
-			case RawType::kNone: {
+			case RawType::None: {
 				return true;
 			}
-			case RawType::kObject: {
+			case RawType::Object: {
 				return GetObject() == a_rhs.GetObject();
 			}
-			case RawType::kString: {
+			case RawType::String: {
 				return GetString() == a_rhs.GetString();
 			}
-			case RawType::kInt:
-			case RawType::kFloat:
-			case RawType::kBool: {
+			case RawType::Int:
+			case RawType::Float:
+			case RawType::Bool: {
 				return false;
 			}
-			case RawType::kStruct: {
+			case RawType::Struct: {
 				return GetStruct() == a_rhs.GetStruct();
 			}
-			case RawType::kVar: {
-				const auto* leftValue = GetVar();
-				const auto* rightValue = a_rhs.GetVar();
+			case RawType::Var: {
+				const auto* leftValue = GetVariant();
+				const auto* rightValue = a_rhs.GetVariant();
 
 				if (leftValue && rightValue) {
 					return leftValue->RefEquals(*rightValue);
@@ -418,13 +412,13 @@ namespace RE::BSScript
 
 				return leftValue == rightValue;
 			}
-			case RawType::kArrayObject:
-			case RawType::kArrayString:
-			case RawType::kArrayInt:
-			case RawType::kArrayFloat:
-			case RawType::kArrayBool:
-			case RawType::kArrayVar:
-			case RawType::kArrayStruct: {
+			case RawType::ArrayObject:
+			case RawType::ArrayString:
+			case RawType::ArrayInt:
+			case RawType::ArrayFloat:
+			case RawType::ArrayBool:
+			case RawType::ArrayVar:
+			case RawType::ArrayStruct: {
 				return GetArray() == a_rhs.GetArray();
 			}
 			default: {
@@ -433,7 +427,7 @@ namespace RE::BSScript
 		}
 	}
 
-	bool Variable::DeepEquals(const Variable& a_rhs) const noexcept
+	auto Variable::DeepEquals(const Variable& a_rhs) const noexcept -> bool
 	{
 		if (this == std::addressof(a_rhs)) {
 			return true;
@@ -442,12 +436,12 @@ namespace RE::BSScript
 		const auto leftRawType = GetRawType();
 		const auto rightRawType = a_rhs.GetRawType();
 
-		const auto isLeftVar = leftRawType == RawType::kVar;
-		const auto isRightVar = rightRawType == RawType::kVar;
+		const auto isLeftVar = leftRawType == RawType::Var;
+		const auto isRightVar = rightRawType == RawType::Var;
 
 		if (isLeftVar && isRightVar) {
-			const auto* leftValue = GetVar();
-			const auto* rightValue = a_rhs.GetVar();
+			const auto* leftValue = GetVariant();
+			const auto* rightValue = a_rhs.GetVariant();
 
 			if (leftValue && rightValue) {
 				return leftValue->DeepEquals(*rightValue);
@@ -457,7 +451,7 @@ namespace RE::BSScript
 		}
 
 		if (isLeftVar) {
-			const auto* leftValue = GetVar();
+			const auto* leftValue = GetVariant();
 			if (!leftValue) {
 				return false;
 			}
@@ -466,7 +460,7 @@ namespace RE::BSScript
 		}
 
 		if (isRightVar) {
-			const auto* rightValue = a_rhs.GetVar();
+			const auto* rightValue = a_rhs.GetVariant();
 			if (!rightValue) {
 				return false;
 			}
@@ -474,17 +468,15 @@ namespace RE::BSScript
 			return rightValue->DeepEquals(*this);
 		}
 
-		if (leftRawType != rightRawType &&
-			leftRawType != RawType::kArrayVar &&
-			rightRawType != RawType::kArrayVar) {
+		if (leftRawType != rightRawType && leftRawType != RawType::ArrayVar && rightRawType != RawType::ArrayVar) {
 			return false;
 		}
 
 		switch (leftRawType) {
-			case RawType::kNone: {
+			case RawType::None: {
 				return true;
 			}
-			case RawType::kObject: {
+			case RawType::Object: {
 				const auto leftValue = GetObject();
 				const auto rightValue = a_rhs.GetObject();
 
@@ -494,19 +486,19 @@ namespace RE::BSScript
 
 				return leftValue == rightValue;
 			}
-			case RawType::kString: {
+			case RawType::String: {
 				return GetString() == a_rhs.GetString();
 			}
-			case RawType::kInt: {
+			case RawType::Int: {
 				return GetInt() == a_rhs.GetInt();
 			}
-			case RawType::kFloat: {
+			case RawType::Float: {
 				return GetFloat() == a_rhs.GetFloat();
 			}
-			case RawType::kBool: {
+			case RawType::Bool: {
 				return GetBool() == a_rhs.GetBool();
 			}
-			case RawType::kStruct: {
+			case RawType::Struct: {
 				const auto leftValue = GetStruct();
 				const auto rightValue = a_rhs.GetStruct();
 
@@ -516,9 +508,9 @@ namespace RE::BSScript
 
 				return leftValue == rightValue;
 			}
-			case RawType::kVar: {
-				const auto* leftValue = GetVar();
-				const auto* rightValue = a_rhs.GetVar();
+			case RawType::Var: {
+				const auto* leftValue = GetVariant();
+				const auto* rightValue = a_rhs.GetVariant();
 
 				if (leftValue && rightValue) {
 					return leftValue->DeepEquals(*rightValue);
@@ -526,13 +518,13 @@ namespace RE::BSScript
 
 				return leftValue == rightValue;
 			}
-			case RawType::kArrayObject:
-			case RawType::kArrayString:
-			case RawType::kArrayInt:
-			case RawType::kArrayFloat:
-			case RawType::kArrayBool:
-			case RawType::kArrayVar:
-			case RawType::kArrayStruct: {
+			case RawType::ArrayObject:
+			case RawType::ArrayString:
+			case RawType::ArrayInt:
+			case RawType::ArrayFloat:
+			case RawType::ArrayBool:
+			case RawType::ArrayVar:
+			case RawType::ArrayStruct: {
 				const auto leftValue = GetArray();
 				const auto rightValue = a_rhs.GetArray();
 
@@ -548,7 +540,7 @@ namespace RE::BSScript
 		}
 	}
 
-	std::partial_ordering Variable::Compare(const Variable& a_rhs) const noexcept
+	auto Variable::Compare(const Variable& a_rhs) const noexcept -> std::partial_ordering
 	{
 		if (this == std::addressof(a_rhs)) {
 			return std::partial_ordering::equivalent;
@@ -557,12 +549,12 @@ namespace RE::BSScript
 		const auto leftRawType = GetRawType();
 		const auto rightRawType = a_rhs.GetRawType();
 
-		const auto isLeftVar = leftRawType == RawType::kVar;
-		const auto isRightVar = rightRawType == RawType::kVar;
+		const auto isLeftVar = leftRawType == RawType::Var;
+		const auto isRightVar = rightRawType == RawType::Var;
 
 		if (isLeftVar && isRightVar) {
-			const auto* leftValue = GetVar();
-			const auto* rightValue = a_rhs.GetVar();
+			const auto* leftValue = GetVariant();
+			const auto* rightValue = a_rhs.GetVariant();
 
 			if (leftValue && rightValue) {
 				return leftValue->Compare(*rightValue);
@@ -572,7 +564,7 @@ namespace RE::BSScript
 		}
 
 		if (isLeftVar) {
-			const auto* leftValue = GetVar();
+			const auto* leftValue = GetVariant();
 			if (!leftValue) {
 				return std::partial_ordering::less;
 			}
@@ -581,7 +573,7 @@ namespace RE::BSScript
 		}
 
 		if (isRightVar) {
-			const auto* rightValue = a_rhs.GetVar();
+			const auto* rightValue = a_rhs.GetVariant();
 			if (!rightValue) {
 				return std::partial_ordering::greater;
 			}
@@ -594,27 +586,27 @@ namespace RE::BSScript
 		}
 
 		switch (leftRawType) {
-			case RawType::kNone: {
+			case RawType::None: {
 				return std::partial_ordering::equivalent;
 			}
-			case RawType::kObject: {
+			case RawType::Object: {
 				return GetObject() <=> a_rhs.GetObject();
 			}
-			case RawType::kString: {
+			case RawType::String: {
 				return GetString() <=> a_rhs.GetString();
 			}
-			case RawType::kInt: {
+			case RawType::Int: {
 				return GetInt() <=> a_rhs.GetInt();
 			}
-			case RawType::kFloat: {
+			case RawType::Float: {
 				return GetFloat() <=> a_rhs.GetFloat();
 			}
-			case RawType::kBool: {
+			case RawType::Bool: {
 				return GetBool() <=> a_rhs.GetBool();
 			}
-			case RawType::kVar: {
-				const auto* leftValue = GetVar();
-				const auto* rightValue = a_rhs.GetVar();
+			case RawType::Var: {
+				const auto* leftValue = GetVariant();
+				const auto* rightValue = a_rhs.GetVariant();
 
 				if (leftValue && rightValue) {
 					return leftValue->Compare(*rightValue);
@@ -622,16 +614,16 @@ namespace RE::BSScript
 
 				return leftValue <=> rightValue;
 			}
-			case RawType::kStruct: {
+			case RawType::Struct: {
 				return GetStruct() <=> a_rhs.GetStruct();
 			}
-			case RawType::kArrayObject:
-			case RawType::kArrayString:
-			case RawType::kArrayInt:
-			case RawType::kArrayFloat:
-			case RawType::kArrayBool:
-			case RawType::kArrayVar:
-			case RawType::kArrayStruct: {
+			case RawType::ArrayObject:
+			case RawType::ArrayString:
+			case RawType::ArrayInt:
+			case RawType::ArrayFloat:
+			case RawType::ArrayBool:
+			case RawType::ArrayVar:
+			case RawType::ArrayStruct: {
 				return GetArray() <=> a_rhs.GetArray();
 			}
 			default: {
@@ -640,7 +632,7 @@ namespace RE::BSScript
 		}
 	}
 
-	std::partial_ordering Variable::RefCompare(const Variable& a_rhs) const noexcept
+	auto Variable::RefCompare(const Variable& a_rhs) const noexcept -> std::partial_ordering
 	{
 		if (this == std::addressof(a_rhs)) {
 			return std::partial_ordering::equivalent;
@@ -654,26 +646,26 @@ namespace RE::BSScript
 		}
 
 		switch (leftRawType) {
-			case RawType::kNone: {
+			case RawType::None: {
 				return std::partial_ordering::equivalent;
 			}
-			case RawType::kObject: {
+			case RawType::Object: {
 				return GetObject() <=> a_rhs.GetObject();
 			}
-			case RawType::kString: {
+			case RawType::String: {
 				return GetString() <=> a_rhs.GetString();
 			}
-			case RawType::kInt:
-			case RawType::kFloat:
-			case RawType::kBool: {
+			case RawType::Int:
+			case RawType::Float:
+			case RawType::Bool: {
 				return std::partial_ordering::unordered;
 			}
-			case RawType::kStruct: {
+			case RawType::Struct: {
 				return GetStruct() <=> a_rhs.GetStruct();
 			}
-			case RawType::kVar: {
-				const auto* leftValue = GetVar();
-				const auto* rightValue = a_rhs.GetVar();
+			case RawType::Var: {
+				const auto* leftValue = GetVariant();
+				const auto* rightValue = a_rhs.GetVariant();
 
 				if (leftValue && rightValue) {
 					return leftValue->RefCompare(*rightValue);
@@ -681,13 +673,13 @@ namespace RE::BSScript
 
 				return leftValue <=> rightValue;
 			}
-			case RawType::kArrayObject:
-			case RawType::kArrayString:
-			case RawType::kArrayInt:
-			case RawType::kArrayFloat:
-			case RawType::kArrayBool:
-			case RawType::kArrayVar:
-			case RawType::kArrayStruct: {
+			case RawType::ArrayObject:
+			case RawType::ArrayString:
+			case RawType::ArrayInt:
+			case RawType::ArrayFloat:
+			case RawType::ArrayBool:
+			case RawType::ArrayVar:
+			case RawType::ArrayStruct: {
 				return GetArray() <=> a_rhs.GetArray();
 			}
 			default: {
@@ -696,7 +688,7 @@ namespace RE::BSScript
 		}
 	}
 
-	std::partial_ordering Variable::DeepCompare(const Variable& a_rhs) const noexcept
+	auto Variable::DeepCompare(const Variable& a_rhs) const noexcept -> std::partial_ordering
 	{
 		if (this == std::addressof(a_rhs)) {
 			return std::partial_ordering::equivalent;
@@ -705,12 +697,12 @@ namespace RE::BSScript
 		const auto leftRawType = GetRawType();
 		const auto rightRawType = a_rhs.GetRawType();
 
-		const auto isLeftVar = leftRawType == RawType::kVar;
-		const auto isRightVar = rightRawType == RawType::kVar;
+		const auto isLeftVar = leftRawType == RawType::Var;
+		const auto isRightVar = rightRawType == RawType::Var;
 
 		if (isLeftVar && isRightVar) {
-			const auto* leftValue = GetVar();
-			const auto* rightValue = a_rhs.GetVar();
+			const auto* leftValue = GetVariant();
+			const auto* rightValue = a_rhs.GetVariant();
 
 			if (leftValue && rightValue) {
 				return leftValue->DeepCompare(*rightValue);
@@ -720,7 +712,7 @@ namespace RE::BSScript
 		}
 
 		if (isLeftVar) {
-			const auto* leftValue = GetVar();
+			const auto* leftValue = GetVariant();
 			if (!leftValue) {
 				return std::partial_ordering::less;
 			}
@@ -729,7 +721,7 @@ namespace RE::BSScript
 		}
 
 		if (isRightVar) {
-			const auto* rightValue = a_rhs.GetVar();
+			const auto* rightValue = a_rhs.GetVariant();
 			if (!rightValue) {
 				return std::partial_ordering::greater;
 			}
@@ -737,17 +729,15 @@ namespace RE::BSScript
 			return rightValue->DeepCompare(*this);
 		}
 
-		if (leftRawType != rightRawType &&
-			leftRawType != RawType::kArrayVar &&
-			rightRawType != RawType::kArrayVar) {
+		if (leftRawType != rightRawType && leftRawType != RawType::ArrayVar && rightRawType != RawType::ArrayVar) {
 			return leftRawType <=> rightRawType;
 		}
 
 		switch (leftRawType) {
-			case RawType::kNone: {
+			case RawType::None: {
 				return std::partial_ordering::equivalent;
 			}
-			case RawType::kObject: {
+			case RawType::Object: {
 				const auto leftValue = GetObject();
 				const auto rightValue = a_rhs.GetObject();
 
@@ -757,19 +747,19 @@ namespace RE::BSScript
 
 				return leftValue <=> rightValue;
 			}
-			case RawType::kString: {
+			case RawType::String: {
 				return GetString() <=> a_rhs.GetString();
 			}
-			case RawType::kInt: {
+			case RawType::Int: {
 				return GetInt() <=> a_rhs.GetInt();
 			}
-			case RawType::kFloat: {
+			case RawType::Float: {
 				return GetFloat() <=> a_rhs.GetFloat();
 			}
-			case RawType::kBool: {
+			case RawType::Bool: {
 				return GetBool() <=> a_rhs.GetBool();
 			}
-			case RawType::kStruct: {
+			case RawType::Struct: {
 				const auto leftValue = GetStruct();
 				const auto rightValue = a_rhs.GetStruct();
 
@@ -779,9 +769,9 @@ namespace RE::BSScript
 
 				return leftValue <=> rightValue;
 			}
-			case RawType::kVar: {
-				const auto* leftValue = GetVar();
-				const auto* rightValue = a_rhs.GetVar();
+			case RawType::Var: {
+				const auto* leftValue = GetVariant();
+				const auto* rightValue = a_rhs.GetVariant();
 
 				if (leftValue && rightValue) {
 					return leftValue->DeepCompare(*rightValue);
@@ -789,13 +779,13 @@ namespace RE::BSScript
 
 				return leftValue <=> rightValue;
 			}
-			case RawType::kArrayObject:
-			case RawType::kArrayString:
-			case RawType::kArrayInt:
-			case RawType::kArrayFloat:
-			case RawType::kArrayBool:
-			case RawType::kArrayVar:
-			case RawType::kArrayStruct: {
+			case RawType::ArrayObject:
+			case RawType::ArrayString:
+			case RawType::ArrayInt:
+			case RawType::ArrayFloat:
+			case RawType::ArrayBool:
+			case RawType::ArrayVar:
+			case RawType::ArrayStruct: {
 				const auto leftValue = GetArray();
 				const auto rightValue = a_rhs.GetArray();
 
@@ -811,62 +801,62 @@ namespace RE::BSScript
 		}
 	}
 
-	std::nullptr_t Variable::GetNone() const noexcept
+	auto Variable::GetNone() const noexcept -> std::nullptr_t
 	{
 		REX::Assert(IsNone());
 		REX::Assert(_value.none == nullptr);
 		return nullptr;
 	}
 
-	BSTSmartPointer<Object> Variable::GetObject() const noexcept
+	auto Variable::GetObject() const noexcept -> BSTSmartPointer<Object>
 	{
 		REX::Assert(IsObject());
 		return _value.object;
 	}
 
-	BSFixedString Variable::GetString() const noexcept
+	auto Variable::GetString() const noexcept -> BSFixedString
 	{
 		REX::Assert(IsString());
 		return _value.string;
 	}
 
-	std::int32_t Variable::GetInt() const noexcept
+	auto Variable::GetInt() const noexcept -> std::int32_t
 	{
 		REX::Assert(IsInt());
 		return _value.int32;
 	}
 
-	std::uint32_t Variable::GetUInt() const noexcept
+	auto Variable::GetUInt() const noexcept -> std::uint32_t
 	{
 		REX::Assert(IsUInt());
 		return _value.uint32;
 	}
 
-	REX::Float32 Variable::GetFloat() const noexcept
+	auto Variable::GetFloat() const noexcept -> REX::Float32
 	{
 		REX::Assert(IsFloat());
 		return _value.float32;
 	}
 
-	bool Variable::GetBool() const noexcept
+	auto Variable::GetBool() const noexcept -> bool
 	{
 		REX::Assert(IsBool());
 		return _value.boolean;
 	}
 
-	SharedVariant Variable::GetVar() const noexcept
+	auto Variable::GetVariant() const noexcept -> SharedVariant
 	{
-		REX::Assert(IsVar());
-		return _value.var.get();
+		REX::Assert(IsVariant());
+		return _value.variant.get();
 	}
 
-	BSTSmartPointer<Struct> Variable::GetStruct() const noexcept
+	auto Variable::GetStruct() const noexcept -> BSTSmartPointer<Struct>
 	{
 		REX::Assert(IsStruct());
 		return _value.structure;
 	}
 
-	BSTSmartPointer<Array> Variable::GetArray() const noexcept
+	auto Variable::GetArray() const noexcept -> BSTSmartPointer<Array>
 	{
 		REX::Assert(IsArray());
 		return _value.array;
@@ -896,7 +886,7 @@ namespace RE::BSScript
 		reset();
 
 		_value.string = std::move(a_value);
-		_varType = RawType::kString;
+		_varType = RawType::String;
 
 		REX::Assert(IsString());
 	}
@@ -906,7 +896,7 @@ namespace RE::BSScript
 		reset();
 
 		_value.int32 = a_value;
-		_varType = RawType::kInt;
+		_varType = RawType::Int;
 
 		REX::Assert(IsInt());
 	}
@@ -916,7 +906,7 @@ namespace RE::BSScript
 		reset();
 
 		_value.uint32 = a_value;
-		_varType = RawType::kInt;
+		_varType = RawType::Int;
 
 		REX::Assert(IsUInt());
 	}
@@ -926,7 +916,7 @@ namespace RE::BSScript
 		reset();
 
 		_value.float32 = a_value;
-		_varType = RawType::kFloat;
+		_varType = RawType::Float;
 
 		REX::Assert(IsFloat());
 	}
@@ -936,29 +926,29 @@ namespace RE::BSScript
 		reset();
 
 		_value.boolean = a_value;
-		_varType = RawType::kBool;
+		_varType = RawType::Bool;
 
 		REX::Assert(IsBool());
 	}
 
-	void Variable::SetVar(UniqueVariant a_value) noexcept
+	void Variable::SetVariant(UniqueVariant a_value) noexcept
 	{
 		reset();
 
-		_value.var = std::move(a_value);
-		_varType = RawType::kVar;
+		_value.variant = std::move(a_value);
+		_varType = RawType::Var;
 
-		REX::Assert(IsVar());
+		REX::Assert(IsVariant());
 	}
 
-	void Variable::SetVar(SharedVariant a_value) noexcept
+	void Variable::SetVariant(SharedVariant a_value)
 	{
 		reset();
 
-		_value.var = a_value ? std::make_unique<Variable>(*a_value) : nullptr;
-		_varType = RawType::kVar;
+		_value.variant = a_value ? std::make_unique<Variable>(*a_value) : nullptr;
+		_varType = RawType::Var;
 
-		REX::Assert(IsVar());
+		REX::Assert(IsVariant());
 	}
 
 	void Variable::SetStruct(BSTSmartPointer<Struct> a_value) noexcept
@@ -990,37 +980,37 @@ namespace RE::BSScript
 		REX::Assert(IsArray());
 	}
 
-	TypeInfo& Variable::GetTypeInfo() noexcept
+	auto Variable::GetTypeInfo() noexcept -> TypeInfo&
 	{
 		return _varType;
 	}
 
-	const TypeInfo& Variable::GetTypeInfo() const noexcept
+	auto Variable::GetTypeInfo() const noexcept -> const TypeInfo&
 	{
 		return _varType;
 	}
 
-	TypeInfo::RawType Variable::GetRawType() const noexcept
+	auto Variable::GetRawType() const noexcept -> TypeInfo::RawType
 	{
 		return _varType.GetRawType();
 	}
 
-	TypeInfo::RawType Variable::GetDeepRawType() const noexcept
+	auto Variable::GetDeepRawType() const noexcept -> TypeInfo::RawType
 	{
 		const auto rawType = GetRawType();
-		if (rawType != TypeInfo::RawType::kVar) {
+		if (rawType != TypeInfo::RawType::Var) {
 			return rawType;
 		}
 
-		const auto* value = GetVar();
+		const auto* value = GetVariant();
 		if (!value) {
-			return TypeInfo::RawType::kVar;
+			return TypeInfo::RawType::Var;
 		}
 
 		return value->GetRawType();
 	}
 
-	IComplexType* Variable::GetComplexType() const noexcept
+	auto Variable::GetComplexType() const noexcept -> BSTSmartPointer<IComplexType>
 	{
 		return _varType.GetComplexType();
 	}
@@ -1040,7 +1030,12 @@ namespace RE::BSScript
 		_varType = a_type;
 	}
 
-	bool Variable::TryAssign(const Variable& a_rhs) noexcept
+	void Variable::SetComplexType(const BSTSmartPointer<IComplexType>& a_type) noexcept
+	{
+		_varType = a_type;
+	}
+
+	auto Variable::TryAssign(const Variable& a_rhs) noexcept -> bool
 	{
 		if (this == std::addressof(a_rhs)) {
 			return true;
@@ -1051,20 +1046,20 @@ namespace RE::BSScript
 			return true;
 		}
 
-		if (!IsVar()) {
+		if (!IsVariant()) {
 			return false;
 		}
 
 		if (a_rhs.IsNone()) {
-			SetVar(UniqueVariant());
+			SetVariant(UniqueVariant());
 			return true;
 		}
 
-		SetVar(CreateVariant(a_rhs));
+		SetVariant(CreateVariant(a_rhs));
 		return true;
 	}
 
-	bool Variable::TryAssign(Variable&& a_rhs) noexcept
+	auto Variable::TryAssign(Variable&& a_rhs) noexcept -> bool
 	{
 		if (this == std::addressof(a_rhs)) {
 			return true;
@@ -1075,33 +1070,33 @@ namespace RE::BSScript
 			return true;
 		}
 
-		if (!IsVar()) {
+		if (!IsVariant()) {
 			return false;
 		}
 
 		if (a_rhs.IsNone()) {
-			SetVar(UniqueVariant());
+			SetVariant(UniqueVariant());
 			return true;
 		}
 
-		SetVar(CreateVariant(std::move(a_rhs)));
+		SetVariant(CreateVariant(std::move(a_rhs)));
 		return true;
 	}
 
-	Variable Variable::Clone([[maybe_unused]] IVirtualMachine& a_vm) const noexcept
+	auto Variable::Clone([[maybe_unused]] IVirtualMachine& a_vm) const noexcept -> Variable
 	{
 		auto result = Variable();
 		result.Assign(*this);
 		return result;
 	}
 
-	Variable Variable::DeepClone(IVirtualMachine& a_vm) const
+	auto Variable::DeepClone(IVirtualMachine& a_vm) const -> Variable
 	{
 		switch (GetRawType()) {
-			case RawType::kNone: {
+			case RawType::None: {
 				return {};
 			}
-			case RawType::kObject: {
+			case RawType::Object: {
 				const auto value = GetObject();
 				if (!value) {
 					return {};
@@ -1109,27 +1104,27 @@ namespace RE::BSScript
 
 				return Variable(value->DeepClone(a_vm));
 			}
-			case RawType::kString: {
+			case RawType::String: {
 				return Variable(GetString());
 			}
-			case RawType::kInt: {
+			case RawType::Int: {
 				return Variable(GetInt());
 			}
-			case RawType::kFloat: {
+			case RawType::Float: {
 				return Variable(GetFloat());
 			}
-			case RawType::kBool: {
+			case RawType::Bool: {
 				return Variable(GetBool());
 			}
-			case RawType::kVar: {
-				const auto* value = GetVar();
+			case RawType::Var: {
+				const auto* value = GetVariant();
 				if (!value) {
 					return Variable(UniqueVariant());
 				}
 
 				return Variable(CreateVariant(value->DeepClone(a_vm)));
 			}
-			case RawType::kStruct: {
+			case RawType::Struct: {
 				const auto value = GetStruct();
 				if (!value) {
 					return {};
@@ -1137,13 +1132,13 @@ namespace RE::BSScript
 
 				return Variable(value->DeepClone(a_vm));
 			}
-			case RawType::kArrayObject:
-			case RawType::kArrayString:
-			case RawType::kArrayInt:
-			case RawType::kArrayFloat:
-			case RawType::kArrayBool:
-			case RawType::kArrayVar:
-			case RawType::kArrayStruct: {
+			case RawType::ArrayObject:
+			case RawType::ArrayString:
+			case RawType::ArrayInt:
+			case RawType::ArrayFloat:
+			case RawType::ArrayBool:
+			case RawType::ArrayVar:
+			case RawType::ArrayStruct: {
 				const auto value = GetArray();
 				if (!value) {
 					return {};
@@ -1157,13 +1152,13 @@ namespace RE::BSScript
 		}
 	}
 
-	std::string Variable::ToString() const
+	auto Variable::ToString() const -> std::string
 	{
 		switch (GetRawType()) {
-			case RawType::kNone: {
+			case RawType::None: {
 				return std::string(NONE_STRING);
 			}
-			case RawType::kObject: {
+			case RawType::Object: {
 				const auto value = GetObject();
 				if (!value) {
 					return std::string(NONE_STRING);
@@ -1171,59 +1166,62 @@ namespace RE::BSScript
 
 				return value->ToString();
 			}
-			case RawType::kString: {
-				const auto string = GetString();
-				return std::string(string);
+			case RawType::String: {
+				const auto result = GetString();
+				return std::string(result);
 			}
-			case RawType::kInt: {
-				auto string = REX::ToString(GetInt());
-				if (!string) {
+			case RawType::Int: {
+				auto result = REX::ToString(GetInt());
+				if (!result.has_value()) [[unlikely]] {
+					REX::Assert(false);
 					return std::string(NONE_STRING);
 				}
 
-				return *std::move(string);
+				return std::move(result).value();
 			}
-			case RawType::kFloat: {
-				auto string = REX::ToString(GetFloat());
-				if (!string) {
+			case RawType::Float: {
+				auto result = REX::ToString(GetFloat());
+				if (!result.has_value()) [[unlikely]] {
+					REX::Assert(false);
 					return std::string(NONE_STRING);
 				}
 
-				return *std::move(string);
+				return std::move(result).value();
 			}
-			case RawType::kBool: {
-				constexpr auto BOOL_FORMAT = REX::EnumSet(REX::BoolFormat::kTrueFalse, REX::BoolFormat::kCapitalize);
+			case RawType::Bool: {
+				constexpr auto BOOL_FORMAT = REX::EnumSet(REX::BoolFormat::TrueFalse, REX::BoolFormat::Capitalize);
 
-				auto string = REX::ToString(GetBool(), BOOL_FORMAT.get());
-				if (!string) {
+				auto result = REX::ToString(GetBool(), BOOL_FORMAT.get());
+				if (!result.has_value()) [[unlikely]] {
+					REX::Assert(false);
 					return std::string(NONE_STRING);
 				}
 
-				return *std::move(string);
+				return std::move(result).value();
 			}
-			case RawType::kVar: {
-				const auto* value = GetVar();
+			case RawType::Var: {
+				const auto* value = GetVariant();
 				if (!value) {
 					return std::string(NONE_STRING);
 				}
 
 				return value->ToString();
 			}
-			case RawType::kStruct: {
-				const auto structure = GetStruct();
-				if (!structure) {
+			case RawType::Struct: {
+				const auto value = GetStruct();
+				if (!value) {
 					return std::string(NONE_STRING);
 				}
 
-				return structure->ToString();
+				return value->ToString();
 			}
-			case RawType::kArrayObject:
-			case RawType::kArrayString:
-			case RawType::kArrayInt:
-			case RawType::kArrayFloat:
-			case RawType::kArrayBool:
-			case RawType::kArrayVar:
-			case RawType::kArrayStruct: {
+			case RawType::ArrayObject:
+			case RawType::ArrayString:
+			case RawType::ArrayInt:
+			case RawType::ArrayFloat:
+			case RawType::ArrayBool:
+			case RawType::ArrayVar:
+			case RawType::ArrayStruct: {
 				const auto value = GetArray();
 				if (!value) {
 					return std::string(NONE_STRING);
@@ -1250,37 +1248,37 @@ namespace RE::BSScript
 	void Variable::reset() noexcept
 	{
 		switch (GetRawType()) {
-			case RawType::kNone: {
+			case RawType::None: {
 				break;
 			}
-			case RawType::kObject: {
+			case RawType::Object: {
 				_value.object.reset();
 				break;
 			}
-			case RawType::kString: {
+			case RawType::String: {
 				_value.string.clear();
 				break;
 			}
-			case RawType::kInt:
-			case RawType::kFloat:
-			case RawType::kBool: {
+			case RawType::Int:
+			case RawType::Float:
+			case RawType::Bool: {
 				break;
 			}
-			case RawType::kVar: {
-				_value.var.reset();
+			case RawType::Var: {
+				_value.variant.reset();
 				break;
 			}
-			case RawType::kStruct: {
+			case RawType::Struct: {
 				_value.structure.reset();
 				break;
 			}
-			case RawType::kArrayObject:
-			case RawType::kArrayString:
-			case RawType::kArrayInt:
-			case RawType::kArrayFloat:
-			case RawType::kArrayBool:
-			case RawType::kArrayVar:
-			case RawType::kArrayStruct: {
+			case RawType::ArrayObject:
+			case RawType::ArrayString:
+			case RawType::ArrayInt:
+			case RawType::ArrayFloat:
+			case RawType::ArrayBool:
+			case RawType::ArrayVar:
+			case RawType::ArrayStruct: {
 				_value.array.reset();
 				break;
 			}
@@ -1289,60 +1287,60 @@ namespace RE::BSScript
 			}
 		}
 
-		_varType = RawType::kNone;
+		_varType = RawType::None;
 		_value.none = nullptr;
 
 		REX::Assert(IsNone());
 	}
 
-	void Variable::Assign(const Variable& a_other) noexcept
+	void Variable::Assign(const Variable& a_other)
 	{
 		switch (a_other.GetRawType()) {
-			case RawType::kNone: {
+			case RawType::None: {
 				SetNone();
 				break;
 			}
-			case RawType::kObject: {
+			case RawType::Object: {
 				SetObject(a_other.GetObject());
 				break;
 			}
-			case RawType::kString: {
+			case RawType::String: {
 				SetString(a_other.GetString());
 				break;
 			}
-			case RawType::kInt: {
+			case RawType::Int: {
 				SetInt(a_other.GetInt());
 				break;
 			}
-			case RawType::kFloat: {
+			case RawType::Float: {
 				SetFloat(a_other.GetFloat());
 				break;
 			}
-			case RawType::kBool: {
+			case RawType::Bool: {
 				SetBool(a_other.GetBool());
 				break;
 			}
-			case RawType::kVar: {
-				const auto* value = a_other.GetVar();
+			case RawType::Var: {
+				const auto* value = a_other.GetVariant();
 				if (!value) {
-					SetVar(UniqueVariant());
+					SetVariant(UniqueVariant());
 					break;
 				}
 
-				SetVar(CreateVariant(*value));
+				SetVariant(CreateVariant(*value));
 				break;
 			}
-			case RawType::kStruct: {
+			case RawType::Struct: {
 				SetStruct(a_other.GetStruct());
 				break;
 			}
-			case RawType::kArrayObject:
-			case RawType::kArrayString:
-			case RawType::kArrayInt:
-			case RawType::kArrayFloat:
-			case RawType::kArrayBool:
-			case RawType::kArrayVar:
-			case RawType::kArrayStruct: {
+			case RawType::ArrayObject:
+			case RawType::ArrayString:
+			case RawType::ArrayInt:
+			case RawType::ArrayFloat:
+			case RawType::ArrayBool:
+			case RawType::ArrayVar:
+			case RawType::ArrayStruct: {
 				SetArray(a_other.GetArray());
 				break;
 			}
@@ -1354,49 +1352,49 @@ namespace RE::BSScript
 		_varType = a_other._varType;
 	}
 
-	void Variable::Assign(Variable&& a_other) noexcept // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+	void Variable::Assign(Variable&& a_other) noexcept
 	{
 		switch (a_other.GetRawType()) {
-			case RawType::kNone: {
+			case RawType::None: {
 				SetNone();
 				break;
 			}
-			case RawType::kObject: {
-				SetObject(std::move(a_other._value.object));
+			case RawType::Object: {
+				SetObject(std::move(a_other)._value.object);
 				break;
 			}
-			case RawType::kString: {
-				SetString(std::move(a_other._value.string));
+			case RawType::String: {
+				SetString(std::move(a_other)._value.string);
 				break;
 			}
-			case RawType::kInt: {
-				SetInt(a_other._value.int32);
+			case RawType::Int: {
+				SetInt(std::move(a_other)._value.int32);
 				break;
 			}
-			case RawType::kFloat: {
-				SetFloat(a_other._value.float32);
+			case RawType::Float: {
+				SetFloat(std::move(a_other)._value.float32);
 				break;
 			}
-			case RawType::kBool: {
-				SetBool(a_other._value.boolean);
+			case RawType::Bool: {
+				SetBool(std::move(a_other)._value.boolean);
 				break;
 			}
-			case RawType::kVar: {
-				SetVar(std::move(a_other._value.var));
+			case RawType::Var: {
+				SetVariant(std::move(a_other)._value.variant);
 				break;
 			}
-			case RawType::kStruct: {
-				SetStruct(std::move(a_other._value.structure));
+			case RawType::Struct: {
+				SetStruct(std::move(a_other)._value.structure);
 				break;
 			}
-			case RawType::kArrayObject:
-			case RawType::kArrayString:
-			case RawType::kArrayInt:
-			case RawType::kArrayFloat:
-			case RawType::kArrayBool:
-			case RawType::kArrayVar:
-			case RawType::kArrayStruct: {
-				SetArray(std::move(a_other._value.array));
+			case RawType::ArrayObject:
+			case RawType::ArrayString:
+			case RawType::ArrayInt:
+			case RawType::ArrayFloat:
+			case RawType::ArrayBool:
+			case RawType::ArrayVar:
+			case RawType::ArrayStruct: {
+				SetArray(std::move(a_other)._value.array);
 				break;
 			}
 			default: {
@@ -1404,23 +1402,19 @@ namespace RE::BSScript
 			}
 		}
 
-		_varType = std::move(a_other._varType);
-	}
-
-	Variable::ValueUnion::ValueUnion() noexcept
-	{
+		_varType = a_other._varType;
 	}
 
 	Variable::ValueUnion::~ValueUnion() noexcept
 	{
 	}
 
-	Variable::ValueUnion::ValueUnion(ValueUnion&& a_rhs) noexcept
-		: none(std::exchange(a_rhs.none, nullptr))
+	Variable::ValueUnion::ValueUnion(ValueUnion&& a_rhs) noexcept :
+		none(std::exchange(a_rhs.none, nullptr))
 	{
 	}
 
-	Variable::ValueUnion& Variable::ValueUnion::operator=(ValueUnion&& a_rhs) noexcept
+	auto Variable::ValueUnion::operator=(ValueUnion&& a_rhs) noexcept -> Variable::ValueUnion&
 	{
 		if (this == std::addressof(a_rhs)) {
 			return *this;
@@ -1430,55 +1424,64 @@ namespace RE::BSScript
 		return *this;
 	}
 
-	void swap(Variable& a_lhs, Variable& a_rhs) noexcept
+	void Variable::ValueUnion::swap(ValueUnion& a_other) noexcept
 	{
-		a_lhs.swap(a_rhs);
+		if (this == std::addressof(a_other)) {
+			return;
+		}
+
+		std::swap(none, a_other.none);
 	}
 
-	Variable GetDefaultVariable(const TypeInfo& a_typeInfo)
+	auto CreateVariant() -> UniqueVariant
+	{
+		return std::make_unique<Variable>();
+	}
+
+	auto GetDefaultVariable(const TypeInfo& a_typeInfo) noexcept -> Variable
 	{
 		auto value = Variable();
 
 		switch (a_typeInfo.GetRawType()) {
-			case TypeInfo::RawType::kNone: {
+			case TypeInfo::RawType::None: {
 				value.SetNone();
 				break;
 			}
-			case TypeInfo::RawType::kBool: {
+			case TypeInfo::RawType::Bool: {
 				value.SetBool(false);
 				break;
 			}
-			case TypeInfo::RawType::kInt: {
+			case TypeInfo::RawType::Int: {
 				value.SetInt(0);
 				break;
 			}
-			case TypeInfo::RawType::kFloat: {
-				value.SetFloat(0.0_f32);
+			case TypeInfo::RawType::Float: {
+				value.SetFloat(static_cast<REX::Float32>(0.0));
 				break;
 			}
-			case TypeInfo::RawType::kString: {
+			case TypeInfo::RawType::String: {
 				value.SetString(BSFixedString());
 				break;
 			}
-			case TypeInfo::RawType::kObject: {
+			case TypeInfo::RawType::Object: {
 				value.SetObject(BSTSmartPointer<Object>());
 				break;
 			}
-			case TypeInfo::RawType::kStruct: {
+			case TypeInfo::RawType::Struct: {
 				value.SetStruct(BSTSmartPointer<Struct>());
 				break;
 			}
-			case TypeInfo::RawType::kVar: {
-				value.SetVar(UniqueVariant());
+			case TypeInfo::RawType::Var: {
+				value.SetVariant(UniqueVariant());
 				break;
 			}
-			case TypeInfo::RawType::kArrayBool:
-			case TypeInfo::RawType::kArrayInt:
-			case TypeInfo::RawType::kArrayFloat:
-			case TypeInfo::RawType::kArrayString:
-			case TypeInfo::RawType::kArrayObject:
-			case TypeInfo::RawType::kArrayStruct:
-			case TypeInfo::RawType::kArrayVar: {
+			case TypeInfo::RawType::ArrayBool:
+			case TypeInfo::RawType::ArrayInt:
+			case TypeInfo::RawType::ArrayFloat:
+			case TypeInfo::RawType::ArrayString:
+			case TypeInfo::RawType::ArrayObject:
+			case TypeInfo::RawType::ArrayStruct:
+			case TypeInfo::RawType::ArrayVar: {
 				value.SetArray(BSTSmartPointer<Array>());
 				break;
 			}
@@ -1490,7 +1493,7 @@ namespace RE::BSScript
 		return value;
 	}
 
-	Variable UnwrapVariant(UniqueVariant a_value)
+	auto UnwrapVariant(UniqueVariant a_value) noexcept -> Variable
 	{
 		if (!a_value) {
 			return NONE_VARIABLE;
@@ -1499,7 +1502,7 @@ namespace RE::BSScript
 		return Variable(std::move(a_value));
 	}
 
-	const Variable& UnwrapVariant(const Variable* a_value) noexcept
+	auto UnwrapVariant(const Variable* a_value) noexcept -> const Variable&
 	{
 		if (!a_value) {
 			return NONE_VARIABLE;
@@ -1511,47 +1514,47 @@ namespace RE::BSScript
 
 namespace std
 {
-	std::size_t hash<RE::BSScript::Variable>::operator()(const RE::BSScript::Variable& a_key) const noexcept
+	auto hash<RE::BSScript::Variable>::operator()(const RE::BSScript::Variable& a_key) const noexcept -> std::size_t
 	{
 		using RawType = RE::BSScript::TypeInfo::RawType;
 
 		const auto rawType = a_key.GetRawType();
 		switch (rawType) {
-			case RawType::kNone: {
+			case RawType::None: {
 				return REX::HashCombine(rawType, a_key.GetNone());
 			}
-			case RawType::kObject: {
+			case RawType::Object: {
 				return REX::HashCombine(rawType, a_key.GetObject());
 			}
-			case RawType::kString: {
+			case RawType::String: {
 				return REX::HashCombine(rawType, a_key.GetString());
 			}
-			case RawType::kInt: {
+			case RawType::Int: {
 				return REX::HashCombine(rawType, a_key.GetInt());
 			}
-			case RawType::kFloat: {
+			case RawType::Float: {
 				return REX::HashCombine(rawType, a_key.GetFloat());
 			}
-			case RawType::kBool: {
+			case RawType::Bool: {
 				return REX::HashCombine(rawType, a_key.GetBool());
 			}
-			case RawType::kVar: {
-				const auto* value = a_key.GetVar();
+			case RawType::Var: {
+				const auto* value = a_key.GetVariant();
 				if (!value) {
 					return REX::HashCombine(rawType, nullptr);
 				}
 
 				return REX::HashCombine(rawType, *value);
 			}
-			case RawType::kStruct:
+			case RawType::Struct:
 				return REX::HashCombine(rawType, a_key.GetStruct());
-			case RawType::kArrayObject:
-			case RawType::kArrayString:
-			case RawType::kArrayInt:
-			case RawType::kArrayFloat:
-			case RawType::kArrayBool:
-			case RawType::kArrayVar:
-			case RawType::kArrayStruct: {
+			case RawType::ArrayObject:
+			case RawType::ArrayString:
+			case RawType::ArrayInt:
+			case RawType::ArrayFloat:
+			case RawType::ArrayBool:
+			case RawType::ArrayVar:
+			case RawType::ArrayStruct: {
 				return REX::HashCombine(rawType, a_key.GetArray());
 			}
 			default: {

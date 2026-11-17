@@ -1,97 +1,78 @@
 {
-	"version": 11,
+	"$schema": "https://raw.githubusercontent.com/Kitware/CMake/refs/tags/v4.5.0/Help/manual/presets/schema.json",
+	"version": 12,
 	"cmakeMinimumRequired": {
 		"major": 4,
-		"minor": 3,
+		"minor": 5,
 		"patch": 0
 	},
 	"configurePresets": [
 		{
-			"name": "common",
+			"name": "configure-core",
 			"hidden": true,
 			"errors": {
 				"deprecated": true
 			},
 			"warnings": {
-				"dev": true,
-				"systemVars": true,
-				"unusedCli": true
+				"author": true,
+				"experimental": true,
+				"installAbsoluteDestination": true,
+				"policy": true,
+				"unusedCli": true,
+				"systemVars": true
 			},
 			"cacheVariables": {
-				"CMAKE_SYSTEM_NAME": "Windows",
-				"CMAKE_SYSTEM_VERSION": "10.0.19045.0"
+				"CMAKE_CXX_STANDARD": "23",
+				"CMAKE_CXX_STANDARD_REQUIRED": "TRUE",
+				"CMAKE_CXX_EXTENSIONS": "FALSE"
 			}
 		},
 		{
-			"name": "packaging-vcpkg",
+			"name": "toolchain-vcpkg",
 			"hidden": true,
 			"toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
 		},
 		{
-			"name": "buildtype-debug",
-			"hidden": true,
-			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "Debug",
-				"VCPKG_TARGET_TRIPLET": "x64-windows-static-md",
-				"VCPKG_HOST_TRIPLET": "x64-windows-static-md",
-				"CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDebugDLL"
-			}
-		},
-		{
-			"name": "buildtype-release",
-			"hidden": true,
-			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "RelWithDebInfo",
-				"VCPKG_TARGET_TRIPLET": "x64-windows-static-md-release",
-				"VCPKG_HOST_TRIPLET": "x64-windows-static-md-release",
-				"CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL"
-			}
-		},
-		{
-			"name": "architecture-x64",
+			"name": "architecture-vs",
 			"hidden": true,
 			"architecture": {
-				"value": "x64",
-				"strategy": "external"
+				"strategy": "set",
+				"value": "x64"
 			},
-			"toolset": {
-				"value": "host=x64",
-				"strategy": "external"
+			"cacheVariables": {
+				"CMAKE_VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION": "10.0.19045.0"
 			}
 		},
 		{
-			"name": "generator-msvc",
+			"name": "toolset-vs-msvc",
 			"hidden": true,
-			"inherits": "architecture-x64",
-			"generator": "Visual Studio 18 2026"
+			"toolset": {
+				"strategy": "set",
+				"value": "host=x64"
+			}
 		},
 		{
-			"name": "generator-ninja",
+			"name": "toolset-vs-clangcl",
 			"hidden": true,
-			"inherits": "architecture-x64",
-			"generator": "Ninja"
+			"toolset": {
+				"strategy": "set",
+				"value": "ClangCL,host=x64"
+			}
 		},
 		{
-			"name": "compiler-msvc",
+			"name": "intellisense-msvc",
 			"hidden": true,
-			"cacheVariables": {
-				"CMAKE_EXPORT_COMPILE_COMMANDS": "OFF"
-			},
 			"vendor": {
 				"microsoft.com/VisualStudioSettings/CMake/1.0": {
 					"intelliSenseMode": "windows-msvc-x64",
 					"enableMicrosoftCodeAnalysis": true,
-					"enableClangTidyCodeAnalysis": false
+					"enableClangTidyCodeAnalysis": true
 				}
 			}
 		},
 		{
-			"name": "compiler-clang",
+			"name": "intellisense-clangcl",
 			"hidden": true,
-			"cacheVariables": {
-				"CMAKE_CXX_COMPILER": "clang-cl",
-				"CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
-			},
 			"vendor": {
 				"microsoft.com/VisualStudioSettings/CMake/1.0": {
 					"intelliSenseMode": "windows-clang-x64",
@@ -101,82 +82,778 @@
 			}
 		},
 		{
-			"name": "build-debug-msvc-msvc",
+			"name": "generator-vs",
+			"hidden": true,
+			"generator": "Visual Studio 18 2026"
+		},
+		{
+			"name": "generator-ninja",
+			"hidden": true,
+			"generator": "Ninja"
+		},
+		{
+			"name": "compiler-msvc",
+			"hidden": true,
+			"cacheVariables": {
+				"CMAKE_CXX_COMPILER": "cl"
+			}
+		},
+		{
+			"name": "compiler-clangcl",
+			"hidden": true,
+			"cacheVariables": {
+				"CMAKE_CXX_COMPILER": "clang-cl"
+			}
+		},
+		{
+			"name": "buildtype-debug",
+			"hidden": true,
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug",
+				"VCPKG_HOST_TRIPLET": "x64-windows-static-md",
+				"VCPKG_TARGET_TRIPLET": "x64-windows-static-md",
+				"CMAKE_OPTIMIZE_DEPENDENCIES": "FALSE"
+			}
+		},
+		{
+			"name": "buildtype-release",
+			"hidden": true,
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "RelWithDebInfo",
+				"VCPKG_HOST_TRIPLET": "x64-windows-static-md-release",
+				"VCPKG_TARGET_TRIPLET": "x64-windows-static-md-release",
+				"CMAKE_OPTIMIZE_DEPENDENCIES": "TRUE"
+			}
+		},
+		{
+			"name": "feature-unity",
+			"hidden": true,
+			"condition": {
+				"type": "equals",
+				"lhs": "$env{COMMONLIB_FEATURE_UNITY_BUILD}",
+				"rhs": "TRUE"
+			},
+			"cacheVariables": {
+				"CMAKE_CXX_SCAN_FOR_MODULES": "FALSE",
+				"CMAKE_EXPORT_COMPILE_COMMANDS": "FALSE",
+				"CMAKE_UNITY_BUILD": "TRUE",
+				"CMAKE_UNITY_BUILD_BATCH_SIZE": "16",
+				"CMAKE_UNITY_BUILD_RELOCATABLE": "TRUE"
+			}
+		},
+		{
+			"name": "feature-clangd",
+			"hidden": true,
+			"cacheVariables": {
+				"CMAKE_EXPORT_COMPILE_COMMANDS": "TRUE",
+				"CMAKE_CXX_CLANG_TIDY": "clang-tidy"
+			}
+		},
+		{
+			"name": "configure-msvc-vs-debug",
 			"hidden": false,
 			"inherits": [
-				"common",
-				"packaging-vcpkg",
+				"configure-core",
+				"toolchain-vcpkg",
+				"architecture-vs",
+				"toolset-vs-msvc",
+				"intellisense-msvc",
+				"generator-vs",
+				"compiler-msvc",
 				"buildtype-debug",
-				"generator-msvc",
-				"compiler-msvc"
+				"feature-unity"
 			],
-			"binaryDir": "${sourceDir}/build/debug-msvc-msvc"
+			"displayName": "Configure MSVC Debug (Visual Studio)",
+			"binaryDir": "${sourceDir}/build/msvc-vs-debug"
 		},
 		{
-			"name": "build-release-msvc-msvc",
+			"name": "configure-msvc-vs-release",
 			"hidden": false,
 			"inherits": [
-				"common",
-				"packaging-vcpkg",
+				"configure-core",
+				"toolchain-vcpkg",
+				"architecture-vs",
+				"toolset-vs-msvc",
+				"intellisense-msvc",
+				"generator-vs",
+				"compiler-msvc",
 				"buildtype-release",
-				"generator-msvc",
-				"compiler-msvc"
+				"feature-unity"
 			],
-			"binaryDir": "${sourceDir}/build/release-msvc-msvc"
+			"displayName": "Configure MSVC Release (Visual Studio)",
+			"binaryDir": "${sourceDir}/build/msvc-vs-release"
 		},
 		{
-			"name": "build-debug-clang-ninja",
+			"name": "configure-clangcl-vs-debug",
 			"hidden": false,
 			"inherits": [
-				"common",
-				"packaging-vcpkg",
+				"configure-core",
+				"toolchain-vcpkg",
+				"architecture-vs",
+				"toolset-vs-clangcl",
+				"intellisense-clangcl",
+				"generator-vs",
+				"compiler-clangcl",
 				"buildtype-debug",
-				"generator-ninja",
-				"compiler-clang"
+				"feature-unity"
 			],
-			"binaryDir": "${sourceDir}/build/debug-clang-ninja"
+			"displayName": "Configure ClangCL Debug (Visual Studio)",
+			"binaryDir": "${sourceDir}/build/clangcl-vs-debug"
 		},
 		{
-			"name": "build-release-clang-ninja",
+			"name": "configure-clangcl-vs-release",
 			"hidden": false,
 			"inherits": [
-				"common",
-				"packaging-vcpkg",
+				"configure-core",
+				"toolchain-vcpkg",
+				"architecture-vs",
+				"toolset-vs-clangcl",
+				"intellisense-clangcl",
+				"generator-vs",
+				"compiler-clangcl",
 				"buildtype-release",
-				"generator-ninja",
-				"compiler-clang"
+				"feature-unity"
 			],
-			"binaryDir": "${sourceDir}/build/release-clang-ninja"
+			"displayName": "Configure ClangCL Release (Visual Studio)",
+			"binaryDir": "${sourceDir}/build/clangcl-vs-release"
+		},
+		{
+			"name": "configure-msvc-ninja-debug",
+			"hidden": false,
+			"inherits": [
+				"configure-core",
+				"toolchain-vcpkg",
+				"intellisense-msvc",
+				"generator-ninja",
+				"compiler-msvc",
+				"buildtype-debug",
+				"feature-unity"
+			],
+			"displayName": "Configure MSVC Debug (Ninja)",
+			"binaryDir": "${sourceDir}/build/msvc-ninja-debug"
+		},
+		{
+			"name": "configure-msvc-ninja-release",
+			"hidden": false,
+			"inherits": [
+				"configure-core",
+				"toolchain-vcpkg",
+				"intellisense-msvc",
+				"generator-ninja",
+				"compiler-msvc",
+				"buildtype-release",
+				"feature-unity"
+			],
+			"displayName": "Configure MSVC Release (Ninja)",
+			"binaryDir": "${sourceDir}/build/msvc-ninja-release"
+		},
+		{
+			"name": "configure-clangcl-ninja-debug",
+			"hidden": false,
+			"inherits": [
+				"configure-core",
+				"toolchain-vcpkg",
+				"intellisense-clangcl",
+				"generator-ninja",
+				"compiler-clangcl",
+				"buildtype-debug",
+				"feature-unity"
+			],
+			"displayName": "Configure ClangCL Debug (Ninja)",
+			"binaryDir": "${sourceDir}/build/clangcl-ninja-debug"
+		},
+		{
+			"name": "configure-clangcl-ninja-release",
+			"hidden": false,
+			"inherits": [
+				"configure-core",
+				"toolchain-vcpkg",
+				"intellisense-clangcl",
+				"generator-ninja",
+				"compiler-clangcl",
+				"buildtype-release",
+				"feature-unity"
+			],
+			"displayName": "Configure ClangCL Release (Ninja)",
+			"binaryDir": "${sourceDir}/build/clangcl-ninja-release"
+		},
+		{
+			"name": "configure-clangd-ninja-debug",
+			"hidden": false,
+			"inherits": [
+				"configure-core",
+				"toolchain-vcpkg",
+				"intellisense-clangcl",
+				"generator-ninja",
+				"compiler-clangcl",
+				"buildtype-debug",
+				"feature-clangd"
+			],
+			"displayName": "Configure Clangd Debug (Ninja)",
+			"binaryDir": "${sourceDir}/build/clangd-ninja-debug"
+		},
+		{
+			"name": "configure-clangd-ninja-release",
+			"hidden": false,
+			"inherits": [
+				"configure-core",
+				"toolchain-vcpkg",
+				"intellisense-clangcl",
+				"generator-ninja",
+				"compiler-clangcl",
+				"buildtype-release",
+				"feature-clangd"
+			],
+			"displayName": "Configure Clangd Release (Ninja)",
+			"binaryDir": "${sourceDir}/build/clangd-ninja-release"
 		}
 	],
 	"buildPresets": [
 		{
-			"name": "debug-msvc-msvc",
-			"hidden": false,
-			"configuration": "Debug",
-			"configurePreset": "build-debug-msvc-msvc",
-			"displayName": "1. (Debug) MSVC - MSVC"
+			"name": "build-core",
+			"hidden": true,
+			"jobs": 0
 		},
 		{
-			"name": "release-msvc-msvc",
-			"hidden": false,
-			"configuration": "RelWithDebInfo",
-			"configurePreset": "build-release-msvc-msvc",
-			"displayName": "2. (Release) MSVC - MSVC"
+			"name": "build-core-debug",
+			"hidden": true,
+			"configuration": "Debug"
 		},
 		{
-			"name": "debug-clang-ninja",
-			"hidden": false,
-			"configuration": "Debug",
-			"configurePreset": "build-debug-clang-ninja",
-			"displayName": "3. (Debug) Clang - Ninja"
+			"name": "build-core-release",
+			"hidden": true,
+			"configuration": "RelWithDebInfo"
 		},
 		{
-			"name": "release-clang-ninja",
+			"name": "build-msvc-vs-debug",
 			"hidden": false,
-			"configuration": "RelWithDebInfo",
-			"configurePreset": "build-release-clang-ninja",
-			"displayName": "4. (Release) Clang - Ninja"
+			"inherits": [
+				"build-core",
+				"build-core-debug"
+			],
+			"displayName": "Build MSVC Debug (Visual Studio)",
+			"configurePreset": "configure-msvc-vs-debug"
+		},
+		{
+			"name": "build-msvc-vs-release",
+			"hidden": false,
+			"inherits": [
+				"build-core",
+				"build-core-release"
+			],
+			"displayName": "Build MSVC Release (Visual Studio)",
+			"configurePreset": "configure-msvc-vs-release"
+		},
+		{
+			"name": "build-clangcl-vs-debug",
+			"hidden": false,
+			"inherits": [
+				"build-core",
+				"build-core-debug"
+			],
+			"displayName": "Build ClangCL Debug (Visual Studio)",
+			"configurePreset": "configure-clangcl-vs-debug"
+		},
+		{
+			"name": "build-clangcl-vs-release",
+			"hidden": false,
+			"inherits": [
+				"build-core",
+				"build-core-release"
+			],
+			"displayName": "Build ClangCL Release (Visual Studio)",
+			"configurePreset": "configure-clangcl-vs-release"
+		},
+		{
+			"name": "build-msvc-ninja-debug",
+			"hidden": false,
+			"inherits": [
+				"build-core",
+				"build-core-debug"
+			],
+			"displayName": "Build MSVC Debug (Ninja)",
+			"configurePreset": "configure-msvc-ninja-debug"
+		},
+		{
+			"name": "build-msvc-ninja-release",
+			"hidden": false,
+			"inherits": [
+				"build-core",
+				"build-core-release"
+			],
+			"displayName": "Build MSVC Release (Ninja)",
+			"configurePreset": "configure-msvc-ninja-release"
+		},
+		{
+			"name": "build-clangcl-ninja-debug",
+			"hidden": false,
+			"inherits": [
+				"build-core",
+				"build-core-debug"
+			],
+			"displayName": "Build ClangCL Debug (Ninja)",
+			"configurePreset": "configure-clangcl-ninja-debug"
+		},
+		{
+			"name": "build-clangcl-ninja-release",
+			"hidden": false,
+			"inherits": [
+				"build-core",
+				"build-core-release"
+			],
+			"displayName": "Build ClangCL Release (Ninja)",
+			"configurePreset": "configure-clangcl-ninja-release"
+		},
+		{
+			"name": "build-clangd-ninja-debug",
+			"hidden": false,
+			"inherits": [
+				"build-core",
+				"build-core-debug"
+			],
+			"displayName": "Build Clangd Debug (Ninja)",
+			"configurePreset": "configure-clangd-ninja-debug"
+		},
+		{
+			"name": "build-clangd-ninja-release",
+			"hidden": false,
+			"inherits": [
+				"build-core",
+				"build-core-release"
+			],
+			"displayName": "Build Clangd Release (Ninja)",
+			"configurePreset": "configure-clangd-ninja-release"
+		}
+	],
+	"testPresets": [
+		{
+			"name": "test-core",
+			"hidden": true,
+			"execution": {
+				"stopOnFailure": true,
+				"noTestsAction": "ignore",
+				"jobs": 0
+			},
+			"output": {
+				"outputOnFailure": true,
+				"shortProgress": true
+			}
+		},
+		{
+			"name": "test-msvc-vs-debug",
+			"hidden": false,
+			"inherits": [
+				"test-core"
+			],
+			"displayName": "Test MSVC Debug (Visual Studio)",
+			"configurePreset": "configure-msvc-vs-debug"
+		},
+		{
+			"name": "test-msvc-vs-release",
+			"hidden": false,
+			"inherits": [
+				"test-core"
+			],
+			"displayName": "Test MSVC Release (Visual Studio)",
+			"configurePreset": "configure-msvc-vs-release"
+		},
+		{
+			"name": "test-clangcl-vs-debug",
+			"hidden": false,
+			"inherits": [
+				"test-core"
+			],
+			"displayName": "Test ClangCL Debug (Visual Studio)",
+			"configurePreset": "configure-clangcl-vs-debug"
+		},
+		{
+			"name": "test-clangcl-vs-release",
+			"hidden": false,
+			"inherits": [
+				"test-core"
+			],
+			"displayName": "Test ClangCL Release (Visual Studio)",
+			"configurePreset": "configure-clangcl-vs-release"
+		},
+		{
+			"name": "test-msvc-ninja-debug",
+			"hidden": false,
+			"inherits": [
+				"test-core"
+			],
+			"displayName": "Test MSVC Debug (Ninja)",
+			"configurePreset": "configure-msvc-ninja-debug"
+		},
+		{
+			"name": "test-msvc-ninja-release",
+			"hidden": false,
+			"inherits": [
+				"test-core"
+			],
+			"displayName": "Test MSVC Release (Ninja)",
+			"configurePreset": "configure-msvc-ninja-release"
+		},
+		{
+			"name": "test-clangcl-ninja-debug",
+			"hidden": false,
+			"inherits": [
+				"test-core"
+			],
+			"displayName": "Test ClangCL Debug (Ninja)",
+			"configurePreset": "configure-clangcl-ninja-debug"
+		},
+		{
+			"name": "test-clangcl-ninja-release",
+			"hidden": false,
+			"inherits": [
+				"test-core"
+			],
+			"displayName": "Test ClangCL Release (Ninja)",
+			"configurePreset": "configure-clangcl-ninja-release"
+		},
+		{
+			"name": "test-clangd-ninja-debug",
+			"hidden": false,
+			"inherits": [
+				"test-core"
+			],
+			"displayName": "Test Clangd Debug (Ninja)",
+			"configurePreset": "configure-clangd-ninja-debug"
+		},
+		{
+			"name": "test-clangd-ninja-release",
+			"hidden": false,
+			"inherits": [
+				"test-core"
+			],
+			"displayName": "Test Clangd Release (Ninja)",
+			"configurePreset": "configure-clangd-ninja-release"
+		}
+	],
+	"packagePresets": [
+		{
+			"name": "package-core",
+			"hidden": true,
+			"generators": [
+				"7Z_LZMA2"
+			],
+			"variables": {
+				"CPACK_COMPRESSION_LEVEL": "5",
+				"CPACK_PACKAGE_CHECKSUM": "SHA256",
+				"CPACK_THREADS": "0"
+			}
+		},
+		{
+			"name": "package-msvc-vs-debug",
+			"hidden": false,
+			"inherits": [
+				"package-core"
+			],
+			"displayName": "Package MSVC Debug (Visual Studio)",
+			"configurePreset": "configure-msvc-vs-debug"
+		},
+		{
+			"name": "package-msvc-vs-release",
+			"hidden": false,
+			"inherits": [
+				"package-core"
+			],
+			"displayName": "Package MSVC Release (Visual Studio)",
+			"configurePreset": "configure-msvc-vs-release"
+		},
+		{
+			"name": "package-clangcl-vs-debug",
+			"hidden": false,
+			"inherits": [
+				"package-core"
+			],
+			"displayName": "Package ClangCL Debug (Visual Studio)",
+			"configurePreset": "configure-clangcl-vs-debug"
+		},
+		{
+			"name": "package-clangcl-vs-release",
+			"hidden": false,
+			"inherits": [
+				"package-core"
+			],
+			"displayName": "Package ClangCL Release (Visual Studio)",
+			"configurePreset": "configure-clangcl-vs-release"
+		},
+		{
+			"name": "package-msvc-ninja-debug",
+			"hidden": false,
+			"inherits": [
+				"package-core"
+			],
+			"displayName": "Package MSVC Debug (Ninja)",
+			"configurePreset": "configure-msvc-ninja-debug"
+		},
+		{
+			"name": "package-msvc-ninja-release",
+			"hidden": false,
+			"inherits": [
+				"package-core"
+			],
+			"displayName": "Package MSVC Release (Ninja)",
+			"configurePreset": "configure-msvc-ninja-release"
+		},
+		{
+			"name": "package-clangcl-ninja-debug",
+			"hidden": false,
+			"inherits": [
+				"package-core"
+			],
+			"displayName": "Package ClangCL Debug (Ninja)",
+			"configurePreset": "configure-clangcl-ninja-debug"
+		},
+		{
+			"name": "package-clangcl-ninja-release",
+			"hidden": false,
+			"inherits": [
+				"package-core"
+			],
+			"displayName": "Package ClangCL Release (Ninja)",
+			"configurePreset": "configure-clangcl-ninja-release"
+		},
+		{
+			"name": "package-clangd-ninja-debug",
+			"hidden": false,
+			"inherits": [
+				"package-core"
+			],
+			"displayName": "Package Clangd Debug (Ninja)",
+			"configurePreset": "configure-clangd-ninja-debug"
+		},
+		{
+			"name": "package-clangd-ninja-release",
+			"hidden": false,
+			"inherits": [
+				"package-core"
+			],
+			"displayName": "Package Clangd Release (Ninja)",
+			"configurePreset": "configure-clangd-ninja-release"
+		}
+	],
+	"workflowPresets": [
+		{
+			"name": "workflow-msvc-vs-debug",
+			"displayName": "Workflow MSVC Debug (Visual Studio)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "configure-msvc-vs-debug"
+				},
+				{
+					"type": "build",
+					"name": "build-msvc-vs-debug"
+				},
+				{
+					"type": "test",
+					"name": "test-msvc-vs-debug"
+				},
+				{
+					"type": "package",
+					"name": "package-msvc-vs-debug"
+				}
+			]
+		},
+		{
+			"name": "workflow-msvc-vs-release",
+			"displayName": "Workflow MSVC Release (Visual Studio)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "configure-msvc-vs-release"
+				},
+				{
+					"type": "build",
+					"name": "build-msvc-vs-release"
+				},
+				{
+					"type": "test",
+					"name": "test-msvc-vs-release"
+				},
+				{
+					"type": "package",
+					"name": "package-msvc-vs-release"
+				}
+			]
+		},
+		{
+			"name": "workflow-clangcl-vs-debug",
+			"displayName": "Workflow ClangCL Debug (Visual Studio)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "configure-clangcl-vs-debug"
+				},
+				{
+					"type": "build",
+					"name": "build-clangcl-vs-debug"
+				},
+				{
+					"type": "test",
+					"name": "test-clangcl-vs-debug"
+				},
+				{
+					"type": "package",
+					"name": "package-clangcl-vs-debug"
+				}
+			]
+		},
+		{
+			"name": "workflow-clangcl-vs-release",
+			"displayName": "Workflow ClangCL Release (Visual Studio)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "configure-clangcl-vs-release"
+				},
+				{
+					"type": "build",
+					"name": "build-clangcl-vs-release"
+				},
+				{
+					"type": "test",
+					"name": "test-clangcl-vs-release"
+				},
+				{
+					"type": "package",
+					"name": "package-clangcl-vs-release"
+				}
+			]
+		},
+		{
+			"name": "workflow-msvc-ninja-debug",
+			"displayName": "Workflow MSVC Debug (Ninja)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "configure-msvc-ninja-debug"
+				},
+				{
+					"type": "build",
+					"name": "build-msvc-ninja-debug"
+				},
+				{
+					"type": "test",
+					"name": "test-msvc-ninja-debug"
+				},
+				{
+					"type": "package",
+					"name": "package-msvc-ninja-debug"
+				}
+			]
+		},
+		{
+			"name": "workflow-msvc-ninja-release",
+			"displayName": "Workflow MSVC Release (Ninja)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "configure-msvc-ninja-release"
+				},
+				{
+					"type": "build",
+					"name": "build-msvc-ninja-release"
+				},
+				{
+					"type": "test",
+					"name": "test-msvc-ninja-release"
+				},
+				{
+					"type": "package",
+					"name": "package-msvc-ninja-release"
+				}
+			]
+		},
+		{
+			"name": "workflow-clangcl-ninja-debug",
+			"displayName": "Workflow ClangCL Debug (Ninja)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "configure-clangcl-ninja-debug"
+				},
+				{
+					"type": "build",
+					"name": "build-clangcl-ninja-debug"
+				},
+				{
+					"type": "test",
+					"name": "test-clangcl-ninja-debug"
+				},
+				{
+					"type": "package",
+					"name": "package-clangcl-ninja-debug"
+				}
+			]
+		},
+		{
+			"name": "workflow-clangcl-ninja-release",
+			"displayName": "Workflow ClangCL Release (Ninja)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "configure-clangcl-ninja-release"
+				},
+				{
+					"type": "build",
+					"name": "build-clangcl-ninja-release"
+				},
+				{
+					"type": "test",
+					"name": "test-clangcl-ninja-release"
+				},
+				{
+					"type": "package",
+					"name": "package-clangcl-ninja-release"
+				}
+			]
+		},
+		{
+			"name": "workflow-clangd-ninja-debug",
+			"displayName": "Workflow Clangd Debug (Ninja)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "configure-clangd-ninja-debug"
+				},
+				{
+					"type": "build",
+					"name": "build-clangd-ninja-debug"
+				},
+				{
+					"type": "test",
+					"name": "test-clangd-ninja-debug"
+				},
+				{
+					"type": "package",
+					"name": "package-clangd-ninja-debug"
+				}
+			]
+		},
+		{
+			"name": "workflow-clangd-ninja-release",
+			"displayName": "Workflow Clangd Release (Ninja)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "configure-clangd-ninja-release"
+				},
+				{
+					"type": "build",
+					"name": "build-clangd-ninja-release"
+				},
+				{
+					"type": "test",
+					"name": "test-clangd-ninja-release"
+				},
+				{
+					"type": "package",
+					"name": "package-clangd-ninja-release"
+				}
+			]
 		}
 	]
 }

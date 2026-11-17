@@ -15,32 +15,40 @@ namespace RE::GameScript
 	void HandlePolicy::DropSaveLoadRemapData()
 	{
 		using FuncType = decltype(&HandlePolicy::DropSaveLoadRemapData);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::HandlePolicy::DropSaveLoadRemapData };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GameScript::HandlePolicy::DropSaveLoadRemapData);
 		std::invoke(FUNC, this);
 	}
 
-	void HandlePolicy::GetInventoryObjFromHandle(BSScript::ObjectHandle a_cobject, TESObjectREFR*& a_container, ContainerID& a_uniqueID, TESObjectREFR*& a_inWorldRef) const
+	void HandlePolicy::GetInventoryObjFromHandle(
+		BSScript::ObjectHandle a_cobject,
+		TESObjectREFR*& a_outContainer,
+		ContainerID& a_outUniqueID,
+		TESObjectREFR*& a_outInWorldRef) const
 	{
 		using FuncType = decltype(&HandlePolicy::GetInventoryObjFromHandle);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::HandlePolicy::GetInventoryObjFromHandle };
-		std::invoke(FUNC, this, a_cobject, a_container, a_uniqueID, a_inWorldRef);
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GameScript::HandlePolicy::GetInventoryObjFromHandle);
+		std::invoke(FUNC, this, a_cobject, a_outContainer, a_outUniqueID, a_outInWorldRef);
 	}
 
-	void HandlePolicy::GetInventoryObjOrFormFromHandle(BSScript::ObjectHandle a_cobject, TESObjectREFR*& a_container, ContainerID& a_uniqueID) const
+	void HandlePolicy::GetInventoryObjOrFormFromHandle(
+		BSScript::ObjectHandle a_cobject,
+		TESObjectREFR*& a_outContainer,
+		ContainerID& a_outUniqueID) const
 	{
 		using FuncType = decltype(&HandlePolicy::GetInventoryObjOrFormFromHandle);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::HandlePolicy::GetInventoryObjOrFormFromHandle };
-		std::invoke(FUNC, this, a_cobject, a_container, a_uniqueID);
+		static const auto FUNC =
+			REL::Relocation<FuncType>{ID::GameScript::HandlePolicy::GetInventoryObjOrFormFromHandle};
+		std::invoke(FUNC, this, a_cobject, a_outContainer, a_outUniqueID);
 	}
 
 	void HandlePolicy::UpdatePersistence()
 	{
 		using FuncType = decltype(&HandlePolicy::UpdatePersistence);
-		static const auto FUNC = REL::Relocation<FuncType>{ ID::GameScript::HandlePolicy::UpdatePersistence };
+		static const auto FUNC = REL::Relocation<FuncType>(ID::GameScript::HandlePolicy::UpdatePersistence);
 		std::invoke(FUNC, this);
 	}
 
-	BSScript::ObjectHandle HandlePolicy::GetHandleForAlias(const BGSBaseAlias* a_alias)
+	auto HandlePolicy::GetHandleForAlias(const BGSBaseAlias* a_alias) -> BSScript::ObjectHandle
 	{
 		if (!a_alias) {
 			return EMPTY_HANDLE;
@@ -54,7 +62,7 @@ namespace RE::GameScript
 		return GetHandleForAlias(static_cast<std::uint16_t>(a_alias->GetAliasID()), owningQuest->GetFormID());
 	}
 
-	BSScript::ObjectHandle HandlePolicy::GetHandleForForm(const TESForm* a_form)
+	auto HandlePolicy::GetHandleForForm(const TESForm* a_form) -> BSScript::ObjectHandle
 	{
 		if (!a_form) {
 			return EMPTY_HANDLE;
@@ -63,7 +71,8 @@ namespace RE::GameScript
 		return GetHandleForForm(a_form->GetFormID());
 	}
 
-	BSScript::ObjectHandle HandlePolicy::GetHandleForFormOrInventoryObject(const FormOrInventoryObj& a_inventoryObject)
+	auto HandlePolicy::GetHandleForFormOrInventoryObject(const FormOrInventoryObj& a_inventoryObject)
+		-> BSScript::ObjectHandle
 	{
 		const auto* container = a_inventoryObject.GetContainer();
 		if (!container) {
@@ -78,7 +87,8 @@ namespace RE::GameScript
 		return GetHandleForInventoryObject(uniqueID, container->GetFormID());
 	}
 
-	BSScript::ObjectHandle HandlePolicy::GetHandleForRefOrInventoryObject(const RefrOrInventoryObj& a_inventoryObject)
+	auto HandlePolicy::GetHandleForRefOrInventoryObject(const RefrOrInventoryObj& a_inventoryObject)
+		-> BSScript::ObjectHandle
 	{
 		const auto* container = a_inventoryObject.GetContainerRef();
 		if (!container) {
@@ -93,7 +103,7 @@ namespace RE::GameScript
 		return GetHandleForInventoryObject(uniqueID, container->GetFormID());
 	}
 
-	BSScript::ObjectHandle HandlePolicy::GetHandleForActiveEffect(const ActiveEffect* a_activeEffect)
+	auto HandlePolicy::GetHandleForActiveEffect(const ActiveEffect* a_activeEffect) -> BSScript::ObjectHandle
 	{
 		if (!a_activeEffect) {
 			return EMPTY_HANDLE;
@@ -112,7 +122,8 @@ namespace RE::GameScript
 		return GetHandleForActiveEffect(uniqueID, targetActor->GetFormID());
 	}
 
-	BSScript::ObjectHandle HandlePolicy::GetHandleForInputEnableLayer(const BSInputEnableLayer* a_inputEnableLayer)
+	auto HandlePolicy::GetHandleForInputEnableLayer(const BSInputEnableLayer* a_inputEnableLayer)
+		-> BSScript::ObjectHandle
 	{
 		if (!a_inputEnableLayer) {
 			return EMPTY_HANDLE;

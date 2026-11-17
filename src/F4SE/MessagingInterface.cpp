@@ -1,28 +1,47 @@
 #include "F4SE/MessagingInterface.hpp"
 
-#include "F4SE/API.hpp"
+#include "F4SE/Api.hpp"
+#include "F4SE/Core.hpp"
+#include "REX/Macros.hpp"
+#include "REX/Message.hpp"
+#include "REX/NotNull.hpp"
+#include "REX/Ownership.hpp"
 
 namespace F4SE::Impl
 {
-	struct F4SEMessagingInterface final
+	namespace
 	{
-		std::uint32_t interfaceVersion;
-		bool(F4SE_API* RegisterListener)(std::uint32_t, const char*, void*);
-		bool(F4SE_API* Dispatch)(std::uint32_t, std::uint32_t, void*, std::uint32_t, const char*);
-		void*(F4SE_API* GetEventDispatcher)(std::uint32_t);
-	};
+		class F4SEMessagingInterface final
+		{
+		public:
+			F4SEMessagingInterface() = delete;
+			~F4SEMessagingInterface() = delete;
 
-	[[nodiscard]] __forceinline static const F4SEMessagingInterface& GetProxy(const MessagingInterface* a_interface) noexcept
-	{
-		return reinterpret_cast<const F4SEMessagingInterface&>(*a_interface);
+			F4SEMessagingInterface(const F4SEMessagingInterface&) = delete;
+			F4SEMessagingInterface(F4SEMessagingInterface&&) = delete;
+
+			auto operator=(const F4SEMessagingInterface&) -> F4SEMessagingInterface& = delete;
+			auto operator=(F4SEMessagingInterface&&) -> F4SEMessagingInterface& = delete;
+
+			F4SE::InterfaceVersion interfaceVersion;
+			bool(F4SE_API* registerListener)(std::uint32_t, const char*, F4SE::MessagingInterface::EventCallback*);
+			bool(F4SE_API* dispatch)(F4SE::PluginHandle, std::uint32_t, void*, std::uint32_t, const char*);
+			void*(F4SE_API* getEventDispatcher)(F4SE::PluginHandle);
+		};
+
+		[[nodiscard]] [[REX_ALWAYS_INLINE]]
+		auto GetProxy(const MessagingInterface& a_interface) noexcept -> const F4SEMessagingInterface&
+		{
+			return reinterpret_cast<const F4SEMessagingInterface&>(a_interface);
+		}
 	}
 }
 
 namespace F4SE
 {
-	std::uint32_t MessagingInterface::GetVersion() const noexcept
+	auto MessagingInterface::GetVersion() const noexcept -> F4SE::InterfaceVersion
 	{
-		return Impl::GetProxy(this).interfaceVersion;
+		return Impl::GetProxy(*this).interfaceVersion;
 	}
 
 	void MessagingInterface::RegisterListener(REX::NotNull<REX::Observer<EventCallback*>> a_handler) const
@@ -30,23 +49,33 @@ namespace F4SE
 		constexpr auto SENDER_NAME = "F4SE"sv;
 
 		if (!RegisterListener(a_handler, SENDER_NAME.data())) [[unlikely]] {
-			REX::Fail(R"(Failed to register messaging listener for sender "{}".)"sv,
-				SENDER_NAME);
+			REX::Fail(R"(Failed to register messaging listener for sender "{}".)"sv, SENDER_NAME);
 		}
 	}
 
-	bool MessagingInterface::RegisterListener(REX::NotNull<REX::Observer<EventCallback*>> a_handler, const char* a_sender) const
+	auto MessagingInterface::RegisterListener(
+		REX::NotNull<REX::Observer<EventCallback*>> a_handler,
+		const char* a_sender) const -> bool
 	{
-		return Impl::GetProxy(this).RegisterListener(F4SE::GetPluginHandle(), a_sender, reinterpret_cast<void*>(a_handler.get()));
+		return Impl::GetProxy(*this).registerListener(F4SE::GetPluginHandle(), a_sender, a_handler.get());
 	}
 
-	bool MessagingInterface::Dispatch(MessageType a_messageType, std::byte* a_data, std::uint32_t a_dataSize, const char* a_receiver) const
+	auto MessagingInterface::Dispatch(
+		MessageType a_messageType,
+		pointer a_data,
+		size_type a_dataSize,
+		const char* a_receiver) const -> bool
 	{
-		return Impl::GetProxy(this).Dispatch(F4SE::GetPluginHandle(), std::to_underlying(a_messageType), a_data, a_dataSize, a_receiver);
+		return Impl::GetProxy(*this).dispatch(
+			F4SE::GetPluginHandle(),
+			std::to_underlying(a_messageType),
+			a_data,
+			a_dataSize,
+			a_receiver);
 	}
 
-	void* MessagingInterface::GetEventDispatcher(std::uint32_t a_dispatcherID) const
+	auto MessagingInterface::GetEventDispatcher(std::uint32_t a_dispatcherID) const -> REX::Observer<void*>
 	{
-		return Impl::GetProxy(this).GetEventDispatcher(a_dispatcherID);
+		return Impl::GetProxy(*this).getEventDispatcher(a_dispatcherID);
 	}
 }

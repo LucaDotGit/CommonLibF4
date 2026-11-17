@@ -1,11 +1,11 @@
 #include "RE/B/BGSSaveLoadGame.hpp"
 
 #include "RE/B/BGSSaveLoadChangesMap.hpp"
-#include "RE/B/BSSpinLock.hpp"
+#include "RE/B/BSReadWriteLock.hpp"
 
 namespace RE
 {
-	bool BGSSaveLoadGame::HasChangeFlag(TESFormID a_formID, BGSChangeFlags a_flags) const
+	auto BGSSaveLoadGame::HasChangeFlag(TESFormID a_formID, BGSChangeFlags a_flags) const -> bool
 	{
 		if (!changesMap) {
 			return false;
@@ -21,8 +21,7 @@ namespace RE
 		return (flagsIt->second.changeFlags.flags & a_flags.flags) != 0;
 	}
 
-	auto BGSSaveLoadGame::GetChangeFlags(TESFormID a_formID) const
-		-> std::optional<BGSChangeFlags>
+	auto BGSSaveLoadGame::GetChangeFlags(TESFormID a_formID) const -> std::optional<BGSChangeFlags>
 	{
 		if (!changesMap) {
 			return std::nullopt;
@@ -35,10 +34,10 @@ namespace RE
 			return std::nullopt;
 		}
 
-		return BGSChangeFlags{ .flags = flagsIt->second.changeFlags.flags };
+		return BGSChangeFlags{.flags = flagsIt->second.changeFlags.flags};
 	}
 
-	bool BGSSaveLoadGame::SetChangeFlags(TESFormID a_formID, BGSChangeFlags a_flags) const
+	auto BGSSaveLoadGame::SetChangeFlags(TESFormID a_formID, BGSChangeFlags a_flags) const -> bool
 	{
 		if (!changesMap) {
 			return false;
@@ -50,7 +49,7 @@ namespace RE
 		return true;
 	}
 
-	bool BGSSaveLoadGame::AddChangeFlag(TESFormID a_formID, BGSChangeFlags a_flag) const
+	auto BGSSaveLoadGame::AddChangeFlag(TESFormID a_formID, BGSChangeFlags a_flag) const -> bool
 	{
 		if (!changesMap) {
 			return false;
@@ -62,7 +61,7 @@ namespace RE
 		return true;
 	}
 
-	bool BGSSaveLoadGame::RemoveChangeFlag(TESFormID a_formID, BGSChangeFlags a_flag) const
+	auto BGSSaveLoadGame::RemoveChangeFlag(TESFormID a_formID, BGSChangeFlags a_flag) const -> bool
 	{
 		if (!changesMap) {
 			return false;
@@ -79,7 +78,7 @@ namespace RE
 		return true;
 	}
 
-	bool BGSSaveLoadGame::ClearChangeFlags(TESFormID a_formID) const
+	auto BGSSaveLoadGame::ClearChangeFlags(TESFormID a_formID) const -> bool
 	{
 		if (!changesMap) {
 			return false;

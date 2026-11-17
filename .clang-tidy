@@ -1,100 +1,110 @@
 ---
 FormatStyle: file
-HeaderFilterRegex: ""
+HeaderFilterRegex: ".*"
 SystemHeaders: false
 WarningsAsErrors: "*"
 
 Checks: >
-  -*,
+    -*,
 
-  bugprone-*,
-  -bugprone-derived-method-shadowing-base-method,
-  -bugprone-easily-swappable-parameters,
-  -bugprone-implicit-widening-of-multiplication-result,
-  -bugprone-misplaced-widening-cast,
-  -bugprone-reserved-identifier,
-  -bugprone-std-namespace-modification,
-  -bugprone-suspicious-stringview-data-usage,
-  -bugprone-throwing-static-initialization,
-  -bugprone-virtual-near-miss,
+    bugprone-*,
+    -bugprone-derived-method-shadowing-base-method,
+    -bugprone-easily-swappable-parameters,
+    -bugprone-exception-escape,
+    -bugprone-implicit-widening-of-multiplication-result,
+    -bugprone-reserved-identifier,
+    -bugprone-signed-bitwise,
+    -bugprone-std-namespace-modification,
+    -bugprone-suspicious-stringview-data-usage,
+    -bugprone-virtual-near-miss,
 
-  clang-analyzer-*,
+    clang-analyzer-*,
 
-  concurrency-*,
+    cppcoreguidelines-*,
+    -cppcoreguidelines-avoid-do-while,
+    -cppcoreguidelines-avoid-goto,
+    -cppcoreguidelines-macro-usage,
+    -cppcoreguidelines-owning-memory,
+    -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
+    -cppcoreguidelines-pro-bounds-constant-array-index,
+    -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+    -cppcoreguidelines-pro-type-const-cast,
+    -cppcoreguidelines-pro-type-reinterpret-cast,
+    -cppcoreguidelines-pro-type-union-access,
 
-  cppcoreguidelines-*,
-  -cppcoreguidelines-avoid-do-while,
-  -cppcoreguidelines-macro-usage,
-  -cppcoreguidelines-owning-memory,
-  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
-  -cppcoreguidelines-pro-bounds-constant-array-index,
-  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
-  -cppcoreguidelines-pro-type-const-cast,
-  -cppcoreguidelines-pro-type-reinterpret-cast,
-  -cppcoreguidelines-pro-type-union-access,
-  -cppcoreguidelines-special-member-functions,
+    google-runtime-int,
 
-  google-build-explicit-make-pair,
-  google-runtime-int,
-  google-runtime-operator,
+    llvm-include-order,
 
-  hicpp-exception-baseclass,
-  hicpp-multiway-paths-covered,
+    misc-*,
+    -misc-confusable-identifiers,
+    -misc-multiple-inheritance,
+    -misc-no-recursion,
+    -misc-non-private-member-variables-in-classes,
+    -misc-static-initialization-cycle,
 
-  llvm-include-order,
-  llvm-prefer-static-over-anonymous-namespace,
+    modernize-*,
+    -modernize-use-nodiscard,
 
-  misc-*,
-  -misc-multiple-inheritance,
-  -misc-no-recursion,
-  -misc-non-private-member-variables-in-classes,
-  -misc-use-anonymous-namespace,
+    performance-*,
+    -performance-enum-size,
 
-  modernize-*,
-  -modernize-use-nodiscard,
-  -modernize-use-trailing-return-type,
+    portability-std-allocator-const,
 
-  performance-*,
-  -performance-enum-size,
-
-  portability-*,
-  -portability-avoid-pragma-once,
-  -portability-template-virtual-member-function,
-
-  readability-*,
-  -readability-enum-initial-value,
-  -readability-function-cognitive-complexity,
-  -readability-function-size,
-  -readability-identifier-length,
-  -readability-implicit-bool-conversion,
-  -readability-magic-numbers,
-  -readability-redundant-control-flow,
-  -readability-redundant-inline-specifier,
-  -readability-uppercase-literal-suffix,
+    readability-*,
+    -readability-implicit-bool-conversion,
+    -readability-enum-initial-value,
+    -readability-function-cognitive-complexity,
+    -readability-function-size,
+    -readability-identifier-length,
+    -readability-magic-numbers,
+    -readability-redundant-control-flow,
+    -readability-redundant-inline-specifier,
+    -readability-redundant-lambda-parameter-list,
+    -readability-redundant-parentheses,
+    -readability-uppercase-literal-suffix,
 
 
-  -cppcoreguidelines-avoid-c-arrays,
-  -cppcoreguidelines-avoid-magic-numbers,
-  -cppcoreguidelines-c-copy-assignment-signature,
-  -cppcoreguidelines-explicit-virtual-functions,
-  -cppcoreguidelines-macro-to-enum,
-  -cppcoreguidelines-narrowing-conversions,
-  -cppcoreguidelines-noexcept-destructor,
-  -cppcoreguidelines-noexcept-move-operations,
-  -cppcoreguidelines-noexcept-swap,
-  -cppcoreguidelines-non-private-member-variables-in-classes,
-  -cppcoreguidelines-use-default-member-init,
+    -cppcoreguidelines-avoid-c-arrays,
+    -cppcoreguidelines-avoid-magic-numbers,
+    -cppcoreguidelines-c-copy-assignment-signature,
+    -cppcoreguidelines-explicit-constructor,
+    -cppcoreguidelines-explicit-virtual-functions,
+    -cppcoreguidelines-macro-to-enum,
+    -cppcoreguidelines-narrowing-conversions,
+    -cppcoreguidelines-noexcept-destructor,
+    -cppcoreguidelines-noexcept-move-operations,
+    -cppcoreguidelines-noexcept-swap,
+    -cppcoreguidelines-non-private-member-variables-in-classes,
+    -cppcoreguidelines-use-default-member-init,
 
 CheckOptions:
-  - key: cppcoreguidelines-avoid-non-const-global-variables.AllowInternalLinkage
-    value: true
-  - key: cppcoreguidelines-use-enum-class.IgnoreUnscopedEnumsInClasses
-    value: true
-  - key: misc-throw-by-value-catch-by-reference.WarnOnLargeObject
-    value: true
-  - key: misc-use-internal-linkage.AnalyzeTypes
-    value: false
-  - key: misc-use-internal-linkage.FixMode
-    value: UseStatic
-  - key: modernize-use-transparent-functors.SafeMode
-    value: true
+    bugprone-narrowing-conversions.PedanticMode: true
+    bugprone-narrowing-conversions.WarnWithinTemplateInstantiation: true
+    cppcoreguidelines-avoid-non-const-global-variables.AllowInternalLinkage: true
+    cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: true
+    cppcoreguidelines-use-enum-class.IgnoreUnscopedEnumsInClasses: true
+    misc-throw-by-value-catch-by-reference.WarnOnLargeObject: true
+    misc-unused-parameters.StrictMode: true
+    modernize-use-transparent-functors.SafeMode: true
+    readability-identifier-naming.ConstantParameterCase: camelBack
+    readability-identifier-naming.ConstantParameterPrefix: a_
+    readability-identifier-naming.ConstantPointerParameterCase: camelBack
+    readability-identifier-naming.ConstantPointerParameterPrefix: a_
+    readability-identifier-naming.MemberCase: camelBack
+    readability-identifier-naming.ParameterCase: camelBack
+    readability-identifier-naming.ParameterPackCase: camelBack
+    readability-identifier-naming.ParameterPackPrefix: a_
+    readability-identifier-naming.ParameterPrefix: a_
+    readability-identifier-naming.PointerParameterCase: camelBack
+    readability-identifier-naming.PointerParameterPrefix: a_
+    readability-identifier-naming.PrivateMemberCase: camelBack
+    readability-identifier-naming.PrivateMemberPrefix: _
+    readability-identifier-naming.ProtectedMemberCase: camelBack
+    readability-identifier-naming.ProtectedMemberPrefix: _
+    readability-identifier-naming.PublicMemberCase: camelBack
+    readability-identifier-naming.TemplateParameterCase: CamelCase
+    readability-identifier-naming.TemplateTemplateParameterCase: CamelCase
+    readability-identifier-naming.TypeTemplateParameterCase: CamelCase
+    readability-identifier-naming.ValueTemplateParameterCase: CamelCase
+    readability-trailing-comma.MultiLineCommaPolicy: Remove

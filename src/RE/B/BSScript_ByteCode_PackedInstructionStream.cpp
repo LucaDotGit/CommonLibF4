@@ -4,28 +4,33 @@
 
 namespace RE::BSScript::ByteCode
 {
-	std::uint32_t PackedInstructionStream::GetInstructionByteSize() const noexcept
+	auto PackedInstructionStream::GetInstructionByteSize() const noexcept -> std::uint32_t
 	{
 		return (numInstructionBits + 7) / 8;
 	}
 
-	PackedInstructionStream PackedInstructionStream::CopyInstructionStream() const
+	auto PackedInstructionStream::Clone() const -> PackedInstructionStream
 	{
-		auto result = PackedInstructionStream();
-		result.numInstructionBits = numInstructionBits;
-		result.jumpTargetBitCount = jumpTargetBitCount;
-		result.localVariableBitCount = localVariableBitCount;
-		result.memberVariableBitCount = memberVariableBitCount;
-		result.instructions = nullptr;
+		auto result = PackedInstructionStream{
+			.numInstructionBits = numInstructionBits,
+			.jumpTargetBitCount = jumpTargetBitCount,
+			.localVariableBitCount = localVariableBitCount,
+			.memberVariableBitCount = memberVariableBitCount,
+			.instructions = nullptr
+		};
 
-		const auto byteSize = GetInstructionByteSize();
-		if (byteSize == 0 || !instructions) {
+		if (!instructions) {
 			return result;
 		}
 
-		auto* newInstructions = calloc<std::byte>(byteSize);
+		const auto byteSize = GetInstructionByteSize();
+		if (byteSize == 0) {
+			return result;
+		}
+
+		auto* newInstructions = malloc<std::byte>(byteSize);
 		if (!newInstructions) [[unlikely]] {
-			throw std::bad_alloc();
+			REX::Throw<std::bad_alloc>();
 		}
 
 		std::copy_n(instructions, byteSize, newInstructions);
